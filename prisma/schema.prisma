@@ -41,15 +41,17 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  id            String            @id @default(auto()) @map("_id") @db.ObjectId
   name          String?
-  email         String?   @unique
+  email         String?           @unique
   emailVerified DateTime?
   image         String?
   phone         String
-  Role          Role
+  role          Role
   accounts      Account[]
   sessions      Session[]
+  orders        Order[]
+  addresses     CustomerAddress[]
 }
 
 model VerificationToken {
@@ -71,7 +73,8 @@ model CustomerAddress {
   code        String
   phone       String
 
-  // TODO add user relationship
+  user   User?   @relation(fields: [userId], references: [id])
+  userId String? @db.ObjectId
 }
 
 model Cake {
@@ -81,7 +84,9 @@ model Cake {
   price    Float
   isActive Boolean
 
-  // TODO add variants relationship
+  variants   Variant[]   @relation(fields: [variantIds], references: [id])
+  orderItems OrderItem[]
+  variantIds String[]    @db.ObjectId
 }
 
 model CustomCake {
@@ -93,7 +98,9 @@ model CustomCake {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // TODO add variants relationship
+  variants   Variant[]   @relation(fields: [variantIds], references: [id])
+  orderItems OrderItem[]
+  variantIds String[]    @db.ObjectId
 }
 
 model Variant {
@@ -106,8 +113,10 @@ model Variant {
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 
-  // TODO add cake relationship
-  // TODO add custom cake relationship
+  cakes         Cake[]       @relation(fields: [cakeIds], references: [id])
+  customCakes   CustomCake[] @relation(fields: [customCakeIds], references: [id])
+  cakeIds       String[]     @db.ObjectId
+  customCakeIds String[]     @db.ObjectId
 }
 
 model Snack {
@@ -124,13 +133,15 @@ model Snack {
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
 
-  // TODO add snack box relationship
+  snackBox   SnackBox?   @relation(fields: [snackBoxId], references: [id])
+  snackBoxId String?     @db.ObjectId
+  orderItems OrderItem[]
 }
 
 model SnackBox {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-
-  // TODO add snack relationship
+  id         String      @id @default(auto()) @map("_id") @db.ObjectId
+  snacks     Snack[]
+  orderItems OrderItem[]
 }
 
 model Order {
@@ -147,21 +158,30 @@ model Order {
   orderedAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
-  // TODO add order items relationship
-  // TODO add user relationship
-  // TODO add discount relationship
+  user       User?       @relation(fields: [userId], references: [id])
+  payment    Payment     @relation(fields: [paymentId], references: [id])
+  discount   Discount    @relation(fields: [discountId], references: [id])
+  userId     String?     @db.ObjectId
+  paymentId  String      @db.ObjectId
+  discountId String      @db.ObjectId
+  orderItems OrderItem[]
 }
 
-model OrderItems {
+model OrderItem {
   id    String @id @default(auto()) @map("_id") @db.ObjectId
   qty   Int
   price Float
 
-  // TODO add cake relationship
-  // TODO add custom cake relationship
-  // TODO add snack relationship
-  // TODO add snack box relationship
-  // TODO add order relationship
+  cake         Cake       @relation(fields: [cakeId], references: [id])
+  customCake   CustomCake @relation(fields: [customCakeId], references: [id])
+  snack        Snack      @relation(fields: [snackId], references: [id])
+  snackBox     SnackBox   @relation(fields: [snackBoxId], references: [id])
+  order        Order?     @relation(fields: [orderId], references: [id])
+  cakeId       String     @db.ObjectId
+  snackId      String     @db.ObjectId
+  customCakeId String     @db.ObjectId
+  snackBoxId   String     @db.ObjectId
+  orderId      String?    @db.ObjectId
 }
 
 model Payment {
@@ -172,8 +192,7 @@ model Payment {
   status    PaymentStatus
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
-
-  // TODO add order relationship
+  order     Order[]
 }
 
 model Discount {
@@ -184,8 +203,7 @@ model Discount {
   isActive  Boolean
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  // TODO add user relationship
+  order     Order[]
 }
 
 // Enum
