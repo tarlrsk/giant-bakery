@@ -9,3 +9,245 @@ datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
 }
+
+// Model - Auth
+
+model Account {
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String  @db.ObjectId
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.String
+  access_token      String? @db.String
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.String
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  sessionToken String   @unique
+  userId       String   @db.ObjectId
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  phone         String
+  Role          Role
+  accounts      Account[]
+  sessions      Session[]
+}
+
+model VerificationToken {
+  identifier String   @id @default(auto()) @map("_id") @db.ObjectId
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// Model - System
+
+model CustomerAddress {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  address     String
+  district    String
+  subDistrict String
+  province    String
+  code        String
+  phone       String
+
+  // TODO add user relationship
+}
+
+model Cake {
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  name     String
+  type     CakeType
+  price    Float
+  isActive Boolean
+
+  // TODO add variants relationship
+}
+
+model CustomCake {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  type      CakeType @default(CUSTOM)
+  price     Float
+  isActive  Boolean
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // TODO add variants relationship
+}
+
+model Variant {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  image       String?
+  type        VariantType
+  isActive    Boolean
+  isVisualize Boolean
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // TODO add cake relationship
+  // TODO add custom cake relationship
+}
+
+model Snack {
+  id        String        @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  image     String?
+  category  SnackCategory
+  status    StockStatus
+  minQty    Int
+  maxQty    Int
+  currQty   Int
+  price     Float
+  isActive  Boolean
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  // TODO add snack box relationship
+}
+
+model SnackBox {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  // TODO add snack relationship
+}
+
+model Order {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  weight      Float
+  width       Float
+  length      Float
+  height      Float
+  price       Float
+  type        OrderType
+  delivery    DeliveryType
+  receivedVia ReceivedVia
+  status      OrderStatus
+  orderedAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  // TODO add order items relationship
+  // TODO add user relationship
+  // TODO add discount relationship
+}
+
+model OrderItems {
+  id    String @id @default(auto()) @map("_id") @db.ObjectId
+  qty   Int
+  price Float
+
+  // TODO add cake relationship
+  // TODO add custom cake relationship
+  // TODO add snack relationship
+  // TODO add snack box relationship
+  // TODO add order relationship
+}
+
+model Payment {
+  id        String        @id @default(auto()) @map("_id") @db.ObjectId
+  amount    Float
+  provider  String
+  type      PaymentType
+  status    PaymentStatus
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  // TODO add order relationship
+}
+
+model Discount {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  desc      String
+  pct       String // percentage
+  isActive  Boolean
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // TODO add user relationship
+}
+
+// Enum
+
+enum Role {
+  CUSTOMER
+  ADMIN
+}
+
+enum SnackCategory {
+  BAKERY
+  BEVERAGE
+}
+
+enum CakeType {
+  CUSTOM
+  PRESET
+}
+
+enum VariantType {
+  BASE
+  FILLINGS
+  FROSTINGS
+  CREAM
+}
+
+enum StockStatus {
+  IN_STOCK
+  LOW
+  OUT_OF_STOCK
+}
+
+enum OrderType {
+  WHOLESALE
+  RETAIL
+}
+
+enum ReceivedVia {
+  PICK_UP
+  DELIVERY
+}
+
+enum DeliveryType {
+  NORMAL
+  CONTROL // Temprature control.
+}
+
+enum OrderStatus {
+  PENDING_ORDER
+  ON_PROCESS
+  PENDING_PAYMENT
+  PENDING_DELIVERY
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentType {
+  FULL_PAYMENT
+  PARTIAL_PAYMENT
+}
+
+enum PaymentStatus {
+  COMPLETE
+  INCOMPLETE
+}
