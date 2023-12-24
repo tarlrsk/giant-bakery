@@ -47,7 +47,7 @@ model User {
   emailVerified DateTime?
   image         String?
   phone         String?
-  role          Role
+  role          Role              @default(CUSTOMER)
   accounts      Account[]
   sessions      Session[]
   orders        Order[]
