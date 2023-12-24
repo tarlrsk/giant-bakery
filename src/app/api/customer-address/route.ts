@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/prisma/client";
-import { createAddressSchema } from "./types";
+
+import { createAddressSchema } from "../../validationSchemas";
 
 // ----------------------------------------------------------------------
 
@@ -9,19 +10,23 @@ export async function POST(req: NextRequest) {
     return new NextResponse(null, { status: 404, statusText: "Not Found" });
 
   try {
-    const { address, district, subDistrict, province, code, phone } =
-      await req.json();
+    const body = await req.json();
+    const validation = createAddressSchema.safeParse(body);
 
-    // const newAddress = await prisma.customerAddress.create({
-    //     data: {address, district, subDistrict, province, code, phone}
-    // })
+    if (!validation.success) {
+      return NextResponse.json(validation.error.format(), { status: 400 });
+    }
 
-    console.log("req:", address, district, subDistrict, province, code);
+    const newAddress = await prisma.customerAddress.create({
+      data: body,
+    });
 
-    return NextResponse.json({ message: "Successful" }, { status: 201 });
+    return NextResponse.json(newAddress, { status: 201 });
   } catch (err) {
     return NextResponse.json(
-      { message: "An error occurred while signing up." },
+      {
+        message: "Something went wrong",
+      },
       { status: 500 },
     );
   }
