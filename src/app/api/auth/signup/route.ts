@@ -3,7 +3,8 @@ import {
   emailValidationSchema,
   passwordValidationSchema,
 } from "@/lib/validation-schema";
-import { NextRequest, NextResponse } from "next/server";
+import { responseWrapper } from "@/utils/api-response-wrapper";
+import { NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
   const { name, email, password } = await req.json();
@@ -12,12 +13,7 @@ export async function POST(req: NextRequest) {
   const validatedPassword = passwordValidationSchema.safeParse(password);
 
   if (!validatedEmail.success || !validatedPassword.success) {
-    return NextResponse.json(
-      {
-        error: { message: "Invalid email or password format" },
-      },
-      { status: 400 }
-    );
+    return responseWrapper(400, null, "Invalid email or password format.");
   }
 
   try {
@@ -30,10 +26,7 @@ export async function POST(req: NextRequest) {
 
     // validate existed user.
     if (existedUser) {
-      return NextResponse.json(
-        { error: { message: "User already exists." } },
-        { status: 409 }
-      );
+      return responseWrapper(409, null, "User already exists");
     }
 
     const hashedPassword = await bcrypt.hash(password, saltRound);
@@ -46,17 +39,12 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return NextResponse.json(
-      { message: "Signed up successfully.", newUser },
-      { status: 201 }
-    );
-  } catch (err) {
-    console.log(err);
-    return NextResponse.json(
-      {
-        message: "Something went wrong.",
-      },
-      { status: 500 }
+    return responseWrapper(201, newUser, null);
+  } catch (err: any) {
+    return responseWrapper(
+      500,
+      null,
+      `Something went wrong.\n Error: ${err.message}`
     );
   }
 }
