@@ -28,6 +28,7 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
   },
+  // TODO create page
   // pages: {
   //   signIn: "/",
   // },
@@ -35,14 +36,39 @@ export const authOptions: NextAuthOptions = {
     Credentials({
       name: "Credentials",
       credentials: {
-        username: { label: "Username", type: "text", placeholder: "username" },
-        email: { label: "Email", type: "email", placeholder: "email" },
+        name: { label: "Name", type: "text", placeholder: "John Doe" },
+        email: { label: "Email", type: "email", placeholder: "john@gmail.com" },
         password: { label: "Password", type: "password" },
+        confirmPassword: { label: "Password Confirmation", type: "password" },
       },
-
-      // TODO authorization
       async authorize(credentials, req) {
-        throw new Error("Not implemented");
+        const bcrypt = require("bcrypt");
+
+        const user = await prisma.user.findUnique({
+          where: { email: credentials?.email },
+        });
+
+        const confirmedPassword =
+          credentials?.password === credentials?.confirmPassword;
+
+        if (!confirmedPassword) {
+          throw new Error("Password does not match");
+        }
+
+        const correctPassword = await bcrypt.compare(
+          credentials?.password || "",
+          user?.hashedPassword
+        );
+
+        if (correctPassword) {
+          return {
+            id: user?.id || "",
+            name: user?.name || "",
+            email: user?.email || "",
+          };
+        }
+
+        return null;
       },
     }),
     Facebook({
@@ -55,6 +81,7 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   secret: NEXTAUTH_SECRET,
+  debug: process.env.NODE_ENV === "development",
   callbacks: {
     // fixing a bug in next-auth to assign id to user after signed in.
     async session({ session, user }: any) {
