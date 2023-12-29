@@ -12,9 +12,13 @@ export async function POST(req: NextRequest) {
 
     if (name === null || name === "") {
       return responseWrapper(400, null, "Name is required.");
-    } else if (email === null || email === "") {
+    }
+
+    if (email === null || email === "") {
       return responseWrapper(400, null, "Email is required.");
-    } else if (password === null || password === "") {
+    }
+
+    if (password === null || password === "") {
       return responseWrapper(400, null, "Password is required.");
     }
 
