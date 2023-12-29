@@ -7,16 +7,24 @@ import { responseWrapper } from "@/utils/api-response-wrapper";
 import { NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
-  const { name, email, password } = await req.json();
-
-  const validatedEmail = emailValidationSchema.safeParse(email);
-  const validatedPassword = passwordValidationSchema.safeParse(password);
-
-  if (!validatedEmail.success || !validatedPassword.success) {
-    return responseWrapper(400, null, "Invalid email or password format.");
-  }
-
   try {
+    const { name, email, password } = await req.json();
+
+    if (name === null || name === "") {
+      return responseWrapper(400, null, "Name is required.");
+    } else if (email === null || email === "") {
+      return responseWrapper(400, null, "Email is required.");
+    } else if (password === null || password === "") {
+      return responseWrapper(400, null, "Password is required.");
+    }
+
+    const validatedEmail = emailValidationSchema.safeParse(email);
+    const validatedPassword = passwordValidationSchema.safeParse(password);
+
+    if (!validatedEmail.success || !validatedPassword.success) {
+      return responseWrapper(400, null, "Invalid email or password format.");
+    }
+
     const bcrypt = require("bcrypt");
     const saltRound = 10;
 
@@ -44,7 +52,7 @@ export async function POST(req: NextRequest) {
     return responseWrapper(
       500,
       null,
-      `Something went wrong.\n Error: ${err.message}`
+      `Something went wrong./n Error: ${err.message}`
     );
   }
 }
