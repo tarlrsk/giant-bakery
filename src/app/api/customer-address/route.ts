@@ -1,33 +1,32 @@
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/prisma/client";
+import { NextRequest } from "next/server";
+import { prisma } from "@/lib/prisma";
 
-import { createAddressSchema } from "../../validationSchemas";
+import { responseWrapper } from "@/utils/api-response-wrapper";
+import { createAddressSchema } from "@/lib/validation-schema";
 
 // ----------------------------------------------------------------------
 
 export async function POST(req: NextRequest) {
-  if (req.method !== "POST")
-    return new NextResponse(null, { status: 404, statusText: "Not Found" });
+  if (req.method !== "POST") return responseWrapper(400, null, "Not Found");
 
   try {
     const body = await req.json();
     const validation = createAddressSchema.safeParse(body);
 
     if (!validation.success) {
-      return NextResponse.json(validation.error.format(), { status: 400 });
+      return responseWrapper(400, null, validation.error.format());
     }
 
     const newAddress = await prisma.customerAddress.create({
       data: body,
     });
 
-    return NextResponse.json(newAddress, { status: 201 });
-  } catch (err) {
-    return NextResponse.json(
-      {
-        message: "Something went wrong",
-      },
-      { status: 500 },
+    return responseWrapper(201, newAddress, null);
+  } catch (err: any) {
+    return responseWrapper(
+      500,
+      null,
+      `Something went wrong.\n Error: ${err.message}`,
     );
   }
 }

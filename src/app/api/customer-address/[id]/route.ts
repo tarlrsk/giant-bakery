@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/prisma/client";
+import { NextRequest } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { responseWrapper } from "@/utils/api-response-wrapper";
 
 // ----------------------------------------------------------------------
 
@@ -10,17 +11,16 @@ export async function GET(
   const uid: string = params.id;
   try {
     const userAddresses = await prisma.customerAddress.findUnique({
-      // TODO: This should be userId, currently it is addressId which is only for testing purposes
+      // TODO: This should be userId. Currently userId is nullable, so it is addressId only for testing purposes
       // where: { userId: uid},
       where: { id: uid },
     });
-    return NextResponse.json(userAddresses);
-  } catch (err) {
-    return NextResponse.json(
-      {
-        message: "Something went wrong",
-      },
-      { status: 500 },
+    return responseWrapper(200, userAddresses, null);
+  } catch (err: any) {
+    return responseWrapper(
+      500,
+      null,
+      `Something went wrong.\n Error: ${err.message}`,
     );
   }
 }
@@ -38,13 +38,12 @@ export async function PUT(
       where: { id: addressId },
       data: body,
     });
-    return NextResponse.json(updated);
-  } catch (err) {
-    return NextResponse.json(
-      {
-        message: "Something went wrong",
-      },
-      { status: 500 },
+    return responseWrapper(200, updated, null);
+  } catch (err: any) {
+    return responseWrapper(
+      500,
+      null,
+      `Something went wrong.\n Error: ${err.message}`,
     );
   }
 }
@@ -59,13 +58,12 @@ export async function DELETE(
     const deleted = await prisma.customerAddress.delete({
       where: { id: addressId },
     });
-    return NextResponse.json(deleted);
-  } catch (err) {
-    return NextResponse.json(
-      {
-        message: "Something went wrong",
-      },
-      { status: 500 },
+    return responseWrapper(200, deleted, null);
+  } catch (err: any) {
+    return responseWrapper(
+      500,
+      null,
+      `Something went wrong.\n Error: ${err.message}`,
     );
   }
 }
