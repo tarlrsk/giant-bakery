@@ -10,15 +10,15 @@ export async function POST(req: NextRequest) {
   try {
     const { name, email, password } = await req.json();
 
-    if (name === null || name === "") {
+    if (!name?.trim()) {
       return responseWrapper(400, null, "Name is required.");
     }
 
-    if (email === null || email === "") {
+    if (!email?.trim()) {
       return responseWrapper(400, null, "Email is required.");
     }
 
-    if (password === null || password === "") {
+    if (!password?.trim()) {
       return responseWrapper(400, null, "Password is required.");
     }
 
