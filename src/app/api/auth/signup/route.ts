@@ -9,17 +9,28 @@ import { NextRequest } from "next/server";
 // ----------------------------------------------------------------------
 
 export async function POST(req: NextRequest) {
-  // TODO: Consider these lines to be in try catch block to avoid unexpected errors
-  const { name, email, password } = await req.json();
-
-  const validatedEmail = emailValidationSchema.safeParse(email);
-  const validatedPassword = passwordValidationSchema.safeParse(password);
-
-  if (!validatedEmail.success || !validatedPassword.success) {
-    return responseWrapper(400, null, "Invalid email or password format.");
-  }
-
   try {
+    const { name, email, password } = await req.json();
+
+    if (!name?.trim()) {
+      return responseWrapper(400, null, "Name is required.");
+    }
+
+    if (!email?.trim()) {
+      return responseWrapper(400, null, "Email is required.");
+    }
+
+    if (!password?.trim()) {
+      return responseWrapper(400, null, "Password is required.");
+    }
+
+    const validatedEmail = emailValidationSchema.safeParse(email);
+    const validatedPassword = passwordValidationSchema.safeParse(password);
+
+    if (!validatedEmail.success || !validatedPassword.success) {
+      return responseWrapper(400, null, "Invalid email or password format.");
+    }
+
     const bcrypt = require("bcrypt");
     const saltRound = 10;
 
@@ -47,7 +58,7 @@ export async function POST(req: NextRequest) {
     return responseWrapper(
       500,
       null,
-      `Something went wrong.\n Error: ${err.message}`,
+      `Something went wrong./n Error: ${err.message}`,
     );
   }
 }

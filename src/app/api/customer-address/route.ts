@@ -7,8 +7,6 @@ import { createAddressSchema } from "@/lib/validation-schema";
 // ----------------------------------------------------------------------
 
 export async function POST(req: NextRequest) {
-  if (req.method !== "POST") return responseWrapper(400, null, "Not Found");
-
   try {
     const body = await req.json();
     const validation = createAddressSchema.safeParse(body);
@@ -26,7 +24,7 @@ export async function POST(req: NextRequest) {
     return responseWrapper(
       500,
       null,
-      `Something went wrong.\n Error: ${err.message}`,
+      `Something went wrong./n Error: ${err.message}`,
     );
   }
 }

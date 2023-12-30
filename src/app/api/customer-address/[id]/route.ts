@@ -11,16 +11,15 @@ export async function GET(
   const uid: string = params.id;
   try {
     const userAddresses = await prisma.customerAddress.findUnique({
-      // TODO: This should be userId. Currently userId is nullable, so it is addressId only for testing purposes
-      // where: { userId: uid},
-      where: { id: uid },
+      // FIXME: what is happening here
+      where: { userId: uid },
     });
     return responseWrapper(200, userAddresses, null);
   } catch (err: any) {
     return responseWrapper(
       500,
       null,
-      `Something went wrong.\n Error: ${err.message}`,
+      `Something went wrong./n Error: ${err.message}`,
     );
   }
 }
@@ -43,7 +42,7 @@ export async function PUT(
     return responseWrapper(
       500,
       null,
-      `Something went wrong.\n Error: ${err.message}`,
+      `Something went wrong./n Error: ${err.message}`,
     );
   }
 }
@@ -63,7 +62,7 @@ export async function DELETE(
     return responseWrapper(
       500,
       null,
-      `Something went wrong.\n Error: ${err.message}`,
+      `Something went wrong./n Error: ${err.message}`,
     );
   }
 }

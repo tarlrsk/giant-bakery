@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+// ----------------------------------------------------------------------
+
 interface APIResponse {
   success: boolean;
   status?: number | 500;
@@ -8,10 +10,12 @@ interface APIResponse {
   error?: string | object;
 }
 
+// ----------------------------------------------------------------------
+
 export const responseWrapper = (
   statusCode: number,
   data: any | null,
-  error: string | object | null
+  error: string | object | null,
 ) => {
   const response: APIResponse = {
     success: !error,
