@@ -75,7 +75,7 @@ model CustomerAddress {
   phone       String
 
   user   User   @relation(fields: [userId], references: [id])
-  userId String @db.ObjectId
+  userId String @unique @db.ObjectId
 }
 
 model Cake {
@@ -162,7 +162,7 @@ model Order {
   user       User        @relation(fields: [userId], references: [id])
   payment    Payment     @relation(fields: [paymentId], references: [id])
   discount   Discount    @relation(fields: [discountId], references: [id])
-  userId     String      @db.ObjectId
+  userId     String      @unique @db.ObjectId
   paymentId  String      @db.ObjectId
   discountId String      @db.ObjectId
   orderItems OrderItem[]
