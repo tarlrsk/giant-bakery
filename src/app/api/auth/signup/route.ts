@@ -6,6 +6,8 @@ import {
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { NextRequest } from "next/server";
 
+// ----------------------------------------------------------------------
+
 export async function POST(req: NextRequest) {
   try {
     const { name, email, password } = await req.json();
@@ -56,7 +58,7 @@ export async function POST(req: NextRequest) {
     return responseWrapper(
       500,
       null,
-      `Something went wrong./n Error: ${err.message}`
+      `Something went wrong./n Error: ${err.message}`,
     );
   }
 }
