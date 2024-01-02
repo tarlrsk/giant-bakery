@@ -4,40 +4,35 @@ import { responseWrapper } from "@/utils/api-response-wrapper";
 
 // ----------------------------------------------------------------------
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { id: string } },
-) {
-  const uid: string = params.id;
-  try {
-    const userAddresses = await prisma.customerAddress.findUnique({
-      // FIXME: what is happening here
-      where: { userId: uid },
-    });
-    return responseWrapper(200, userAddresses, null);
-  } catch (err: any) {
-    return responseWrapper(
-      500,
-      null,
-      `Something went wrong./n Error: ${err.message}`,
-    );
-  }
-}
+type GetAddressByIdParams = {
+  params: {
+    id: string;
+  };
+};
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: { id: string } },
-) {
-  const addressId: string = params.id;
-
+export async function PUT(req: NextRequest, { params }: GetAddressByIdParams) {
   try {
+    const addressId = params.id;
     const body = await req.json();
 
-    const updated = await prisma.customerAddress.update({
+    const address = await prisma.customerAddress.findUnique({
       where: { id: addressId },
+    });
+
+    if (!address) {
+      return responseWrapper(
+        404,
+        null,
+        `Addresss with given id ${params.id} not found.`,
+      );
+    }
+
+    const updatedAddress = await prisma.customerAddress.update({
+      where: { id: address.id },
       data: body,
     });
-    return responseWrapper(200, updated, null);
+
+    return responseWrapper(200, updatedAddress, null);
   } catch (err: any) {
     return responseWrapper(
       500,
@@ -47,17 +42,27 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { id: string } },
-) {
-  const addressId: string = params.id;
-
+export async function DELETE({ params }: GetAddressByIdParams) {
   try {
-    const deleted = await prisma.customerAddress.delete({
+    const addressId = params.id;
+
+    const address = prisma.customerAddress.findUnique({
       where: { id: addressId },
     });
-    return responseWrapper(200, deleted, null);
+
+    if (!address) {
+      return responseWrapper(
+        404,
+        null,
+        `Addresss with given id ${params.id} not found.`,
+      );
+    }
+
+    await prisma.customerAddress.delete({
+      where: { id: addressId },
+    });
+
+    return responseWrapper(200, null, null);
   } catch (err: any) {
     return responseWrapper(
       500,
