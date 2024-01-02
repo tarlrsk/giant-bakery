@@ -1,6 +1,6 @@
-import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { responseWrapper } from "@/utils/api-response-wrapper";
+import { NextRequest } from "next/server";
 
 // ----------------------------------------------------------------------
 
@@ -10,16 +10,23 @@ type GetAddressByUserIdProps = {
   };
 };
 
-export async function GET({ params }: GetAddressByUserIdProps) {
+export async function GET(
+  _req: NextRequest,
+  { params }: GetAddressByUserIdProps,
+) {
   try {
     const { userId } = params;
 
-    const userAddresses = await prisma.customerAddress.findUnique({
+    const userAddresses = await prisma.customerAddress.findMany({
       where: { userId: userId },
     });
 
     if (!userAddresses) {
-      return responseWrapper(404, null, "This user contains no addresses.");
+      return responseWrapper(
+        404,
+        null,
+        `The user with given id ${userId} does not have any addresses.`,
+      );
     }
 
     return responseWrapper(200, userAddresses, null);
