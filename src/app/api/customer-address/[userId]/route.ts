@@ -15,7 +15,7 @@ export async function GET({ params }: GetAddressByUserIdProps) {
     const { userId } = params;
 
     const userAddresses = await prisma.customerAddress.findUnique({
-      where: { userId },
+      where: { userId: userId },
     });
 
     if (!userAddresses) {
