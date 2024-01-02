@@ -7,28 +7,39 @@ import { responseWrapper } from "@/utils/api-response-wrapper";
 type GetAddressByIdProps = {
   params: {
     id: string;
+    userId: string;
   };
 };
 
 export async function PUT(req: NextRequest, { params }: GetAddressByIdProps) {
   try {
-    const addressId = params.id;
+    const { id, userId } = params;
     const body = await req.json();
 
-    const address = await prisma.customerAddress.findUnique({
-      where: { id: addressId },
+    const userAddresses = await prisma.customerAddress.findMany({
+      where: { userId: userId },
     });
+
+    if (!userAddresses) {
+      return responseWrapper(
+        404,
+        null,
+        `The user with given id ${userId} does not have any addresses.`,
+      );
+    }
+
+    const address = userAddresses.find((address) => address.id === id);
 
     if (!address) {
       return responseWrapper(
         404,
         null,
-        `Addresss with given id ${params.id} not found.`,
+        `Addresss with given id ${id} not found.`,
       );
     }
 
     const updatedAddress = await prisma.customerAddress.update({
-      where: { id: address.id },
+      where: { id: id },
       data: body,
     });
 
@@ -42,24 +53,37 @@ export async function PUT(req: NextRequest, { params }: GetAddressByIdProps) {
   }
 }
 
-export async function DELETE({ params }: GetAddressByIdProps) {
+export async function DELETE(
+  _req: NextRequest,
+  { params }: GetAddressByIdProps,
+) {
   try {
-    const addressId = params.id;
+    const { id, userId } = params;
 
-    const address = prisma.customerAddress.findUnique({
-      where: { id: addressId },
+    const userAddresses = await prisma.customerAddress.findMany({
+      where: { userId: userId },
     });
+
+    if (!userAddresses) {
+      return responseWrapper(
+        404,
+        null,
+        `The user with given id ${userId} does not have any addresses.`,
+      );
+    }
+
+    const address = userAddresses.find((address) => address.id === id);
 
     if (!address) {
       return responseWrapper(
         404,
         null,
-        `Addresss with given id ${params.id} not found.`,
+        `Addresss with given id ${id} not found.`,
       );
     }
 
     await prisma.customerAddress.delete({
-      where: { id: addressId },
+      where: { id: id },
     });
 
     return responseWrapper(200, null, null);

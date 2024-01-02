@@ -19,7 +19,7 @@ export const passwordValidationSchema = z
 
 // Customer Address ----------------------------------------------------------------------
 
-export const createAddressSchema = z.object({
+export const customerAddressValidationSchema = z.object({
   address: z.string().min(1).max(255),
   district: z.string().min(1),
   subDistrict: z.string().min(1),

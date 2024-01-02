@@ -10,7 +10,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Model - Auth
+// Auth Model ----------------------------------------------------------------------
 
 model Account {
   id                String  @id @default(auto()) @map("_id") @db.ObjectId
@@ -63,7 +63,7 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-// Model - System
+// System Model ----------------------------------------------------------------------
 
 model CustomerAddress {
   id          String @id @default(auto()) @map("_id") @db.ObjectId
