@@ -4,13 +4,13 @@ import { responseWrapper } from "@/utils/api-response-wrapper";
 
 // ----------------------------------------------------------------------
 
-type GetAddressByUserIdParams = {
+type GetAddressByUserIdProps = {
   params: {
     userId: string;
   };
 };
 
-export async function GET({ params }: GetAddressByUserIdParams) {
+export async function GET({ params }: GetAddressByUserIdProps) {
   try {
     const { userId } = params;
 

@@ -4,13 +4,13 @@ import { responseWrapper } from "@/utils/api-response-wrapper";
 
 // ----------------------------------------------------------------------
 
-type GetAddressByIdParams = {
+type GetAddressByIdProps = {
   params: {
     id: string;
   };
 };
 
-export async function PUT(req: NextRequest, { params }: GetAddressByIdParams) {
+export async function PUT(req: NextRequest, { params }: GetAddressByIdProps) {
   try {
     const addressId = params.id;
     const body = await req.json();
@@ -42,7 +42,7 @@ export async function PUT(req: NextRequest, { params }: GetAddressByIdParams) {
   }
 }
 
-export async function DELETE({ params }: GetAddressByIdParams) {
+export async function DELETE({ params }: GetAddressByIdProps) {
   try {
     const addressId = params.id;
 
