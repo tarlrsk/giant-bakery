@@ -12,11 +12,11 @@ type GetAddressByIdProps = {
 
 export async function PUT(req: NextRequest, { params }: GetAddressByIdProps) {
   try {
-    const addressId = params.id;
+    const { id } = params;
     const body = await req.json();
 
     const address = await prisma.customerAddress.findUnique({
-      where: { id: addressId },
+      where: { id: id },
     });
 
     if (!address) {
@@ -44,10 +44,10 @@ export async function PUT(req: NextRequest, { params }: GetAddressByIdProps) {
 
 export async function DELETE({ params }: GetAddressByIdProps) {
   try {
-    const addressId = params.id;
+    const { id } = params;
 
     const address = prisma.customerAddress.findUnique({
-      where: { id: addressId },
+      where: { id: id },
     });
 
     if (!address) {
@@ -59,7 +59,7 @@ export async function DELETE({ params }: GetAddressByIdProps) {
     }
 
     await prisma.customerAddress.delete({
-      where: { id: addressId },
+      where: { id: id },
     });
 
     return responseWrapper(200, null, null);
