@@ -87,7 +87,7 @@ export async function POST(
         province,
         postcode,
         phone,
-        userId: customerId,
+        userId: customer.id,
       },
     });
 

@@ -60,11 +60,11 @@ export async function DELETE(
   try {
     const { id, customerId } = params;
 
-    const userAddresses = await prisma.customerAddress.findMany({
+    const customerAddresses = await prisma.customerAddress.findMany({
       where: { userId: customerId },
     });
 
-    if (!userAddresses) {
+    if (!customerAddresses) {
       return responseWrapper(
         404,
         null,
@@ -72,7 +72,7 @@ export async function DELETE(
       );
     }
 
-    const address = userAddresses.find((address) => address.id === id);
+    const address = customerAddresses.find((address) => address.id === id);
 
     if (!address) {
       return responseWrapper(
