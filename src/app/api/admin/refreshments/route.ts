@@ -59,6 +59,7 @@ export async function POST(req: NextRequest) {
     const newRefreshment = await prisma.refreshment.create({
       data: {
         name: name,
+        imageFileName: imageFileName,
         image: imageUrl,
         category: category,
         status: status,
