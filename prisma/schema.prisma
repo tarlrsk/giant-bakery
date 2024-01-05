@@ -122,18 +122,19 @@ model Variant {
 }
 
 model Refreshment {
-  id        String              @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  image     String?
-  category  RefreshmentCategory
-  status    StockStatus
-  minQty    Int
-  maxQty    Int
-  currQty   Int
-  price     Float
-  isActive  Boolean
-  createdAt DateTime            @default(now())
-  updatedAt DateTime            @updatedAt
+  id            String              @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  imageFileName String?
+  image         String?
+  category      RefreshmentCategory
+  status        StockStatus
+  minQty        Int
+  maxQty        Int
+  currQty       Int
+  price         Float
+  isActive      Boolean
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
 
   snackBox   SnackBox?   @relation(fields: [snackBoxId], references: [id])
   snackBoxId String?     @db.ObjectId
