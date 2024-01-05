@@ -17,8 +17,6 @@ export function middleware(request: NextRequest) {
     });
   }
 
-  console.log("Middleware!");
-
   console.log(request.method);
   console.log(request.url);
 
