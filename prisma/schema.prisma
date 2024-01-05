@@ -69,9 +69,9 @@ model CustomerAddress {
   id          String @id @default(auto()) @map("_id") @db.ObjectId
   address     String
   district    String
-  subDistrict String
+  subdistrict String
   province    String
-  code        String
+  postcode    String
   phone       String
 
   user   User   @relation(fields: [userId], references: [id])
