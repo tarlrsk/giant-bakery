@@ -7,28 +7,28 @@ import { responseWrapper } from "@/utils/api-response-wrapper";
 type GetAddressByIdProps = {
   params: {
     id: string;
-    userId: string;
+    customerId: string;
   };
 };
 
 export async function PUT(req: NextRequest, { params }: GetAddressByIdProps) {
   try {
-    const { id, userId } = params;
+    const { id, customerId } = params;
     const body = await req.json();
 
-    const userAddresses = await prisma.customerAddress.findMany({
-      where: { userId: userId },
+    const customerAddresses = await prisma.customerAddress.findMany({
+      where: { userId: customerId },
     });
 
-    if (!userAddresses) {
+    if (!customerAddresses) {
       return responseWrapper(
         404,
         null,
-        `The user with given id ${userId} does not have any addresses.`,
+        `User with given id ${customerId} does not have any addresses.`,
       );
     }
 
-    const address = userAddresses.find((address) => address.id === id);
+    const address = customerAddresses.find((address) => address.id === id);
 
     if (!address) {
       return responseWrapper(
@@ -58,21 +58,21 @@ export async function DELETE(
   { params }: GetAddressByIdProps,
 ) {
   try {
-    const { id, userId } = params;
+    const { id, customerId } = params;
 
-    const userAddresses = await prisma.customerAddress.findMany({
-      where: { userId: userId },
+    const customerAddresses = await prisma.customerAddress.findMany({
+      where: { userId: customerId },
     });
 
-    if (!userAddresses) {
+    if (!customerAddresses) {
       return responseWrapper(
         404,
         null,
-        `The user with given id ${userId} does not have any addresses.`,
+        `The user with given id ${customerId} does not have any addresses.`,
       );
     }
 
-    const address = userAddresses.find((address) => address.id === id);
+    const address = customerAddresses.find((address) => address.id === id);
 
     if (!address) {
       return responseWrapper(
