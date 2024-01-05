@@ -3,6 +3,7 @@ import { bucket } from "@/lib/gcs/gcs";
 import { getFileUrl } from "@/lib/gcs/getFileUrl";
 import { parseBoolean } from "@/lib/parseBoolean";
 import { prisma } from "@/lib/prisma";
+import { variantValidationSchema } from "@/lib/validation-schema";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import type { VariantType } from "@prisma/client";
 import { NextRequest } from "next/server";
@@ -18,7 +19,9 @@ export async function POST(req: NextRequest) {
     }
 
     const buffer = Buffer.from(await image.arrayBuffer());
-    const imageFileName = `${formatDate(Date.now().toString())}_${image.name}`;
+    const imageFileName = `${formatDate(new Date(Date.now()).toString())}_${
+      image.name
+    }`;
     const gcsFile = bucket.file(imageFileName);
 
     await gcsFile.save(buffer, {
@@ -33,6 +36,17 @@ export async function POST(req: NextRequest) {
     const type = formData.get("type") as VariantType;
     const isActive = parseBoolean(formData.get("isActive") as string);
     const isVisualize = parseBoolean(formData.get("isVisualize") as string);
+
+    const validation = variantValidationSchema.safeParse({
+      name,
+      type,
+      isActive,
+      isVisualize,
+    });
+
+    if (!validation.success) {
+      return responseWrapper(400, null, validation.error.message);
+    }
 
     const newVariant = await prisma.variant.create({
       data: {
