@@ -1,0 +1,272 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// Auth Model ----------------------------------------------------------------------
+
+model Account {
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String  @db.ObjectId
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.String
+  access_token      String? @db.String
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.String
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  sessionToken String   @unique
+  userId       String   @db.ObjectId
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id             String            @id @default(auto()) @map("_id") @db.ObjectId
+  name           String?
+  email          String?           @unique
+  emailVerified  DateTime?
+  hashedPassword String?
+  image          String?
+  phone          String?
+  role           Role              @default(CUSTOMER)
+  accounts       Account[]
+  sessions       Session[]
+  orders         Order[]
+  addresses      CustomerAddress[]
+}
+
+model VerificationToken {
+  identifier String   @id @default(auto()) @map("_id") @db.ObjectId
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// System Model ----------------------------------------------------------------------
+
+model CustomerAddress {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  address     String
+  district    String
+  subdistrict String
+  province    String
+  postcode    String
+  phone       String
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @unique @db.ObjectId
+}
+
+model Cake {
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  name     String
+  type     CakeType
+  price    Float
+  isActive Boolean
+
+  variants   Variant[]   @relation(fields: [variantIds], references: [id])
+  orderItems OrderItem[]
+  variantIds String[]    @db.ObjectId
+}
+
+model CustomCake {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  type      CakeType @default(CUSTOM)
+  price     Float
+  isActive  Boolean
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  variants   Variant[]   @relation(fields: [variantIds], references: [id])
+  orderItems OrderItem[]
+  variantIds String[]    @db.ObjectId
+}
+
+model Variant {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  image       String?
+  type        VariantType
+  isActive    Boolean
+  isVisualize Boolean
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  cakes         Cake[]       @relation(fields: [cakeIds], references: [id])
+  customCakes   CustomCake[] @relation(fields: [customCakeIds], references: [id])
+  cakeIds       String[]     @db.ObjectId
+  customCakeIds String[]     @db.ObjectId
+}
+
+model Snack {
+  id        String        @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  image     String?
+  category  SnackCategory
+  status    StockStatus
+  minQty    Int
+  maxQty    Int
+  currQty   Int
+  price     Float
+  isActive  Boolean
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  snackBox   SnackBox?   @relation(fields: [snackBoxId], references: [id])
+  snackBoxId String?     @db.ObjectId
+  orderItems OrderItem[]
+}
+
+model SnackBox {
+  id         String      @id @default(auto()) @map("_id") @db.ObjectId
+  snacks     Snack[]
+  orderItems OrderItem[]
+}
+
+model Order {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  weight      Float
+  width       Float
+  length      Float
+  height      Float
+  price       Float
+  type        OrderType
+  delivery    DeliveryType
+  receivedVia ReceivedVia
+  status      OrderStatus
+  orderedAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  user       User        @relation(fields: [userId], references: [id])
+  payment    Payment     @relation(fields: [paymentId], references: [id])
+  discount   Discount    @relation(fields: [discountId], references: [id])
+  userId     String      @unique @db.ObjectId
+  paymentId  String      @db.ObjectId
+  discountId String      @db.ObjectId
+  orderItems OrderItem[]
+}
+
+model OrderItem {
+  id    String @id @default(auto()) @map("_id") @db.ObjectId
+  qty   Int
+  price Float
+
+  cake         Cake       @relation(fields: [cakeId], references: [id])
+  customCake   CustomCake @relation(fields: [customCakeId], references: [id])
+  snack        Snack      @relation(fields: [snackId], references: [id])
+  snackBox     SnackBox   @relation(fields: [snackBoxId], references: [id])
+  order        Order?     @relation(fields: [orderId], references: [id])
+  cakeId       String     @db.ObjectId
+  snackId      String     @db.ObjectId
+  customCakeId String     @db.ObjectId
+  snackBoxId   String     @db.ObjectId
+  orderId      String?    @db.ObjectId
+}
+
+model Payment {
+  id        String        @id @default(auto()) @map("_id") @db.ObjectId
+  amount    Float
+  provider  String
+  type      PaymentType
+  status    PaymentStatus
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  order     Order[]
+}
+
+model Discount {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  desc      String
+  pct       String // percentage
+  isActive  Boolean
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  order     Order[]
+}
+
+// Enum
+
+enum Role {
+  CUSTOMER
+  ADMIN
+}
+
+enum SnackCategory {
+  BAKERY
+  BEVERAGE
+}
+
+enum CakeType {
+  CUSTOM
+  PRESET
+}
+
+enum VariantType {
+  BASE
+  FILLINGS
+  FROSTINGS
+  CREAM
+}
+
+enum StockStatus {
+  IN_STOCK
+  LOW
+  OUT_OF_STOCK
+}
+
+enum OrderType {
+  WHOLESALE
+  RETAIL
+}
+
+enum ReceivedVia {
+  PICK_UP
+  DELIVERY
+}
+
+enum DeliveryType {
+  NORMAL
+  CONTROL // Temprature control.
+}
+
+enum OrderStatus {
+  PENDING_ORDER
+  ON_PROCESS
+  PENDING_PAYMENT
+  PENDING_DELIVERY
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentType {
+  FULL_PAYMENT
+  PARTIAL_PAYMENT
+}
+
+enum PaymentStatus {
+  COMPLETE
+  INCOMPLETE
+}
