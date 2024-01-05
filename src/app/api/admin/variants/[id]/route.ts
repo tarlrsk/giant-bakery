@@ -75,9 +75,9 @@ export async function PUT(req: NextRequest, { params }: GetVariantById) {
       await oldImage.delete();
 
       const buffer = Buffer.from(await image.arrayBuffer());
-      const updatedImageFileName = `${formatDate(Date.now().toString())}_${
-        image.name
-      }`;
+      const updatedImageFileName = `${formatDate(
+        new Date(Date.now()).toString(),
+      )}_${image.name}`;
       const gcsFile = bucket.file(updatedImageFileName);
 
       await gcsFile.save(buffer, {
