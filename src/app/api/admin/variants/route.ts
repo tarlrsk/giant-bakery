@@ -51,6 +51,7 @@ export async function POST(req: NextRequest) {
     const newVariant = await prisma.variant.create({
       data: {
         name: name,
+        imageFileName: imageFileName,
         image: imageUrl,
         type: type,
         isActive: isActive,
