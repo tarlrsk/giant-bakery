@@ -48,27 +48,23 @@ export const authOptions: NextAuthOptions = {
           where: { email: credentials?.email },
         });
 
-        const confirmedPassword =
-          credentials?.password === credentials?.confirmPassword;
+        if (!user) return null;
 
-        if (!confirmedPassword) {
-          throw new Error("Password does not match");
-        }
+        // const confirmedPassword =
+        //   credentials?.password === credentials?.confirmPassword;
 
-        const correctPassword = await bcrypt.compare(
+        // if (!confirmedPassword) {
+        //   throw new Error("Password does not match");
+        // }
+
+        const isValidPassword = await bcrypt.compare(
           credentials?.password || "",
-          user?.hashedPassword
+          user?.hashedPassword,
         );
 
-        if (correctPassword) {
-          return {
-            id: user?.id || "",
-            name: user?.name || "",
-            email: user?.email || "",
-          };
-        }
+        if (!isValidPassword) return null;
 
-        return null;
+        return user;
       },
     }),
     Facebook({
@@ -84,12 +80,24 @@ export const authOptions: NextAuthOptions = {
   debug: process.env.NODE_ENV === "development",
   callbacks: {
     // fixing a bug in next-auth to assign id to user after signed in.
-    async session({ session, user }: any) {
+    async session({ session, user, token }: any) {
       if (session && user) {
         session.user.id = user.id;
       }
 
+      session.user.id = token.id;
+
       return session;
+    },
+
+    jwt({ token, account, user }) {
+      if (account) {
+        token.accessToken = account.access_token;
+
+        token.id = user.id;
+      }
+
+      return token;
     },
   },
 };
