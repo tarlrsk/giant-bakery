@@ -11,6 +11,6 @@ export const formatDate = function getCurrentDateFormatted(
   const month = String(parsedDate.getMonth() + 1).padStart(2, "0");
   const day = String(parsedDate.getDate()).padStart(2, "0");
 
-  const formattedDate = `${year}-${month}-${day}`;
+  const formattedDate = `${year}_${month}_${day}`;
   return formattedDate;
 };
