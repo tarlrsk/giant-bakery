@@ -121,19 +121,20 @@ model Variant {
   customCakeIds String[]     @db.ObjectId
 }
 
-model Snack {
-  id        String        @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  image     String?
-  category  SnackCategory
-  status    StockStatus
-  minQty    Int
-  maxQty    Int
-  currQty   Int
-  price     Float
-  isActive  Boolean
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
+model Refreshment {
+  id            String              @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  imageFileName String?
+  image         String?
+  category      RefreshmentCategory
+  status        StockStatus
+  minQty        Int
+  maxQty        Int
+  currQty       Int
+  price         Float
+  isActive      Boolean
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
 
   snackBox   SnackBox?   @relation(fields: [snackBoxId], references: [id])
   snackBoxId String?     @db.ObjectId
@@ -141,8 +142,8 @@ model Snack {
 }
 
 model SnackBox {
-  id         String      @id @default(auto()) @map("_id") @db.ObjectId
-  snacks     Snack[]
+  id         String        @id @default(auto()) @map("_id") @db.ObjectId
+  snacks     Refreshment[]
   orderItems OrderItem[]
 }
 
@@ -174,16 +175,16 @@ model OrderItem {
   qty   Int
   price Float
 
-  cake         Cake       @relation(fields: [cakeId], references: [id])
-  customCake   CustomCake @relation(fields: [customCakeId], references: [id])
-  snack        Snack      @relation(fields: [snackId], references: [id])
-  snackBox     SnackBox   @relation(fields: [snackBoxId], references: [id])
-  order        Order?     @relation(fields: [orderId], references: [id])
-  cakeId       String     @db.ObjectId
-  snackId      String     @db.ObjectId
-  customCakeId String     @db.ObjectId
-  snackBoxId   String     @db.ObjectId
-  orderId      String?    @db.ObjectId
+  cake         Cake        @relation(fields: [cakeId], references: [id])
+  customCake   CustomCake  @relation(fields: [customCakeId], references: [id])
+  snack        Refreshment @relation(fields: [snackId], references: [id])
+  snackBox     SnackBox    @relation(fields: [snackBoxId], references: [id])
+  order        Order?      @relation(fields: [orderId], references: [id])
+  cakeId       String      @db.ObjectId
+  snackId      String      @db.ObjectId
+  customCakeId String      @db.ObjectId
+  snackBoxId   String      @db.ObjectId
+  orderId      String?     @db.ObjectId
 }
 
 model Payment {
@@ -215,7 +216,7 @@ enum Role {
   ADMIN
 }
 
-enum SnackCategory {
+enum RefreshmentCategory {
   BAKERY
   BEVERAGE
 }
