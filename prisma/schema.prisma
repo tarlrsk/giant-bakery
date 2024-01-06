@@ -131,6 +131,10 @@ model Refreshment {
   minQty        Int
   maxQty        Int
   currQty       Int
+  weight        Float
+  height        Float
+  length        Float
+  width         Float
   price         Float
   isActive      Boolean
   createdAt     DateTime            @default(now())
