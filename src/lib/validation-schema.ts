@@ -69,6 +69,10 @@ export const refreshmentValidationSchema = z.object({
   minQty: z.number({ required_error: "Min quantity is required." }),
   maxQty: z.number({ required_error: "Max quantity is required." }),
   currQty: z.number({ required_error: "Current quantity is required." }),
+  weight: z.number().multipleOf(0.01),
+  height: z.number().multipleOf(0.01),
+  length: z.number().multipleOf(0.01),
+  width: z.number().multipleOf(0.01),
   price: z.number().multipleOf(0.01),
   isActive: z.boolean(),
 });
