@@ -95,6 +95,10 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
     const minQty = parseInt(formData.get("minQty") as string);
     const maxQty = parseInt(formData.get("maxQty") as string);
     const currQty = parseInt(formData.get("currQty") as string);
+    const weight = parseFloat(formData.get("weight") as string);
+    const height = parseFloat(formData.get("height") as string);
+    const length = parseFloat(formData.get("length") as string);
+    const width = parseFloat(formData.get("width") as string);
     const price = parseFloat(formData.get("price") as string);
     const isActive = parseBoolean(formData.get("isActive") as string);
     const imageUrl = await getFileUrl(imageFileName);
@@ -106,6 +110,10 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
       minQty,
       maxQty,
       currQty,
+      weight,
+      height,
+      length,
+      width,
       price,
       isActive,
     });
@@ -125,6 +133,10 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
         minQty: minQty,
         maxQty: maxQty,
         currQty: currQty,
+        weight: weight,
+        height: height,
+        length: length,
+        width: width,
         price: price,
         isActive: isActive,
       },
