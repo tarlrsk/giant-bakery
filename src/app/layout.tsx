@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { IBM_Plex_Sans_Thai } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+const ibm = IBM_Plex_Sans_Thai({
+  weight: ["100", "200", "300", "400", "500", "600", "700"],
+  subsets: ["latin", "thai"],
+});
 
 export const metadata: Metadata = {
   title: "Giant Bakery",
@@ -16,7 +19,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <head>
+        <meta charSet="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      </head>
+      <body className={ibm.className}>{children}</body>
     </html>
   );
 }
