@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
     return responseWrapper(
       500,
       null,
-      `Something went wrong./n Error: ${err.message}`,
+      `${err.message}`,
     );
   }
 }
