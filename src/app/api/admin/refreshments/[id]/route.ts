@@ -44,7 +44,7 @@ export async function GET(_req: NextRequest, { params }: GetRefreshmentById) {
     return responseWrapper(
       500,
       null,
-      `Something went wrong./n Error: ${err.message}`,
+      `${err.message}`,
     );
   }
 }
@@ -144,7 +144,7 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
 
     return responseWrapper(200, updatedRefreshment, null);
   } catch (err: any) {
-    return responseWrapper(500, null, `Something went wrong./n ${err.message}`);
+    return responseWrapper(500, null, `Something went wrong.\n ${err.message}`);
   }
 }
 
@@ -177,7 +177,7 @@ export async function DELETE(
     return responseWrapper(
       500,
       null,
-      `Something went wrong./n Error: ${err.message}`,
+      `${err.message}`,
     );
   }
 }

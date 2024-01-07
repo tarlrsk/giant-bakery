@@ -48,7 +48,7 @@ export async function PUT(req: NextRequest, { params }: GetAddressByIdProps) {
     return responseWrapper(
       500,
       null,
-      `Something went wrong./n Error: ${err.message}`,
+      `${err.message}`,
     );
   }
 }
@@ -91,7 +91,7 @@ export async function DELETE(
     return responseWrapper(
       500,
       null,
-      `Something went wrong./n Error: ${err.message}`,
+      `${err.message}`,
     );
   }
 }

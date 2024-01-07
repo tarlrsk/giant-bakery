@@ -47,7 +47,7 @@ export async function GET(
     return responseWrapper(
       500,
       null,
-      `Something went wrong./n Error: ${err.message}.`,
+      `${err.message}.`,
     );
   }
 }
@@ -96,7 +96,7 @@ export async function POST(
     return responseWrapper(
       500,
       null,
-      `Something went wrong./n Error: ${err.message}`,
+      `${err.message}`,
     );
   }
 }
