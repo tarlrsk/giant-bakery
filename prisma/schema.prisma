@@ -111,9 +111,11 @@ model Variant {
   image         String?
   type          VariantType
   isActive      Boolean
-  isVisualize   Boolean
+  isVisualized  Boolean
+  isDeleted     Boolean
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
+  deletedAt     DateTime?
 
   cakes         Cake[]       @relation(fields: [cakeIds], references: [id])
   customCakes   CustomCake[] @relation(fields: [customCakeIds], references: [id])

@@ -35,13 +35,13 @@ export async function POST(req: NextRequest) {
     const name = formData.get("name") as string;
     const type = formData.get("type") as VariantType;
     const isActive = parseBoolean(formData.get("isActive") as string);
-    const isVisualize = parseBoolean(formData.get("isVisualize") as string);
+    const isVisualized = parseBoolean(formData.get("isVisualized") as string);
 
     const validation = variantValidationSchema.safeParse({
       name,
       type,
       isActive,
-      isVisualize,
+      isVisualized,
     });
 
     if (!validation.success) {
@@ -55,7 +55,8 @@ export async function POST(req: NextRequest) {
         image: imageUrl,
         type: type,
         isActive: isActive,
-        isVisualize: isVisualize,
+        isVisualized: isVisualized,
+        isDeleted: false,
       },
     });
 
