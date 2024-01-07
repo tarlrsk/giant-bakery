@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { z } from "zod";
 
 const isNumeric = (value: string) => /^\d+$/.test(value);
@@ -75,4 +76,19 @@ export const refreshmentValidationSchema = z.object({
   width: z.number().multipleOf(0.01),
   price: z.number().multipleOf(0.01),
   isActive: z.boolean(),
+});
+
+// Cakes ---------------------------------------------------------------
+export const cakeValidationSchema = z.object({
+  name: z.string({ required_error: "Name is required." }).min(3).max(255),
+  type: z.enum(["PRESET", "CUSTOM"]),
+  price: z.number().multipleOf(0.01),
+  weight: z.number().multipleOf(0.01),
+  height: z.number().multipleOf(0.01),
+  length: z.number().multipleOf(0.01),
+  width: z.number().multipleOf(0.01),
+  isActive: z.boolean(),
+  variantIds: z.array(z.string().refine((val) => {
+    return mongoose.isValidObjectId(val)
+  })),
 });

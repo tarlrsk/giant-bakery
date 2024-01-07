@@ -85,6 +85,6 @@ export async function POST(req: NextRequest) {
 
     return responseWrapper(201, newRefreshment, null);
   } catch (err: any) {
-    return responseWrapper(500, null, `Something went wrong./n ${err.message}`);
+    return responseWrapper(500, null, `Something went wrong.\n ${err.message}`);
   }
 }

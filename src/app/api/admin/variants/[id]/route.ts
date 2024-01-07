@@ -44,7 +44,7 @@ export async function GET(_req: NextRequest, { params }: GetVariantById) {
     return responseWrapper(
       500,
       null,
-      `Something went wrong./n Error: ${err.message}`,
+      `${err.message}`,
     );
   }
 }
@@ -123,7 +123,7 @@ export async function PUT(req: NextRequest, { params }: GetVariantById) {
     return responseWrapper(
       500,
       null,
-      `Something went wrong./n Error: ${err.message}`,
+      `${err.message}`,
     );
   }
 }
@@ -154,7 +154,7 @@ export async function DELETE(_req: NextRequest, { params }: GetVariantById) {
     return responseWrapper(
       500,
       null,
-      `Something went wrong./n Error: ${err.message}`,
+      `${err.message}`,
     );
   }
 }

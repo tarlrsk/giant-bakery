@@ -24,7 +24,20 @@ export const responseWrapper = (
   response.status = statusCode;
 
   if (error) {
-    response.message = error.toString();
+    switch(statusCode){
+      case 500:
+        response.message = "Something Went Wrong";
+        break;
+      case 400:
+        response.message = "Bad Request";
+        break;
+      case 404:
+        response.message = "Not Found";
+        break;
+      case 409:
+        response.message = "Conflict";
+        break;
+    }
     response.error = error;
   } else {
     response.message = "Success";
