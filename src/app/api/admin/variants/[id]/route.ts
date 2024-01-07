@@ -92,14 +92,14 @@ export async function PUT(req: NextRequest, { params }: GetVariantById) {
     const name = formData.get("name") as string;
     const type = formData.get("type") as VariantType;
     const isActive = parseBoolean(formData.get("isActive") as string);
-    const isVisualize = parseBoolean(formData.get("isVisualize") as string);
+    const isVisualized = parseBoolean(formData.get("isVisualized") as string);
     const imageUrl = await getFileUrl(imageFileName);
 
     const validation = variantValidationSchema.safeParse({
       name,
       type,
       isActive,
-      isVisualize,
+      isVisualized,
     });
 
     if (!validation.success) {
@@ -114,7 +114,7 @@ export async function PUT(req: NextRequest, { params }: GetVariantById) {
         image: imageUrl,
         type: type,
         isActive: isActive,
-        isVisualize: isVisualize,
+        isVisualized: isVisualized,
       },
     });
 
