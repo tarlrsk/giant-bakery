@@ -147,8 +147,10 @@ model Refreshment {
   width         Float
   price         Float
   isActive      Boolean
+  isDeleted     Boolean             @default(false)
   createdAt     DateTime            @default(now())
   updatedAt     DateTime            @updatedAt
+  deletedAt     DateTime?
 
   snackBox   SnackBox?   @relation(fields: [snackBoxId], references: [id])
   snackBoxId String?     @db.ObjectId
