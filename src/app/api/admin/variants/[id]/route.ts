@@ -30,11 +30,9 @@ export async function GET(_req: NextRequest, { params }: GetVariantById) {
       );
     }
 
-    const imagePath = `variants/${variant.type}/${variant.id}`;
+    const imagePath = `variants/${variant.type}/${variant.id}/${variant.imageFileName}`;
 
-    const newFileUrl = await getFileUrl(
-      `${imagePath}/${variant.imageFileName}`,
-    );
+    const newFileUrl = await getFileUrl(imagePath);
 
     variant = await prisma.variant.update({
       where: { id: id },
@@ -92,13 +90,13 @@ export async function PUT(req: NextRequest, { params }: GetVariantById) {
 
       const buffer = Buffer.from(await image.arrayBuffer());
 
-      const imagePath = `variants/${type}/${variant.id}`;
-
       const updatedImageFileName = `${formatDate(
         new Date(Date.now()).toString(),
       )}_${image.name.replace(/\s/g, "_")}`;
 
-      const gcsFile = bucket.file(`${imagePath}/${updatedImageFileName}`);
+      const imagePath = `variants/${type}/${variant.id}/${updatedImageFileName}`;
+
+      const gcsFile = bucket.file(imagePath);
 
       await gcsFile.save(buffer, {
         metadata: {
