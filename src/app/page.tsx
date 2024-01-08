@@ -9,7 +9,7 @@ export default function Home() {
   return (
     <section className="h-screen flex items-center justify-center">
       <div>
-        <Button className="bg-secondary-main text-white" onPress={onOpen}>
+        <Button className=" bg-secondaryT-main text-white" onPress={onOpen}>
           Authentication
         </Button>
         <AuthModal isOpen={isOpen} onOpenChange={onOpenChange} />
