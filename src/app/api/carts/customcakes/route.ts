@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
     const customCakeItem = {
       cakeId: cakeId,
       quantity: quantity,
-      variantIds: variantIds, // Assuming variantIds is an array of strings
+      variantIds: variantIds,
     };
 
     cart.customCake.push(customCakeItem);
