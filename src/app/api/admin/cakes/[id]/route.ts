@@ -48,7 +48,7 @@ export async function GET(
         return responseWrapper(
             500,
             null,
-            `${err.message}`
+            err.message
         )
     }
 }
@@ -139,7 +139,7 @@ export async function DELETE(
         return responseWrapper(
             500,
             null,
-            `${err.message}`,
+            err.message,
         );
     }
 }

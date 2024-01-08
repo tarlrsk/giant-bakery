@@ -96,7 +96,7 @@ export async function POST(
     return responseWrapper(
       500,
       null,
-      `${err.message}`,
+      err.message,
     );
   }
 }
