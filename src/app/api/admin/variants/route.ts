@@ -34,10 +34,15 @@ export async function POST(req: NextRequest) {
       return responseWrapper(400, null, "Invalid image file.");
     }
 
+    const imageFileName = `${formatDate(
+      new Date(Date.now()).toString(),
+    )}_${image.name.replace(/\s/g, "_")}`;
+
     let newVariant = await prisma.variant.create({
       data: {
         name: name,
         type: type,
+        imageFileName: imageFileName,
         isActive: isActive,
         isVisualized: isVisualized,
       },
@@ -46,10 +51,6 @@ export async function POST(req: NextRequest) {
     const buffer = Buffer.from(await image.arrayBuffer());
 
     const imagePath = `variants/${type}/${newVariant.id}`;
-
-    const imageFileName = `${formatDate(
-      new Date(Date.now()).toString(),
-    )}_${image.name.replace(/\s/g, "_")}`;
 
     const gcsFile = bucket.file(`${imagePath}/${imageFileName}`);
 
@@ -61,8 +62,13 @@ export async function POST(req: NextRequest) {
 
     const imageUrl = await getFileUrl(`${imagePath}/${imageFileName}`);
 
-    newVariant.imageFileName = imageFileName;
-    newVariant.image = imageUrl;
+    newVariant = await prisma.variant.update({
+      where: { id: newVariant.id },
+      data: {
+        imageFileName: imageFileName,
+        image: imageUrl,
+      },
+    });
 
     return responseWrapper(201, newVariant, null);
   } catch (err: any) {

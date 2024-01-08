@@ -30,7 +30,11 @@ export async function GET(_req: NextRequest, { params }: GetVariantById) {
       );
     }
 
-    const newFileUrl = await getFileUrl(variant.imageFileName as string);
+    const imagePath = `variants/${variant.type}/${variant.id}`;
+
+    const newFileUrl = await getFileUrl(
+      `${imagePath}/${variant.imageFileName}`,
+    );
 
     variant = await prisma.variant.update({
       where: { id: id },
