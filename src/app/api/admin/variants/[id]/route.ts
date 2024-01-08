@@ -62,34 +62,10 @@ export async function PUT(req: NextRequest, { params }: GetVariantById) {
       );
     }
 
-    const image = formData.get("image") as File | null;
-
-    let imageFileName = variant.imageFileName as string;
-
-    if (image) {
-      const oldImage = bucket.file(variant.imageFileName as string);
-      await oldImage.delete();
-
-      const buffer = Buffer.from(await image.arrayBuffer());
-      const updatedImageFileName = `${formatDate(
-        new Date(Date.now()).toString(),
-      )}_${image.name}`;
-      const gcsFile = bucket.file(updatedImageFileName);
-
-      await gcsFile.save(buffer, {
-        metadata: {
-          contentType: image.type,
-        },
-      });
-
-      imageFileName = updatedImageFileName;
-    }
-
     const name = formData.get("name") as string;
     const type = formData.get("type") as VariantType;
     const isActive = parseBoolean(formData.get("isActive") as string);
     const isVisualized = parseBoolean(formData.get("isVisualized") as string);
-    const imageUrl = await getFileUrl(imageFileName);
 
     const validation = variantValidationSchema.safeParse({
       name,
@@ -101,6 +77,35 @@ export async function PUT(req: NextRequest, { params }: GetVariantById) {
     if (!validation.success) {
       return responseWrapper(400, null, validation.error.message);
     }
+
+    const image = formData.get("image") as File | null;
+
+    let imageFileName = variant.imageFileName as string;
+
+    if (image) {
+      const oldImage = bucket.file(variant.imageFileName as string);
+      await oldImage.delete();
+
+      const buffer = Buffer.from(await image.arrayBuffer());
+
+      const imagePath = `variants/${type}/${variant.id}`;
+
+      const updatedImageFileName = `${formatDate(
+        new Date(Date.now()).toString(),
+      )}_${image.name.replace(/\s/g, "_")}`;
+
+      const gcsFile = bucket.file(`${imagePath}/${updatedImageFileName}`);
+
+      await gcsFile.save(buffer, {
+        metadata: {
+          contentType: image.type,
+        },
+      });
+
+      imageFileName = updatedImageFileName;
+    }
+
+    const imageUrl = await getFileUrl(imageFileName);
 
     const updatedVariant = await prisma.variant.update({
       where: { id: variant.id },

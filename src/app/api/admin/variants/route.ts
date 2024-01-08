@@ -44,10 +44,13 @@ export async function POST(req: NextRequest) {
     });
 
     const buffer = Buffer.from(await image.arrayBuffer());
+
     const imagePath = `variants/${type}/${newVariant.id}`;
-    const imageFileName = `${formatDate(new Date(Date.now()).toString())}_${
-      image.name
-    }`;
+
+    const imageFileName = `${formatDate(
+      new Date(Date.now()).toString(),
+    )}_${image.name.replace(/\s/g, "_")}`;
+
     const gcsFile = bucket.file(`${imagePath}/${imageFileName}`);
 
     await gcsFile.save(buffer, {
