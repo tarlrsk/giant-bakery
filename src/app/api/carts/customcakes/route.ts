@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { cartCustomCakeValidationSchema } from "@/lib/validation-schema";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { NextRequest } from "next/server";
-import { Cart, CartType, CustomCakeCart } from "@prisma/client";
+import { Cart, CartType } from "@prisma/client";
 import mongoose from "mongoose";
 import { arraysEqual } from "@/lib/arrayTool";
 
@@ -48,25 +48,12 @@ export async function POST(req: NextRequest) {
         );
       }
     }
-    let cart;
-    switch (type) {
-      case "GUEST":
-        cart = await prisma.cart.findFirst({
-          where: {
-            userId: userId,
-            type: CartType.GUEST,
-          },
-        });
-        break;
-      case "MEMBER":
-        cart = await prisma.cart.findFirst({
-          where: {
-            userId: userId,
-            type: CartType.MEMBER,
-          },
-        });
-        break;
-    }
+    let cart = await prisma.cart.findFirst({
+      where: {
+        userId: userId,
+        type: type,
+      },
+    });
 
     if (!cart) {
       cart = {} as Cart;
@@ -81,15 +68,16 @@ export async function POST(req: NextRequest) {
       variantIds: variantIds,
     };
 
-    const existingCakeIndex = cart.customCake.findIndex(item => (
-      item.cakeId === cakeId && arraysEqual(item.variantIds, variantIds)
-    ));
+    const existingCakeIndex = cart.customCake.findIndex(
+      (item) =>
+        item.cakeId === cakeId && arraysEqual(item.variantIds, variantIds),
+    );
 
     if (existingCakeIndex !== -1) {
       cart.customCake[existingCakeIndex].quantity += quantity;
     } else {
-      if (!cart.customCake){
-        cart.customCake = []
+      if (!cart.customCake) {
+        cart.customCake = [];
       }
       cart.customCake.push(customCakeItem);
     }
