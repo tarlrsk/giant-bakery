@@ -5,12 +5,11 @@ const isNumeric = (value: string) => /^\d+$/.test(value);
 const isObjectId = (zString: z.ZodString) => {
   return zString.refine((val) => {
     if (!mongoose.isValidObjectId(val)) {
-      throw new Error('Invalid ObjectId');
+      return false;
     }
     return true;
-  });
+  }, "Invalid ObjectId");
 };
-
 
 // Auth ----------------------------------------------------------------------
 
