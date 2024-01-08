@@ -57,7 +57,7 @@ export const variantValidationSchema = z.object({
   image: z.string().optional(),
   type: z.enum(["BASE", "FILLINGS", "FROSTINGS", "CREAM"]),
   isActive: z.boolean(),
-  isVisualize: z.boolean(),
+  isVisualized: z.boolean(),
 });
 
 // Refreshments ---------------------------------------------------------------
@@ -88,7 +88,9 @@ export const cakeValidationSchema = z.object({
   length: z.number().multipleOf(0.01),
   width: z.number().multipleOf(0.01),
   isActive: z.boolean(),
-  variantIds: z.array(z.string().refine((val) => {
-    return mongoose.isValidObjectId(val)
-  })),
+  variantIds: z.array(
+    z.string().refine((val) => {
+      return mongoose.isValidObjectId(val);
+    }),
+  ),
 });

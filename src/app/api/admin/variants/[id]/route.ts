@@ -19,7 +19,7 @@ export async function GET(_req: NextRequest, { params }: GetVariantById) {
     const { id } = params;
 
     let variant = await prisma.variant.findUnique({
-      where: { id: id },
+      where: { id: id, isDeleted: false },
     });
 
     if (!variant) {
@@ -30,7 +30,9 @@ export async function GET(_req: NextRequest, { params }: GetVariantById) {
       );
     }
 
-    const newFileUrl = await getFileUrl(variant.imageFileName as string);
+    const imagePath = `variants/${variant.type}/${variant.id}/${variant.imageFileName}`;
+
+    const newFileUrl = await getFileUrl(imagePath);
 
     variant = await prisma.variant.update({
       where: { id: id },
@@ -41,11 +43,7 @@ export async function GET(_req: NextRequest, { params }: GetVariantById) {
 
     return responseWrapper(200, variant, null);
   } catch (err: any) {
-    return responseWrapper(
-      500,
-      null,
-      `${err.message}`,
-    );
+    return responseWrapper(500, null, `${err.message}`);
   }
 }
 
@@ -55,7 +53,7 @@ export async function PUT(req: NextRequest, { params }: GetVariantById) {
     const formData = await req.formData();
 
     const variant = await prisma.variant.findUnique({
-      where: { id: id },
+      where: { id: id, isDeleted: false },
     });
 
     if (!variant) {
@@ -64,6 +62,22 @@ export async function PUT(req: NextRequest, { params }: GetVariantById) {
         null,
         `Variant with given id ${id} not found.`,
       );
+    }
+
+    const name = formData.get("name") as string;
+    const type = formData.get("type") as VariantType;
+    const isActive = parseBoolean(formData.get("isActive") as string);
+    const isVisualized = parseBoolean(formData.get("isVisualized") as string);
+
+    const validation = variantValidationSchema.safeParse({
+      name,
+      type,
+      isActive,
+      isVisualized,
+    });
+
+    if (!validation.success) {
+      return responseWrapper(400, null, validation.error.message);
     }
 
     const image = formData.get("image") as File | null;
@@ -75,10 +89,14 @@ export async function PUT(req: NextRequest, { params }: GetVariantById) {
       await oldImage.delete();
 
       const buffer = Buffer.from(await image.arrayBuffer());
+
       const updatedImageFileName = `${formatDate(
         new Date(Date.now()).toString(),
-      )}_${image.name}`;
-      const gcsFile = bucket.file(updatedImageFileName);
+      )}_${image.name.replace(/\s/g, "_")}`;
+
+      const imagePath = `variants/${type}/${variant.id}/${updatedImageFileName}`;
+
+      const gcsFile = bucket.file(imagePath);
 
       await gcsFile.save(buffer, {
         metadata: {
@@ -89,42 +107,23 @@ export async function PUT(req: NextRequest, { params }: GetVariantById) {
       imageFileName = updatedImageFileName;
     }
 
-    const name = formData.get("name") as string;
-    const type = formData.get("type") as VariantType;
-    const isActive = parseBoolean(formData.get("isActive") as string);
-    const isVisualize = parseBoolean(formData.get("isVisualize") as string);
     const imageUrl = await getFileUrl(imageFileName);
 
-    const validation = variantValidationSchema.safeParse({
-      name,
-      type,
-      isActive,
-      isVisualize,
-    });
-
-    if (!validation.success) {
-      return responseWrapper(400, null, validation.error.message);
-    }
-
     const updatedVariant = await prisma.variant.update({
-      where: { id: id },
+      where: { id: variant.id },
       data: {
         name: name,
         imageFileName: imageFileName,
         image: imageUrl,
         type: type,
         isActive: isActive,
-        isVisualize: isVisualize,
+        isVisualized: isVisualized,
       },
     });
 
     return responseWrapper(200, updatedVariant, null);
   } catch (err: any) {
-    return responseWrapper(
-      500,
-      null,
-      `${err.message}`,
-    );
+    return responseWrapper(500, null, `${err.message}`);
   }
 }
 
@@ -133,7 +132,7 @@ export async function DELETE(_req: NextRequest, { params }: GetVariantById) {
     const { id } = params;
 
     const variant = await prisma.variant.findUnique({
-      where: { id: id },
+      where: { id: id, isDeleted: false },
     });
 
     if (!variant) {
@@ -144,17 +143,19 @@ export async function DELETE(_req: NextRequest, { params }: GetVariantById) {
       );
     }
 
-    const oldImage = bucket.file(variant.imageFileName as string);
-    await oldImage.delete();
+    const deletedVariant = await prisma.variant.update({
+      where: { id: variant.id },
+      data: {
+        isDeleted: true,
+        deletedAt: new Date(Date.now()),
+      },
+    });
 
-    await prisma.variant.delete({ where: { id: id } });
+    // const oldImage = bucket.file(variant.imageFileName as string);
+    // await oldImage.delete();
 
-    return responseWrapper(200, null, null);
+    return responseWrapper(200, deletedVariant, null);
   } catch (err: any) {
-    return responseWrapper(
-      500,
-      null,
-      `${err.message}`,
-    );
+    return responseWrapper(500, null, `${err.message}`);
   }
 }
