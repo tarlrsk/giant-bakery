@@ -72,6 +72,7 @@ model Cart {
   presetCake  PresetCakeCart[]
   customCake  CustomCakeCart[]
   refreshment RefreshmentCart[]
+  snackBox    SnackBoxCart[]
   CreatedAt   DateTime          @default(now())
   UpdatedAt   DateTime          @updatedAt
 }

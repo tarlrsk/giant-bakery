@@ -4,6 +4,7 @@ import { responseWrapper } from "@/utils/api-response-wrapper";
 import { NextRequest } from "next/server";
 import { Cart, CartType, CustomCakeCart } from "@prisma/client";
 import mongoose from "mongoose";
+import { arraysEqual } from "@/lib/arrayTool";
 
 export async function POST(req: NextRequest) {
   try {
@@ -14,6 +15,7 @@ export async function POST(req: NextRequest) {
       return responseWrapper(400, null, validation.error.format());
     }
 
+    // TODO USER ID FROM TOKEN OR COOKIE ID
     const { cakeId, variantIds, type, userId, quantity } = body;
     const cake = await prisma.cake.findUnique({
       where: {
@@ -79,7 +81,18 @@ export async function POST(req: NextRequest) {
       variantIds: variantIds,
     };
 
-    cart.customCake.push(customCakeItem);
+    const existingCakeIndex = cart.customCake.findIndex(item => (
+      item.cakeId === cakeId && arraysEqual(item.variantIds, variantIds)
+    ));
+
+    if (existingCakeIndex !== -1) {
+      cart.customCake[existingCakeIndex].quantity += quantity;
+    } else {
+      if (!cart.customCake){
+        cart.customCake = []
+      }
+      cart.customCake.push(customCakeItem);
+    }
 
     const updatedCart = await prisma.cart.upsert({
       create: cart,
