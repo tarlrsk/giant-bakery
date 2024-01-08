@@ -19,7 +19,7 @@ export async function GET(_req: NextRequest, { params }: GetVariantById) {
     const { id } = params;
 
     let variant = await prisma.variant.findUnique({
-      where: { id: id },
+      where: { id: id, isDeleted: false },
     });
 
     if (!variant) {
@@ -41,11 +41,7 @@ export async function GET(_req: NextRequest, { params }: GetVariantById) {
 
     return responseWrapper(200, variant, null);
   } catch (err: any) {
-    return responseWrapper(
-      500,
-      null,
-      `${err.message}`,
-    );
+    return responseWrapper(500, null, `${err.message}`);
   }
 }
 
@@ -55,7 +51,7 @@ export async function PUT(req: NextRequest, { params }: GetVariantById) {
     const formData = await req.formData();
 
     const variant = await prisma.variant.findUnique({
-      where: { id: id },
+      where: { id: id, isDeleted: false },
     });
 
     if (!variant) {
@@ -107,7 +103,7 @@ export async function PUT(req: NextRequest, { params }: GetVariantById) {
     }
 
     const updatedVariant = await prisma.variant.update({
-      where: { id: id },
+      where: { id: variant.id },
       data: {
         name: name,
         imageFileName: imageFileName,
@@ -120,11 +116,7 @@ export async function PUT(req: NextRequest, { params }: GetVariantById) {
 
     return responseWrapper(200, updatedVariant, null);
   } catch (err: any) {
-    return responseWrapper(
-      500,
-      null,
-      `${err.message}`,
-    );
+    return responseWrapper(500, null, `${err.message}`);
   }
 }
 
@@ -133,7 +125,7 @@ export async function DELETE(_req: NextRequest, { params }: GetVariantById) {
     const { id } = params;
 
     const variant = await prisma.variant.findUnique({
-      where: { id: id },
+      where: { id: id, isDeleted: false },
     });
 
     if (!variant) {
@@ -144,17 +136,19 @@ export async function DELETE(_req: NextRequest, { params }: GetVariantById) {
       );
     }
 
-    const oldImage = bucket.file(variant.imageFileName as string);
-    await oldImage.delete();
+    const deletedVariant = await prisma.variant.update({
+      where: { id: variant.id },
+      data: {
+        isDeleted: true,
+        deletedAt: new Date(Date.now()),
+      },
+    });
 
-    await prisma.variant.delete({ where: { id: id } });
+    // const oldImage = bucket.file(variant.imageFileName as string);
+    // await oldImage.delete();
 
-    return responseWrapper(200, null, null);
+    return responseWrapper(200, deletedVariant, null);
   } catch (err: any) {
-    return responseWrapper(
-      500,
-      null,
-      `${err.message}`,
-    );
+    return responseWrapper(500, null, `${err.message}`);
   }
 }

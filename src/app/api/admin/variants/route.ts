@@ -12,26 +12,6 @@ export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
 
-    const image = formData.get("image") as File | null;
-
-    if (!image) {
-      return responseWrapper(400, null, "Invalid image file.");
-    }
-
-    const buffer = Buffer.from(await image.arrayBuffer());
-    const imageFileName = `${formatDate(new Date(Date.now()).toString())}_${
-      image.name
-    }`;
-    const gcsFile = bucket.file(imageFileName);
-
-    await gcsFile.save(buffer, {
-      metadata: {
-        contentType: image.type,
-      },
-    });
-
-    const imageUrl = await getFileUrl(imageFileName);
-
     const name = formData.get("name") as string;
     const type = formData.get("type") as VariantType;
     const isActive = parseBoolean(formData.get("isActive") as string);
@@ -48,17 +28,38 @@ export async function POST(req: NextRequest) {
       return responseWrapper(400, null, validation.error.message);
     }
 
-    const newVariant = await prisma.variant.create({
+    const image = formData.get("image") as File | null;
+
+    if (!image) {
+      return responseWrapper(400, null, "Invalid image file.");
+    }
+
+    let newVariant = await prisma.variant.create({
       data: {
         name: name,
-        imageFileName: imageFileName,
-        image: imageUrl,
         type: type,
         isActive: isActive,
         isVisualized: isVisualized,
-        isDeleted: false,
       },
     });
+
+    const buffer = Buffer.from(await image.arrayBuffer());
+    const imagePath = `variants/${type}/${newVariant.id}`;
+    const imageFileName = `${formatDate(new Date(Date.now()).toString())}_${
+      image.name
+    }`;
+    const gcsFile = bucket.file(`${imagePath}/${imageFileName}`);
+
+    await gcsFile.save(buffer, {
+      metadata: {
+        contentType: image.type,
+      },
+    });
+
+    const imageUrl = await getFileUrl(`${imagePath}/${imageFileName}`);
+
+    newVariant.imageFileName = imageFileName;
+    newVariant.image = imageUrl;
 
     return responseWrapper(201, newVariant, null);
   } catch (err: any) {
