@@ -45,7 +45,7 @@ export async function GET(_req: NextRequest, { params }: GetVariantById) {
 
     return responseWrapper(200, variant, null);
   } catch (err: any) {
-    return responseWrapper(500, null, `${err.message}`);
+    return responseWrapper(500, null, err.message);
   }
 }
 
@@ -125,7 +125,7 @@ export async function PUT(req: NextRequest, { params }: GetVariantById) {
 
     return responseWrapper(200, updatedVariant, null);
   } catch (err: any) {
-    return responseWrapper(500, null, `${err.message}`);
+    return responseWrapper(500, null, err.message);
   }
 }
 
@@ -158,6 +158,6 @@ export async function DELETE(_req: NextRequest, { params }: GetVariantById) {
 
     return responseWrapper(200, deletedVariant, null);
   } catch (err: any) {
-    return responseWrapper(500, null, `${err.message}`);
+    return responseWrapper(500, null, err.message);
   }
 }

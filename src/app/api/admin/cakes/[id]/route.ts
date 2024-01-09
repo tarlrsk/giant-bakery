@@ -31,10 +31,9 @@ export async function GET(_req: NextRequest, { params }: GetCakeByIdProps) {
     if (!cake) {
       return responseWrapper(404, null, `Cake with given id ${id} not found.`);
     }
-
     return responseWrapper(200, cake, null);
   } catch (err: any) {
-    return responseWrapper(500, null, `${err.message}`);
+    return responseWrapper(500, null, err.message);
   }
 }
 
@@ -103,6 +102,6 @@ export async function DELETE(_req: NextRequest, { params }: GetCakeByIdProps) {
 
     return responseWrapper(200, null, null);
   } catch (err: any) {
-    return responseWrapper(500, null, `${err.message}`);
+    return responseWrapper(500, null, err.message);
   }
 }

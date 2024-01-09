@@ -41,11 +41,7 @@ export async function GET(_req: NextRequest, { params }: GetRefreshmentById) {
 
     return responseWrapper(200, refreshment, null);
   } catch (err: any) {
-    return responseWrapper(
-      500,
-      null,
-      `${err.message}`,
-    );
+    return responseWrapper(500, null, err.message);
   }
 }
 
@@ -174,10 +170,6 @@ export async function DELETE(
 
     return responseWrapper(200, null, null);
   } catch (err: any) {
-    return responseWrapper(
-      500,
-      null,
-      `${err.message}`,
-    );
+    return responseWrapper(500, null, err.message);
   }
 }

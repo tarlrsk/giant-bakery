@@ -44,11 +44,7 @@ export async function GET(
 
     return responseWrapper(200, customerAddresses, null);
   } catch (err: any) {
-    return responseWrapper(
-      500,
-      null,
-      `${err.message}.`,
-    );
+    return responseWrapper(500, null, `${err.message}.`);
   }
 }
 
@@ -93,10 +89,6 @@ export async function POST(
 
     return responseWrapper(201, newAddress, null);
   } catch (err: any) {
-    return responseWrapper(
-      500,
-      null,
-      `${err.message}`,
-    );
+    return responseWrapper(500, null, err.message);
   }
 }

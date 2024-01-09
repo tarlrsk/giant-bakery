@@ -45,11 +45,7 @@ export async function PUT(req: NextRequest, { params }: GetAddressByIdProps) {
 
     return responseWrapper(200, updatedAddress, null);
   } catch (err: any) {
-    return responseWrapper(
-      500,
-      null,
-      `${err.message}`,
-    );
+    return responseWrapper(500, null, err.message);
   }
 }
 
@@ -88,10 +84,6 @@ export async function DELETE(
 
     return responseWrapper(200, null, null);
   } catch (err: any) {
-    return responseWrapper(
-      500,
-      null,
-      `${err.message}`,
-    );
+    return responseWrapper(500, null, err.message);
   }
 }
