@@ -91,7 +91,7 @@ model CustomerAddress {
 }
 
 model Cake {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
   name      String
   type      CakeType
   price     Float
@@ -100,8 +100,7 @@ model Cake {
   length    Float
   width     Float
   isActive  Boolean
-  isDeleted Boolean  @default(false)
-
+  isDeleted Boolean   @default(false)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
@@ -132,9 +131,11 @@ model Variant {
   image         String?
   type          VariantType
   isActive      Boolean
-  isVisualize   Boolean
+  isVisualized  Boolean
+  isDeleted     Boolean     @default(false)
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
+  deletedAt     DateTime?
 
   cakes         Cake[]       @relation(fields: [cakeIds], references: [id])
   customCakes   CustomCake[] @relation(fields: [customCakeIds], references: [id])
@@ -158,8 +159,10 @@ model Refreshment {
   width         Float
   price         Float
   isActive      Boolean
+  isDeleted     Boolean             @default(false)
   createdAt     DateTime            @default(now())
   updatedAt     DateTime            @updatedAt
+  deletedAt     DateTime?
 
   snackBox   SnackBox?   @relation(fields: [snackBoxId], references: [id])
   snackBoxId String?     @db.ObjectId

@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { cartCustomCakeValidationSchema } from "@/lib/validation-schema";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { NextRequest } from "next/server";
-import { Cart, CartType } from "@prisma/client";
+import { Cart } from "@prisma/client";
 import mongoose from "mongoose";
 import { arraysEqual } from "@/lib/arrayTool";
 

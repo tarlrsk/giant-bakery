@@ -2,7 +2,8 @@ import mongoose from "mongoose";
 import { z } from "zod";
 
 const isNumeric = (value: string) => /^\d+$/.test(value);
-const isObjectId = (zString: z.ZodString) => {
+
+const zodIsObjectId = (zString: z.ZodString) => {
   return zString.refine((val) => {
     if (!mongoose.isValidObjectId(val)) {
       return false;
@@ -65,7 +66,7 @@ export const variantValidationSchema = z.object({
   image: z.string().optional(),
   type: z.enum(["BASE", "FILLINGS", "FROSTINGS", "CREAM"]),
   isActive: z.boolean(),
-  isVisualize: z.boolean(),
+  isVisualized: z.boolean(),
 });
 
 // Refreshments ---------------------------------------------------------------
@@ -87,6 +88,7 @@ export const refreshmentValidationSchema = z.object({
 });
 
 // Cakes ---------------------------------------------------------------
+
 export const cakeValidationSchema = z.object({
   name: z.string({ required_error: "Name is required." }).min(3).max(255),
   type: z.enum(["PRESET", "CUSTOM"]),
@@ -96,14 +98,15 @@ export const cakeValidationSchema = z.object({
   length: z.number().multipleOf(0.01),
   width: z.number().multipleOf(0.01),
   isActive: z.boolean(),
-  variantIds: z.array(isObjectId(z.string())),
+  variantIds: z.array(zodIsObjectId(z.string())),
 });
 
 // Cart ------------------------------------------------------------------
+
 export const cartCustomCakeValidationSchema = z.object({
-  userId: isObjectId(z.string()),
+  userId: zodIsObjectId(z.string()),
   type: z.enum(["GUEST", "MEMBER"]),
-  cakeId: isObjectId(z.string()),
-  variantIds: z.array(isObjectId(z.string())),
+  cakeId: zodIsObjectId(z.string()),
+  variantIds: z.array(zodIsObjectId(z.string())),
   quantity: z.number(),
 });

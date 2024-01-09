@@ -12,17 +12,47 @@ export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
 
+    const name = formData.get("name") as string;
+    const type = formData.get("type") as VariantType;
+    const isActive = parseBoolean(formData.get("isActive") as string);
+    const isVisualized = parseBoolean(formData.get("isVisualized") as string);
+
+    const validation = variantValidationSchema.safeParse({
+      name,
+      type,
+      isActive,
+      isVisualized,
+    });
+
+    if (!validation.success) {
+      return responseWrapper(400, null, validation.error.message);
+    }
+
     const image = formData.get("image") as File | null;
 
     if (!image) {
       return responseWrapper(400, null, "Invalid image file.");
     }
 
+    const imageFileName = `${formatDate(
+      new Date(Date.now()).toString(),
+    )}_${image.name.replace(/\s/g, "_")}`;
+
+    let newVariant = await prisma.variant.create({
+      data: {
+        name: name,
+        type: type,
+        imageFileName: imageFileName,
+        isActive: isActive,
+        isVisualized: isVisualized,
+      },
+    });
+
     const buffer = Buffer.from(await image.arrayBuffer());
-    const imageFileName = `${formatDate(new Date(Date.now()).toString())}_${
-      image.name
-    }`;
-    const gcsFile = bucket.file(imageFileName);
+
+    const imagePath = `variants/${type}/${newVariant.id}/${imageFileName}`;
+
+    const gcsFile = bucket.file(imagePath);
 
     await gcsFile.save(buffer, {
       metadata: {
@@ -30,32 +60,13 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    const imageUrl = await getFileUrl(imageFileName);
+    const imageUrl = await getFileUrl(imagePath);
 
-    const name = formData.get("name") as string;
-    const type = formData.get("type") as VariantType;
-    const isActive = parseBoolean(formData.get("isActive") as string);
-    const isVisualize = parseBoolean(formData.get("isVisualize") as string);
-
-    const validation = variantValidationSchema.safeParse({
-      name,
-      type,
-      isActive,
-      isVisualize,
-    });
-
-    if (!validation.success) {
-      return responseWrapper(400, null, validation.error.message);
-    }
-
-    const newVariant = await prisma.variant.create({
+    newVariant = await prisma.variant.update({
+      where: { id: newVariant.id },
       data: {
-        name: name,
         imageFileName: imageFileName,
         image: imageUrl,
-        type: type,
-        isActive: isActive,
-        isVisualize: isVisualize,
       },
     });
 
