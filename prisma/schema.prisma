@@ -309,22 +309,26 @@ enum PaymentStatus {
 // Types (Composite Type) ----------------------------------------------------------------------
 
 type PresetCakeCart {
-  cakeId   String @db.ObjectId
-  quantity Int    @default(1)
+  cakeId    String   @db.ObjectId
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
 }
 
 type CustomCakeCart {
   cakeId     String   @db.ObjectId
   quantity   Int      @default(1)
   variantIds String[]
+  createdAt  DateTime @default(now())
 }
 
 type RefreshmentCart {
-  refreshmentId String @db.ObjectId
-  quantity      Int    @default(1)
+  refreshmentId String   @db.ObjectId
+  quantity      Int      @default(1)
+  createdAt     DateTime @default(now())
 }
 
 type SnackBoxCart {
   refreshmentIds String[] @db.ObjectId
   quantity       Int      @default(1)
+  createdAt      DateTime @default(now())
 }

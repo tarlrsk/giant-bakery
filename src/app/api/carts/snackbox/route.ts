@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { cartSnackBoxValidationSchema } from "@/lib/validation-schema";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { NextRequest } from "next/server";
-import { Cart } from "@prisma/client";
+import { Cart, SnackBoxCart } from "@prisma/client";
 import mongoose from "mongoose";
 import { arraysEqual } from "@/lib/arrayTool";
 
@@ -61,10 +61,12 @@ export async function POST(req: NextRequest) {
       if (!cart.snackBox) {
         cart.snackBox = [];
       }
-      cart.snackBox.push({
+
+      const snackBoxItem = {
         refreshmentIds: refreshmentIds,
         quantity: quantity,
-      });
+      } as SnackBoxCart;
+      cart.snackBox.push(snackBoxItem);
     }
 
     const updatedCart = await prisma.cart.upsert({

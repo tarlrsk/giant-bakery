@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { cartPresetCakeValidationSchema } from "@/lib/validation-schema";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { NextRequest } from "next/server";
-import { CakeType, Cart, CartType } from "@prisma/client";
+import { CakeType, Cart, PresetCakeCart } from "@prisma/client";
 import mongoose from "mongoose";
 
 export async function POST(req: NextRequest) {
@@ -57,10 +57,12 @@ export async function POST(req: NextRequest) {
       if (!cart.presetCake) {
         cart.presetCake = [];
       }
-      cart.presetCake.push({
+
+      const presetCakeItem = {
         cakeId: cakeId,
         quantity: quantity,
-      });
+      } as PresetCakeCart;
+      cart.presetCake.push(presetCakeItem);
     }
 
     const updatedCart = await prisma.cart.upsert({

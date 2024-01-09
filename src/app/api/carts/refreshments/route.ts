@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { cartRefreshmentValidationSchema } from "@/lib/validation-schema";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { NextRequest } from "next/server";
-import { Cart } from "@prisma/client";
+import { Cart, RefreshmentCart } from "@prisma/client";
 import mongoose from "mongoose";
 
 export async function POST(req: NextRequest) {
@@ -56,10 +56,12 @@ export async function POST(req: NextRequest) {
       if (!cart.refreshment) {
         cart.refreshment = [];
       }
-      cart.refreshment.push({
+
+      const refreshmentItem = {
         refreshmentId: refreshmentId,
         quantity: quantity,
-      });
+      } as RefreshmentCart;
+      cart.refreshment.push(refreshmentItem);
     }
 
     const updatedCart = await prisma.cart.upsert({
