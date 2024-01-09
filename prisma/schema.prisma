@@ -69,33 +69,12 @@ model Cart {
   id          String            @id @default(auto()) @map("_id") @db.ObjectId
   userId      String?           @db.ObjectId
   type        CartType
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
   presetCake  PresetCakeCart[]
   customCake  CustomCakeCart[]
   refreshment RefreshmentCart[]
   snackBox    SnackBoxCart[]
-  CreatedAt   DateTime          @default(now())
-  UpdatedAt   DateTime          @updatedAt
-}
-
-type PresetCakeCart {
-  cakeId   String @db.ObjectId
-  quantity Int    @default(1)
-}
-
-type CustomCakeCart {
-  cakeId     String   @db.ObjectId
-  quantity   Int      @default(1)
-  variantIds String[]
-}
-
-type RefreshmentCart {
-  refreshmentId String @db.ObjectId
-  quantity      Int    @default(1)
-}
-
-type SnackBoxCart {
-  refreshmentIds String[] @db.ObjectId
-  quantity       Int      @default(1)
 }
 
 model CustomerAddress {
@@ -112,7 +91,7 @@ model CustomerAddress {
 }
 
 model Cake {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
   name      String
   type      CakeType
   price     Float
@@ -121,8 +100,7 @@ model Cake {
   length    Float
   width     Float
   isActive  Boolean
-  isDeleted Boolean  @default(false)
-
+  isDeleted Boolean   @default(false)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
@@ -153,9 +131,11 @@ model Variant {
   image         String?
   type          VariantType
   isActive      Boolean
-  isVisualize   Boolean
+  isVisualized  Boolean
+  isDeleted     Boolean     @default(false)
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
+  deletedAt     DateTime?
 
   cakes         Cake[]       @relation(fields: [cakeIds], references: [id])
   customCakes   CustomCake[] @relation(fields: [customCakeIds], references: [id])
@@ -179,8 +159,10 @@ model Refreshment {
   width         Float
   price         Float
   isActive      Boolean
+  isDeleted     Boolean             @default(false)
   createdAt     DateTime            @default(now())
   updatedAt     DateTime            @updatedAt
+  deletedAt     DateTime?
 
   snackBox   SnackBox?   @relation(fields: [snackBoxId], references: [id])
   snackBoxId String?     @db.ObjectId
@@ -255,7 +237,7 @@ model Discount {
   order     Order[]
 }
 
-// Enum
+// Enum -----------------------------------------------------------------------------------
 
 enum Role {
   CUSTOMER
@@ -322,4 +304,27 @@ enum PaymentType {
 enum PaymentStatus {
   COMPLETE
   INCOMPLETE
+}
+
+// Types (Composite Type) ----------------------------------------------------------------------
+
+type PresetCakeCart {
+  cakeId   String @db.ObjectId
+  quantity Int    @default(1)
+}
+
+type CustomCakeCart {
+  cakeId     String   @db.ObjectId
+  quantity   Int      @default(1)
+  variantIds String[]
+}
+
+type RefreshmentCart {
+  refreshmentId String @db.ObjectId
+  quantity      Int    @default(1)
+}
+
+type SnackBoxCart {
+  refreshmentIds String[] @db.ObjectId
+  quantity       Int      @default(1)
 }
