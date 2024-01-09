@@ -1,6 +1,7 @@
 import { formatDate } from "@/lib/formatDate";
 import { bucket } from "@/lib/gcs/gcs";
 import { getFileUrl } from "@/lib/gcs/getFileUrl";
+import { isObjectId } from "@/lib/isObjectId";
 import { parseBoolean } from "@/lib/parseBoolean";
 import { prisma } from "@/lib/prisma";
 import { refreshmentValidationSchema } from "@/lib/validation-schema";
@@ -18,8 +19,14 @@ export async function GET(_req: NextRequest, { params }: GetRefreshmentById) {
   try {
     const { id } = params;
 
+    const validId = isObjectId(id);
+
+    if (!validId) {
+      return responseWrapper(400, null, "Invalid Object Id.");
+    }
+
     let refreshment = await prisma.refreshment.findUnique({
-      where: { id: id },
+      where: { id: id, isDeleted: false },
     });
 
     if (!refreshment) {
@@ -30,7 +37,9 @@ export async function GET(_req: NextRequest, { params }: GetRefreshmentById) {
       );
     }
 
-    const newFileUrl = await getFileUrl(refreshment.imageFileName as string);
+    const imagePath = `refreshments/${refreshment.category}/${refreshment.id}/${refreshment.imageFileName}`;
+
+    const newFileUrl = await getFileUrl(imagePath);
 
     refreshment = await prisma.refreshment.update({
       where: { id: id },
@@ -41,21 +50,24 @@ export async function GET(_req: NextRequest, { params }: GetRefreshmentById) {
 
     return responseWrapper(200, refreshment, null);
   } catch (err: any) {
-    return responseWrapper(
-      500,
-      null,
-      `${err.message}`,
-    );
+    return responseWrapper(500, null, err.message);
   }
 }
 
 export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
   try {
     const { id } = params;
+
+    const validId = isObjectId(id);
+
+    if (!validId) {
+      return responseWrapper(400, null, "Invalid Object Id.");
+    }
+
     const formData = await req.formData();
 
     const refreshment = await prisma.refreshment.findUnique({
-      where: { id: id },
+      where: { id: id, isDeleted: false },
     });
 
     if (!refreshment) {
@@ -66,30 +78,8 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
       );
     }
 
-    const image = formData.get("image") as File | null;
-
-    let imageFileName = refreshment.imageFileName as string;
-
-    if (image) {
-      const oldImage = bucket.file(refreshment.imageFileName as string);
-      await oldImage.delete();
-
-      const buffer = Buffer.from(await image.arrayBuffer());
-      const updatedImageFileName = `${formatDate(
-        new Date(Date.now()).toString(),
-      )}_${image.name}`;
-      const gcsFile = bucket.file(updatedImageFileName);
-
-      await gcsFile.save(buffer, {
-        metadata: {
-          contentType: image.type,
-        },
-      });
-
-      imageFileName = updatedImageFileName;
-    }
-
     const name = formData.get("name") as string;
+    const description = formData.get("description") as string;
     const category = formData.get("category") as RefreshmentCategory;
     const status = formData.get("status") as StockStatus;
     const minQty = parseInt(formData.get("minQty") as string);
@@ -101,10 +91,10 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
     const width = parseFloat(formData.get("width") as string);
     const price = parseFloat(formData.get("price") as string);
     const isActive = parseBoolean(formData.get("isActive") as string);
-    const imageUrl = await getFileUrl(imageFileName);
 
     const validation = refreshmentValidationSchema.safeParse({
       name,
+      description,
       category,
       status,
       minQty,
@@ -122,10 +112,38 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
       return responseWrapper(400, null, validation.error.message);
     }
 
+    const image = formData.get("image") as File | null;
+
+    let imageFileName = refreshment.imageFileName as string;
+
+    if (image) {
+      const oldImage = bucket.file(refreshment.imageFileName as string);
+      await oldImage.delete();
+
+      const buffer = Buffer.from(await image.arrayBuffer());
+
+      const updatedImageFileName = `${formatDate(
+        new Date(Date.now()).toString(),
+      )}_${image.name.replace(/\s/g, "_")}`;
+
+      const gcsFile = bucket.file(updatedImageFileName);
+
+      await gcsFile.save(buffer, {
+        metadata: {
+          contentType: image.type,
+        },
+      });
+
+      imageFileName = updatedImageFileName;
+    }
+
+    const imageUrl = await getFileUrl(imageFileName);
+
     const updatedRefreshment = await prisma.refreshment.update({
-      where: { id: id },
+      where: { id: refreshment.id },
       data: {
         name: name,
+        description: description,
         imageFileName: imageFileName,
         image: imageUrl,
         category: category,
@@ -155,8 +173,14 @@ export async function DELETE(
   try {
     const { id } = params;
 
+    const validId = isObjectId(id);
+
+    if (!validId) {
+      return responseWrapper(400, null, "Invalid Object Id.");
+    }
+
     const refreshment = await prisma.refreshment.findUnique({
-      where: { id: id },
+      where: { id: id, isDeleted: false },
     });
 
     if (!refreshment) {
@@ -167,17 +191,19 @@ export async function DELETE(
       );
     }
 
-    const oldImage = bucket.file(refreshment.imageFileName as string);
-    await oldImage.delete();
+    const deletedRefreshment = await prisma.refreshment.update({
+      where: { id: refreshment.id },
+      data: {
+        isDeleted: true,
+        deletedAt: new Date(Date.now()),
+      },
+    });
 
-    await prisma.refreshment.delete({ where: { id: id } });
+    // const oldImage = bucket.file(refreshment.imageFileName as string);
+    // await oldImage.delete();
 
     return responseWrapper(200, null, null);
   } catch (err: any) {
-    return responseWrapper(
-      500,
-      null,
-      `${err.message}`,
-    );
+    return responseWrapper(500, null, err.message);
   }
 }

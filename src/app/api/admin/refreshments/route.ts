@@ -12,27 +12,8 @@ export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
 
-    const image = formData.get("image") as File | null;
-
-    if (!image) {
-      return responseWrapper(400, null, "Invalid image file.");
-    }
-
-    const buffer = Buffer.from(await image.arrayBuffer());
-    const imageFileName = `${formatDate(new Date(Date.now()).toString())}_${
-      image.name
-    }`;
-    const gcsFile = bucket.file(imageFileName);
-
-    await gcsFile.save(buffer, {
-      metadata: {
-        contentType: image.type,
-      },
-    });
-
-    const imageUrl = await getFileUrl(imageFileName);
-
     const name = formData.get("name") as string;
+    const description = formData.get("description") as string;
     const category = formData.get("category") as RefreshmentCategory;
     const status = formData.get("status") as StockStatus;
     const minQty = parseInt(formData.get("minQty") as string);
@@ -47,6 +28,7 @@ export async function POST(req: NextRequest) {
 
     const validation = refreshmentValidationSchema.safeParse({
       name,
+      description,
       category,
       status,
       minQty,
@@ -64,11 +46,21 @@ export async function POST(req: NextRequest) {
       return responseWrapper(400, null, validation.error.message);
     }
 
-    const newRefreshment = await prisma.refreshment.create({
+    const image = formData.get("image") as File | null;
+
+    if (!image) {
+      return responseWrapper(400, null, "Invalid image file.");
+    }
+
+    const imageFileName = `${formatDate(
+      new Date(Date.now()).toString(),
+    )}_${image.name.replace(/\s/g, "_")}`;
+
+    let newRefreshment = await prisma.refreshment.create({
       data: {
         name: name,
+        description: description,
         imageFileName: imageFileName,
-        image: imageUrl,
         category: category,
         status: status,
         minQty: minQty,
@@ -81,6 +73,25 @@ export async function POST(req: NextRequest) {
         price: price,
         isActive: isActive,
       },
+    });
+
+    const buffer = Buffer.from(await image.arrayBuffer());
+
+    const imagePath = `refreshments/${category}/${newRefreshment.id}/${imageFileName}`;
+
+    const gcsFile = bucket.file(imagePath);
+
+    await gcsFile.save(buffer, {
+      metadata: {
+        contentType: image.type,
+      },
+    });
+
+    const imageUrl = await getFileUrl(imagePath);
+
+    newRefreshment = await prisma.refreshment.update({
+      where: { id: newRefreshment.id },
+      data: { image: imageUrl },
     });
 
     return responseWrapper(201, newRefreshment, null);

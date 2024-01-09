@@ -11,6 +11,15 @@ const passwordRegex = new RegExp(
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+=[{\]};:<>|./?,-]).+$/,
 );
 
+const zodIsObjectId = (zString: z.ZodString) => {
+  return zString.refine((val) => {
+    if (!mongoose.isValidObjectId(val)) {
+      return false;
+    }
+    return true;
+  }, "Invalid ObjectId");
+};
+
 // Auth ----------------------------------------------------------------------
 
 export const emailValidationSchema = z
@@ -97,13 +106,14 @@ export const variantValidationSchema = z.object({
   image: z.string().optional(),
   type: z.enum(["BASE", "FILLINGS", "FROSTINGS", "CREAM"]),
   isActive: z.boolean(),
-  isVisualize: z.boolean(),
+  isVisualized: z.boolean(),
 });
 
 // Refreshments ---------------------------------------------------------------
 
 export const refreshmentValidationSchema = z.object({
   name: z.string({ required_error: "Name is required." }).min(3).max(255),
+  description: z.string().min(10).max(255),
   image: z.string().optional(),
   category: z.enum(["BAKERY", "BEVERAGE"]),
   status: z.enum(["IN_STOCK", "LOW", "OUT_OF_STOCK"]),
@@ -119,6 +129,7 @@ export const refreshmentValidationSchema = z.object({
 });
 
 // Cakes ---------------------------------------------------------------
+
 export const cakeValidationSchema = z.object({
   name: z.string({ required_error: "Name is required." }).min(3).max(255),
   type: z.enum(["PRESET", "CUSTOM"]),

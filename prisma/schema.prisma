@@ -65,6 +65,18 @@ model VerificationToken {
 
 // System Model ----------------------------------------------------------------------
 
+model Cart {
+  id          String            @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String?           @db.ObjectId
+  type        CartType
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  presetCake  PresetCakeCart[]
+  customCake  CustomCakeCart[]
+  refreshment RefreshmentCart[]
+  snackBox    SnackBoxCart[]
+}
+
 model CustomerAddress {
   id          String @id @default(auto()) @map("_id") @db.ObjectId
   address     String
@@ -79,7 +91,7 @@ model CustomerAddress {
 }
 
 model Cake {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
   name      String
   type      CakeType
   price     Float
@@ -88,11 +100,10 @@ model Cake {
   length    Float
   width     Float
   isActive  Boolean
-  isDeleted Boolean @default(false)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  deletedAt DateTime? 
+  isDeleted Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   variants   Variant[]   @relation(fields: [variantIds], references: [id])
   orderItems OrderItem[]
@@ -120,9 +131,11 @@ model Variant {
   image         String?
   type          VariantType
   isActive      Boolean
-  isVisualize   Boolean
+  isVisualized  Boolean
+  isDeleted     Boolean     @default(false)
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
+  deletedAt     DateTime?
 
   cakes         Cake[]       @relation(fields: [cakeIds], references: [id])
   customCakes   CustomCake[] @relation(fields: [customCakeIds], references: [id])
@@ -133,6 +146,7 @@ model Variant {
 model Refreshment {
   id            String              @id @default(auto()) @map("_id") @db.ObjectId
   name          String
+  description   String?
   imageFileName String?
   image         String?
   category      RefreshmentCategory
@@ -146,8 +160,10 @@ model Refreshment {
   width         Float
   price         Float
   isActive      Boolean
+  isDeleted     Boolean             @default(false)
   createdAt     DateTime            @default(now())
   updatedAt     DateTime            @updatedAt
+  deletedAt     DateTime?
 
   snackBox   SnackBox?   @relation(fields: [snackBoxId], references: [id])
   snackBoxId String?     @db.ObjectId
@@ -222,7 +238,7 @@ model Discount {
   order     Order[]
 }
 
-// Enum
+// Enum -----------------------------------------------------------------------------------
 
 enum Role {
   CUSTOMER
@@ -237,6 +253,11 @@ enum RefreshmentCategory {
 enum CakeType {
   CUSTOM
   PRESET
+}
+
+enum CartType {
+  MEMBER
+  GUEST
 }
 
 enum VariantType {
@@ -284,4 +305,31 @@ enum PaymentType {
 enum PaymentStatus {
   COMPLETE
   INCOMPLETE
+}
+
+// Types (Composite Type) ----------------------------------------------------------------------
+
+type PresetCakeCart {
+  cakeId    String   @db.ObjectId
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+}
+
+type CustomCakeCart {
+  cakeId     String   @db.ObjectId
+  quantity   Int      @default(1)
+  variantIds String[]
+  createdAt  DateTime @default(now())
+}
+
+type RefreshmentCart {
+  refreshmentId String   @db.ObjectId
+  quantity      Int      @default(1)
+  createdAt     DateTime @default(now())
+}
+
+type SnackBoxCart {
+  refreshmentIds String[] @db.ObjectId
+  quantity       Int      @default(1)
+  createdAt      DateTime @default(now())
 }

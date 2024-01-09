@@ -55,10 +55,6 @@ export async function POST(req: NextRequest) {
 
     return responseWrapper(201, newUser, null);
   } catch (err: any) {
-    return responseWrapper(
-      500,
-      null,
-      `${err.message}`,
-    );
+    return responseWrapper(500, null, err.message);
   }
 }
