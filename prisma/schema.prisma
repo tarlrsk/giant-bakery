@@ -69,12 +69,12 @@ model Cart {
   id          String            @id @default(auto()) @map("_id") @db.ObjectId
   userId      String?           @db.ObjectId
   type        CartType
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
   presetCake  PresetCakeCart[]
   customCake  CustomCakeCart[]
   refreshment RefreshmentCart[]
   snackBox    SnackBoxCart[]
-  CreatedAt   DateTime          @default(now())
-  UpdatedAt   DateTime          @updatedAt
 }
 
 type PresetCakeCart {
