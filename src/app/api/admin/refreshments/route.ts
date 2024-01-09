@@ -13,6 +13,7 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
 
     const name = formData.get("name") as string;
+    const description = formData.get("description") as string;
     const category = formData.get("category") as RefreshmentCategory;
     const status = formData.get("status") as StockStatus;
     const minQty = parseInt(formData.get("minQty") as string);
@@ -27,6 +28,7 @@ export async function POST(req: NextRequest) {
 
     const validation = refreshmentValidationSchema.safeParse({
       name,
+      description,
       category,
       status,
       minQty,
@@ -57,6 +59,7 @@ export async function POST(req: NextRequest) {
     let newRefreshment = await prisma.refreshment.create({
       data: {
         name: name,
+        description: description,
         imageFileName: imageFileName,
         category: category,
         status: status,
