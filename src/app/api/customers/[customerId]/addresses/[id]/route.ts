@@ -1,6 +1,8 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { responseWrapper } from "@/utils/api-response-wrapper";
+import { isObjectId } from "@/lib/isObjectId";
+import { customerAddressValidationSchema } from "@/lib/validation-schema";
 
 // ----------------------------------------------------------------------
 
@@ -14,7 +16,29 @@ type GetAddressByIdProps = {
 export async function PUT(req: NextRequest, { params }: GetAddressByIdProps) {
   try {
     const { id, customerId } = params;
+
+    const validId = isObjectId(id);
+    const validCustomerId = isObjectId(id);
+
+    if (!validId) {
+      return responseWrapper(400, null, "Invalid Object Id (id field).");
+    }
+
+    if (!validCustomerId) {
+      return responseWrapper(
+        400,
+        null,
+        "Invalid Object Id (customerId field).",
+      );
+    }
+
     const body = await req.json();
+
+    const validation = customerAddressValidationSchema.safeParse(body);
+
+    if (!validation.success) {
+      return responseWrapper(400, null, validation.error.format());
+    }
 
     const customerAddresses = await prisma.customerAddress.findMany({
       where: { userId: customerId },
@@ -55,6 +79,21 @@ export async function DELETE(
 ) {
   try {
     const { id, customerId } = params;
+
+    const validId = isObjectId(id);
+    const validCustomerId = isObjectId(id);
+
+    if (!validId) {
+      return responseWrapper(400, null, "Invalid Object Id (id field).");
+    }
+
+    if (!validCustomerId) {
+      return responseWrapper(
+        400,
+        null,
+        "Invalid Object Id (customerId field).",
+      );
+    }
 
     const customerAddresses = await prisma.customerAddress.findMany({
       where: { userId: customerId },

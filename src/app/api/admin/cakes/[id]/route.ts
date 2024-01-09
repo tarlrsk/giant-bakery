@@ -1,3 +1,4 @@
+import { isObjectId } from "@/lib/isObjectId";
 import { prisma } from "@/lib/prisma";
 import { cakeValidationSchema } from "@/lib/validation-schema";
 import { responseWrapper } from "@/utils/api-response-wrapper";
@@ -14,8 +15,10 @@ export async function GET(_req: NextRequest, { params }: GetCakeByIdProps) {
   try {
     const { id } = params;
 
-    if (!mongoose.isValidObjectId(id)) {
-      return responseWrapper(400, null, `CakeId is invalid.`);
+    const validId = isObjectId(id);
+
+    if (!validId) {
+      return responseWrapper(400, null, "Invalid Object Id.");
     }
 
     const cake = await prisma.cake.findUnique({
@@ -41,8 +44,10 @@ export async function PUT(req: NextRequest, { params }: GetCakeByIdProps) {
   try {
     const { id } = params;
 
-    if (!mongoose.isValidObjectId(id)) {
-      return responseWrapper(400, null, `CakeId is invalid.`);
+    const validId = isObjectId(id);
+
+    if (!validId) {
+      return responseWrapper(400, null, "Invalid Object Id.");
     }
     const body = await req.json();
 
@@ -83,6 +88,12 @@ export async function PUT(req: NextRequest, { params }: GetCakeByIdProps) {
 export async function DELETE(_req: NextRequest, { params }: GetCakeByIdProps) {
   try {
     const { id } = params;
+
+    const validId = isObjectId(id);
+
+    if (!validId) {
+      return responseWrapper(400, null, "Invalid Object Id.");
+    }
 
     const cake = await prisma.cake.findUnique({
       where: { id: id, isDeleted: false },

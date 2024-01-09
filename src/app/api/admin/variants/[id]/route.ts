@@ -1,6 +1,7 @@
 import { formatDate } from "@/lib/formatDate";
 import { bucket } from "@/lib/gcs/gcs";
 import { getFileUrl } from "@/lib/gcs/getFileUrl";
+import { isObjectId } from "@/lib/isObjectId";
 import { parseBoolean } from "@/lib/parseBoolean";
 import { prisma } from "@/lib/prisma";
 import { variantValidationSchema } from "@/lib/validation-schema";
@@ -17,6 +18,12 @@ type GetVariantById = {
 export async function GET(_req: NextRequest, { params }: GetVariantById) {
   try {
     const { id } = params;
+
+    const validId = isObjectId(id);
+
+    if (!validId) {
+      return responseWrapper(400, null, "Invalid Object Id.");
+    }
 
     let variant = await prisma.variant.findUnique({
       where: { id: id, isDeleted: false },
@@ -52,6 +59,13 @@ export async function GET(_req: NextRequest, { params }: GetVariantById) {
 export async function PUT(req: NextRequest, { params }: GetVariantById) {
   try {
     const { id } = params;
+
+    const validId = isObjectId(id);
+
+    if (!validId) {
+      return responseWrapper(400, null, "Invalid Object Id.");
+    }
+
     const formData = await req.formData();
 
     const variant = await prisma.variant.findUnique({
@@ -132,6 +146,12 @@ export async function PUT(req: NextRequest, { params }: GetVariantById) {
 export async function DELETE(_req: NextRequest, { params }: GetVariantById) {
   try {
     const { id } = params;
+
+    const validId = isObjectId(id);
+
+    if (!validId) {
+      return responseWrapper(400, null, "Invalid Object Id.");
+    }
 
     const variant = await prisma.variant.findUnique({
       where: { id: id, isDeleted: false },

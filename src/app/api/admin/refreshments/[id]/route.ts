@@ -1,6 +1,7 @@
 import { formatDate } from "@/lib/formatDate";
 import { bucket } from "@/lib/gcs/gcs";
 import { getFileUrl } from "@/lib/gcs/getFileUrl";
+import { isObjectId } from "@/lib/isObjectId";
 import { parseBoolean } from "@/lib/parseBoolean";
 import { prisma } from "@/lib/prisma";
 import { refreshmentValidationSchema } from "@/lib/validation-schema";
@@ -17,6 +18,12 @@ type GetRefreshmentById = {
 export async function GET(_req: NextRequest, { params }: GetRefreshmentById) {
   try {
     const { id } = params;
+
+    const validId = isObjectId(id);
+
+    if (!validId) {
+      return responseWrapper(400, null, "Invalid Object Id.");
+    }
 
     let refreshment = await prisma.refreshment.findUnique({
       where: { id: id },
@@ -48,6 +55,13 @@ export async function GET(_req: NextRequest, { params }: GetRefreshmentById) {
 export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
   try {
     const { id } = params;
+
+    const validId = isObjectId(id);
+
+    if (!validId) {
+      return responseWrapper(400, null, "Invalid Object Id.");
+    }
+
     const formData = await req.formData();
 
     const refreshment = await prisma.refreshment.findUnique({
@@ -150,6 +164,12 @@ export async function DELETE(
 ) {
   try {
     const { id } = params;
+
+    const validId = isObjectId(id);
+
+    if (!validId) {
+      return responseWrapper(400, null, "Invalid Object Id.");
+    }
 
     const refreshment = await prisma.refreshment.findUnique({
       where: { id: id },
