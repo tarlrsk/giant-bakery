@@ -3,7 +3,7 @@ import { z } from "zod";
 
 const isNumeric = (value: string) => /^\d+$/.test(value);
 
-const isObjectId = (zString: z.ZodString) => {
+const zodIsObjectId = (zString: z.ZodString) => {
   return zString.refine((val) => {
     if (!mongoose.isValidObjectId(val)) {
       return false;
@@ -98,15 +98,15 @@ export const cakeValidationSchema = z.object({
   length: z.number().multipleOf(0.01),
   width: z.number().multipleOf(0.01),
   isActive: z.boolean(),
-  variantIds: z.array(isObjectId(z.string())),
+  variantIds: z.array(zodIsObjectId(z.string())),
 });
 
 // Cart ------------------------------------------------------------------
 
 export const cartCustomCakeValidationSchema = z.object({
-  userId: isObjectId(z.string()),
+  userId: zodIsObjectId(z.string()),
   type: z.enum(["GUEST", "MEMBER"]),
-  cakeId: isObjectId(z.string()),
-  variantIds: z.array(isObjectId(z.string())),
+  cakeId: zodIsObjectId(z.string()),
+  variantIds: z.array(zodIsObjectId(z.string())),
   quantity: z.number(),
 });
