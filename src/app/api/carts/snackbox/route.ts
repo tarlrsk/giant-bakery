@@ -1,34 +1,38 @@
 import { prisma } from "@/lib/prisma";
-import { cartPresetCakeValidationSchema } from "@/lib/validation-schema";
+import { cartSnackBoxValidationSchema } from "@/lib/validation-schema";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { NextRequest } from "next/server";
-import { CakeType, Cart, CartType } from "@prisma/client";
+import { Cart } from "@prisma/client";
 import mongoose from "mongoose";
+import { arraysEqual } from "@/lib/arrayTool";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const validation = cartPresetCakeValidationSchema.safeParse(body);
+    const validation = cartSnackBoxValidationSchema.safeParse(body);
 
     if (!validation.success) {
       return responseWrapper(400, null, validation.error.format());
     }
 
     // TODO USER ID FROM TOKEN OR COOKIE ID
-    const { cakeId, type, userId, quantity } = body;
-    const cake = await prisma.cake.findUnique({
+    const { refreshmentIds, type, userId, quantity } = body;
+    const refreshments = await prisma.refreshment.findMany({
       where: {
-        id: cakeId,
+        id: { in: refreshmentIds },
         isDeleted: false,
-        type: CakeType.PRESET,
       },
     });
 
-    if (!cake) {
+    const allRefreshmentsFound = refreshmentIds.every((id: string) =>
+      refreshments.some((refreshment) => refreshment.id === id),
+    );
+
+    if (!allRefreshmentsFound) {
       return responseWrapper(
         404,
         null,
-        `Preset Cake with given id ${cakeId} not found.`,
+        "One or more refreshmentIds not found.",
       );
     }
 
@@ -42,23 +46,23 @@ export async function POST(req: NextRequest) {
     if (!cart) {
       cart = {} as Cart;
       cart.id = new mongoose.Types.ObjectId().toString();
-      cart.presetCake = [];
+      cart.snackBox = [];
       cart.type = type;
       cart.userId = userId;
     }
 
-    const existingCakeIndex = cart.presetCake.findIndex(
-      (item) => item.cakeId === cakeId,
+    const existingSnackBoxItem = cart.snackBox.findIndex((item) =>
+      arraysEqual(item.refreshmentIds, refreshmentIds),
     );
 
-    if (existingCakeIndex !== -1) {
-      cart.presetCake[existingCakeIndex].quantity += quantity;
+    if (existingSnackBoxItem !== -1) {
+      cart.snackBox[existingSnackBoxItem].quantity += quantity;
     } else {
-      if (!cart.presetCake) {
-        cart.presetCake = [];
+      if (!cart.snackBox) {
+        cart.snackBox = [];
       }
-      cart.presetCake.push({
-        cakeId: cakeId,
+      cart.snackBox.push({
+        refreshmentIds: refreshmentIds,
         quantity: quantity,
       });
     }
@@ -66,7 +70,7 @@ export async function POST(req: NextRequest) {
     const updatedCart = await prisma.cart.upsert({
       create: cart,
       update: {
-        presetCake: cart.presetCake,
+        snackBox: cart.snackBox,
       },
       where: { id: cart.id || "" },
     });

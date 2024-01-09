@@ -62,11 +62,6 @@ export async function POST(req: NextRequest) {
       cart.type = type;
       cart.userId = userId;
     }
-    const customCakeItem = {
-      cakeId: cakeId,
-      quantity: quantity,
-      variantIds: variantIds,
-    };
 
     const existingCakeIndex = cart.customCake.findIndex(
       (item) =>
@@ -79,7 +74,11 @@ export async function POST(req: NextRequest) {
       if (!cart.customCake) {
         cart.customCake = [];
       }
-      cart.customCake.push(customCakeItem);
+      cart.customCake.push({
+        cakeId: cakeId,
+        quantity: quantity,
+        variantIds: variantIds,
+      });
     }
 
     const updatedCart = await prisma.cart.upsert({

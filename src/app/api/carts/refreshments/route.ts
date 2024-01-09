@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     const refreshment = await prisma.refreshment.findUnique({
       where: {
         id: refreshmentId,
-        // TODO isDeleted: false
+        isDeleted: false,
       },
     });
 
@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
       return responseWrapper(
         404,
         null,
-        `Preset Refreshment with given id ${refreshmentId} not found.`,
+        `Refreshment with given id ${refreshmentId} not found.`,
       );
     }
 
@@ -45,10 +45,6 @@ export async function POST(req: NextRequest) {
       cart.type = type;
       cart.userId = userId;
     }
-    const refreshmentItem = {
-      refreshmentId: refreshmentId,
-      quantity: quantity,
-    };
 
     const existingRefreshmentItem = cart.refreshment.findIndex(
       (item) => item.refreshmentId === refreshmentId,
@@ -60,13 +56,16 @@ export async function POST(req: NextRequest) {
       if (!cart.refreshment) {
         cart.refreshment = [];
       }
-      cart.refreshment.push(refreshmentItem);
+      cart.refreshment.push({
+        refreshmentId: refreshmentId,
+        quantity: quantity,
+      });
     }
 
     const updatedCart = await prisma.cart.upsert({
       create: cart,
       update: {
-        presetCake: cart.presetCake,
+        refreshment: cart.refreshment,
       },
       where: { id: cart.id || "" },
     });
