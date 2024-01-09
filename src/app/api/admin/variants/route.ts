@@ -50,9 +50,9 @@ export async function POST(req: NextRequest) {
 
     const buffer = Buffer.from(await image.arrayBuffer());
 
-    const imagePath = `variants/${type}/${newVariant.id}`;
+    const imagePath = `variants/${type}/${newVariant.id}/${imageFileName}`;
 
-    const gcsFile = bucket.file(`${imagePath}/${imageFileName}`);
+    const gcsFile = bucket.file(imagePath);
 
     await gcsFile.save(buffer, {
       metadata: {
@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    const imageUrl = await getFileUrl(`${imagePath}/${imageFileName}`);
+    const imageUrl = await getFileUrl(imagePath);
 
     newVariant = await prisma.variant.update({
       where: { id: newVariant.id },

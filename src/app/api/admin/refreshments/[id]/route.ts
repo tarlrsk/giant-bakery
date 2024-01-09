@@ -26,7 +26,7 @@ export async function GET(_req: NextRequest, { params }: GetRefreshmentById) {
     }
 
     let refreshment = await prisma.refreshment.findUnique({
-      where: { id: id },
+      where: { id: id, isDeleted: false },
     });
 
     if (!refreshment) {
@@ -37,7 +37,9 @@ export async function GET(_req: NextRequest, { params }: GetRefreshmentById) {
       );
     }
 
-    const newFileUrl = await getFileUrl(refreshment.imageFileName as string);
+    const imagePath = `refreshments/${refreshment.category}/${refreshment.id}/${refreshment.imageFileName}`;
+
+    const newFileUrl = await getFileUrl(imagePath);
 
     refreshment = await prisma.refreshment.update({
       where: { id: id },
@@ -65,7 +67,7 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
     const formData = await req.formData();
 
     const refreshment = await prisma.refreshment.findUnique({
-      where: { id: id },
+      where: { id: id, isDeleted: false },
     });
 
     if (!refreshment) {
@@ -74,29 +76,6 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
         null,
         `Refreshment with given id ${id} not found.`,
       );
-    }
-
-    const image = formData.get("image") as File | null;
-
-    let imageFileName = refreshment.imageFileName as string;
-
-    if (image) {
-      const oldImage = bucket.file(refreshment.imageFileName as string);
-      await oldImage.delete();
-
-      const buffer = Buffer.from(await image.arrayBuffer());
-      const updatedImageFileName = `${formatDate(
-        new Date(Date.now()).toString(),
-      )}_${image.name}`;
-      const gcsFile = bucket.file(updatedImageFileName);
-
-      await gcsFile.save(buffer, {
-        metadata: {
-          contentType: image.type,
-        },
-      });
-
-      imageFileName = updatedImageFileName;
     }
 
     const name = formData.get("name") as string;
@@ -111,7 +90,6 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
     const width = parseFloat(formData.get("width") as string);
     const price = parseFloat(formData.get("price") as string);
     const isActive = parseBoolean(formData.get("isActive") as string);
-    const imageUrl = await getFileUrl(imageFileName);
 
     const validation = refreshmentValidationSchema.safeParse({
       name,
@@ -132,8 +110,35 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
       return responseWrapper(400, null, validation.error.message);
     }
 
+    const image = formData.get("image") as File | null;
+
+    let imageFileName = refreshment.imageFileName as string;
+
+    if (image) {
+      const oldImage = bucket.file(refreshment.imageFileName as string);
+      await oldImage.delete();
+
+      const buffer = Buffer.from(await image.arrayBuffer());
+
+      const updatedImageFileName = `${formatDate(
+        new Date(Date.now()).toString(),
+      )}_${image.name.replace(/\s/g, "_")}`;
+
+      const gcsFile = bucket.file(updatedImageFileName);
+
+      await gcsFile.save(buffer, {
+        metadata: {
+          contentType: image.type,
+        },
+      });
+
+      imageFileName = updatedImageFileName;
+    }
+
+    const imageUrl = await getFileUrl(imageFileName);
+
     const updatedRefreshment = await prisma.refreshment.update({
-      where: { id: id },
+      where: { id: refreshment.id },
       data: {
         name: name,
         imageFileName: imageFileName,
@@ -172,7 +177,7 @@ export async function DELETE(
     }
 
     const refreshment = await prisma.refreshment.findUnique({
-      where: { id: id },
+      where: { id: id, isDeleted: false },
     });
 
     if (!refreshment) {
@@ -183,10 +188,16 @@ export async function DELETE(
       );
     }
 
-    const oldImage = bucket.file(refreshment.imageFileName as string);
-    await oldImage.delete();
+    const deletedRefreshment = await prisma.refreshment.update({
+      where: { id: refreshment.id },
+      data: {
+        isDeleted: true,
+        deletedAt: new Date(Date.now()),
+      },
+    });
 
-    await prisma.refreshment.delete({ where: { id: id } });
+    // const oldImage = bucket.file(refreshment.imageFileName as string);
+    // await oldImage.delete();
 
     return responseWrapper(200, null, null);
   } catch (err: any) {
