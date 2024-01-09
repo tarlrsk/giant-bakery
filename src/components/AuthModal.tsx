@@ -1,20 +1,37 @@
 "use client";
 
 import React, { useState } from "react";
+import { useForm, SubmitHandler } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
 import {
-  Tabs,
-  Tab,
   Button,
   Modal,
   ModalContent,
   ModalBody,
-  ModalFooter,
   Input,
   Link,
 } from "@nextui-org/react";
 
+import {
+  customerLogInValidationSchema,
+  customerRegisterValidationSchema,
+} from "@/lib/validation-schema";
+
+import SocialButtons from "./SocialButtons";
 import { EyeFilledIcon } from "./svg/EyeFilledIcon";
 import { EyeSlashFilledIcon } from "./svg/EyeSlashFilledIcon";
+
+// ----------------------------------------------------------------------
+
+type AuthForm = {
+  setSelected: React.Dispatch<React.SetStateAction<string>>;
+};
+
+type RegisterForm = z.infer<typeof customerRegisterValidationSchema>;
+
+type LoginForm = z.infer<typeof customerLogInValidationSchema>;
 
 // ----------------------------------------------------------------------
 
@@ -27,21 +44,32 @@ export default function AuthModal({ isOpen, onOpenChange }: Props) {
   const [selected, setSelected] = useState("login");
 
   return (
-    <Modal size="md" isOpen={isOpen} onOpenChange={onOpenChange}>
-      <ModalContent className="p-6">
+    <Modal
+      size="md"
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
+      hideCloseButton
+    >
+      <ModalContent className=" p-8">
         {(onClose) => (
           <>
-            <Tabs
-              fullWidth
-              size="lg"
-              variant="underlined"
-              selectedKey={selected}
-              onSelectionChange={(key) => setSelected(key as string)}
-            >
-              <Tab key="register" title="สมัครบัญชีใหม่" />
-              <Tab key="login" title="เข้าสู่ระบบ" />
-            </Tabs>
-            <ModalBody className="pt-6">
+            <ModalBody>
+              <div>เข้าสู่ระบบด้วยบัญชี</div>
+              <div className="flex items-center gap-2">
+                <SocialButtons
+                  type="facebook"
+                  onClick={() => console.log("SignIn with Facebook")}
+                />
+                <SocialButtons
+                  type="google"
+                  onClick={() => console.log("SignIn with Google")}
+                />
+              </div>
+              <div className="relative flex py-3 items-center">
+                <div className="flex-grow border-t"></div>
+                <span className="flex-shrink mx-4 text-small">หรือ</span>
+                <div className="flex-grow border-t"></div>
+              </div>
               {selected === "register" ? (
                 <RegisterForm setSelected={setSelected} />
               ) : (
@@ -57,66 +85,101 @@ export default function AuthModal({ isOpen, onOpenChange }: Props) {
 
 // ----------------------------------------------------------------------
 
-type AuthForm = {
-  setSelected: React.Dispatch<React.SetStateAction<string>>;
-};
-
 function RegisterForm({ setSelected }: AuthForm) {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<RegisterForm>({
+    resolver: zodResolver(customerRegisterValidationSchema),
+  });
+
   const [isVisible, setIsVisible] = useState(false);
+  const [isVisibleConfirm, setIsVisibleConfirm] = useState(false);
 
   const toggleVisibility = () => setIsVisible(!isVisible);
+  const toggleVisibilityConfirm = () => setIsVisibleConfirm(!isVisibleConfirm);
+
+  const onSubmit: SubmitHandler<RegisterForm> = (data) => console.log(data);
+
   return (
     <>
-      <h1>เข้าสู่ระบบด้วยบัญชี</h1>
+      <h1>สมัครบัญชีด้วยอีเมล</h1>
 
-      <form className="flex flex-col gap-5">
-        <div>
-          <Input
-            isRequired
-            label="อีเมล"
-            placeholder="Enter your email"
-            labelPlacement="outside"
-            variant="bordered"
-            type="email"
-          />
-        </div>
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
+        <Input
+          {...register("email")}
+          autoFocus
+          isRequired
+          label="อีเมล"
+          placeholder="อีเมล"
+          labelPlacement="outside"
+          variant="bordered"
+          type="email"
+          isInvalid={!!errors?.email}
+          errorMessage={errors.email?.message}
+        />
 
-        <div style={{ position: "relative" }}>
-          <Input
-            isRequired
-            label="พาสเวิร์ด"
-            placeholder="Enter your password"
-            labelPlacement="outside"
-            variant="bordered"
-            endContent={
-              <button
-                className="focus:outline-none"
-                type="button"
-                onClick={toggleVisibility}
-              >
-                {isVisible ? (
-                  <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
-                ) : (
-                  <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
-                )}
-              </button>
-            }
-            type={isVisible ? "text" : "password"}
-          />
-          <Link
-            size="sm"
-            color="secondary"
-            style={{
-              position: "absolute",
-              right: 0,
-              top: -2,
-              cursor: "pointer",
-            }}
-            onPress={() => setSelected("register")}
-          >
-            ลืมพาสเวิร์ด
-          </Link>
-        </div>
+        <Input
+          {...register("password")}
+          isRequired
+          label="พาสเวิร์ด"
+          placeholder="พาสเวิร์ด"
+          labelPlacement="outside"
+          variant="bordered"
+          endContent={
+            <button
+              className="focus:outline-none"
+              type="button"
+              onClick={toggleVisibility}
+            >
+              {isVisible ? (
+                <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+              ) : (
+                <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+              )}
+            </button>
+          }
+          type={isVisible ? "text" : "password"}
+          isInvalid={!!errors?.password}
+          errorMessage={errors.password?.message}
+        />
+        <Input
+          {...register("confirmPassword")}
+          isRequired
+          label="ยืนยันพาสเวิร์ด"
+          placeholder="ยืนยันพาสเวิร์ด"
+          labelPlacement="outside"
+          variant="bordered"
+          endContent={
+            <button
+              className="focus:outline-none"
+              type="button"
+              onClick={toggleVisibilityConfirm}
+            >
+              {isVisibleConfirm ? (
+                <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+              ) : (
+                <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+              )}
+            </button>
+          }
+          type={isVisibleConfirm ? "text" : "password"}
+          isInvalid={!!errors?.confirmPassword}
+          errorMessage={errors.confirmPassword?.message}
+        />
+
+        <Input
+          {...register("phone")}
+          isRequired
+          label="หมายเลขโทรศัพท์"
+          placeholder="หมายเลขโทรศัพท์"
+          labelPlacement="outside"
+          variant="bordered"
+          type="tel"
+          isInvalid={!!errors?.phone}
+          errorMessage={errors.phone?.message}
+        />
 
         <p className="text-center text-small">
           มีบัญชีอยู่แล้ว?{" "}
@@ -124,7 +187,7 @@ function RegisterForm({ setSelected }: AuthForm) {
             size="sm"
             color="secondary"
             style={{ cursor: "pointer" }}
-            onPress={() => setSelected("register")}
+            onPress={() => setSelected("login")}
           >
             เข้าสู่ระบบเลย
           </Link>
@@ -134,6 +197,7 @@ function RegisterForm({ setSelected }: AuthForm) {
             fullWidth
             color="secondary"
             style={{ height: "2.75rem", fontSize: "1rem" }}
+            type="submit"
           >
             สมัครบัญชี
           </Button>
@@ -143,27 +207,45 @@ function RegisterForm({ setSelected }: AuthForm) {
   );
 }
 
+// ----------------------------------------------------------------------
+
 function LoginForm({ setSelected }: AuthForm) {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginForm>({
+    resolver: zodResolver(customerLogInValidationSchema),
+  });
+
   const [isVisible, setIsVisible] = useState(false);
 
   const toggleVisibility = () => setIsVisible(!isVisible);
+
+  const onSubmit: SubmitHandler<LoginForm> = (data) => console.log(data);
+
   return (
     <>
-      <h1>เข้าสู่ระบบด้วยบัญชี</h1>
+      <h1>เข้าสู่ระบบด้วยอีเมล</h1>
 
-      <form className="flex flex-col gap-5">
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
         <div>
           <Input
+            {...register("email")}
+            autoFocus
             isRequired
             label="อีเมล"
             placeholder="Enter your email"
             labelPlacement="outside"
             variant="bordered"
             type="email"
+            isInvalid={!!errors?.email}
+            errorMessage={errors.email?.message}
           />
         </div>
         <div style={{ position: "relative" }}>
           <Input
+            {...register("password")}
             isRequired
             label="พาสเวิร์ด"
             placeholder="Enter your password"
@@ -183,6 +265,8 @@ function LoginForm({ setSelected }: AuthForm) {
               </button>
             }
             type={isVisible ? "text" : "password"}
+            isInvalid={!!errors?.password}
+            errorMessage={errors.password?.message}
           />
           <Link
             size="sm"
@@ -195,7 +279,7 @@ function LoginForm({ setSelected }: AuthForm) {
             }}
             onPress={() => setSelected("register")}
           >
-            ลืมพาสเวิร์ด
+            ลืมพาสเวิร์ด?
           </Link>
         </div>
         <p className="text-center text-small">
@@ -203,7 +287,8 @@ function LoginForm({ setSelected }: AuthForm) {
           <Link
             size="sm"
             color="secondary"
-            onPress={() => setSelected("login")}
+            style={{ cursor: "pointer" }}
+            onPress={() => setSelected("register")}
           >
             สมัครเลย
           </Link>
@@ -212,7 +297,8 @@ function LoginForm({ setSelected }: AuthForm) {
           <Button
             fullWidth
             color="secondary"
-            style={{ height: "2.75rem", fontSize: "1rem" }}
+            className=" h-11 text-base"
+            type="submit"
           >
             เข้าสู่ระบบ
           </Button>

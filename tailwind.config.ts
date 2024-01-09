@@ -18,6 +18,9 @@ const config: Config = {
         center: true,
       },
       colors: {
+        facebook: {
+          main: "#0165E1",
+        },
         primaryT: {
           lighter: "#FFF1E0",
           light: "#FFD199",

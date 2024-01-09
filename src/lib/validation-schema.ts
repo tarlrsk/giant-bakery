@@ -3,6 +3,14 @@ import { z } from "zod";
 
 const isNumeric = (value: string) => /^\d+$/.test(value);
 
+const phoneRegex = new RegExp(
+  /^([+]?[\s0-9]+)?(\d{3}|[(]?[0-9]+[)])?([-]?[\s]?[0-9])+$/,
+);
+
+const passwordRegex = new RegExp(
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+=[{\]};:<>|./?,-]).+$/,
+);
+
 // Auth ----------------------------------------------------------------------
 
 export const emailValidationSchema = z
@@ -19,6 +27,38 @@ export const passwordValidationSchema = z
         "Password must contains at least a lowercase character, uppcase character, a number, and a special characters (!@#$%^&*_-).",
     },
   );
+
+export const customerRegisterValidationSchema = z.object({
+  email: z.string({ required_error: "Email is required." }).email(),
+  password: z
+    .string({ required_error: "Password is required." })
+    .min(8)
+    .regex(passwordRegex, {
+      message:
+        "Password must contains at least a lowercase character, uppercase character, a number, and a special characters (!@#$%^&*_-).",
+    }),
+  confirmPassword: z
+    .string({ required_error: "Password is required." })
+    .min(8)
+    .regex(passwordRegex, {
+      message:
+        "Password must contains at least a lowercase character, uppercase character, a number, and a special characters (!@#$%^&*_-).",
+    }),
+  phone: z
+    .string({ required_error: "Phone number is required." })
+    .regex(phoneRegex, "Invalid phone number"),
+});
+
+export const customerLogInValidationSchema = z.object({
+  email: z.string({ required_error: "Email is required." }).email(),
+  password: z
+    .string({ required_error: "Password is required." })
+    .min(8)
+    .regex(passwordRegex, {
+      message:
+        "Password must contains at least a lowercase character, uppercase character, a number, and a special characters (!@#$%^&*_-).",
+    }),
+});
 
 // Customer Address ----------------------------------------------------------
 
@@ -88,7 +128,9 @@ export const cakeValidationSchema = z.object({
   length: z.number().multipleOf(0.01),
   width: z.number().multipleOf(0.01),
   isActive: z.boolean(),
-  variantIds: z.array(z.string().refine((val) => {
-    return mongoose.isValidObjectId(val)
-  })),
+  variantIds: z.array(
+    z.string().refine((val) => {
+      return mongoose.isValidObjectId(val);
+    }),
+  ),
 });
