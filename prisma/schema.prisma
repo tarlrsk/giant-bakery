@@ -65,6 +65,18 @@ model VerificationToken {
 
 // System Model ----------------------------------------------------------------------
 
+model Cart {
+  id          String            @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String?           @db.ObjectId
+  type        CartType
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  presetCake  PresetCakeCart[]
+  customCake  CustomCakeCart[]
+  refreshment RefreshmentCart[]
+  snackBox    SnackBoxCart[]
+}
+
 model CustomerAddress {
   id          String @id @default(auto()) @map("_id") @db.ObjectId
   address     String
@@ -88,11 +100,11 @@ model Cake {
   length    Float
   width     Float
   isActive  Boolean
-  isDeleted Boolean @default(false)
+  isDeleted Boolean  @default(false)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  deletedAt DateTime? 
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   variants   Variant[]   @relation(fields: [variantIds], references: [id])
   orderItems OrderItem[]
@@ -222,7 +234,7 @@ model Discount {
   order     Order[]
 }
 
-// Enum
+// Enum -----------------------------------------------------------------------------------
 
 enum Role {
   CUSTOMER
@@ -237,6 +249,11 @@ enum RefreshmentCategory {
 enum CakeType {
   CUSTOM
   PRESET
+}
+
+enum CartType {
+  MEMBER
+  GUEST
 }
 
 enum VariantType {
@@ -284,4 +301,27 @@ enum PaymentType {
 enum PaymentStatus {
   COMPLETE
   INCOMPLETE
+}
+
+// Types (Composite Type) ----------------------------------------------------------------------
+
+type PresetCakeCart {
+  cakeId   String @db.ObjectId
+  quantity Int    @default(1)
+}
+
+type CustomCakeCart {
+  cakeId     String   @db.ObjectId
+  quantity   Int      @default(1)
+  variantIds String[]
+}
+
+type RefreshmentCart {
+  refreshmentId String @db.ObjectId
+  quantity      Int    @default(1)
+}
+
+type SnackBoxCart {
+  refreshmentIds String[] @db.ObjectId
+  quantity       Int      @default(1)
 }

@@ -2,6 +2,14 @@ import mongoose from "mongoose";
 import { z } from "zod";
 
 const isNumeric = (value: string) => /^\d+$/.test(value);
+const isObjectId = (zString: z.ZodString) => {
+  return zString.refine((val) => {
+    if (!mongoose.isValidObjectId(val)) {
+      return false;
+    }
+    return true;
+  }, "Invalid ObjectId");
+};
 
 // Auth ----------------------------------------------------------------------
 
@@ -88,7 +96,14 @@ export const cakeValidationSchema = z.object({
   length: z.number().multipleOf(0.01),
   width: z.number().multipleOf(0.01),
   isActive: z.boolean(),
-  variantIds: z.array(z.string().refine((val) => {
-    return mongoose.isValidObjectId(val)
-  })),
+  variantIds: z.array(isObjectId(z.string())),
+});
+
+// Cart ------------------------------------------------------------------
+export const cartCustomCakeValidationSchema = z.object({
+  userId: isObjectId(z.string()),
+  type: z.enum(["GUEST", "MEMBER"]),
+  cakeId: isObjectId(z.string()),
+  variantIds: z.array(isObjectId(z.string())),
+  quantity: z.number(),
 });
