@@ -146,6 +146,7 @@ model Variant {
 model Refreshment {
   id            String              @id @default(auto()) @map("_id") @db.ObjectId
   name          String
+  description   String?
   imageFileName String?
   image         String?
   category      RefreshmentCategory

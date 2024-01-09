@@ -79,6 +79,7 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
     }
 
     const name = formData.get("name") as string;
+    const description = formData.get("description") as string;
     const category = formData.get("category") as RefreshmentCategory;
     const status = formData.get("status") as StockStatus;
     const minQty = parseInt(formData.get("minQty") as string);
@@ -93,6 +94,7 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
 
     const validation = refreshmentValidationSchema.safeParse({
       name,
+      description,
       category,
       status,
       minQty,
@@ -141,6 +143,7 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
       where: { id: refreshment.id },
       data: {
         name: name,
+        description: description,
         imageFileName: imageFileName,
         image: imageUrl,
         category: category,
