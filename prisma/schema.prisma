@@ -77,27 +77,6 @@ model Cart {
   snackBox    SnackBoxCart[]
 }
 
-type PresetCakeCart {
-  cakeId   String @db.ObjectId
-  quantity Int    @default(1)
-}
-
-type CustomCakeCart {
-  cakeId     String   @db.ObjectId
-  quantity   Int      @default(1)
-  variantIds String[]
-}
-
-type RefreshmentCart {
-  refreshmentId String @db.ObjectId
-  quantity      Int    @default(1)
-}
-
-type SnackBoxCart {
-  refreshmentIds String[] @db.ObjectId
-  quantity       Int      @default(1)
-}
-
 model CustomerAddress {
   id          String @id @default(auto()) @map("_id") @db.ObjectId
   address     String
@@ -255,7 +234,7 @@ model Discount {
   order     Order[]
 }
 
-// Enum
+// Enum -----------------------------------------------------------------------------------
 
 enum Role {
   CUSTOMER
@@ -322,4 +301,27 @@ enum PaymentType {
 enum PaymentStatus {
   COMPLETE
   INCOMPLETE
+}
+
+// Types (Composite Type) ----------------------------------------------------------------------
+
+type PresetCakeCart {
+  cakeId   String @db.ObjectId
+  quantity Int    @default(1)
+}
+
+type CustomCakeCart {
+  cakeId     String   @db.ObjectId
+  quantity   Int      @default(1)
+  variantIds String[]
+}
+
+type RefreshmentCart {
+  refreshmentId String @db.ObjectId
+  quantity      Int    @default(1)
+}
+
+type SnackBoxCart {
+  refreshmentIds String[] @db.ObjectId
+  quantity       Int      @default(1)
 }
