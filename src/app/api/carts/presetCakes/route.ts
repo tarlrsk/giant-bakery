@@ -1,30 +1,26 @@
 import { prisma } from "@/lib/prisma";
-import { cartCustomCakeValidationSchema } from "@/lib/validation-schema";
+import { cartCustomCakeValidationSchema, cartPresetCakeValidationSchema } from "@/lib/validation-schema";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { NextRequest } from "next/server";
 import { CakeType, Cart, CartType } from "@prisma/client";
 import mongoose from "mongoose";
-import { arraysEqual } from "@/lib/arrayTool";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const validation = cartCustomCakeValidationSchema.safeParse(body);
+    const validation = cartPresetCakeValidationSchema.safeParse(body);
 
     if (!validation.success) {
       return responseWrapper(400, null, validation.error.format());
     }
 
     // TODO USER ID FROM TOKEN OR COOKIE ID
-    const { cakeId, variantIds, type, userId, quantity } = body;
+    const { cakeId, type, userId, quantity } = body;
     const cake = await prisma.cake.findUnique({
       where: {
         id: cakeId,
         isDeleted: false,
-        type: CakeType.CUSTOM,
-      },
-      include: {
-        variants: true,
+        type: CakeType.PRESET
       },
     });
 
@@ -32,19 +28,7 @@ export async function POST(req: NextRequest) {
       return responseWrapper(
         404,
         null,
-        `Custom Cake with given id ${cakeId} not found.`,
-      );
-    }
-
-    const variantsExist = variantIds.every((variantId: string) =>
-      cake.variants.some((variant) => variant.id === variantId),
-    );
-
-    if (!variantsExist) {
-      return responseWrapper(
-        400,
-        null,
-        "Provided variantIds are not part of the custom cake.",
+        `Preset Cake with given id ${cakeId} not found.`,
       );
     }
 
@@ -58,34 +42,33 @@ export async function POST(req: NextRequest) {
     if (!cart) {
       cart = {} as Cart;
       cart.id = new mongoose.Types.ObjectId().toString();
-      cart.customCake = [];
+      cart.presetCake = [];
       cart.type = type;
       cart.userId = userId;
     }
-    const customCakeItem = {
+    const presetCakeItem = {
       cakeId: cakeId,
       quantity: quantity,
-      variantIds: variantIds,
     };
 
-    const existingCakeIndex = cart.customCake.findIndex(
+    const existingCakeIndex = cart.presetCake.findIndex(
       (item) =>
-        item.cakeId === cakeId && arraysEqual(item.variantIds, variantIds),
+        item.cakeId === cakeId,
     );
 
     if (existingCakeIndex !== -1) {
-      cart.customCake[existingCakeIndex].quantity += quantity;
+      cart.presetCake[existingCakeIndex].quantity += quantity;
     } else {
-      if (!cart.customCake) {
-        cart.customCake = [];
+      if (!cart.presetCake) {
+        cart.presetCake = [];
       }
-      cart.customCake.push(customCakeItem);
+      cart.presetCake.push(presetCakeItem);
     }
 
     const updatedCart = await prisma.cart.upsert({
       create: cart,
       update: {
-        customCake: cart.customCake,
+        presetCake: cart.presetCake,
       },
       where: { id: cart.id || "" },
     });

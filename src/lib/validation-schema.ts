@@ -107,3 +107,24 @@ export const cartCustomCakeValidationSchema = z.object({
   variantIds: z.array(isObjectId(z.string())),
   quantity: z.number(),
 });
+
+export const cartPresetCakeValidationSchema = z.object({
+  userId: isObjectId(z.string()),
+  type: z.enum(["GUEST", "MEMBER"]),
+  cakeId: isObjectId(z.string()),
+  quantity: z.number(),
+})
+
+export const cartRefreshmentValidationSchema = z.object({
+  userId: isObjectId(z.string()),
+  type: z.enum(["GUEST", "MEMBER"]),
+  refreshmentId: isObjectId(z.string()),
+  quantity: z.number(),
+})
+
+export const cartSnackBoxValidationSchema = z.object({
+  userId: isObjectId(z.string()),
+  type: z.enum(["GUEST", "MEMBER"]),
+  refreshmentIds: z.array(isObjectId(z.string())),
+  quantity: z.number(),
+})
