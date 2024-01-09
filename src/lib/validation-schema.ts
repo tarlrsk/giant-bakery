@@ -37,7 +37,7 @@ export const passwordValidationSchema = z
     },
   );
 
-export const customerRegisterValidationSchema = z.object({
+export const customerSignUpValidationSchema = z.object({
   email: z.string({ required_error: "Email is required." }).email(),
   password: z
     .string({ required_error: "Password is required." })
@@ -58,7 +58,7 @@ export const customerRegisterValidationSchema = z.object({
     .regex(phoneRegex, "Invalid phone number"),
 });
 
-export const customerLogInValidationSchema = z.object({
+export const customerSignInValidationSchema = z.object({
   email: z.string({ required_error: "Email is required." }).email(),
   password: z
     .string({ required_error: "Password is required." })

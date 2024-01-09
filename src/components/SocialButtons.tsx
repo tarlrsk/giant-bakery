@@ -1,8 +1,8 @@
 import _ from "lodash";
 import React from "react";
 import { Button } from "@nextui-org/react";
-import { FacebookIcon } from "./svg/FacebookIcon";
-import { GoogleIcon } from "./svg/GoogleIcon";
+import { FacebookIcon } from "./icons/FacebookIcon";
+import { GoogleIcon } from "./icons/GoogleIcon";
 
 // ----------------------------------------------------------------------
 

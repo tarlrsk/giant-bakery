@@ -15,23 +15,24 @@ import {
 } from "@nextui-org/react";
 
 import {
-  customerLogInValidationSchema,
-  customerRegisterValidationSchema,
+  customerSignInValidationSchema,
+  customerSignUpValidationSchema,
 } from "@/lib/validation-schema";
 
 import SocialButtons from "./SocialButtons";
-import { EyeFilledIcon } from "./svg/EyeFilledIcon";
-import { EyeSlashFilledIcon } from "./svg/EyeSlashFilledIcon";
+import { EyeFilledIcon } from "./icons/EyeFilledIcon";
+import { EyeSlashFilledIcon } from "./icons/EyeSlashFilledIcon";
+import { useAuth } from "@/hooks/useAuth";
 
 // ----------------------------------------------------------------------
 
-type AuthForm = {
+type AuthProps = {
   setSelected: React.Dispatch<React.SetStateAction<string>>;
 };
 
-type RegisterForm = z.infer<typeof customerRegisterValidationSchema>;
+type SignInProps = z.infer<typeof customerSignInValidationSchema>;
 
-type LoginForm = z.infer<typeof customerLogInValidationSchema>;
+type SignUpProps = z.infer<typeof customerSignUpValidationSchema>;
 
 // ----------------------------------------------------------------------
 
@@ -41,7 +42,7 @@ type Props = {
 };
 
 export default function AuthModal({ isOpen, onOpenChange }: Props) {
-  const [selected, setSelected] = useState("login");
+  const [selected, setSelected] = useState("signIn");
 
   return (
     <Modal
@@ -70,10 +71,10 @@ export default function AuthModal({ isOpen, onOpenChange }: Props) {
                 <span className="flex-shrink mx-4 text-small">หรือ</span>
                 <div className="flex-grow border-t"></div>
               </div>
-              {selected === "register" ? (
-                <RegisterForm setSelected={setSelected} />
+              {selected === "signUp" ? (
+                <SignUpForm setSelected={setSelected} />
               ) : (
-                <LoginForm setSelected={setSelected} />
+                <SignInForm setSelected={setSelected} />
               )}
             </ModalBody>
           </>
@@ -85,14 +86,16 @@ export default function AuthModal({ isOpen, onOpenChange }: Props) {
 
 // ----------------------------------------------------------------------
 
-function RegisterForm({ setSelected }: AuthForm) {
+function SignUpForm({ setSelected }: AuthProps) {
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<RegisterForm>({
-    resolver: zodResolver(customerRegisterValidationSchema),
+  } = useForm<SignUpProps>({
+    resolver: zodResolver(customerSignUpValidationSchema),
   });
+
+  const { credentialSignUp } = useAuth();
 
   const [isVisible, setIsVisible] = useState(false);
   const [isVisibleConfirm, setIsVisibleConfirm] = useState(false);
@@ -100,7 +103,7 @@ function RegisterForm({ setSelected }: AuthForm) {
   const toggleVisibility = () => setIsVisible(!isVisible);
   const toggleVisibilityConfirm = () => setIsVisibleConfirm(!isVisibleConfirm);
 
-  const onSubmit: SubmitHandler<RegisterForm> = (data) => console.log(data);
+  const onSubmit: SubmitHandler<SignUpProps> = (data) => console.log(data);
 
   return (
     <>
@@ -187,7 +190,7 @@ function RegisterForm({ setSelected }: AuthForm) {
             size="sm"
             color="secondary"
             style={{ cursor: "pointer" }}
-            onPress={() => setSelected("login")}
+            onPress={() => setSelected("signIn")}
           >
             เข้าสู่ระบบเลย
           </Link>
@@ -209,20 +212,22 @@ function RegisterForm({ setSelected }: AuthForm) {
 
 // ----------------------------------------------------------------------
 
-function LoginForm({ setSelected }: AuthForm) {
+function SignInForm({ setSelected }: AuthProps) {
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginForm>({
-    resolver: zodResolver(customerLogInValidationSchema),
+  } = useForm<SignInProps>({
+    resolver: zodResolver(customerSignInValidationSchema),
   });
+
+  const { credentialSignIn } = useAuth();
 
   const [isVisible, setIsVisible] = useState(false);
 
   const toggleVisibility = () => setIsVisible(!isVisible);
 
-  const onSubmit: SubmitHandler<LoginForm> = (data) => console.log(data);
+  const onSubmit: SubmitHandler<SignInProps> = (data) => console.log(data);
 
   return (
     <>
@@ -277,7 +282,7 @@ function LoginForm({ setSelected }: AuthForm) {
               top: -2,
               cursor: "pointer",
             }}
-            onPress={() => setSelected("register")}
+            onPress={() => setSelected("signUp")}
           >
             ลืมพาสเวิร์ด?
           </Link>
@@ -288,7 +293,7 @@ function LoginForm({ setSelected }: AuthForm) {
             size="sm"
             color="secondary"
             style={{ cursor: "pointer" }}
-            onPress={() => setSelected("register")}
+            onPress={() => setSelected("signUp")}
           >
             สมัครเลย
           </Link>
