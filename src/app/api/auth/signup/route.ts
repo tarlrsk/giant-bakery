@@ -1,16 +1,13 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { responseWrapper } from "@/utils/api-response-wrapper";
-import {
-  emailValidationSchema,
-  passwordValidationSchema,
-} from "@/lib/validation-schema";
+import { customerSignUpValidationSchema } from "@/lib/validation-schema";
 
 // ----------------------------------------------------------------------
 
 export async function POST(req: NextRequest) {
   try {
-    const { name, email, password } = await req.json();
+    const { name, email, password, confirmPassword } = await req.json();
 
     if (!name?.trim()) {
       return responseWrapper(400, null, "Name is required.");
@@ -24,11 +21,19 @@ export async function POST(req: NextRequest) {
       return responseWrapper(400, null, "Password is required.");
     }
 
-    const validatedEmail = emailValidationSchema.safeParse(email);
-    const validatedPassword = passwordValidationSchema.safeParse(password);
+    const validation = customerSignUpValidationSchema.safeParse({
+      name,
+      email,
+      password,
+      confirmPassword,
+    });
 
-    if (!validatedEmail.success || !validatedPassword.success) {
-      return responseWrapper(400, null, "Invalid email or password format.");
+    if (!validation.success) {
+      return responseWrapper(
+        400,
+        validation.error.format(),
+        "Invalid email or password",
+      );
     }
 
     const bcrypt = require("bcrypt");

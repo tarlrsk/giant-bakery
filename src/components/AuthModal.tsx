@@ -10,6 +10,7 @@ import {
   customerSignUpValidationSchema,
 } from "@/lib/validation-schema";
 
+import { semanticColors } from "@nextui-org/theme";
 import {
   Link,
   Modal,
@@ -93,15 +94,21 @@ function SignUpForm({ setSelected }: AuthProps) {
 
   const { credentialSignUp } = useAuth();
 
+  const [error, setError] = useState("");
   const [isVisible, setIsVisible] = useState(false);
   const [isVisibleConfirm, setIsVisibleConfirm] = useState(false);
 
   const toggleVisibility = () => setIsVisible(!isVisible);
   const toggleVisibilityConfirm = () => setIsVisibleConfirm(!isVisibleConfirm);
 
-  const onSubmit: SubmitHandler<SignUpProps> = (data) => {
-    const response = credentialSignUp(data);
-    console.log("response", response);
+  const onSubmit: SubmitHandler<SignUpProps> = async (data) => {
+    try {
+      const response = await credentialSignUp(data);
+    } catch (error) {
+      setError(
+        typeof error === "string" ? error : "กรุณาลองใหม่อีกครั้งในภายหลัง",
+      );
+    }
   };
 
   return (
@@ -166,6 +173,25 @@ function SignUpForm({ setSelected }: AuthProps) {
           errorMessage={errors.phone?.message}
         />
 
+        {error && (
+          <div
+            className={` text-xs text-[${semanticColors.light.danger[500]}]`}
+          >
+            {error}
+          </div>
+        )}
+
+        <div className="flex gap-2 justify-end">
+          <Button
+            fullWidth
+            color="secondary"
+            style={{ height: "2.75rem", fontSize: "1rem" }}
+            type="submit"
+          >
+            สมัครบัญชี
+          </Button>
+        </div>
+
         <p className="text-center text-small">
           มีบัญชีอยู่แล้ว?{" "}
           <Link
@@ -177,16 +203,6 @@ function SignUpForm({ setSelected }: AuthProps) {
             เข้าสู่ระบบเลย
           </Link>
         </p>
-        <div className="flex gap-2 justify-end">
-          <Button
-            fullWidth
-            color="secondary"
-            style={{ height: "2.75rem", fontSize: "1rem" }}
-            type="submit"
-          >
-            สมัครบัญชี
-          </Button>
-        </div>
       </form>
     </>
   );
@@ -205,13 +221,20 @@ function SignInForm({ setSelected }: AuthProps) {
 
   const { credentialSignIn } = useAuth();
 
+  const [error, setError] = useState("");
   const [isVisible, setIsVisible] = useState(false);
 
   const toggleVisibility = () => setIsVisible(!isVisible);
 
   const onSubmit: SubmitHandler<SignInProps> = async (data) => {
-    const response = credentialSignIn(data);
-    console.log("response", response);
+    try {
+      const response = await credentialSignIn(data);
+    } catch (error: { message: string } | any) {
+      if (!error.message) return setError("กรุณาลองใหม่อีกครั้งในภายหลัง");
+      setError(
+        typeof error.message === "string" ? error.message : "Unexpected error",
+      );
+    }
   };
 
   return (
@@ -221,15 +244,15 @@ function SignInForm({ setSelected }: AuthProps) {
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
         <div>
           <Input
-            {...register("email")}
+            {...register("email", { required: true })}
             autoFocus
             label="อีเมล"
-            placeholder="Enter your email"
+            placeholder="อีเมล"
             labelPlacement="outside"
             variant="bordered"
             type="email"
-            isInvalid={!!errors.email}
-            errorMessage={errors.email && "Email is required"}
+            isInvalid={!!errors.email || !!error}
+            errorMessage={errors.email?.message}
           />
         </div>
         <div style={{ position: "relative" }}>
@@ -246,8 +269,8 @@ function SignInForm({ setSelected }: AuthProps) {
               />
             }
             type={isVisible ? "text" : "password"}
-            isInvalid={!!errors?.password}
-            errorMessage={errors.password?.message}
+            isInvalid={!!errors?.password || !!error}
+            errorMessage={errors.password?.message || error}
           />
           <Link
             size="sm"
@@ -263,6 +286,18 @@ function SignInForm({ setSelected }: AuthProps) {
             ลืมพาสเวิร์ด?
           </Link>
         </div>
+
+        <div className="flex gap-2 justify-end">
+          <Button
+            fullWidth
+            color="secondary"
+            className=" h-11 text-base"
+            type="submit"
+          >
+            เข้าสู่ระบบ
+          </Button>
+        </div>
+
         <p className="text-center text-small">
           ยังไม่มีบัญชี?{" "}
           <Link
@@ -274,16 +309,6 @@ function SignInForm({ setSelected }: AuthProps) {
             สมัครเลย
           </Link>
         </p>
-        <div className="flex gap-2 justify-end">
-          <Button
-            fullWidth
-            color="secondary"
-            className=" h-11 text-base"
-            type="submit"
-          >
-            เข้าสู่ระบบ
-          </Button>
-        </div>
       </form>
     </>
   );

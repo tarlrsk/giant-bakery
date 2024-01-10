@@ -7,10 +7,6 @@ const phoneRegex = new RegExp(
   /^([+]?[\s0-9]+)?(\d{3}|[(]?[0-9]+[)])?([-]?[\s]?[0-9])+$/,
 );
 
-const passwordRegex = new RegExp(
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+=[{\]};:<>|./?,-]).+$/,
-);
-
 const zodIsObjectId = (zString: z.ZodString) => {
   return zString.refine((val) => {
     if (!mongoose.isValidObjectId(val)) {
@@ -22,60 +18,32 @@ const zodIsObjectId = (zString: z.ZodString) => {
 
 // Auth ----------------------------------------------------------------------
 
-export const emailValidationSchema = z
-  .string({ required_error: "Email is required." })
-  .email();
+export const customerSignUpValidationSchema = z
+  .object({
+    email: z.string().min(1, "กรุณาใส่อีเมล").email("กรุณาใส่อีเมลที่ถูกต้อง"),
 
-export const passwordValidationSchema = z
-  .string({ required_error: "Password is required." })
-  .min(8)
-  .regex(
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+=[{\]};:<>|./?,-]).+$/,
-    {
-      message:
-        "Password must contains at least a lowercase character, uppcase character, a number, and a special characters (!@#$%^&*_-).",
-    },
-  );
-
-export const customerSignUpValidationSchema = z.object({
-  email: z
-    .string({ required_error: "Email is required." })
-    .min(1, "Email is required")
-    .email("Email is invalid"),
-
-  password: z
-    .string({ required_error: "Password is required." })
-    .min(8, "Password must contain at least 8 character(s)")
-    .regex(passwordRegex, {
-      message:
-        "Password must contains at least a lowercase character, uppercase character, a number, and a special characters (!@#$%^&*_-).",
-    }),
-  confirmPassword: z
-    .string({ required_error: "Password is required." })
-    .min(8, "Password must contain at least 8 character(s)")
-    .regex(passwordRegex, {
-      message:
-        "Password must contains at least a lowercase character, uppercase character, a number, and a special characters (!@#$%^&*_-).",
-    }),
-  phone: z
-    .string({ required_error: "Phone number is required." })
-    .min(10, "Phone number must have 10 numbers")
-    .max(10, "Phone number must have 10 numbers")
-    .regex(phoneRegex, "Invalid phone number"),
-});
+    password: z
+      .string({ required_error: "กรุณาใส่รหัสผ่าน" })
+      .min(8, "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร"),
+    confirmPassword: z
+      .string({ required_error: "กรุณาใส่รหัสผ่าน" })
+      .min(8, "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร"),
+    phone: z
+      .string({ required_error: "กรุณาใส่เบอร์โทรศัพท์" })
+      .min(10, "เบอร์โทรศัพท์ต้องมี 10 ตัวเลขเท่านั้น")
+      .max(10, "เบอร์โทรศัพท์ต้องมี 10 ตัวเลขเท่านั้น")
+      .regex(phoneRegex, "กรุณาใส่เบอร์โทรศัพท์ที่ถูกต้อง"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "รหัสผ่านไม่ตรงกัน กรุณาใส่รหัสผ่านอีกครั้ง",
+    path: ["confirmPassword"],
+  });
 
 export const customerSignInValidationSchema = z.object({
-  email: z
-    .string({ required_error: "Email is required." })
-    .min(1, "Email is required")
-    .email("Email is invalid"),
+  email: z.string().min(1, "กรุณาใส่อีเมล").email("กรุณาใส่อีเมลที่ถูกต้อง"),
   password: z
     .string({ required_error: "Password is required." })
-    .min(8, "Password must contain at least 8 character(s)")
-    .regex(passwordRegex, {
-      message:
-        "Password must contains at least a lowercase character, uppercase character, a number, and a special characters (!@#$%^&*_-).",
-    }),
+    .min(8, "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร"),
 });
 
 // Customer Address ----------------------------------------------------------

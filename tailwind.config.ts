@@ -1,5 +1,8 @@
 import type { Config } from "tailwindcss";
+
 import { nextui } from "@nextui-org/react";
+
+// ----------------------------------------------------------------------
 
 const config: Config = {
   content: [
@@ -83,6 +86,9 @@ const config: Config = {
               500: "#3D0600",
               DEFAULT: "#DD3C2C",
               foreground: "#FFFFFF",
+            },
+            danger: {
+              DEFAULT: "#DD3C2C",
             },
           },
         },
