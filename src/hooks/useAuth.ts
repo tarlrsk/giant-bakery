@@ -1,8 +1,7 @@
-import useSWRMutation from "swr/mutation";
-
-import axios from "@/utils/axios";
-
 import { z } from "zod";
+import axios from "@/utils/axios";
+import { signIn } from "next-auth/react";
+import useSWRMutation from "swr/mutation";
 import {
   customerSignInValidationSchema,
   customerSignUpValidationSchema,
@@ -31,11 +30,10 @@ export function useAuth() {
     "/auth/signup",
     sendRequest,
   );
-  const { trigger: credentialSignIn } = useSWRMutation(
-    "/auth/signin",
-    sendRequest,
-  );
-  // TODO: social media authentication
+
+  async function credentialSignIn(data: signInProps) {
+    await signIn("credentials", { ...data, redirect: false });
+  }
 
   return {
     credentialSignUp,

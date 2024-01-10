@@ -1,7 +1,10 @@
 "use client";
 
 import AuthModal from "@/components/AuthModal";
+
 import { Button, useDisclosure } from "@nextui-org/react";
+
+// ----------------------------------------------------------------------
 
 export default function Home() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();

@@ -1,8 +1,11 @@
 import * as React from "react";
 import type { Metadata } from "next";
 import { IBM_Plex_Sans_Thai } from "next/font/google";
+
 import "./globals.css";
 import Providers from "./providers";
+
+// ----------------------------------------------------------------------
 
 const ibm = IBM_Plex_Sans_Thai({
   weight: ["100", "200", "300", "400", "500", "600", "700"],
@@ -13,6 +16,8 @@ export const metadata: Metadata = {
   title: "Giant Bakery",
   description: "E-commerce web application for Giant Bakery Rayong, Thailand.",
 };
+
+// ----------------------------------------------------------------------
 
 export default function RootLayout({
   children,

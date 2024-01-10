@@ -1,8 +1,9 @@
 import _ from "lodash";
 import React from "react";
+
 import { Button } from "@nextui-org/react";
-import { FacebookIcon } from "./icons/FacebookIcon";
-import { GoogleIcon } from "./icons/GoogleIcon";
+
+import Iconify from "./Iconify";
 
 // ----------------------------------------------------------------------
 
@@ -12,8 +13,14 @@ const SOCIAL_BUTTON_STYLES = {
 };
 
 const SOCIAL_ICONS = {
-  facebook: <FacebookIcon />,
-  google: <GoogleIcon />,
+  facebook: (
+    <Iconify
+      icon="ic:baseline-facebook"
+      size={24}
+      className=" text-common-white"
+    />
+  ),
+  google: <Iconify icon="devicon:google" />,
 };
 
 // ----------------------------------------------------------------------

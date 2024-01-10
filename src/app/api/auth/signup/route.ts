@@ -1,10 +1,10 @@
 import { prisma } from "@/lib/prisma";
+import { NextRequest } from "next/server";
+import { responseWrapper } from "@/utils/api-response-wrapper";
 import {
   emailValidationSchema,
   passwordValidationSchema,
 } from "@/lib/validation-schema";
-import { responseWrapper } from "@/utils/api-response-wrapper";
-import { NextRequest } from "next/server";
 
 // ----------------------------------------------------------------------
 

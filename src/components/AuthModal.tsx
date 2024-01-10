@@ -1,28 +1,26 @@
 "use client";
 
-import React, { useState } from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
 import { z } from "zod";
+import React, { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import { zodResolver } from "@hookform/resolvers/zod";
-
-import {
-  Button,
-  Modal,
-  ModalContent,
-  ModalBody,
-  Input,
-  Link,
-} from "@nextui-org/react";
-
+import { useForm, SubmitHandler } from "react-hook-form";
 import {
   customerSignInValidationSchema,
   customerSignUpValidationSchema,
 } from "@/lib/validation-schema";
 
+import {
+  Link,
+  Modal,
+  Input,
+  Button,
+  ModalBody,
+  ModalContent,
+} from "@nextui-org/react";
+
+import Iconify from "./Iconify";
 import SocialButtons from "./SocialButtons";
-import { EyeFilledIcon } from "./icons/EyeFilledIcon";
-import { EyeSlashFilledIcon } from "./icons/EyeSlashFilledIcon";
-import { useAuth } from "@/hooks/useAuth";
 
 // ----------------------------------------------------------------------
 
@@ -52,32 +50,30 @@ export default function AuthModal({ isOpen, onOpenChange }: Props) {
       hideCloseButton
     >
       <ModalContent className=" p-8">
-        {(onClose) => (
-          <>
-            <ModalBody>
-              <div>เข้าสู่ระบบด้วยบัญชี</div>
-              <div className="flex items-center gap-2">
-                <SocialButtons
-                  type="facebook"
-                  onClick={() => console.log("SignIn with Facebook")}
-                />
-                <SocialButtons
-                  type="google"
-                  onClick={() => console.log("SignIn with Google")}
-                />
-              </div>
-              <div className="relative flex py-3 items-center">
-                <div className="flex-grow border-t"></div>
-                <span className="flex-shrink mx-4 text-small">หรือ</span>
-                <div className="flex-grow border-t"></div>
-              </div>
-              {selected === "signUp" ? (
-                <SignUpForm setSelected={setSelected} />
-              ) : (
-                <SignInForm setSelected={setSelected} />
-              )}
-            </ModalBody>
-          </>
+        {() => (
+          <ModalBody>
+            <div>เข้าสู่ระบบด้วยบัญชี</div>
+            <div className="flex items-center gap-2">
+              <SocialButtons
+                type="facebook"
+                onClick={() => console.log("SignIn with Facebook")}
+              />
+              <SocialButtons
+                type="google"
+                onClick={() => console.log("SignIn with Google")}
+              />
+            </div>
+            <div className="relative flex py-3 items-center">
+              <div className="flex-grow border-t"></div>
+              <span className="flex-shrink mx-4 text-small">หรือ</span>
+              <div className="flex-grow border-t"></div>
+            </div>
+            {selected === "signUp" ? (
+              <SignUpForm setSelected={setSelected} />
+            ) : (
+              <SignInForm setSelected={setSelected} />
+            )}
+          </ModalBody>
         )}
       </ModalContent>
     </Modal>
@@ -103,7 +99,10 @@ function SignUpForm({ setSelected }: AuthProps) {
   const toggleVisibility = () => setIsVisible(!isVisible);
   const toggleVisibilityConfirm = () => setIsVisibleConfirm(!isVisibleConfirm);
 
-  const onSubmit: SubmitHandler<SignUpProps> = (data) => console.log(data);
+  const onSubmit: SubmitHandler<SignUpProps> = (data) => {
+    const response = credentialSignUp(data);
+    console.log("response", response);
+  };
 
   return (
     <>
@@ -129,22 +128,16 @@ function SignUpForm({ setSelected }: AuthProps) {
           labelPlacement="outside"
           variant="bordered"
           endContent={
-            <button
-              className="focus:outline-none"
-              type="button"
-              onClick={toggleVisibility}
-            >
-              {isVisible ? (
-                <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
-              ) : (
-                <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
-              )}
-            </button>
+            <PasswordToggleButton
+              isVisible={isVisible}
+              toggleVisibility={toggleVisibility}
+            />
           }
           type={isVisible ? "text" : "password"}
           isInvalid={!!errors?.password}
           errorMessage={errors.password?.message}
         />
+
         <Input
           {...register("confirmPassword")}
           label="ยืนยันพาสเวิร์ด"
@@ -152,17 +145,10 @@ function SignUpForm({ setSelected }: AuthProps) {
           labelPlacement="outside"
           variant="bordered"
           endContent={
-            <button
-              className="focus:outline-none"
-              type="button"
-              onClick={toggleVisibilityConfirm}
-            >
-              {isVisibleConfirm ? (
-                <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
-              ) : (
-                <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
-              )}
-            </button>
+            <PasswordToggleButton
+              isVisible={isVisibleConfirm}
+              toggleVisibility={toggleVisibilityConfirm}
+            />
           }
           type={isVisibleConfirm ? "text" : "password"}
           isInvalid={!!errors?.confirmPassword}
@@ -223,18 +209,16 @@ function SignInForm({ setSelected }: AuthProps) {
 
   const toggleVisibility = () => setIsVisible(!isVisible);
 
-  const onSubmit: SubmitHandler<SignInProps> = (data) => console.log(data);
-
-  const onError = () => console.log("wrong");
+  const onSubmit: SubmitHandler<SignInProps> = async (data) => {
+    const response = credentialSignIn(data);
+    console.log("response", response);
+  };
 
   return (
     <>
       <h1>เข้าสู่ระบบด้วยอีเมล</h1>
 
-      <form
-        onSubmit={handleSubmit(onSubmit, onError)}
-        className="flex flex-col gap-5"
-      >
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
         <div>
           <Input
             {...register("email")}
@@ -256,17 +240,10 @@ function SignInForm({ setSelected }: AuthProps) {
             labelPlacement="outside"
             variant="bordered"
             endContent={
-              <button
-                className="focus:outline-none"
-                type="button"
-                onClick={toggleVisibility}
-              >
-                {isVisible ? (
-                  <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
-                ) : (
-                  <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
-                )}
-              </button>
+              <PasswordToggleButton
+                isVisible={isVisible}
+                toggleVisibility={toggleVisibility}
+              />
             }
             type={isVisible ? "text" : "password"}
             isInvalid={!!errors?.password}
@@ -309,5 +286,29 @@ function SignInForm({ setSelected }: AuthProps) {
         </div>
       </form>
     </>
+  );
+}
+
+// ----------------------------------------------------------------------
+
+function PasswordToggleButton({
+  isVisible,
+  toggleVisibility,
+}: {
+  isVisible: boolean;
+  toggleVisibility: () => void;
+}) {
+  return (
+    <button
+      className="focus:outline-none"
+      type="button"
+      onClick={toggleVisibility}
+    >
+      {isVisible ? (
+        <Iconify icon="tabler:eye-filled" className=" text-gray-500" />
+      ) : (
+        <Iconify icon="ph:eye-slash-fill" className=" text-gray-500" />
+      )}
+    </button>
   );
 }

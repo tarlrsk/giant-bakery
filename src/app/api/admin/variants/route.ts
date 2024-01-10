@@ -1,12 +1,14 @@
-import { formatDate } from "@/lib/formatDate";
+import { prisma } from "@/lib/prisma";
 import { bucket } from "@/lib/gcs/gcs";
+import { NextRequest } from "next/server";
+import { formatDate } from "@/lib/formatDate";
 import { getFileUrl } from "@/lib/gcs/getFileUrl";
 import { parseBoolean } from "@/lib/parseBoolean";
-import { prisma } from "@/lib/prisma";
-import { variantValidationSchema } from "@/lib/validation-schema";
-import { responseWrapper } from "@/utils/api-response-wrapper";
 import type { VariantType } from "@prisma/client";
-import { NextRequest } from "next/server";
+import { responseWrapper } from "@/utils/api-response-wrapper";
+import { variantValidationSchema } from "@/lib/validation-schema";
+
+// ----------------------------------------------------------------------
 
 export async function POST(req: NextRequest) {
   try {
