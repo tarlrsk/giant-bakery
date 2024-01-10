@@ -38,31 +38,40 @@ export const passwordValidationSchema = z
   );
 
 export const customerSignUpValidationSchema = z.object({
-  email: z.string({ required_error: "Email is required." }).email(),
+  email: z
+    .string({ required_error: "Email is required." })
+    .min(1, "Email is required")
+    .email("Email is invalid"),
+
   password: z
     .string({ required_error: "Password is required." })
-    .min(8)
+    .min(8, "Password must contain at least 8 character(s)")
     .regex(passwordRegex, {
       message:
         "Password must contains at least a lowercase character, uppercase character, a number, and a special characters (!@#$%^&*_-).",
     }),
   confirmPassword: z
     .string({ required_error: "Password is required." })
-    .min(8)
+    .min(8, "Password must contain at least 8 character(s)")
     .regex(passwordRegex, {
       message:
         "Password must contains at least a lowercase character, uppercase character, a number, and a special characters (!@#$%^&*_-).",
     }),
   phone: z
     .string({ required_error: "Phone number is required." })
+    .min(10, "Phone number must have 10 numbers")
+    .max(10, "Phone number must have 10 numbers")
     .regex(phoneRegex, "Invalid phone number"),
 });
 
 export const customerSignInValidationSchema = z.object({
-  email: z.string({ required_error: "Email is required." }).email(),
+  email: z
+    .string({ required_error: "Email is required." })
+    .min(1, "Email is required")
+    .email("Email is invalid"),
   password: z
     .string({ required_error: "Password is required." })
-    .min(8)
+    .min(8, "Password must contain at least 8 character(s)")
     .regex(passwordRegex, {
       message:
         "Password must contains at least a lowercase character, uppercase character, a number, and a special characters (!@#$%^&*_-).",

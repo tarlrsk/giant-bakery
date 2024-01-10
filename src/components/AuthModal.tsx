@@ -111,9 +111,8 @@ function SignUpForm({ setSelected }: AuthProps) {
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
         <Input
-          {...register("email")}
+          {...register("email", { required: true })}
           autoFocus
-          isRequired
           label="อีเมล"
           placeholder="อีเมล"
           labelPlacement="outside"
@@ -125,7 +124,6 @@ function SignUpForm({ setSelected }: AuthProps) {
 
         <Input
           {...register("password")}
-          isRequired
           label="พาสเวิร์ด"
           placeholder="พาสเวิร์ด"
           labelPlacement="outside"
@@ -149,7 +147,6 @@ function SignUpForm({ setSelected }: AuthProps) {
         />
         <Input
           {...register("confirmPassword")}
-          isRequired
           label="ยืนยันพาสเวิร์ด"
           placeholder="ยืนยันพาสเวิร์ด"
           labelPlacement="outside"
@@ -174,7 +171,6 @@ function SignUpForm({ setSelected }: AuthProps) {
 
         <Input
           {...register("phone")}
-          isRequired
           label="หมายเลขโทรศัพท์"
           placeholder="หมายเลขโทรศัพท์"
           labelPlacement="outside"
@@ -229,29 +225,32 @@ function SignInForm({ setSelected }: AuthProps) {
 
   const onSubmit: SubmitHandler<SignInProps> = (data) => console.log(data);
 
+  const onError = () => console.log("wrong");
+
   return (
     <>
       <h1>เข้าสู่ระบบด้วยอีเมล</h1>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
+      <form
+        onSubmit={handleSubmit(onSubmit, onError)}
+        className="flex flex-col gap-5"
+      >
         <div>
           <Input
             {...register("email")}
             autoFocus
-            isRequired
             label="อีเมล"
             placeholder="Enter your email"
             labelPlacement="outside"
             variant="bordered"
             type="email"
-            isInvalid={!!errors?.email}
-            errorMessage={errors.email?.message}
+            isInvalid={!!errors.email}
+            errorMessage={errors.email && "Email is required"}
           />
         </div>
         <div style={{ position: "relative" }}>
           <Input
             {...register("password")}
-            isRequired
             label="พาสเวิร์ด"
             placeholder="Enter your password"
             labelPlacement="outside"
