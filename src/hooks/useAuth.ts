@@ -67,7 +67,7 @@ export function useAuth() {
       });
   }
 
-  async function socialSignIn(type: string) {
+  async function socialSignIn(type: "facebook" | "google") {
     await signIn(type, { redirect: false })
       .then((res) => {
         if (res?.status === 401) {
