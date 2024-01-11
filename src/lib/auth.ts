@@ -37,10 +37,8 @@ export const authOptions: NextAuthOptions = {
     Credentials({
       name: "credentials",
       credentials: {
-        name: { label: "Name", type: "text", placeholder: "John Doe" },
         email: { label: "Email", type: "email", placeholder: "john@gmail.com" },
         password: { label: "Password", type: "password" },
-        confirmPassword: { label: "Password Confirmation", type: "password" },
       },
       async authorize(credentials, req) {
         const bcrypt = require("bcrypt");

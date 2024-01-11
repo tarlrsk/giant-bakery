@@ -10,7 +10,7 @@ import { NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
-    const { name, email, password } = await req.json();
+    const { name, email, password, confirmPassword, phone } = await req.json();
 
     if (!name?.trim()) {
       return responseWrapper(400, null, "Name is required.");
@@ -31,6 +31,10 @@ export async function POST(req: NextRequest) {
       return responseWrapper(400, null, "Invalid email or password format.");
     }
 
+    if (password !== confirmPassword) {
+      return responseWrapper(400, null, "Password unmatched.");
+    }
+
     const bcrypt = require("bcrypt");
     const saltRound = 10;
 
@@ -38,7 +42,6 @@ export async function POST(req: NextRequest) {
       where: { email: email },
     });
 
-    // validate existed user.
     if (existedUser) {
       return responseWrapper(409, null, "User already exists");
     }
@@ -50,6 +53,7 @@ export async function POST(req: NextRequest) {
         name: name,
         email: email,
         hashedPassword: hashedPassword,
+        phone: phone,
       },
     });
 

@@ -32,6 +32,14 @@ export const passwordValidationSchema = z
 // Customer Address ----------------------------------------------------------
 
 export const customerAddressValidationSchema = z.object({
+  cFirstName: z
+    .string({ required_error: "First name is required." })
+    .min(3)
+    .max(255),
+  cLastName: z
+    .string({ required_error: "Last name is required." })
+    .min(3)
+    .max(255),
   address: z.string({ required_error: "Address is required." }).min(3).max(255),
   district: z
     .string({ required_error: "District is required." })
@@ -117,18 +125,18 @@ export const cartPresetCakeValidationSchema = z.object({
   type: z.enum(["GUEST", "MEMBER"]),
   cakeId: zodIsObjectId(z.string()),
   quantity: z.number(),
-})
+});
 
 export const cartRefreshmentValidationSchema = z.object({
   userId: zodIsObjectId(z.string()),
   type: z.enum(["GUEST", "MEMBER"]),
   refreshmentId: zodIsObjectId(z.string()),
   quantity: z.number(),
-})
+});
 
 export const cartSnackBoxValidationSchema = z.object({
   userId: zodIsObjectId(z.string()),
   type: z.enum(["GUEST", "MEMBER"]),
   refreshmentIds: z.array(zodIsObjectId(z.string())),
   quantity: z.number(),
-})
+});

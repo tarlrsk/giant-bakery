@@ -79,6 +79,8 @@ model Cart {
 
 model CustomerAddress {
   id          String @id @default(auto()) @map("_id") @db.ObjectId
+  cFirstName  String
+  cLastName   String
   address     String
   district    String
   subdistrict String
