@@ -1,7 +1,11 @@
-import mongoose from "mongoose";
 import { z } from "zod";
+import mongoose from "mongoose";
 
 const isNumeric = (value: string) => /^\d+$/.test(value);
+
+const phoneRegex = new RegExp(
+  /^([+]?[\s0-9]+)?(\d{3}|[(]?[0-9]+[)])?([-]?[\s]?[0-9])+$/,
+);
 
 const zodIsObjectId = (zString: z.ZodString) => {
   return zString.refine((val) => {
@@ -14,20 +18,33 @@ const zodIsObjectId = (zString: z.ZodString) => {
 
 // Auth ----------------------------------------------------------------------
 
-export const emailValidationSchema = z
-  .string({ required_error: "Email is required." })
-  .email();
+export const customerSignUpValidationSchema = z
+  .object({
+    email: z.string().min(1, "กรุณาใส่อีเมล").email("กรุณาใส่อีเมลที่ถูกต้อง"),
 
-export const passwordValidationSchema = z
-  .string({ required_error: "Password is required." })
-  .min(8)
-  .regex(
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+=[{\]};:<>|./?,-]).+$/,
-    {
-      message:
-        "Password must contains at least a lowercase character, uppcase character, a number, and a special characters (!@#$%^&*_-).",
-    },
-  );
+    password: z
+      .string({ required_error: "กรุณาใส่รหัสผ่าน" })
+      .min(8, "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร"),
+    confirmPassword: z
+      .string({ required_error: "กรุณาใส่รหัสผ่าน" })
+      .min(8, "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร"),
+    phone: z
+      .string({ required_error: "กรุณาใส่เบอร์โทรศัพท์" })
+      .min(10, "เบอร์โทรศัพท์ต้องมี 10 ตัวเลขเท่านั้น")
+      .max(10, "เบอร์โทรศัพท์ต้องมี 10 ตัวเลขเท่านั้น")
+      .regex(phoneRegex, "กรุณาใส่เบอร์โทรศัพท์ที่ถูกต้อง"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "รหัสผ่านไม่ตรงกัน กรุณาใส่รหัสผ่านอีกครั้ง",
+    path: ["confirmPassword"],
+  });
+
+export const customerSignInValidationSchema = z.object({
+  email: z.string().min(1, "กรุณาใส่อีเมล").email("กรุณาใส่อีเมลที่ถูกต้อง"),
+  password: z
+    .string({ required_error: "Password is required." })
+    .min(8, "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร"),
+});
 
 // Customer Address ----------------------------------------------------------
 
@@ -107,7 +124,11 @@ export const cakeValidationSchema = z.object({
   length: z.number().multipleOf(0.01),
   width: z.number().multipleOf(0.01),
   isActive: z.boolean(),
-  variantIds: z.array(zodIsObjectId(z.string())),
+  variantIds: z.array(
+    z.string().refine((val) => {
+      return mongoose.isValidObjectId(val);
+    }),
+  ),
 });
 
 // Cart ------------------------------------------------------------------

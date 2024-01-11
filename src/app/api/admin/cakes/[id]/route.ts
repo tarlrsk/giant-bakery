@@ -1,9 +1,10 @@
-import { isObjectId } from "@/lib/isObjectId";
 import { prisma } from "@/lib/prisma";
+import { NextRequest } from "next/server";
+import { isObjectId } from "@/lib/isObjectId";
 import { cakeValidationSchema } from "@/lib/validation-schema";
 import { responseWrapper } from "@/utils/api-response-wrapper";
-import mongoose from "mongoose";
-import { NextRequest } from "next/server";
+
+// ----------------------------------------------------------------------
 
 type GetCakeByIdProps = {
   params: {

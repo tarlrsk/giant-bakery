@@ -1,9 +1,11 @@
 import { prisma } from "@/lib/prisma";
-import { PrismaAdapter } from "@auth/prisma-adapter";
 import { NextAuthOptions } from "next-auth";
-import Credentials from "next-auth/providers/credentials";
-import Facebook from "next-auth/providers/facebook";
 import Google from "next-auth/providers/google";
+import Facebook from "next-auth/providers/facebook";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import Credentials from "next-auth/providers/credentials";
+
+// ----------------------------------------------------------------------
 
 const NEXTAUTH_URL = process.env.NEXTAUTH_URL;
 const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET;
@@ -21,6 +23,8 @@ if (!FACEBOOK_CLIENT_ID || !FACEBOOK_CLIENT_SECRET) {
 if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
   throw new Error("Missing Google oauth credentials");
 }
+
+// ----------------------------------------------------------------------
 
 export const authOptions: NextAuthOptions = {
   // @ts-ignore

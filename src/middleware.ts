@@ -1,5 +1,5 @@
-import { NextRequestWithAuth, withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
+import { withAuth, NextRequestWithAuth } from "next-auth/middleware";
 
 const allowedOrigins =
   process.env.NODE_ENV === "production"
