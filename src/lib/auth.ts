@@ -36,10 +36,8 @@ export const authOptions: NextAuthOptions = {
     Credentials({
       name: "Credentials",
       credentials: {
-        name: { label: "Name", type: "text", placeholder: "John Doe" },
         email: { label: "Email", type: "email", placeholder: "john@gmail.com" },
         password: { label: "Password", type: "password" },
-        confirmPassword: { label: "Password Confirmation", type: "password" },
       },
       async authorize(credentials, req) {
         const bcrypt = require("bcrypt");
@@ -49,13 +47,6 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!user) return null;
-
-        // const confirmedPassword =
-        //   credentials?.password === credentials?.confirmPassword;
-
-        // if (!confirmedPassword) {
-        //   throw new Error("Password does not match");
-        // }
 
         const isValidPassword = await bcrypt.compare(
           credentials?.password || "",
