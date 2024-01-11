@@ -53,6 +53,7 @@ const config: Config = {
   darkMode: "class",
   plugins: [
     nextui({
+      defaultTheme: "light",
       themes: {
         light: {
           layout: {
@@ -76,7 +77,7 @@ const config: Config = {
               400: "#AB630A",
               500: "#3D2200",
               DEFAULT: "#DE8F2C",
-              foreground: "#FFFFFF",
+              foreground: "#3D2200",
             },
             secondary: {
               100: "#FFE3E0",
@@ -90,6 +91,10 @@ const config: Config = {
             danger: {
               DEFAULT: "#DD3C2C",
             },
+            default: {
+              foreground: "#3D2200",
+            },
+            foreground: "#3D2200",
           },
         },
       },

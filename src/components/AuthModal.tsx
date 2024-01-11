@@ -10,7 +10,6 @@ import {
   customerSignUpValidationSchema,
 } from "@/lib/validation-schema";
 
-import { semanticColors } from "@nextui-org/theme";
 import {
   Link,
   Modal,
@@ -61,14 +60,12 @@ export default function AuthModal({ isOpen, onOpenChange }: Props) {
                 type="facebook"
                 onClick={async () => {
                   socialSignIn("facebook");
-                  console.log("SignIn with Facebook");
                 }}
               />
               <SocialButtons
                 type="google"
                 onClick={async () => {
                   socialSignIn("google");
-                  console.log("SignIn with Google");
                 }}
               />
             </div>
@@ -112,9 +109,10 @@ function SignUpForm({ setSelected }: AuthProps) {
   const onSubmit: SubmitHandler<SignUpProps> = async (data) => {
     try {
       await credentialSignUp(data);
-    } catch (error) {
+    } catch (error: any) {
+      const message = error?.message;
       setError(
-        typeof error === "string" ? error : "กรุณาลองใหม่อีกครั้งในภายหลัง",
+        typeof message === "string" ? message : "กรุณาลองใหม่อีกครั้งในภายหลัง",
       );
     }
   };
@@ -181,13 +179,7 @@ function SignUpForm({ setSelected }: AuthProps) {
           errorMessage={errors.phone?.message}
         />
 
-        {error && (
-          <div
-            className={` text-xs text-[${semanticColors.light.danger[500]}]`}
-          >
-            {error}
-          </div>
-        )}
+        {error && <div className="text-xs text-secondaryT-main">{error}</div>}
 
         <div className="flex gap-2 justify-end">
           <Button
@@ -247,13 +239,14 @@ function SignInForm({ setSelected }: AuthProps) {
 
   return (
     <>
-      <h1>เข้าสู่ระบบด้วยอีเมล</h1>
+      <h1 className=" text-primaryT-darker">เข้าสู่ระบบด้วยอีเมล</h1>
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
         <div>
           <Input
             {...register("email", { required: true })}
             autoFocus
+            color="default"
             label="อีเมล"
             placeholder="อีเมล"
             labelPlacement="outside"
@@ -267,7 +260,7 @@ function SignInForm({ setSelected }: AuthProps) {
           <Input
             {...register("password")}
             label="พาสเวิร์ด"
-            placeholder="Enter your password"
+            placeholder="พาสเวิร์ด"
             labelPlacement="outside"
             variant="bordered"
             endContent={
@@ -294,6 +287,8 @@ function SignInForm({ setSelected }: AuthProps) {
             ลืมพาสเวิร์ด?
           </Link>
         </div>
+
+        {error && <div className="text-xs text-dangerT-main">{error}</div>}
 
         <div className="flex gap-2 justify-end">
           <Button
