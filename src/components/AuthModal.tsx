@@ -43,6 +43,8 @@ type Props = {
 export default function AuthModal({ isOpen, onOpenChange }: Props) {
   const [selected, setSelected] = useState("signIn");
 
+  const { socialSignIn } = useAuth();
+
   return (
     <Modal
       size="md"
@@ -57,11 +59,17 @@ export default function AuthModal({ isOpen, onOpenChange }: Props) {
             <div className="flex items-center gap-2">
               <SocialButtons
                 type="facebook"
-                onClick={() => console.log("SignIn with Facebook")}
+                onClick={async () => {
+                  socialSignIn("facebook");
+                  console.log("SignIn with Facebook");
+                }}
               />
               <SocialButtons
                 type="google"
-                onClick={() => console.log("SignIn with Google")}
+                onClick={async () => {
+                  socialSignIn("google");
+                  console.log("SignIn with Google");
+                }}
               />
             </div>
             <div className="relative flex py-3 items-center">
@@ -103,7 +111,7 @@ function SignUpForm({ setSelected }: AuthProps) {
 
   const onSubmit: SubmitHandler<SignUpProps> = async (data) => {
     try {
-      const response = await credentialSignUp(data);
+      await credentialSignUp(data);
     } catch (error) {
       setError(
         typeof error === "string" ? error : "กรุณาลองใหม่อีกครั้งในภายหลัง",
@@ -228,7 +236,7 @@ function SignInForm({ setSelected }: AuthProps) {
 
   const onSubmit: SubmitHandler<SignInProps> = async (data) => {
     try {
-      const response = await credentialSignIn(data);
+      await credentialSignIn(data);
     } catch (error: { message: string } | any) {
       if (!error.message) return setError("กรุณาลองใหม่อีกครั้งในภายหลัง");
       setError(

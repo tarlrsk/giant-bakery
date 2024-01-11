@@ -67,8 +67,27 @@ export function useAuth() {
       });
   }
 
+  async function socialSignIn(type: string) {
+    await signIn(type, { redirect: false })
+      .then((res) => {
+        if (res?.status === 401) {
+          throw new Error("invalid");
+        } else {
+          return res?.status;
+        }
+      })
+      .catch((error) => {
+        throw new Error(
+          typeof error.message === "string"
+            ? error.message
+            : "Unexpected error",
+        );
+      });
+  }
+
   return {
     credentialSignUp,
     credentialSignIn,
+    socialSignIn,
   };
 }
