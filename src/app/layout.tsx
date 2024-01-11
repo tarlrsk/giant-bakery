@@ -34,7 +34,7 @@ export default function RootLayout({
       <body className={`${ibm.className} text-primaryT-darker`}>
         <Providers>
           <nav>
-            <Navbar role="customer" />
+            <Navbar currentUser={null} />
           </nav>
           <main>{children}</main>
         </Providers>

@@ -1,5 +1,6 @@
 "use client";
 
+import { User } from "@prisma/client";
 import { motion } from "framer-motion";
 import React, { useState } from "react";
 import { usePathname } from "next/navigation";
@@ -30,11 +31,11 @@ const NAV_ITEMS = [
 // ----------------------------------------------------------------------
 
 type Props = {
-  role: "admin" | "customer";
+  currentUser: User | null;
   transparent?: boolean;
 };
 
-export default function Navbar({ role, transparent = false }: Props) {
+export default function Navbar({ currentUser, transparent = false }: Props) {
   const pathname = usePathname();
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -145,3 +146,5 @@ export default function Navbar({ role, transparent = false }: Props) {
     </NextNavbar>
   );
 }
+
+// ----------------------------------------------------------------------
