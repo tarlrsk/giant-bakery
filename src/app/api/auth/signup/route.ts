@@ -10,7 +10,7 @@ import { NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
-    const { name, email, password, confirmPassword } = await req.json();
+    const { name, email, password, confirmPassword, phone } = await req.json();
 
     if (!name?.trim()) {
       return responseWrapper(400, null, "Name is required.");
@@ -53,6 +53,7 @@ export async function POST(req: NextRequest) {
         name: name,
         email: email,
         hashedPassword: hashedPassword,
+        phone: phone,
       },
     });
 
