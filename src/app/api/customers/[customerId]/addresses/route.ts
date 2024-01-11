@@ -73,10 +73,21 @@ export async function POST(
       );
     }
 
-    const { address, district, subdistrict, province, postcode, phone } = body;
+    const {
+      cFirstName,
+      cLastName,
+      address,
+      district,
+      subdistrict,
+      province,
+      postcode,
+      phone,
+    } = body;
 
     const newAddress = await prisma.customerAddress.create({
       data: {
+        cFirstName,
+        cLastName,
         address,
         district,
         subdistrict,

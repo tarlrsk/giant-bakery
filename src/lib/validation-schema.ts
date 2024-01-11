@@ -49,6 +49,14 @@ export const customerSignInValidationSchema = z.object({
 // Customer Address ----------------------------------------------------------
 
 export const customerAddressValidationSchema = z.object({
+  cFirstName: z
+    .string({ required_error: "First name is required." })
+    .min(3)
+    .max(255),
+  cLastName: z
+    .string({ required_error: "Last name is required." })
+    .min(3)
+    .max(255),
   address: z.string({ required_error: "Address is required." }).min(3).max(255),
   district: z
     .string({ required_error: "District is required." })

@@ -13,7 +13,7 @@ const ibm = IBM_Plex_Sans_Thai({
 });
 
 export const metadata: Metadata = {
-  title: "Giant Bakery",
+  title: "Cukedoh",
   description: "E-commerce web application for Giant Bakery Rayong, Thailand.",
 };
 
