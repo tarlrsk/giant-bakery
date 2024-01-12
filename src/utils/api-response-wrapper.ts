@@ -24,7 +24,7 @@ export const responseWrapper = (
   response.status = statusCode;
 
   if (error) {
-    switch(statusCode){
+    switch (statusCode) {
       case 500:
         response.message = "Something Went Wrong";
         break;
@@ -41,8 +41,8 @@ export const responseWrapper = (
     response.error = error;
   } else {
     response.message = "Success";
-    response.data = data;
   }
+  response.data = data;
 
   return NextResponse.json({ response }, { status: statusCode });
 };

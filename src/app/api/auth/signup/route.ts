@@ -7,25 +7,21 @@ import { customerSignUpValidationSchema } from "@/lib/validation-schema";
 
 export async function POST(req: NextRequest) {
   try {
-    const { name, email, password, confirmPassword, phone } = await req.json();
-
-    if (!name?.trim()) {
-      return responseWrapper(400, null, "Name is required.");
-    }
+    const { email, password, confirmPassword, phone } = await req.json();
 
     if (!email?.trim()) {
-      return responseWrapper(400, null, "Email is required.");
+      return responseWrapper(400, null, "กรุณาใส่อีเมล");
     }
 
     if (!password?.trim()) {
-      return responseWrapper(400, null, "Password is required.");
+      return responseWrapper(400, null, "กรุณาใส่รหัสผ่าน");
     }
 
     const validation = customerSignUpValidationSchema.safeParse({
-      name,
       email,
       password,
       confirmPassword,
+      phone,
     });
 
     if (!validation.success) {
@@ -37,7 +33,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (password !== confirmPassword) {
-      return responseWrapper(400, null, "Password unmatched.");
+      return responseWrapper(400, null, "พาสเวิร์ดไม่เหมือนกัน");
     }
 
     const bcrypt = require("bcrypt");
@@ -48,14 +44,13 @@ export async function POST(req: NextRequest) {
     });
 
     if (existedUser) {
-      return responseWrapper(409, null, "User already exists");
+      return responseWrapper(409, null, "อีเมลนี้ถูกใช้งานแล้ว");
     }
 
     const hashedPassword = await bcrypt.hash(password, saltRound);
 
     const newUser = await prisma.user.create({
       data: {
-        name: name,
         email: email,
         hashedPassword: hashedPassword,
         phone: phone,
