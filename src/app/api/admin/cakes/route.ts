@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
-import { cakeValidationSchema } from "@/lib/validation-schema";
+import { cakeValidationSchema } from "@/lib/validationSchema";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 
 // ----------------------------------------------------------------------

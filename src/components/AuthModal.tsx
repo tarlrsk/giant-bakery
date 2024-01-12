@@ -8,7 +8,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import {
   customerSignInValidationSchema,
   customerSignUpValidationSchema,
-} from "@/lib/validation-schema";
+} from "@/lib/validationSchema";
 
 import { semanticColors } from "@nextui-org/theme";
 import {
