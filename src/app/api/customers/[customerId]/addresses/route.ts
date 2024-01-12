@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { responseWrapper } from "@/utils/api-response-wrapper";
-import { customerAddressValidationSchema } from "@/lib/validation-schema";
+import { customerAddressValidationSchema } from "@/lib/validationSchema";
 
 // ----------------------------------------------------------------------
 

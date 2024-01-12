@@ -5,7 +5,7 @@ import { formatDate } from "@/lib/formatDate";
 import { getFileUrl } from "@/lib/gcs/getFileUrl";
 import { parseBoolean } from "@/lib/parseBoolean";
 import { responseWrapper } from "@/utils/api-response-wrapper";
-import { refreshmentValidationSchema } from "@/lib/validation-schema";
+import { refreshmentValidationSchema } from "@/lib/validationSchema";
 import type { StockStatus, RefreshmentCategory } from "@prisma/client";
 
 // ----------------------------------------------------------------------

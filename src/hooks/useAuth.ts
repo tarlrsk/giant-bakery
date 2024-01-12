@@ -5,7 +5,7 @@ import useSWRMutation from "swr/mutation";
 import {
   customerSignInValidationSchema,
   customerSignUpValidationSchema,
-} from "@/lib/validation-schema";
+} from "@/lib/validationSchema";
 
 // ----------------------------------------------------------------------
 
