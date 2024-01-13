@@ -5,6 +5,7 @@ import { arraysEqual } from "@/lib/arrayTool";
 import { Cart, SnackBoxCart } from "@prisma/client";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { cartSnackBoxValidationSchema } from "@/lib/validation-schema";
+import { GenerateObjectIdString } from "@/lib/objectId";
 
 // ----------------------------------------------------------------------
 
@@ -47,7 +48,7 @@ export async function POST(req: NextRequest) {
 
     if (!cart) {
       cart = {} as Cart;
-      cart.id = new mongoose.Types.ObjectId().toString();
+      cart.id = GenerateObjectIdString();
       cart.snackBox = [];
       cart.type = type;
       cart.userId = userId;
@@ -65,6 +66,7 @@ export async function POST(req: NextRequest) {
       }
 
       const snackBoxItem = {
+        itemId: GenerateObjectIdString(),
         refreshmentIds: refreshmentIds,
         quantity: quantity,
       } as SnackBoxCart;

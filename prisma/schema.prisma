@@ -66,15 +66,15 @@ model VerificationToken {
 // System Model ----------------------------------------------------------------------
 
 model Cart {
-  id          String            @id @default(auto()) @map("_id") @db.ObjectId
-  userId      String?           @db.ObjectId
-  type        CartType
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
-  presetCake  PresetCakeCart[]
-  customCake  CustomCakeCart[]
-  refreshment RefreshmentCart[]
-  snackBox    SnackBoxCart[]
+  id           String            @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String?           @db.ObjectId
+  type         CartType
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  presetCakes  PresetCakeCart[]
+  customCakes  CustomCakeCart[]
+  refreshments RefreshmentCart[]
+  snackBox     SnackBoxCart[]
 }
 
 model CustomerAddress {
@@ -312,12 +312,14 @@ enum PaymentStatus {
 // Types (Composite Type) ----------------------------------------------------------------------
 
 type PresetCakeCart {
+  itemId    String   @db.ObjectId
   cakeId    String   @db.ObjectId
   quantity  Int      @default(1)
   createdAt DateTime @default(now())
 }
 
 type CustomCakeCart {
+  itemId     String   @db.ObjectId
   cakeId     String   @db.ObjectId
   quantity   Int      @default(1)
   variantIds String[]
@@ -325,12 +327,14 @@ type CustomCakeCart {
 }
 
 type RefreshmentCart {
+  itemId        String   @db.ObjectId
   refreshmentId String   @db.ObjectId
   quantity      Int      @default(1)
   createdAt     DateTime @default(now())
 }
 
 type SnackBoxCart {
+  itemId         String   @db.ObjectId
   refreshmentIds String[] @db.ObjectId
   quantity       Int      @default(1)
   createdAt      DateTime @default(now())

@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
-import { isObjectId } from "@/lib/isObjectId";
+import { isObjectId } from "@/lib/objectId";
 import { cakeValidationSchema } from "@/lib/validation-schema";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 

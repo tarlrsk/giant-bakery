@@ -4,6 +4,7 @@ import { NextRequest } from "next/server";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { Cart, CakeType, PresetCakeCart } from "@prisma/client";
 import { cartPresetCakeValidationSchema } from "@/lib/validation-schema";
+import { GenerateObjectIdString } from "@/lib/objectId";
 
 // ----------------------------------------------------------------------
 
@@ -43,34 +44,35 @@ export async function POST(req: NextRequest) {
 
     if (!cart) {
       cart = {} as Cart;
-      cart.id = new mongoose.Types.ObjectId().toString();
-      cart.presetCake = [];
+      cart.id = GenerateObjectIdString();
+      cart.presetCakes = [];
       cart.type = type;
       cart.userId = userId;
     }
 
-    const existingCakeIndex = cart.presetCake.findIndex(
+    const existingCakeIndex = cart.presetCakes.findIndex(
       (item) => item.cakeId === cakeId,
     );
 
     if (existingCakeIndex !== -1) {
-      cart.presetCake[existingCakeIndex].quantity += quantity;
+      cart.presetCakes[existingCakeIndex].quantity += quantity;
     } else {
-      if (!cart.presetCake) {
-        cart.presetCake = [];
+      if (!cart.presetCakes) {
+        cart.presetCakes = [];
       }
 
       const presetCakeItem = {
+        itemId: GenerateObjectIdString(),
         cakeId: cakeId,
         quantity: quantity,
       } as PresetCakeCart;
-      cart.presetCake.push(presetCakeItem);
+      cart.presetCakes.push(presetCakeItem);
     }
 
     const updatedCart = await prisma.cart.upsert({
       create: cart,
       update: {
-        presetCake: cart.presetCake,
+        presetCakes: cart.presetCakes,
       },
       where: { id: cart.id || "" },
     });
