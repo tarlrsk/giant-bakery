@@ -4,7 +4,7 @@ import { Icon } from "@iconify/react";
 // ----------------------------------------------------------------------
 
 type Props = {
-  icon: string;
+  icon: string | any;
   size?: number;
   className?: string;
 };

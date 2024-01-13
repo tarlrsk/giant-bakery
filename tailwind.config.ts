@@ -20,6 +20,13 @@ const config: Config = {
       container: {
         center: true,
       },
+      borderRadius: {
+        xs: "0.13rem",
+        sm: "0.3rem",
+      },
+      width: {
+        "0.25": "0.1rem",
+      },
       colors: {
         facebook: {
           main: "#0165E1",

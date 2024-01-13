@@ -1,23 +1,34 @@
 "use client";
 
+import Image from "next/image";
 import { User } from "@prisma/client";
 import { motion } from "framer-motion";
 import React, { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import { usePathname } from "next/navigation";
 
 import {
   Link,
+  Button,
+  Divider,
+  Dropdown,
   NavbarMenu,
   NavbarItem,
   NavbarBrand,
+  DropdownMenu,
+  DropdownItem,
   NavbarContent,
   useDisclosure,
   NavbarMenuItem,
+  DropdownTrigger,
+  DropdownSection,
   NavbarMenuToggle,
   Navbar as NextNavbar,
 } from "@nextui-org/react";
 
-import AuthModal from "./AuthModal";
+import AuthModal from "./modal/AuthModal";
+import BasketIcon from "./icons/BasketIcon";
+import DropdownIcon from "./icons/DropdownIcon";
 
 // ----------------------------------------------------------------------
 
@@ -37,7 +48,7 @@ type Props = {
 
 export default function Navbar({ currentUser, transparent = false }: Props) {
   const pathname = usePathname();
-
+  const { onSignOut } = useAuth();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -85,7 +96,9 @@ export default function Navbar({ currentUser, transparent = false }: Props) {
           className="sm:hidden"
         />
         <NavbarBrand>
-          <p className="font-bold text-inherit">Cukedoh</p>
+          <div className=" w-full h-full  relative">
+            <Image src="/logo.png" width={142} height={64} alt="logo" />
+          </div>
         </NavbarBrand>
       </NavbarContent>
 
@@ -115,17 +128,75 @@ export default function Navbar({ currentUser, transparent = false }: Props) {
             </motion.div>
           </NavbarItem>
         ))}
-        <NavbarItem onClick={onOpen} className="group relative">
-          <motion.div initial="rest" whileHover="hover" animate="rest">
-            <p className=" text-xl cursor-pointer text-primaryT-darker">
-              เข้าสู่ระบบ/สมัคร
-            </p>
+        <div className=" flex flex-row items-center h-full gap-4 justify-between">
+          <NavbarItem className="group relative">
             <motion.div
-              variants={underlinedMotion}
-              className="flex h-0.5 w-full items-center absolute bottom-0 bg-primaryT-main"
-            />
-          </motion.div>
-        </NavbarItem>
+              initial="rest"
+              whileHover="hover"
+              animate="rest"
+              onClick={onOpen}
+            >
+              {currentUser ? (
+                <Dropdown className=" rounded-md min-w-40">
+                  <DropdownTrigger>
+                    <Button
+                      variant="light"
+                      className="text-xl bg-transparent hover:!bg-transparent aria-expanded:!opacity-85 px-0"
+                      disableRipple
+                      endContent={<DropdownIcon width={32} height={32} />}
+                    >
+                      บัญชีของฉัน
+                    </Button>
+                  </DropdownTrigger>
+                  <DropdownMenu
+                    aria-label="Static Actions"
+                    variant="flat"
+                    className="pb-0"
+                  >
+                    <DropdownSection showDivider>
+                      <DropdownItem key="new" className=" rounded-sm ">
+                        <p className=" text-base">ออเดอร์</p>
+                      </DropdownItem>
+                      <DropdownItem key="copy" className=" rounded-sm ">
+                        <p className=" text-base">ประวัติการสั่งซื้อ</p>
+                      </DropdownItem>
+                    </DropdownSection>
+
+                    <DropdownSection>
+                      <DropdownItem
+                        key="delete"
+                        className="text-danger  rounded-sm "
+                        color="danger"
+                        onClick={() => onSignOut()}
+                      >
+                        <p className=" text-base">ออกจากระบบ</p>
+                      </DropdownItem>
+                    </DropdownSection>
+                  </DropdownMenu>
+                </Dropdown>
+              ) : (
+                <p
+                  className=" text-xl cursor-pointer text-primaryT-darker"
+                  onClick={onOpen}
+                >
+                  เข้าสู่ระบบ/สมัคร
+                </p>
+              )}
+              <motion.div
+                variants={underlinedMotion}
+                className="flex h-0.5 w-full items-center absolute bottom-0 bg-primaryT-main"
+              />
+            </motion.div>
+          </NavbarItem>
+
+          <Divider
+            orientation="vertical"
+            className=" h-2/3 bg-primaryT-darker w-0.25"
+          />
+          <Button isIconOnly size="lg" className="bg-transparent rounded-full">
+            <BasketIcon width={32} height={32} />
+          </Button>
+        </div>
       </NavbarContent>
 
       <NavbarMenu>

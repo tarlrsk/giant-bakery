@@ -6,7 +6,6 @@ import { IBM_Plex_Sans_Thai } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
 import getCurrentUser from "./actions/getCurrentUser";
-import SocialButtons from "@/components/SocialButtons";
 
 // ----------------------------------------------------------------------
 
@@ -37,7 +36,7 @@ export default async function RootLayout({
       <body className={`${ibm.className} text-primaryT-darker`}>
         <Providers>
           <nav>
-            <Navbar currentUser={null} />
+            <Navbar currentUser={currentUser} />
           </nav>
           <main>{children}</main>
         </Providers>
