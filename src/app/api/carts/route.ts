@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { Variant, CakeType, Refreshment } from "@prisma/client";
+import { preset } from "swr/_internal";
 
 enum CartItemType {
   PRESET_CAKE = "PRESET_CAKE",
@@ -89,6 +90,7 @@ export async function GET(req: NextRequest) {
       if (cake) {
         responseCart.items.push({
           itemsId: presetCake.itemId,
+          quantity: presetCake.quantity,
           createdAt: presetCake.createdAt,
           type: CartItemType.PRESET_CAKE,
           cakeId: cake.id,
@@ -114,6 +116,7 @@ export async function GET(req: NextRequest) {
       if (cake) {
         responseCart.items.push({
           itemsId: customCake.itemId,
+          quantity: customCake.quantity,
           createdAt: customCake.createdAt,
           type: CartItemType.CUSTOM_CAKE,
           cakeId: cake.id,
@@ -136,6 +139,7 @@ export async function GET(req: NextRequest) {
       }
       responseCart.items.push({
         itemsId: refreshment.itemId,
+        quantity: refreshment.quantity,
         createdAt: refreshment.createdAt,
         type: CartItemType.REFRESHMENT,
         refreshmentId: refreshmentData.id,
@@ -158,6 +162,7 @@ export async function GET(req: NextRequest) {
 
       responseCart.items.push({
         itemsId: snackBox.itemId,
+        quantity: snackBox.quantity,
         createdAt: snackBox.createdAt,
         type: CartItemType.SNACK_BOX,
         refreshments: snackBoxRefreshment,
