@@ -4,7 +4,7 @@ import { NextRequest } from "next/server";
 import { arraysEqual } from "@/lib/arrayTool";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { Cart, CakeType, CustomCakeCart } from "@prisma/client";
-import { cartCustomCakeValidationSchema } from "@/lib/validation-schema";
+import { cartCustomCakeValidationSchema } from "@/lib/validationSchema";
 import { GenerateObjectIdString } from "@/lib/objectId";
 
 // ----------------------------------------------------------------------

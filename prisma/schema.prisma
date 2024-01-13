@@ -230,13 +230,13 @@ model Payment {
 }
 
 model Discount {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  desc      String
+  id        String       @id @default(auto()) @map("_id") @db.ObjectId
+  condition String
   pct       String // percentage
+  type      DiscountType
   isActive  Boolean
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
   order     Order[]
 }
 
@@ -307,6 +307,11 @@ enum PaymentType {
 enum PaymentStatus {
   COMPLETE
   INCOMPLETE
+}
+
+enum DiscountType {
+  NORMAL
+  SNACK_BOX
 }
 
 // Types (Composite Type) ----------------------------------------------------------------------

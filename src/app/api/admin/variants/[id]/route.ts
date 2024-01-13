@@ -7,7 +7,7 @@ import { getFileUrl } from "@/lib/gcs/getFileUrl";
 import { parseBoolean } from "@/lib/parseBoolean";
 import type { VariantType } from "@prisma/client";
 import { responseWrapper } from "@/utils/api-response-wrapper";
-import { variantValidationSchema } from "@/lib/validation-schema";
+import { variantValidationSchema } from "@/lib/validationSchema";
 
 // ----------------------------------------------------------------------
 

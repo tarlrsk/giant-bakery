@@ -4,6 +4,8 @@ import { IBM_Plex_Sans_Thai } from "next/font/google";
 
 import "./globals.css";
 import Providers from "./providers";
+import getCurrentUser from "./actions/getCurrentUser";
+import SocialButtons from "@/components/SocialButtons";
 
 // ----------------------------------------------------------------------
 
@@ -19,11 +21,12 @@ export const metadata: Metadata = {
 
 // ----------------------------------------------------------------------
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const currentUser = await getCurrentUser();
   return (
     <html lang="en">
       <head>
