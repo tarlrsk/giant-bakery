@@ -35,9 +35,7 @@ export default async function RootLayout({
       </head>
       <body className={`${ibm.className} text-primaryT-darker`}>
         <Providers>
-          <nav>
-            <Navbar currentUser={currentUser} />
-          </nav>
+          <Navbar currentUser={currentUser} />
           <main>{children}</main>
         </Providers>
       </body>
