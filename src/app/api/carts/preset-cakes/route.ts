@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { responseWrapper } from "@/utils/api-response-wrapper";

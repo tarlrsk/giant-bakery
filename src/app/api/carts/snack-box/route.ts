@@ -1,11 +1,10 @@
-import mongoose from "mongoose";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { arraysEqual } from "@/lib/arrayTool";
 import { Cart, SnackBoxCart } from "@prisma/client";
 import { responseWrapper } from "@/utils/api-response-wrapper";
-import { cartSnackBoxValidationSchema } from "@/lib/validationSchema";
 import { GenerateObjectIdString } from "@/lib/objectId";
+import { cartSnackBoxValidationSchema } from "@/lib/validationSchema";
 
 // ----------------------------------------------------------------------
 
