@@ -14,6 +14,7 @@
     "@hookform/resolvers": "^3.3.4",
     "@nextui-org/react": "^2.2.9",
     "@prisma/client": "^5.8.0",
+    "@react-google-maps/api": "^2.19.2",
     "axios": "^1.6.5",
     "bcrypt": "^5.1.1",
     "eslint-plugin-unused-imports": "^3.0.0",
