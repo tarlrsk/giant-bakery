@@ -74,7 +74,7 @@ model Cart {
   presetCakes  PresetCakeCart[]
   customCakes  CustomCakeCart[]
   refreshments RefreshmentCart[]
-  snackBox     SnackBoxCart[]
+  snackBoxes   SnackBoxCart[]
 }
 
 model CustomerAddress {

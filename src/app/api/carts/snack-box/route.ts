@@ -48,20 +48,20 @@ export async function POST(req: NextRequest) {
     if (!cart) {
       cart = {} as Cart;
       cart.id = GenerateObjectIdString();
-      cart.snackBox = [];
+      cart.snackBoxes = [];
       cart.type = type;
       cart.userId = userId;
     }
 
-    const existingSnackBoxItem = cart.snackBox.findIndex((item) =>
+    const existingSnackBoxItem = cart.snackBoxes.findIndex((item) =>
       arraysEqual(item.refreshmentIds, refreshmentIds),
     );
 
     if (existingSnackBoxItem !== -1) {
-      cart.snackBox[existingSnackBoxItem].quantity += quantity;
+      cart.snackBoxes[existingSnackBoxItem].quantity += quantity;
     } else {
-      if (!cart.snackBox) {
-        cart.snackBox = [];
+      if (!cart.snackBoxes) {
+        cart.snackBoxes = [];
       }
 
       const snackBoxItem = {
@@ -69,13 +69,13 @@ export async function POST(req: NextRequest) {
         refreshmentIds: refreshmentIds,
         quantity: quantity,
       } as SnackBoxCart;
-      cart.snackBox.push(snackBoxItem);
+      cart.snackBoxes.push(snackBoxItem);
     }
 
     const updatedCart = await prisma.cart.upsert({
       create: cart,
       update: {
-        snackBox: cart.snackBox,
+        snackBoxes: cart.snackBoxes,
       },
       where: { id: cart.id || "" },
     });

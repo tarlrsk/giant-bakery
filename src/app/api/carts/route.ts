@@ -2,12 +2,83 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { Variant, CakeType, Refreshment } from "@prisma/client";
+import { updateQtyCartValidateSchema } from "@/lib/validationSchema";
 
 enum CartItemType {
   PRESET_CAKE = "PRESET_CAKE",
   CUSTOM_CAKE = "CUSTOM_CAKE",
   REFRESHMENT = "REFRESHMENT",
   SNACK_BOX = "SNACK_BOX",
+}
+
+enum CartItemTypeField {
+  PRESET_CAKE = "presetCakes",
+  CUSTOM_CAKE = "customCakes",
+  REFRESHMENT = "refreshments",
+  SNACK_BOX = "snackBoxes",
+}
+
+export async function PUT(req: NextRequest) {
+  try {
+    // TODO GET USER ID FROM TOKEN OR COOKIE ID
+    const body = await req.json();
+    const validation = updateQtyCartValidateSchema.safeParse(body);
+
+    if (!validation.success) {
+      return responseWrapper(400, null, validation.error.format());
+    }
+
+    const { userId, quantity, itemId, type } = body;
+
+    const cart = await prisma.cart.findFirst({ where: { userId: userId } });
+    if (!cart) {
+      return responseWrapper(
+        404,
+        null,
+        `Cart with given user id ${userId} is not found.`,
+      );
+    }
+
+    let itemArray;
+    switch (type) {
+      case CartItemType.PRESET_CAKE:
+        itemArray = cart.presetCakes;
+        break;
+      case CartItemType.CUSTOM_CAKE:
+        itemArray = cart.customCakes;
+        break;
+      case CartItemType.REFRESHMENT:
+        itemArray = cart.refreshments;
+        break;
+      case CartItemType.SNACK_BOX:
+        itemArray = cart.snackBoxes;
+        break;
+      default:
+        return responseWrapper(400, null, "Invalid cart item type");
+    }
+
+    const itemIndex = itemArray.findIndex((item) => item.itemId === itemId);
+
+    if (itemIndex === -1) {
+      return responseWrapper(
+        404,
+        null,
+        `Item with itemId ${itemId} not found in your cart.`,
+      );
+    }
+
+    itemArray[itemIndex].quantity = quantity;
+
+    const field = CartItemTypeField[type as keyof typeof CartItemTypeField];
+    const updateData = { [field]: { set: itemArray } };
+    await prisma.cart.update({
+      where: { id: cart.id },
+      data: updateData,
+    });
+    return responseWrapper(200, itemArray[itemIndex], null);
+  } catch (err: any) {
+    return responseWrapper(500, null, err.message);
+  }
 }
 
 export async function GET(req: NextRequest) {
@@ -55,7 +126,7 @@ export async function GET(req: NextRequest) {
     );
 
     refreshmentIds.push(
-      ...cart.snackBox.flatMap((snackBoxItem) => snackBoxItem.refreshmentIds),
+      ...cart.snackBoxes.flatMap((snackBoxItem) => snackBoxItem.refreshmentIds),
     );
 
     const cakes = await prisma.cake.findMany({
@@ -146,7 +217,7 @@ export async function GET(req: NextRequest) {
       });
     });
 
-    cart.snackBox.forEach((snackBox) => {
+    cart.snackBoxes.forEach((snackBox) => {
       const snackBoxRefreshment = [] as Refreshment[];
 
       snackBox.refreshmentIds.forEach((refreshmentId) => {
