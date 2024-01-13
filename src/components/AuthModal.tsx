@@ -1,14 +1,16 @@
 "use client";
 
 import { z } from "zod";
+import { toast } from "react-hot-toast";
 import React, { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, SubmitHandler } from "react-hook-form";
 import {
   customerSignInValidationSchema,
   customerSignUpValidationSchema,
-} from "@/lib/validation-schema";
+} from "@/lib/validationSchema";
 
 import {
   Link,
@@ -24,8 +26,13 @@ import SocialButtons from "./SocialButtons";
 
 // ----------------------------------------------------------------------
 
+const ERRORS_SET = { alreadyHasUser: "อีเมลนี้ถูกใช้งานแล้ว" };
+
+// ----------------------------------------------------------------------
+
 type AuthProps = {
   setSelected: React.Dispatch<React.SetStateAction<string>>;
+  onSuccess: () => void;
 };
 
 type SignInProps = z.infer<typeof customerSignInValidationSchema>;
@@ -40,9 +47,24 @@ type Props = {
 };
 
 export default function AuthModal({ isOpen, onOpenChange }: Props) {
+  const router = useRouter();
+  const { onSignIn } = useAuth();
+
+  const [isLoadingFacebookAuth, setIsLoadingFacebookAuth] = useState(false);
+  const [isLoadingGoogleAuth, setIsLoadingGoogleAuth] = useState(false);
   const [selected, setSelected] = useState("signIn");
 
-  const { socialSignIn } = useAuth();
+  function onSuccess(authType: "signIn" | "signUp", onClose: () => void) {
+    toast.success(
+      authType === "signIn" ? "เข้าสู่ระบบสำเร็จ" : "สมัครบัญชีสำเร็จ",
+    );
+    router.refresh();
+    onClose();
+  }
+
+  function onError() {
+    toast.error("กรุณาลองใหม่");
+  }
 
   return (
     <Modal
@@ -52,21 +74,33 @@ export default function AuthModal({ isOpen, onOpenChange }: Props) {
       hideCloseButton
     >
       <ModalContent className=" p-8">
-        {() => (
+        {(onClose) => (
           <ModalBody>
             <div>เข้าสู่ระบบด้วยบัญชี</div>
             <div className="flex items-center gap-2">
               <SocialButtons
                 type="facebook"
-                onClick={async () => {
-                  socialSignIn("facebook");
-                }}
+                isLoading={isLoadingFacebookAuth}
+                onClick={() =>
+                  onSignIn(
+                    "facebook",
+                    setIsLoadingFacebookAuth,
+                    () => onSuccess("signIn", onClose),
+                    onError,
+                  )
+                }
               />
               <SocialButtons
                 type="google"
-                onClick={async () => {
-                  socialSignIn("google");
-                }}
+                isLoading={isLoadingGoogleAuth}
+                onClick={() =>
+                  onSignIn(
+                    "google",
+                    setIsLoadingGoogleAuth,
+                    () => onSuccess("signIn", onClose),
+                    onError,
+                  )
+                }
               />
             </div>
             <div className="relative flex py-3 items-center">
@@ -75,9 +109,15 @@ export default function AuthModal({ isOpen, onOpenChange }: Props) {
               <div className="flex-grow border-t"></div>
             </div>
             {selected === "signUp" ? (
-              <SignUpForm setSelected={setSelected} />
+              <SignUpForm
+                setSelected={setSelected}
+                onSuccess={() => onSuccess("signUp", onClose)}
+              />
             ) : (
-              <SignInForm setSelected={setSelected} />
+              <SignInForm
+                setSelected={setSelected}
+                onSuccess={() => onSuccess("signIn", onClose)}
+              />
             )}
           </ModalBody>
         )}
@@ -88,7 +128,7 @@ export default function AuthModal({ isOpen, onOpenChange }: Props) {
 
 // ----------------------------------------------------------------------
 
-function SignUpForm({ setSelected }: AuthProps) {
+function SignUpForm({ setSelected, onSuccess }: AuthProps) {
   const {
     register,
     handleSubmit,
@@ -97,24 +137,29 @@ function SignUpForm({ setSelected }: AuthProps) {
     resolver: zodResolver(customerSignUpValidationSchema),
   });
 
-  const { credentialSignUp } = useAuth();
+  const { onSignUp } = useAuth();
 
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [isVisibleConfirm, setIsVisibleConfirm] = useState(false);
 
   const toggleVisibility = () => setIsVisible(!isVisible);
   const toggleVisibilityConfirm = () => setIsVisibleConfirm(!isVisibleConfirm);
-
   const onSubmit: SubmitHandler<SignUpProps> = async (data) => {
+    setIsLoading(true);
+    setError("");
     try {
-      await credentialSignUp(data);
+      await onSignUp(data);
+      onSuccess();
     } catch (error: any) {
-      const message = error?.message;
       setError(
-        typeof message === "string" ? message : "กรุณาลองใหม่อีกครั้งในภายหลัง",
+        typeof error?.message === "string"
+          ? error.message
+          : "กรุณาลองใหม่อีกครั้งในภายหลัง",
       );
     }
+    setIsLoading(false);
   };
 
   return (
@@ -130,8 +175,11 @@ function SignUpForm({ setSelected }: AuthProps) {
           labelPlacement="outside"
           variant="bordered"
           type="email"
-          isInvalid={!!errors?.email}
-          errorMessage={errors.email?.message}
+          isInvalid={!!errors?.email || error === ERRORS_SET.alreadyHasUser}
+          errorMessage={
+            errors.email?.message ||
+            (error === ERRORS_SET.alreadyHasUser && error)
+          }
         />
 
         <Input
@@ -179,11 +227,14 @@ function SignUpForm({ setSelected }: AuthProps) {
           errorMessage={errors.phone?.message}
         />
 
-        {error && <div className="text-xs text-secondaryT-main">{error}</div>}
+        {!Object.values(ERRORS_SET).some((error) => error === error) && (
+          <div className={` text-xs text-secondaryT-main`}>{error}</div>
+        )}
 
         <div className="flex gap-2 justify-end">
           <Button
             fullWidth
+            isLoading={isLoading}
             color="secondary"
             style={{ height: "2.75rem", fontSize: "1rem" }}
             type="submit"
@@ -210,7 +261,7 @@ function SignUpForm({ setSelected }: AuthProps) {
 
 // ----------------------------------------------------------------------
 
-function SignInForm({ setSelected }: AuthProps) {
+function SignInForm({ setSelected, onSuccess }: AuthProps) {
   const {
     register,
     handleSubmit,
@@ -219,22 +270,21 @@ function SignInForm({ setSelected }: AuthProps) {
     resolver: zodResolver(customerSignInValidationSchema),
   });
 
-  const { credentialSignIn } = useAuth();
+  const { onSignIn } = useAuth();
 
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
 
   const toggleVisibility = () => setIsVisible(!isVisible);
-
-  const onSubmit: SubmitHandler<SignInProps> = async (data) => {
-    try {
-      await credentialSignIn(data);
-    } catch (error: { message: string } | any) {
-      if (!error.message) return setError("กรุณาลองใหม่อีกครั้งในภายหลัง");
-      setError(
-        typeof error.message === "string" ? error.message : "Unexpected error",
-      );
-    }
+  const onSubmit: SubmitHandler<SignInProps> = (data) => {
+    onSignIn(
+      "credentials",
+      setIsLoading,
+      onSuccess,
+      () => setError("อีเมลหรือรหัสผ่านไม่ถูกต้อง"),
+      data,
+    );
   };
 
   return (
@@ -293,6 +343,7 @@ function SignInForm({ setSelected }: AuthProps) {
         <div className="flex gap-2 justify-end">
           <Button
             fullWidth
+            isLoading={isLoading}
             color="secondary"
             className=" h-11 text-base"
             type="submit"

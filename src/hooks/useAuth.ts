@@ -5,7 +5,7 @@ import useSWRMutation from "swr/mutation";
 import {
   customerSignInValidationSchema,
   customerSignUpValidationSchema,
-} from "@/lib/validation-schema";
+} from "@/lib/validationSchema";
 
 // ----------------------------------------------------------------------
 
@@ -42,50 +42,46 @@ async function sendRequest(
 // ----------------------------------------------------------------------
 
 export function useAuth() {
-  const { trigger: credentialSignUp } = useSWRMutation(
-    "/auth/signup",
-    sendRequest,
-  );
+  const { trigger: onSignUp } = useSWRMutation("/auth/signup", sendRequest);
 
-  async function credentialSignIn(data: signInProps) {
-    await signIn("credentials", { ...data, redirect: false })
-      .then((res) => {
-        if (res?.status === 401) {
-          throw new Error("อีเมลหรือพาสเวิร์ดไม่ถูกต้อง");
-        } else {
-          return res?.status;
-        }
-      })
-      .catch((error) => {
-        throw new Error(
-          typeof error.message === "string"
-            ? error.message
-            : "Unexpected error",
-        );
-      });
-  }
+  async function onSignIn(
+    type: "credentials" | "facebook" | "google",
+    setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
+    onSuccess: () => void,
+    onError: () => void,
+    data?: signInProps,
+  ) {
+    setIsLoading(true);
 
-  async function socialSignIn(type: "facebook" | "google") {
-    await signIn(type, { redirect: false })
-      .then((res) => {
-        if (res?.status === 401) {
-          throw new Error("invalid");
-        } else {
-          return res?.status;
+    if (type === "credentials") {
+      await signIn(type, { ...data, redirect: false }).then((callback) => {
+        setIsLoading(false);
+
+        if (callback?.ok) {
+          onSuccess();
         }
-      })
-      .catch((error) => {
-        throw new Error(
-          typeof error.message === "string"
-            ? error.message
-            : "Unexpected error",
-        );
+
+        if (callback?.error) {
+          onError();
+        }
       });
+    } else {
+      await signIn(type, { redirect: false }).then((callback) => {
+        setIsLoading(false);
+
+        if (callback?.ok) {
+          onSuccess();
+        }
+
+        if (callback?.error) {
+          onError();
+        }
+      });
+    }
   }
 
   return {
-    credentialSignUp,
-    credentialSignIn,
-    socialSignIn,
+    onSignUp,
+    onSignIn,
   };
 }

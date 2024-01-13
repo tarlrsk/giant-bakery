@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { Cart, RefreshmentCart } from "@prisma/client";
 import { responseWrapper } from "@/utils/api-response-wrapper";
-import { cartRefreshmentValidationSchema } from "@/lib/validation-schema";
+import { cartRefreshmentValidationSchema } from "@/lib/validationSchema";
 
 // ----------------------------------------------------------------------
 

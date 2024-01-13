@@ -161,3 +161,18 @@ export const cartSnackBoxValidationSchema = z.object({
   refreshmentIds: z.array(zodIsObjectId(z.string())),
   quantity: z.number(),
 });
+
+// Discount -------------------------------------------------------------
+
+export const discountValidationSchema = z.object({
+  condition: z
+    .string({ required_error: "Condition is required." })
+    .min(3)
+    .max(255),
+  pct: z
+    .string({ required_error: "Discount percentage is required." })
+    .min(3)
+    .max(255),
+  type: z.enum(["NORMAL", "SNACK_BOX"]),
+  isActive: z.boolean(),
+});

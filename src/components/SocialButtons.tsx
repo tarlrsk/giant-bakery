@@ -27,14 +27,20 @@ const SOCIAL_ICONS = {
 
 type Props = {
   type: "facebook" | "google";
+  isLoading?: boolean;
   onClick: () => void;
 };
 
-export default function SocialButtons({ type, onClick }: Props) {
+export default function SocialButtons({
+  type,
+  isLoading = false,
+  onClick,
+}: Props) {
   return (
     <Button
       fullWidth
       size="md"
+      isLoading={isLoading}
       variant={type === "google" ? "bordered" : "flat"}
       className={SOCIAL_BUTTON_STYLES[type]}
       startContent={SOCIAL_ICONS[type]}
