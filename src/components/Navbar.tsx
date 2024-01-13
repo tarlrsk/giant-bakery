@@ -5,7 +5,7 @@ import { User } from "@prisma/client";
 import { motion } from "framer-motion";
 import React, { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { usePathname } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 import {
   Link,
@@ -48,6 +48,7 @@ type Props = {
 
 export default function Navbar({ currentUser, transparent = false }: Props) {
   const pathname = usePathname();
+  const router = useRouter();
   const { onSignOut } = useAuth();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
@@ -97,9 +98,14 @@ export default function Navbar({ currentUser, transparent = false }: Props) {
           className="sm:hidden"
         />
         <NavbarBrand>
-          <div className=" w-full h-full  relative">
-            <Image src="/logo.png" width={200} height={64} alt="logo" />
-          </div>
+          <Image
+            src="/logo.png"
+            width={200}
+            height={64}
+            alt="logo"
+            onClick={() => router.push("/")}
+            className=" cursor-pointer"
+          />
         </NavbarBrand>
       </NavbarContent>
 
