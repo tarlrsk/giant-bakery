@@ -2,7 +2,9 @@
 
 import { z } from "zod";
 import React, { useState } from "react";
+import { toast } from "react-hot-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, SubmitHandler } from "react-hook-form";
 import {
@@ -10,7 +12,6 @@ import {
   customerSignUpValidationSchema,
 } from "@/lib/validationSchema";
 
-import { semanticColors } from "@nextui-org/theme";
 import {
   Link,
   Modal,
@@ -22,8 +23,6 @@ import {
 
 import Iconify from "./Iconify";
 import SocialButtons from "./SocialButtons";
-import { useRouter } from "next/navigation";
-import { toast } from "react-hot-toast";
 
 // ----------------------------------------------------------------------
 
