@@ -36,7 +36,7 @@ const NAV_ITEMS = [
   { label: "เบเกอรี่", link: "/bakery" },
   { label: "เครื่องดื่ม", link: "/beverage" },
   { label: "เค้ก", link: "/cake" },
-  { label: "ชุดเบรก", link: "/snackbox" },
+  { label: "ชุดเบรก", link: "/snack-box" },
 ];
 
 // ----------------------------------------------------------------------
@@ -69,6 +69,7 @@ export default function Navbar({ currentUser, transparent = false }: Props) {
     <NextNavbar
       onMenuOpenChange={setIsMenuOpen}
       shouldHideOnScroll
+      maxWidth="2xl"
       classNames={{
         item: [
           "flex",
@@ -86,7 +87,7 @@ export default function Navbar({ currentUser, transparent = false }: Props) {
           "data-[active=true]:after:bg-primary",
         ],
       }}
-      className={` md:py-6 ${
+      className={` md:py-8 ${
         transparent ? "bg-transparent" : "bg-primaryT-lighter"
       }`}
     >
@@ -97,12 +98,12 @@ export default function Navbar({ currentUser, transparent = false }: Props) {
         />
         <NavbarBrand>
           <div className=" w-full h-full  relative">
-            <Image src="/logo.png" width={142} height={64} alt="logo" />
+            <Image src="/logo.png" width={200} height={64} alt="logo" />
           </div>
         </NavbarBrand>
       </NavbarContent>
 
-      <NavbarContent className="hidden sm:flex gap-8" justify="center">
+      <NavbarContent className="hidden sm:flex gap-14" justify="center">
         {NAV_ITEMS.map((item, index) => (
           <NavbarItem
             key={index}
@@ -128,7 +129,7 @@ export default function Navbar({ currentUser, transparent = false }: Props) {
             </motion.div>
           </NavbarItem>
         ))}
-        <div className=" flex flex-row items-center h-full gap-4 justify-between">
+        <div className=" flex flex-row items-center h-full gap-8 justify-between">
           <NavbarItem className="group relative">
             <motion.div
               initial="rest"
