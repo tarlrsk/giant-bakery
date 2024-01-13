@@ -2,7 +2,6 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { Variant, CakeType, Refreshment } from "@prisma/client";
-import { preset } from "swr/_internal";
 
 enum CartItemType {
   PRESET_CAKE = "PRESET_CAKE",
