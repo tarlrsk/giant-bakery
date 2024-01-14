@@ -19,11 +19,16 @@ jobs:
       - name: Install Vercel CLI
         run: yarn global add vercel
 
-      - name: Generate Google Cloud Credential
-        run: echo "${{ secrets.GCSSA }}" > gcssa.json
-
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Add Additional Environment
+        run: |
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > .vercel/.env.production.local
+          echo "GCS_BUCKET=${{ secrets.GCS_BUCKET }}" >> .vercel/.env.production.local
+          echo "GCS_CLIENT_EMAIL=${{ secrets.GCS_CLIENT_EMAIL }}" >> .vercel/.env.production.local
+          echo "GCS_PRIVATE_KEY=${{ secrets.GCS_PRIVATE_KEY }}" >> .vercel/.env.production.local
+          echo "GCS_PROJECT_ID=${{ secrets.GCS_PROJECT_ID }}" >> .vercel/.env.production.local
 
       - name: Build Project & Generate Prisma Client Artifacts
         run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
