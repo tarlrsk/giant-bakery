@@ -162,6 +162,13 @@ export const cartSnackBoxValidationSchema = z.object({
   quantity: z.number(),
 });
 
+export const updateQtyCartValidateSchema = z.object({
+  userId: zodIsObjectId(z.string()),
+  type: z.enum(["PRESET_CAKE", "CUSTOM_CAKE", "REFRESHMENT", "SNACK_BOX"]),
+  itemId: zodIsObjectId(z.string()),
+  quantity: z.number(),
+});
+
 // Discount -------------------------------------------------------------
 
 export const discountValidationSchema = z.object({

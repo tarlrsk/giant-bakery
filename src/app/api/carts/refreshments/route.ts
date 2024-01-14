@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { Cart, RefreshmentCart } from "@prisma/client";
+import { GenerateObjectIdString } from "@/lib/objectId";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { cartRefreshmentValidationSchema } from "@/lib/validationSchema";
 
@@ -42,34 +42,35 @@ export async function POST(req: NextRequest) {
 
     if (!cart) {
       cart = {} as Cart;
-      cart.id = new mongoose.Types.ObjectId().toString();
-      cart.refreshment = [];
+      cart.id = GenerateObjectIdString();
+      cart.refreshments = [];
       cart.type = type;
       cart.userId = userId;
     }
 
-    const existingRefreshmentItem = cart.refreshment.findIndex(
+    const existingRefreshmentItem = cart.refreshments.findIndex(
       (item) => item.refreshmentId === refreshmentId,
     );
 
     if (existingRefreshmentItem !== -1) {
-      cart.refreshment[existingRefreshmentItem].quantity += quantity;
+      cart.refreshments[existingRefreshmentItem].quantity += quantity;
     } else {
-      if (!cart.refreshment) {
-        cart.refreshment = [];
+      if (!cart.refreshments) {
+        cart.refreshments = [];
       }
 
       const refreshmentItem = {
+        itemId: GenerateObjectIdString(),
         refreshmentId: refreshmentId,
         quantity: quantity,
       } as RefreshmentCart;
-      cart.refreshment.push(refreshmentItem);
+      cart.refreshments.push(refreshmentItem);
     }
 
     const updatedCart = await prisma.cart.upsert({
       create: cart,
       update: {
-        refreshment: cart.refreshment,
+        refreshments: cart.refreshments,
       },
       where: { id: cart.id || "" },
     });
