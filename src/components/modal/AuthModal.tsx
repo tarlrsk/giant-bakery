@@ -1,8 +1,10 @@
 "use client";
 
 import { z } from "zod";
+import { toast } from "react-hot-toast";
 import React, { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, SubmitHandler } from "react-hook-form";
 import {
@@ -10,7 +12,6 @@ import {
   customerSignUpValidationSchema,
 } from "@/lib/validationSchema";
 
-import { semanticColors } from "@nextui-org/theme";
 import {
   Link,
   Modal,
@@ -20,10 +21,8 @@ import {
   ModalContent,
 } from "@nextui-org/react";
 
-import Iconify from "./Iconify";
-import SocialButtons from "./SocialButtons";
-import { useRouter } from "next/navigation";
-import { toast } from "react-hot-toast";
+import Iconify from "../icons/Iconify";
+import SocialButtons from "../SocialButtons";
 
 // ----------------------------------------------------------------------
 
@@ -64,7 +63,7 @@ export default function AuthModal({ isOpen, onOpenChange }: Props) {
   }
 
   function onError() {
-    toast.error("กรุณาลองใหม่");
+    toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
   }
 
   return (
@@ -159,6 +158,16 @@ function SignUpForm({ setSelected, onSuccess }: AuthProps) {
           ? error.message
           : "กรุณาลองใหม่อีกครั้งในภายหลัง",
       );
+      if (
+        typeof error?.message === "string" &&
+        !Object.values(ERRORS_SET).some((error) => error === error)
+      ) {
+        toast.error(
+          typeof error?.message === "string"
+            ? error.message
+            : "กรุณาลองใหม่อีกครั้งในภายหลัง",
+        );
+      }
     }
     setIsLoading(false);
   };
@@ -175,7 +184,6 @@ function SignUpForm({ setSelected, onSuccess }: AuthProps) {
           placeholder="อีเมล"
           labelPlacement="outside"
           variant="bordered"
-          type="email"
           isInvalid={!!errors?.email || error === ERRORS_SET.alreadyHasUser}
           errorMessage={
             errors.email?.message ||
@@ -228,10 +236,6 @@ function SignUpForm({ setSelected, onSuccess }: AuthProps) {
           errorMessage={errors.phone?.message}
         />
 
-        {!Object.values(ERRORS_SET).some((error) => error === error) && (
-          <div className={` text-xs text-secondaryT-main`}>{error}</div>
-        )}
-
         <div className="flex gap-2 justify-end">
           <Button
             fullWidth
@@ -283,20 +287,24 @@ function SignInForm({ setSelected, onSuccess }: AuthProps) {
       "credentials",
       setIsLoading,
       onSuccess,
-      () => setError("อีเมลหรือรหัสผ่านไม่ถูกต้อง"),
+      () => {
+        setError("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
+        toast.error("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
+      },
       data,
     );
   };
 
   return (
     <>
-      <h1>เข้าสู่ระบบด้วยอีเมล</h1>
+      <h1 className=" text-primaryT-darker">เข้าสู่ระบบด้วยอีเมล</h1>
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
         <div>
           <Input
             {...register("email", { required: true })}
             autoFocus
+            color="default"
             label="อีเมล"
             placeholder="อีเมล"
             labelPlacement="outside"
@@ -321,7 +329,7 @@ function SignInForm({ setSelected, onSuccess }: AuthProps) {
             }
             type={isVisible ? "text" : "password"}
             isInvalid={!!errors?.password || !!error}
-            errorMessage={errors.password?.message || error}
+            errorMessage={errors.password?.message}
           />
           <Link
             size="sm"

@@ -1,11 +1,11 @@
 import * as React from "react";
 import type { Metadata } from "next";
+import Navbar from "@/components/Navbar";
 import { IBM_Plex_Sans_Thai } from "next/font/google";
 
 import "./globals.css";
 import Providers from "./providers";
 import getCurrentUser from "./actions/getCurrentUser";
-import SocialButtons from "@/components/SocialButtons";
 
 // ----------------------------------------------------------------------
 
@@ -33,8 +33,9 @@ export default async function RootLayout({
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </head>
-      <body className={ibm.className}>
+      <body className={`${ibm.className} text-primaryT-darker`}>
         <Providers>
+          <Navbar currentUser={currentUser} />
           <main>{children}</main>
         </Providers>
       </body>
