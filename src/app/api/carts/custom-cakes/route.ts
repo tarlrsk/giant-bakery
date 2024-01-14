@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { arraysEqual } from "@/lib/arrayTool";
+import { GenerateObjectIdString } from "@/lib/objectId";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { Cart, CakeType, CustomCakeCart } from "@prisma/client";
 import { cartCustomCakeValidationSchema } from "@/lib/validationSchema";
@@ -59,36 +59,37 @@ export async function POST(req: NextRequest) {
 
     if (!cart) {
       cart = {} as Cart;
-      cart.id = new mongoose.Types.ObjectId().toString();
-      cart.customCake = [];
+      cart.id = GenerateObjectIdString();
+      cart.customCakes = [];
       cart.type = type;
       cart.userId = userId;
     }
 
-    const existingCakeIndex = cart.customCake.findIndex(
+    const existingCakeIndex = cart.customCakes.findIndex(
       (item) =>
         item.cakeId === cakeId && arraysEqual(item.variantIds, variantIds),
     );
 
     if (existingCakeIndex !== -1) {
-      cart.customCake[existingCakeIndex].quantity += quantity;
+      cart.customCakes[existingCakeIndex].quantity += quantity;
     } else {
-      if (!cart.customCake) {
-        cart.customCake = [];
+      if (!cart.customCakes) {
+        cart.customCakes = [];
       }
 
       const customCakeItem = {
+        itemId: GenerateObjectIdString(),
         cakeId: cakeId,
         quantity: quantity,
         variantIds: variantIds,
       } as CustomCakeCart;
-      cart.customCake.push(customCakeItem);
+      cart.customCakes.push(customCakeItem);
     }
 
     const updatedCart = await prisma.cart.upsert({
       create: cart,
       update: {
-        customCake: cart.customCake,
+        customCakes: cart.customCakes,
       },
       where: { id: cart.id || "" },
     });
