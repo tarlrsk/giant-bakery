@@ -24,12 +24,6 @@ jobs:
       - name: Generate Prisma Client
         run: npx prisma generate
 
-      - name: Push Prisma
-        run: npx prisma db push
-
-      - name: Generate Prisma Client
-        run: npx prisma generate
-
       - name: Build Project Artifacts
         run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
 
