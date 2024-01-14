@@ -104,7 +104,7 @@ export default function Navbar({ currentUser, transparent = false }: Props) {
             height={64}
             alt="logo"
             onClick={() => router.push("/")}
-            className=" cursor-pointer"
+            className=" w-24 ml-2 md:w-52 md:ml-0 cursor-pointer"
           />
         </NavbarBrand>
       </NavbarContent>
@@ -200,7 +200,15 @@ export default function Navbar({ currentUser, transparent = false }: Props) {
             orientation="vertical"
             className=" h-2/3 bg-primaryT-darker w-0.25"
           />
-          <Button isIconOnly size="lg" className="bg-transparent rounded-full">
+          <Button
+            onClick={() => {
+              console.log("hi", currentUser);
+              router.push("/cart");
+            }}
+            isIconOnly
+            size="lg"
+            className="bg-transparent rounded-full"
+          >
             <BasketIcon width={32} height={32} />
           </Button>
         </div>
