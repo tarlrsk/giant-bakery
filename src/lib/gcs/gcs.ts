@@ -6,7 +6,7 @@ const GCS_BUCKET = process.env.GCS_BUCKET as string;
 
 const storage = new Storage({
   projectId: GCS_PROJECT_ID,
-  keyFilename: GCS_KEYFILE,
+  keyFilename: process.cwd() + "/" + GCS_KEYFILE,
 });
 
 const bucket = storage.bucket(GCS_BUCKET);
