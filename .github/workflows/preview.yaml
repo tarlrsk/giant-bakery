@@ -25,11 +25,11 @@ jobs:
 
       - name: Add Additional Environment
         run: |
-          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > .vercel/.env.preview.local
-          echo "GCS_BUCKET=${{ secrets.GCS_BUCKET }}" >> .vercel/.env.preview.local
-          echo "GCS_CLIENT_EMAIL=${{ secrets.GCS_CLIENT_EMAIL }}" >> .vercel/.env.preview.local
-          echo "GCS_PRIVATE_KEY=${{ secrets.GCS_PRIVATE_KEY }}" >> .vercel/.env.preview.local
-          echo "GCS_PROJECT_ID=${{ secrets.GCS_PROJECT_ID }}" >> .vercel/.env.preview.local
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > .vercel/.env.local
+          echo "GCS_BUCKET=${{ secrets.GCS_BUCKET }}" >> .vercel/.env.local
+          echo "GCS_CLIENT_EMAIL=${{ secrets.GCS_CLIENT_EMAIL }}" >> .vercel/.env.local
+          echo "GCS_PRIVATE_KEY=${{ secrets.GCS_PRIVATE_KEY }}" >> .vercel/.env.local
+          echo "GCS_PROJECT_ID=${{ secrets.GCS_PROJECT_ID }}" >> .vercel/.env.local
 
       - name: Build Project & Generate Prisma Client Artifacts
         run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
