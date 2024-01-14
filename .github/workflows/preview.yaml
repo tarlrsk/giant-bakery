@@ -30,7 +30,7 @@ jobs:
           echo "GCS_CLIENT_EMAIL=${{ secrets.GCS_CLIENT_EMAIL }}" >> .vercel/.env.preview.local
           echo "GCS_PRIVATE_KEY=${{ secrets.GCS_PRIVATE_KEY }}" >> .vercel/.env.preview.local
           echo "GCS_PROJECT_ID=${{ secrets.GCS_PROJECT_ID }}" >> .vercel/.env.preview.local
-          cat .vercel/env.preview.local
+          cat .vercel/.env.preview.local
 
       - name: Build Project & Generate Prisma Client Artifacts
         run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
