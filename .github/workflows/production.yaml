@@ -18,6 +18,9 @@ jobs:
       - name: Install Vercel CLI
         run: yarn global add vercel
 
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
       - name: Generate Prisma Client
         run: npx prisma generate
 
@@ -26,9 +29,6 @@ jobs:
 
       - name: Generate Prisma Client
         run: npx prisma generate
-
-      - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Build Project Artifacts
         run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
