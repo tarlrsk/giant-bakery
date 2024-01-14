@@ -25,6 +25,7 @@ jobs:
 
       - name: Add Additional Environment
         run: |
+          vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
           echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > .vercel/.env.preview.local
           echo "GCS_BUCKET=${{ secrets.GCS_BUCKET }}" >> .vercel/.env.preview.local
           echo "GCS_CLIENT_EMAIL=${{ secrets.GCS_CLIENT_EMAIL }}" >> .vercel/.env.preview.local
