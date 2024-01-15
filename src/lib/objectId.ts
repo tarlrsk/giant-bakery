@@ -6,3 +6,7 @@ export const isObjectId = function (val: string) {
   }
   return true;
 };
+
+export const GenerateObjectIdString = function () {
+  return new mongoose.Types.ObjectId().toString();
+};

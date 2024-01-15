@@ -1,8 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { bucket } from "@/lib/gcs/gcs";
 import { NextRequest } from "next/server";
+import { isObjectId } from "@/lib/objectId";
 import { formatDate } from "@/lib/formatDate";
-import { isObjectId } from "@/lib/isObjectId";
 import { getFileUrl } from "@/lib/gcs/getFileUrl";
 import { parseBoolean } from "@/lib/parseBoolean";
 import type { VariantType } from "@prisma/client";
