@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { responseWrapper } from "@/utils/api-response-wrapper";
-import { Variant, CakeType, Refreshment } from "@prisma/client";
+import { Variant, CakeType, Refreshment, CartType } from "@prisma/client";
 import { updateQtyCartValidateSchema } from "@/lib/validationSchema";
 
 enum CartItemType {
@@ -16,6 +16,75 @@ enum CartItemTypeField {
   CUSTOM_CAKE = "customCakes",
   REFRESHMENT = "refreshments",
   SNACK_BOX = "snackBoxes",
+}
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const userId = req.nextUrl.searchParams.get("userId") as string;
+    if (!userId) {
+      return responseWrapper(400, null, "UserId is required");
+    }
+
+    const itemId = req.nextUrl.searchParams.get("itemId") as string;
+    if (!itemId) {
+      return responseWrapper(400, null, "ItemId is required");
+    }
+
+    const cart = await prisma.cart.findFirst({
+      where: { userId: userId },
+    });
+    if (!cart) {
+      return responseWrapper(
+        404,
+        null,
+        `Cart with given user id ${userId} is not found.`,
+      );
+    }
+
+    let itemArray: any[] | undefined;
+    let itemType: string | undefined;
+
+    for (const field of Object.keys(cart)) {
+      const fieldType = field as keyof typeof cart;
+
+      if (Array.isArray(cart[fieldType])) {
+        const fieldArray = cart[fieldType] as any[];
+
+        const itemIndex = fieldArray.findIndex(
+          (item) => item.itemId === itemId,
+        );
+
+        if (itemIndex !== -1) {
+          itemArray = fieldArray;
+          itemType = fieldType;
+          break;
+        }
+      }
+    }
+
+    if (!itemArray || !itemType) {
+      return responseWrapper(
+        404,
+        null,
+        `Item with itemId ${itemId} not found in your cart.`,
+      );
+    }
+
+    itemArray.splice(
+      itemArray.findIndex((item) => item.itemId === itemId),
+      1,
+    );
+
+    const updateData = { [itemType]: { set: itemArray } };
+    const updatedCart = await prisma.cart.update({
+      where: { id: cart.id },
+      data: updateData,
+    });
+
+    return responseWrapper(200, updatedCart, null);
+  } catch (err: any) {
+    return responseWrapper(500, null, err.message);
+  }
 }
 
 export async function PUT(req: NextRequest) {
@@ -67,7 +136,14 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    itemArray[itemIndex].quantity = quantity;
+    if (quantity === 0) {
+      itemArray.splice(
+        itemArray.findIndex((item) => item.itemId === itemId),
+        1,
+      );
+    } else {
+      itemArray[itemIndex].quantity = quantity;
+    }
 
     const field = CartItemTypeField[type as keyof typeof CartItemTypeField];
     const updateData = { [field]: { set: itemArray } };
@@ -83,31 +159,30 @@ export async function PUT(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   try {
+    let responseCart = {
+      cartId: null as string | null,
+      userId: null as string | null,
+      type: null as CartType | null,
+      items: [] as any,
+    };
+
     const userId = req.nextUrl.searchParams.get("userId") as string;
     if (!userId) {
-      return responseWrapper(400, null, "UserId is required");
+      return responseWrapper(200, responseCart, null);
     }
+    responseCart.userId = userId;
 
     const cart = await prisma.cart.findFirst({
       where: {
         userId: userId,
       },
     });
-
     if (!cart) {
-      return responseWrapper(
-        404,
-        null,
-        `Cart with given userId ${userId} not found.`,
-      );
+      return responseWrapper(200, responseCart, null);
     }
 
-    let responseCart = {
-      cartId: cart.id,
-      userId: cart.userId,
-      type: cart.type,
-      items: [] as any,
-    };
+    responseCart.cartId = cart.id;
+    responseCart.type = cart.type;
 
     const cakeIds: string[] = cart.presetCakes.map(
       (presetCakeItem) => presetCakeItem.cakeId,
