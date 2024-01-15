@@ -1,7 +1,7 @@
 import { z } from "zod";
 import axios from "@/utils/axios";
-import { signIn } from "next-auth/react";
 import useSWRMutation from "swr/mutation";
+import { signIn, signOut as onSignOut } from "next-auth/react";
 import {
   customerSignInValidationSchema,
   customerSignUpValidationSchema,
@@ -83,5 +83,6 @@ export function useAuth() {
   return {
     onSignUp,
     onSignIn,
+    onSignOut,
   };
 }
