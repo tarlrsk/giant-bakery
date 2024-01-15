@@ -3,6 +3,7 @@ import { NextRequest } from "next/server";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { Variant, CakeType, Refreshment, CartType } from "@prisma/client";
 import { updateQtyCartValidateSchema } from "@/lib/validationSchema";
+import { preset } from "swr/_internal";
 
 enum CartItemType {
   PRESET_CAKE = "PRESET_CAKE",
@@ -163,6 +164,7 @@ export async function GET(req: NextRequest) {
       cartId: null as string | null,
       userId: null as string | null,
       type: null as CartType | null,
+      totalPrice: 0,
       items: [] as any,
     };
 
@@ -236,12 +238,15 @@ export async function GET(req: NextRequest) {
         responseCart.items.push({
           itemsId: presetCake.itemId,
           quantity: presetCake.quantity,
+          pricePer: cake.price,
+          price: cake.price * presetCake.quantity,
           createdAt: presetCake.createdAt,
           type: CartItemType.PRESET_CAKE,
           cakeId: cake.id,
           name: cake.name,
           variants: cake.variants,
         });
+        responseCart.totalPrice += cake.price * presetCake.quantity;
       }
     });
 
@@ -262,12 +267,15 @@ export async function GET(req: NextRequest) {
         responseCart.items.push({
           itemsId: customCake.itemId,
           quantity: customCake.quantity,
+          pricePer: cake.price,
+          price: cake.price * customCake.quantity,
           createdAt: customCake.createdAt,
           type: CartItemType.CUSTOM_CAKE,
           cakeId: cake.id,
           name: cake.name,
           variants: variantCustomCake,
         });
+        responseCart.totalPrice += cake.price * customCake.quantity;
       }
     });
 
@@ -285,15 +293,19 @@ export async function GET(req: NextRequest) {
       responseCart.items.push({
         itemsId: refreshment.itemId,
         quantity: refreshment.quantity,
+        pricePer: refreshmentData.price,
+        price: refreshmentData.price * refreshment.quantity,
         createdAt: refreshment.createdAt,
         type: CartItemType.REFRESHMENT,
         refreshmentId: refreshmentData.id,
         name: refreshmentData.name,
       });
+      responseCart.totalPrice += refreshmentData.price * refreshment.quantity;
     });
 
     cart.snackBoxes.forEach((snackBox) => {
       const snackBoxRefreshment = [] as Refreshment[];
+      let snackBoxPrice = 0;
 
       snackBox.refreshmentIds.forEach((refreshmentId) => {
         const refreshmentData = refreshments.find(
@@ -302,16 +314,20 @@ export async function GET(req: NextRequest) {
 
         if (refreshmentData) {
           snackBoxRefreshment.push(refreshmentData);
+          snackBoxPrice += refreshmentData.price;
         }
       });
 
       responseCart.items.push({
         itemsId: snackBox.itemId,
         quantity: snackBox.quantity,
+        pricePer: snackBoxPrice,
+        price: snackBoxPrice * snackBox.quantity,
         createdAt: snackBox.createdAt,
         type: CartItemType.SNACK_BOX,
         refreshments: snackBoxRefreshment,
       });
+      responseCart.totalPrice += snackBoxPrice * snackBox.quantity;
     });
 
     responseCart.items.sort(
