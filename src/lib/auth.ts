@@ -44,7 +44,7 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "email", placeholder: "john@gmail.com" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials, req) {
+      async authorize(credentials) {
         const bcrypt = require("bcrypt");
 
         const user = await prisma.user.findUnique({
