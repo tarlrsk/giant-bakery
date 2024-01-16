@@ -1,40 +1,36 @@
-import useCart from "@/hooks/useCart";
+import { cookies } from "next/headers";
+import { getCart } from "@/utils/api-path";
 import BasketIcon from "@/components/icons/BasketIcon";
 
 import { Button } from "@nextui-org/react";
 
 import getCurrentUser from "../actions/getCurrentUser";
-import { fetcher } from "@/utils/axios";
 
 // ----------------------------------------------------------------------
 
-async function getData() {
-  const currentUser = await getCurrentUser();
+type Repository = {
+  response: {
+    data: {
+      cartId: string | null;
+      userId: string | null;
+      type: null;
+      totalPrice: 0;
+      items: [];
+    };
+  };
+};
 
-  const res = await fetch(
-    `http://localhost:3000/api/carts?userId=${currentUser?.id || "default"}`,
-  );
-  // The return value is *not* serialized
-  // You can return Date, Map, Set, etc.
-
-  if (!res.ok) {
-    // This will activate the closest `error.js` Error Boundary
-    console.log("error");
-  }
-
-  return res.json();
-}
+// ----------------------------------------------------------------------
 
 export default async function CartPage() {
-  const data = await getData();
-  // const res = await fetcher(`/carts?userId=${currentUser?.id || "default"}`)
-  //   .then((res) => res)
-  //   .catch((err) => err);
+  const res: Repository = await getData();
+
+  const items = res.response.data.items;
+  const price = res.response.data.totalPrice;
 
   return (
     <div className=" flex flex-col justify-center h-full items-center gap-6">
-      {!!data ? <div>hello</div> : <div>hi</div>}
-      <EmptyCartView />
+      {items.length > 0 ? <div>{price}</div> : <EmptyCartView />}
     </div>
   );
 }
@@ -56,4 +52,30 @@ function EmptyCartView() {
       </Button>
     </>
   );
+}
+
+// ----------------------------------------------------------------------
+
+async function getData() {
+  const currentUser = await getCurrentUser();
+
+  const memberUserId = currentUser?.id;
+  const guestUserId = cookies().get("next-auth.csrf-token")?.value;
+
+  const res = await fetch(
+    getCart(memberUserId || (guestUserId as unknown as string)),
+  );
+
+  if (!res.ok) {
+    return {
+      response: {
+        data: {
+          totalPrice: 0,
+          items: [],
+        },
+      },
+    };
+  }
+
+  return res.json();
 }
