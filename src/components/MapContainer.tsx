@@ -15,7 +15,7 @@ const position = { lat: 12.683927491778288, lng: 101.2714474409568 };
 
 const containerStyle = {
   width: "100%",
-  height: "184px",
+  height: "100%",
   "border-radius": "8px",
 };
 
