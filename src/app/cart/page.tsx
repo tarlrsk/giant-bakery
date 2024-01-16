@@ -8,12 +8,32 @@ import { fetcher } from "@/utils/axios";
 
 // ----------------------------------------------------------------------
 
-export default async function CartPage() {
+async function getData() {
   const currentUser = await getCurrentUser();
-  const { cartItemsData } = await useCart(currentUser?.id || "");
+
+  const res = await fetch(
+    `http://localhost:3000/api/carts?userId=${currentUser?.id || "default"}`,
+  );
+  // The return value is *not* serialized
+  // You can return Date, Map, Set, etc.
+
+  if (!res.ok) {
+    // This will activate the closest `error.js` Error Boundary
+    console.log("error");
+  }
+
+  return res.json();
+}
+
+export default async function CartPage() {
+  const data = await getData();
+  // const res = await fetcher(`/carts?userId=${currentUser?.id || "default"}`)
+  //   .then((res) => res)
+  //   .catch((err) => err);
 
   return (
     <div className=" flex flex-col justify-center h-full items-center gap-6">
+      {!!data ? <div>hello</div> : <div>hi</div>}
       <EmptyCartView />
     </div>
   );
