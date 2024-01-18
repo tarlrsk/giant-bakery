@@ -1,10 +1,9 @@
 import { cookies } from "next/headers";
 import { getCart } from "@/utils/api-path";
+import getCurrentUser from "@/actions/getCurrentUser";
 import BasketIcon from "@/components/icons/BasketIcon";
 
 import { Button } from "@nextui-org/react";
-
-import getCurrentUser from "../actions/getCurrentUser";
 
 // ----------------------------------------------------------------------
 
