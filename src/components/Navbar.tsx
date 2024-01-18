@@ -44,9 +44,14 @@ const NAV_ITEMS = [
 type Props = {
   currentUser: User | null;
   transparent?: boolean;
+  hasShadow?: boolean;
 };
 
-export default function Navbar({ currentUser, transparent = false }: Props) {
+export default function Navbar({
+  currentUser,
+  transparent = false,
+  hasShadow = false,
+}: Props) {
   const pathname = usePathname();
   const router = useRouter();
   const { onSignOut } = useAuth();
@@ -88,9 +93,9 @@ export default function Navbar({ currentUser, transparent = false }: Props) {
           "data-[active=true]:after:bg-primary",
         ],
       }}
-      className={` md:py-8 ${
+      className={`md:py-8 ${
         transparent ? "bg-transparent" : "bg-primaryT-lighter"
-      }`}
+      } ${hasShadow ? "shadow-lg" : ""}`}
     >
       <NavbarContent>
         <NavbarMenuToggle
