@@ -7,7 +7,7 @@ import FeatureImageContainer from "@/components/FeatureImageContainer";
 
 export default function Home() {
   return (
-    <section className="m-2">
+    <section>
       <Wave />
       <div className="relative h-auto pl-36 py-28">
         <FeatureSection
@@ -24,40 +24,33 @@ export default function Home() {
             ไดเอ็ตแคมป์ริกเตอร์ ฮอตแซ็กโซโฟนฟินิกซ์เทควันโดมะกัน
           </p>
         </div>
-        <div className="relative flex gap-28">
+        <div className="relative flex flex-wrap-custom gap-28">
           <ProductCard name="temp 1" price={8.0} img="logo.png" />
           <ProductCard name="temp 2" price={8.0} img="logo.png" />
           <ProductCard name="temp 3" price={8.0} img="logo.png" />
           <ProductCard name="temp 4" price={8.0} img="logo.png" />
           <ProductCard name="temp 5" price={8.0} img="logo.png" />
         </div>
-        <div className="relative flex items-center justify-center gap-80">
-          <FeatureImageContainer
-            img1="/logo-white.png"
-            img2="/logo-white.png"
-          />
+      </div>
+      <div className="relative flex flex-col gap-2 mb-2">
+        <div className="relative flex py-28 items-start justify-start pl-40">
+          <FeatureImageContainer img={"/feature-image-1.png"} />
           <FeatureSection
             title="เบเกอรี่อบใหม่ทุกวัน "
             desc="เบเกอรี่แสนอร่อยคุณภาพสูงไร้ไขมันทรานส์ ไม่มีวัตถุกันเสียทำสดใหม่ทุกวัน การันตรีด้วยคุณภาพมากกว่า 35 ปีสั่งได้ 24 ชั่วโมงสำหรับจัด Break งานประชุม"
             btnLabel="สั่งเลย"
           />
         </div>
-        <div className="relative flex items-center justify-center gap-80">
+        <div className="relative flex py-28 items-end justify-end pr-40">
+          <FeatureImageContainer img={"/feature-image-2.png"} />
           <FeatureSection
             title="ชุดเบรกจัดได้"
             desc="เบเกอรี่แสนอร่อยคุณภาพสูงไร้ไขมันทรานส์ ไม่มีวัตถุกันเสียทำสดใหม่ทุกวัน การันตรีด้วยคุณภาพมากกว่า 35 ปีสั่งได้ 24 ชั่วโมงสำหรับจัด Break งานประชุม"
             btnLabel="สั่งเลย"
           />
-          <FeatureImageContainer
-            img1="/logo-white.png"
-            img2="/logo-white.png"
-          />
         </div>
-        <div className="relative flex items-center justify-center gap-80">
-          <FeatureImageContainer
-            img1="/logo-white.png"
-            img2="/logo-white.png"
-          />
+        <div className="relative flex py-28 items-start justify-start pl-40">
+          <FeatureImageContainer img={"/feature-image-1.png"} />
           <FeatureSection
             title="เค้กแต่งตามใจฉัน"
             desc="เบเกอรี่แสนอร่อยคุณภาพสูงไร้ไขมันทรานส์ ไม่มีวัตถุกันเสียทำสดใหม่ทุกวัน การันตรีด้วยคุณภาพมากกว่า 35 ปีสั่งได้ 24 ชั่วโมงสำหรับจัด Break งานประชุม"

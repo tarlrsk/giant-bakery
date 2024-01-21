@@ -19,7 +19,7 @@ export default function FeatureSection({
 }: Props) {
   return (
     <div className="flex flex-col w-2/5 items-start justify-center gap-6 relative">
-      <div className="flex flex-col items-start justify-center relative gap-6">
+      <div className="flex flex-col items-start justify-center relative">
         {hasTag === true ? (
           <p className="text-secondaryT-main text-2xl font-semibold leading-normal">
             {tag ?? "คุเคะโด"}
