@@ -1,4 +1,3 @@
-// import paths from "@/utils/api-path";
 import { cookies } from "next/headers";
 import InfoIcon from "@/components/icons/InfoIcon";
 import getCurrentUser from "@/actions/getCurrentUser";
@@ -140,26 +139,3 @@ function EmptyCartView() {
     </>
   );
 }
-
-// ----------------------------------------------------------------------
-
-// async function getCartData(userId: string) {
-//   const { getCart } = paths();
-
-//   const res = await fetch(getCart(userId), { next: { tags: ["cart"] } });
-
-//   if (!res.ok) {
-//     return {
-//       response: {
-//         data: {
-//           totalPrice: 0,
-//           items: [],
-//         },
-//       },
-//     };
-//   }
-
-//   const data = await res.json();
-
-//   return data;
-// }
