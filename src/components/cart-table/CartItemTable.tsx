@@ -1,6 +1,11 @@
 "use client";
 
+import { z } from "zod";
+import toast from "react-hot-toast";
+import paths from "@/utils/api-path";
 import React, { useMemo } from "react";
+import { ICartItem } from "@/app/cart/types";
+import { updateQtyCartValidateSchema } from "@/lib/validationSchema";
 
 import {
   User,
@@ -15,29 +20,22 @@ import {
 
 import AddIcon from "../icons/AddIcon";
 import MinusIcon from "../icons/MinusIcon";
+import DeleteIcon from "../icons/DeleteIcon";
 
 // ----------------------------------------------------------------------
 
-type RowItem = {
-  name: string;
-  imageUrl: string;
-  description: string;
-  amount: number;
-  price: number;
-  totalPrice: number;
-};
+type updateCartProps = z.infer<typeof updateQtyCartValidateSchema>;
 
 type Props = {
-  items: RowItem[];
+  userId: string;
+  items: ICartItem[];
 };
 
 // ----------------------------------------------------------------------
 
-export default function CartItemTable({ items }: Props) {
+export default function CartItemTable({ userId, items }: Props) {
   const renderCell = React.useCallback(
-    (item: RowItem, columnKey: React.Key) => {
-      const cellValue = item[columnKey as keyof RowItem];
-
+    (item: ICartItem, columnKey: React.Key) => {
       switch (columnKey) {
         case "name":
           return (
@@ -52,8 +50,8 @@ export default function CartItemTable({ items }: Props) {
                 description: "text-xs md:text-base font-normal",
               }}
               description={item.description}
-              name={cellValue}
-              className=" gap-6"
+              name={item.name}
+              className=" gap-6 pl-3"
             >
               {item.name}
             </User>
@@ -61,7 +59,7 @@ export default function CartItemTable({ items }: Props) {
 
         case "price":
           return (
-            <div className="justify-center text-center">{`฿${item.price}`}</div>
+            <div className="justify-center text-center">{`฿${item.pricePer}`}</div>
           );
 
         case "amount":
@@ -72,19 +70,35 @@ export default function CartItemTable({ items }: Props) {
                 size="sm"
                 radius="md"
                 className="bg-transparent"
-                onPress={() => onDecreaseItem(item.name)}
+                onPress={() =>
+                  handleUpdateCartItem(
+                    userId,
+                    item.itemId,
+                    item.type,
+                    item.quantity,
+                    "increase",
+                  )
+                }
               >
                 <MinusIcon />
               </Button>
               <div className=" border border-gray-300 max-w-12 min-w-12 px-1 text-center overflow-auto text-ellipsis rounded-sm">
-                {item.amount}
+                {item.quantity}
               </div>
               <Button
                 isIconOnly
                 size="sm"
                 radius="md"
                 className="bg-transparent"
-                onPress={() => onIncreaseItem(item.name)}
+                onPress={() =>
+                  handleUpdateCartItem(
+                    userId,
+                    item.itemId,
+                    item.type,
+                    item.quantity,
+                    "decrease",
+                  )
+                }
               >
                 <AddIcon />
               </Button>
@@ -93,15 +107,32 @@ export default function CartItemTable({ items }: Props) {
 
         case "total":
           return (
-            <div className="justify-center text-center">
-              {`฿${item.totalPrice}`}
+            <div className="flex flex-row items-center gap-1 justify-end pr-3">
+              {`฿${item.price}`}
+              <Button
+                isIconOnly
+                size="sm"
+                radius="md"
+                className="bg-transparent pb-1.5"
+                onPress={() =>
+                  handleUpdateCartItem(
+                    userId,
+                    item.itemId,
+                    item.type,
+                    item.quantity,
+                    "remove",
+                  )
+                }
+              >
+                <DeleteIcon />
+              </Button>
             </div>
           );
         default:
-          return cellValue;
+          return "";
       }
     },
-    [],
+    [userId],
   );
 
   const classNames = useMemo(
@@ -112,7 +143,7 @@ export default function CartItemTable({ items }: Props) {
         "text-sm md:text-base",
         "border-b",
         "border-divider",
-        "px-3 py-4 md:py-4",
+        "px-3 py-4 md:py-4 md:px-8",
         "first:rounded-none first:rounded-none",
         "last:rounded-none last:rounded-none",
       ],
@@ -142,7 +173,7 @@ export default function CartItemTable({ items }: Props) {
         <TableColumn key="amount" align="center" className="text-center">
           จำนวน
         </TableColumn>
-        <TableColumn key="total" className="text-center">
+        <TableColumn key="total" align="end" className=" text-end">
           ราคารวม
         </TableColumn>
       </TableHeader>
@@ -161,14 +192,31 @@ export default function CartItemTable({ items }: Props) {
 
 // ----------------------------------------------------------------------
 
-async function onIncreaseItem(itemId: string) {
-  console.log("Increase");
-}
+async function handleUpdateCartItem(
+  userId: string,
+  type: string,
+  itemId: string,
+  quantity: number,
+  action: "increase" | "decrease" | "remove",
+) {
+  const { updateCartItem, deleteCartItem } = paths();
 
-async function onDecreaseItem(itemId: string) {
-  console.log("Decrease");
-}
+  const updatedQuantity = action === "increase" ? quantity + 1 : quantity - 1;
+  const isDeleted = action === "remove" || updatedQuantity === 0;
 
-async function onRemoveItem(itemId: string) {
-  console.log("Remove");
+  try {
+    const res = await fetch(
+      isDeleted ? deleteCartItem(userId, itemId) : updateCartItem,
+      {
+        method: isDeleted ? "DELETE" : "PUT",
+        body: JSON.stringify({ userId, type, itemId, updatedQuantity }),
+      },
+    );
+
+    if (!res.ok) {
+      throw new Error("Something went wrong");
+    }
+  } catch (error) {
+    toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
+  }
 }

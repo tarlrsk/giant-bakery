@@ -1,5 +1,5 @@
+import paths from "@/utils/api-path";
 import { cookies } from "next/headers";
-import { getCart } from "@/utils/api-path";
 import InfoIcon from "@/components/icons/InfoIcon";
 import getCurrentUser from "@/actions/getCurrentUser";
 import BasketIcon from "@/components/icons/BasketIcon";
@@ -8,24 +8,31 @@ import CartSummaryTable from "@/components/cart-table/CartSummaryTable";
 
 import { Button } from "@nextui-org/react";
 
+import { ICartItem } from "./types";
+
 // ----------------------------------------------------------------------
 
-type Repository = {
+interface ICartResponse {
   response: {
     data: {
       cartId: string | null;
       userId: string | null;
-      type: null;
-      totalPrice: 0;
-      items: [];
+      type: string;
+      totalPrice: number;
+      items: ICartItem[];
     };
   };
-};
+}
 
 // ----------------------------------------------------------------------
 
 export default async function CartPage() {
-  const res: Repository = await getCartData();
+  const currentUser = await getCurrentUser();
+  const userId =
+    currentUser?.id ||
+    `COOKIE_ID_${cookies().get("next-auth.csrf-token")?.value as string}`;
+
+  const res: ICartResponse = await getCartData(userId);
 
   const items = res.response.data.items;
   const price = res.response.data.totalPrice;
@@ -36,27 +43,42 @@ export default async function CartPage() {
     "สั่งเบเกอรี่หรือเค้กเพิ่มอีก 695 บาทเพื่อรับส่วนลด 5%";
 
   return (
-    <div
-      className={`flex flex-col  h-full ${
-        hasItem ? "justify-start pt-20" : "justify-center"
-      } items-center gap-6`}
-    >
-      {hasItem ? <ItemCartView discount={discount} /> : <EmptyCartView />}
+    <div className="container px-6 h-screen pt-20">
+      <div
+        className={`flex flex-col  h-full ${
+          hasItem ? "justify-start" : "justify-center"
+        } items-center gap-6`}
+      >
+        {hasItem ? (
+          <ItemCartView userId={userId} discount={discount} />
+        ) : (
+          <EmptyCartView />
+        )}
+      </div>
     </div>
   );
 }
 
 // ----------------------------------------------------------------------
 
-function ItemCartView({ discount }: { discount: string }) {
-  const item = {
+function ItemCartView({
+  userId,
+  discount,
+}: {
+  userId: string;
+  discount: string;
+}) {
+  const item: ICartItem = {
     name: "เอแคลร์",
     imageUrl:
       "https://image.makewebeasy.net/makeweb/m_1920x0/Ub8wb5z91/Homemadebakery2022/14_%E0%B9%80%E0%B8%AD%E0%B9%81%E0%B8%84%E0%B8%A5%E0%B8%A3%E0%B9%8C%E0%B8%A7%E0%B8%B2%E0%B8%99%E0%B8%B4%E0%B8%A5%E0%B8%A5%E0%B8%B2%E0%B9%82%E0%B8%AE%E0%B8%A1%E0%B9%80%E0%B8%A1%E0%B8%94.jpg",
     description: "ไส้นมฮอกไกโด",
-    amount: 2,
-    price: 49,
-    totalPrice: 98,
+    quantity: 2,
+    pricePer: 49,
+    price: 98,
+    itemId: "test",
+    type: "test",
+    createdAt: "test",
   };
 
   return (
@@ -64,13 +86,13 @@ function ItemCartView({ discount }: { discount: string }) {
       <h1 className="text-2xl md:text-3xl font-medium text-left mb-4">
         ตะกร้าของฉัน
       </h1>
-      <div className="flex flex-row w-full items-center px-2 py-4 bg-secondaryT-lighter text-secondaryT-dark rounded-sm mb-4 gap-2 mt-2">
+      <div className="flex flex-row w-full items-center px-2 py-4 bg-secondaryT-lighter text-secondaryT-dark rounded-sm mb-6 gap-2 mt-2">
         <InfoIcon width={24} height={24} className=" fill-secondaryT-dark" />
         <p className="text-sm md:text-base mt-0.5">{discount}</p>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-6 gap-6">
         <div className="md:col-span-4 ">
-          <CartItemTable items={[item]} />
+          <CartItemTable userId={userId} items={[item, item]} />
         </div>
         <div className="md:col-span-2">
           <CartSummaryTable />
@@ -109,15 +131,10 @@ function EmptyCartView() {
 
 // ----------------------------------------------------------------------
 
-async function getCartData() {
-  const currentUser = await getCurrentUser();
+async function getCartData(userId: string) {
+  const { getCart } = paths();
 
-  const memberUserId = currentUser?.id;
-  const guestUserId = cookies().get("next-auth.csrf-token")?.value;
-
-  const res = await fetch(
-    getCart(memberUserId || (guestUserId as unknown as string)),
-  );
+  const res = await fetch(getCart(userId));
 
   if (!res.ok) {
     return {
