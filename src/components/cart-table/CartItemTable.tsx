@@ -1,11 +1,8 @@
 "use client";
 
-import { z } from "zod";
 import toast from "react-hot-toast";
-import paths from "@/utils/api-path";
 import React, { useMemo } from "react";
 import { ICartItem } from "@/app/cart/types";
-import { updateQtyCartValidateSchema } from "@/lib/validationSchema";
 
 import {
   User,
@@ -14,8 +11,8 @@ import {
   TableRow,
   TableBody,
   TableCell,
-  TableHeader,
   TableColumn,
+  TableHeader,
 } from "@nextui-org/react";
 
 import AddIcon from "../icons/AddIcon";
@@ -24,16 +21,25 @@ import DeleteIcon from "../icons/DeleteIcon";
 
 // ----------------------------------------------------------------------
 
-type updateCartProps = z.infer<typeof updateQtyCartValidateSchema>;
-
 type Props = {
   userId: string;
   items: ICartItem[];
+  onUpdateCartItem: (
+    userId: string,
+    type: string,
+    itemId: string,
+    quantity: number,
+    action: "increase" | "decrease" | "remove",
+  ) => Promise<any>;
 };
 
 // ----------------------------------------------------------------------
 
-export default function CartItemTable({ userId, items }: Props) {
+export default function CartItemTable({
+  userId,
+  items,
+  onUpdateCartItem,
+}: Props) {
   const renderCell = React.useCallback(
     (item: ICartItem, columnKey: React.Key) => {
       switch (columnKey) {
@@ -70,15 +76,18 @@ export default function CartItemTable({ userId, items }: Props) {
                 size="sm"
                 radius="md"
                 className="bg-transparent"
-                onPress={() =>
-                  handleUpdateCartItem(
+                onPress={async () => {
+                  await onUpdateCartItem(
                     userId,
                     item.itemId,
                     item.type,
                     item.quantity,
-                    "increase",
-                  )
-                }
+                    "decrease",
+                  ).then(
+                    (res) =>
+                      !res.success && toast.error("กรุณาลองใหม่อีกครั้ง"),
+                  );
+                }}
               >
                 <MinusIcon />
               </Button>
@@ -90,15 +99,18 @@ export default function CartItemTable({ userId, items }: Props) {
                 size="sm"
                 radius="md"
                 className="bg-transparent"
-                onPress={() =>
-                  handleUpdateCartItem(
+                onPress={async () => {
+                  await onUpdateCartItem(
                     userId,
                     item.itemId,
                     item.type,
                     item.quantity,
-                    "decrease",
-                  )
-                }
+                    "increase",
+                  ).then(
+                    (res) =>
+                      !res.success && toast.error("กรุณาลองใหม่อีกครั้ง"),
+                  );
+                }}
               >
                 <AddIcon />
               </Button>
@@ -114,15 +126,18 @@ export default function CartItemTable({ userId, items }: Props) {
                 size="sm"
                 radius="md"
                 className="bg-transparent pb-1.5"
-                onPress={() =>
-                  handleUpdateCartItem(
+                onPress={async () => {
+                  await onUpdateCartItem(
                     userId,
                     item.itemId,
                     item.type,
                     item.quantity,
                     "remove",
-                  )
-                }
+                  ).then(
+                    (res) =>
+                      !res.success && toast.error("กรุณาลองใหม่อีกครั้ง"),
+                  );
+                }}
               >
                 <DeleteIcon />
               </Button>
@@ -132,7 +147,7 @@ export default function CartItemTable({ userId, items }: Props) {
           return "";
       }
     },
-    [userId],
+    [onUpdateCartItem, userId],
   );
 
   const classNames = useMemo(
@@ -188,35 +203,4 @@ export default function CartItemTable({ userId, items }: Props) {
       </TableBody>
     </Table>
   );
-}
-
-// ----------------------------------------------------------------------
-
-async function handleUpdateCartItem(
-  userId: string,
-  type: string,
-  itemId: string,
-  quantity: number,
-  action: "increase" | "decrease" | "remove",
-) {
-  const { updateCartItem, deleteCartItem } = paths();
-
-  const updatedQuantity = action === "increase" ? quantity + 1 : quantity - 1;
-  const isDeleted = action === "remove" || updatedQuantity === 0;
-
-  try {
-    const res = await fetch(
-      isDeleted ? deleteCartItem(userId, itemId) : updateCartItem,
-      {
-        method: isDeleted ? "DELETE" : "PUT",
-        body: JSON.stringify({ userId, type, itemId, updatedQuantity }),
-      },
-    );
-
-    if (!res.ok) {
-      throw new Error("Something went wrong");
-    }
-  } catch (error) {
-    toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
-  }
 }

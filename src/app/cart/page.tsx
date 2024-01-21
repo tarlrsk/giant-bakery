@@ -1,9 +1,10 @@
-import paths from "@/utils/api-path";
+// import paths from "@/utils/api-path";
 import { cookies } from "next/headers";
 import InfoIcon from "@/components/icons/InfoIcon";
 import getCurrentUser from "@/actions/getCurrentUser";
 import BasketIcon from "@/components/icons/BasketIcon";
 import CartItemTable from "@/components/cart-table/CartItemTable";
+import { getCartData, updateCartItem } from "@/actions/cartActions";
 import CartSummaryTable from "@/components/cart-table/CartSummaryTable";
 
 import { Button } from "@nextui-org/react";
@@ -24,6 +25,21 @@ interface ICartResponse {
   };
 }
 
+const MOCKUP_ITEMS: ICartItem[] = [
+  {
+    name: "เอแคลร์",
+    imageUrl:
+      "https://image.makewebeasy.net/makeweb/m_1920x0/Ub8wb5z91/Homemadebakery2022/14_%E0%B9%80%E0%B8%AD%E0%B9%81%E0%B8%84%E0%B8%A5%E0%B8%A3%E0%B9%8C%E0%B8%A7%E0%B8%B2%E0%B8%99%E0%B8%B4%E0%B8%A5%E0%B8%A5%E0%B8%B2%E0%B9%82%E0%B8%AE%E0%B8%A1%E0%B9%80%E0%B8%A1%E0%B8%94.jpg",
+    description: "ไส้นมฮอกไกโด",
+    quantity: 2,
+    pricePer: 49,
+    price: 98,
+    itemId: "test",
+    type: "test",
+    createdAt: "test",
+  },
+];
+
 // ----------------------------------------------------------------------
 
 export default async function CartPage() {
@@ -32,10 +48,9 @@ export default async function CartPage() {
     currentUser?.id ||
     `COOKIE_ID_${cookies().get("next-auth.csrf-token")?.value as string}`;
 
-  const res: ICartResponse = await getCartData(userId);
+  const res: ICartResponse = await getCartData();
 
   const items = res.response.data.items;
-  const price = res.response.data.totalPrice;
 
   const hasItem = items?.length === 0;
 
@@ -50,7 +65,11 @@ export default async function CartPage() {
         } items-center gap-6`}
       >
         {hasItem ? (
-          <ItemCartView userId={userId} discount={discount} />
+          <ItemCartView
+            userId={userId}
+            items={MOCKUP_ITEMS}
+            discount={discount}
+          />
         ) : (
           <EmptyCartView />
         )}
@@ -63,24 +82,13 @@ export default async function CartPage() {
 
 function ItemCartView({
   userId,
+  items,
   discount,
 }: {
   userId: string;
+  items: ICartItem[];
   discount: string;
 }) {
-  const item: ICartItem = {
-    name: "เอแคลร์",
-    imageUrl:
-      "https://image.makewebeasy.net/makeweb/m_1920x0/Ub8wb5z91/Homemadebakery2022/14_%E0%B9%80%E0%B8%AD%E0%B9%81%E0%B8%84%E0%B8%A5%E0%B8%A3%E0%B9%8C%E0%B8%A7%E0%B8%B2%E0%B8%99%E0%B8%B4%E0%B8%A5%E0%B8%A5%E0%B8%B2%E0%B9%82%E0%B8%AE%E0%B8%A1%E0%B9%80%E0%B8%A1%E0%B8%94.jpg",
-    description: "ไส้นมฮอกไกโด",
-    quantity: 2,
-    pricePer: 49,
-    price: 98,
-    itemId: "test",
-    type: "test",
-    createdAt: "test",
-  };
-
   return (
     <div className="container px-6">
       <h1 className="text-2xl md:text-3xl font-medium text-left mb-4">
@@ -92,7 +100,11 @@ function ItemCartView({
       </div>
       <div className="grid grid-cols-1 md:grid-cols-6 gap-6">
         <div className="md:col-span-4 ">
-          <CartItemTable userId={userId} items={[item, item]} />
+          <CartItemTable
+            userId={userId}
+            items={items}
+            onUpdateCartItem={updateCartItem}
+          />
         </div>
         <div className="md:col-span-2">
           <CartSummaryTable />
@@ -131,21 +143,23 @@ function EmptyCartView() {
 
 // ----------------------------------------------------------------------
 
-async function getCartData(userId: string) {
-  const { getCart } = paths();
+// async function getCartData(userId: string) {
+//   const { getCart } = paths();
 
-  const res = await fetch(getCart(userId));
+//   const res = await fetch(getCart(userId), { next: { tags: ["cart"] } });
 
-  if (!res.ok) {
-    return {
-      response: {
-        data: {
-          totalPrice: 0,
-          items: [],
-        },
-      },
-    };
-  }
+//   if (!res.ok) {
+//     return {
+//       response: {
+//         data: {
+//           totalPrice: 0,
+//           items: [],
+//         },
+//       },
+//     };
+//   }
 
-  return res.json();
-}
+//   const data = await res.json();
+
+//   return data;
+// }
