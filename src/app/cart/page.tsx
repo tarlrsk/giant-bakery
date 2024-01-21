@@ -3,8 +3,8 @@ import { getCart } from "@/utils/api-path";
 import InfoIcon from "@/components/icons/InfoIcon";
 import getCurrentUser from "@/actions/getCurrentUser";
 import BasketIcon from "@/components/icons/BasketIcon";
-import CartItemTable from "@/components/table/CartItemTable";
-import CartSummaryTable from "@/components/table/CartSummaryTable";
+import CartItemTable from "@/components/cart-table/CartItemTable";
+import CartSummaryTable from "@/components/cart-table/CartSummaryTable";
 
 import { Button } from "@nextui-org/react";
 
@@ -25,7 +25,7 @@ type Repository = {
 // ----------------------------------------------------------------------
 
 export default async function CartPage() {
-  const res: Repository = await getData();
+  const res: Repository = await getCartData();
 
   const items = res.response.data.items;
   const price = res.response.data.totalPrice;
@@ -45,6 +45,8 @@ export default async function CartPage() {
     </div>
   );
 }
+
+// ----------------------------------------------------------------------
 
 function ItemCartView({ discount }: { discount: string }) {
   const item = {
@@ -107,7 +109,7 @@ function EmptyCartView() {
 
 // ----------------------------------------------------------------------
 
-async function getData() {
+async function getCartData() {
   const currentUser = await getCurrentUser();
 
   const memberUserId = currentUser?.id;

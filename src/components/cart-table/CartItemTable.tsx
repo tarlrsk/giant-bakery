@@ -5,12 +5,16 @@ import React, { useMemo } from "react";
 import {
   User,
   Table,
+  Button,
   TableRow,
   TableBody,
   TableCell,
   TableHeader,
   TableColumn,
 } from "@nextui-org/react";
+
+import AddIcon from "../icons/AddIcon";
+import MinusIcon from "../icons/MinusIcon";
 
 // ----------------------------------------------------------------------
 
@@ -26,6 +30,8 @@ type RowItem = {
 type Props = {
   items: RowItem[];
 };
+
+// ----------------------------------------------------------------------
 
 export default function CartItemTable({ items }: Props) {
   const renderCell = React.useCallback(
@@ -54,10 +60,43 @@ export default function CartItemTable({ items }: Props) {
           );
 
         case "price":
-          return <div className="">{`฿${item.price}`}</div>;
+          return (
+            <div className="justify-center text-center">{`฿${item.price}`}</div>
+          );
+
+        case "amount":
+          return (
+            <div className="flex flex-row items-center gap-1 justify-center">
+              <Button
+                isIconOnly
+                size="sm"
+                radius="md"
+                className="bg-transparent"
+                onPress={() => onDecreaseItem(item.name)}
+              >
+                <MinusIcon />
+              </Button>
+              <div className=" border border-gray-300 max-w-12 min-w-12 px-1 text-center overflow-auto text-ellipsis rounded-sm">
+                {item.amount}
+              </div>
+              <Button
+                isIconOnly
+                size="sm"
+                radius="md"
+                className="bg-transparent"
+                onPress={() => onIncreaseItem(item.name)}
+              >
+                <AddIcon />
+              </Button>
+            </div>
+          );
 
         case "total":
-          return `฿${item.totalPrice}`;
+          return (
+            <div className="justify-center text-center">
+              {`฿${item.totalPrice}`}
+            </div>
+          );
         default:
           return cellValue;
       }
@@ -97,11 +136,17 @@ export default function CartItemTable({ items }: Props) {
     <Table radius="sm" removeWrapper classNames={classNames}>
       <TableHeader>
         <TableColumn key="name">สินค้า</TableColumn>
-        <TableColumn key="price">ราคา</TableColumn>
-        <TableColumn key="amount">จำนวน</TableColumn>
-        <TableColumn key="total">ราคารวม</TableColumn>
+        <TableColumn key="price" className="text-center">
+          ราคา
+        </TableColumn>
+        <TableColumn key="amount" align="center" className="text-center">
+          จำนวน
+        </TableColumn>
+        <TableColumn key="total" className="text-center">
+          ราคารวม
+        </TableColumn>
       </TableHeader>
-      <TableBody emptyContent={"No items found"} items={items}>
+      <TableBody emptyContent={"ไม่พบสินค้าในตะกร้า"} items={items}>
         {(item) => (
           <TableRow key={item.name}>
             {(columnKey) => (
@@ -112,4 +157,18 @@ export default function CartItemTable({ items }: Props) {
       </TableBody>
     </Table>
   );
+}
+
+// ----------------------------------------------------------------------
+
+async function onIncreaseItem(itemId: string) {
+  console.log("Increase");
+}
+
+async function onDecreaseItem(itemId: string) {
+  console.log("Decrease");
+}
+
+async function onRemoveItem(itemId: string) {
+  console.log("Remove");
 }
