@@ -1,9 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { responseWrapper } from "@/utils/api-response-wrapper";
-import { Variant, CakeType, Refreshment, CartType } from "@prisma/client";
 import { updateQtyCartValidateSchema } from "@/lib/validationSchema";
-import { preset } from "swr/_internal";
+import { Variant, CakeType, CartType, Refreshment } from "@prisma/client";
 
 enum CartItemType {
   PRESET_CAKE = "PRESET_CAKE",

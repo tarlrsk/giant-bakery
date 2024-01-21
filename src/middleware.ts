@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { withAuth, NextRequestWithAuth } from "next-auth/middleware";
 
 const allowedOrigins =
