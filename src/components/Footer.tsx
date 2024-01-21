@@ -1,8 +1,7 @@
 "use client";
 
 import React from "react";
-
-import { Image } from "@nextui-org/react";
+import Image from "next/image";
 
 import Iconify from "./icons/Iconify";
 import MapContainer from "./MapContainer";
@@ -32,7 +31,7 @@ export default function Footer() {
   return (
     <div className="flex items-center gap-16 px-24 py-8 relative bg-primaryT-darker">
       <div className="inline-flex flex-col items-center gap-2 relative">
-        <Image src="logo-white.png" width={250} height={64} alt="logo" />
+        <Image src="/logo-white.png" width={250} height={64} alt="logo" />
         <div className="inline-flex items-start gap-7 relative flex-[0_0_auto]">
           {FOOTER_ICONS["facebook"]}
           {FOOTER_ICONS["instagram"]}
