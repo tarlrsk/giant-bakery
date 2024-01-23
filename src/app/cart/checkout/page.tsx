@@ -1,19 +1,21 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 
-import { Input, Accordion, AccordionItem } from "@nextui-org/react";
+import { Input, Button, Accordion, AccordionItem } from "@nextui-org/react";
 
 // ----------------------------------------------------------------------
 
 export default function CheckoutPage() {
+  const [selectedKeys, setSelectedKeys] = useState(new Set(["1"]));
   const defaultContent =
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
-  const className = " bg-red-500";
 
   const AccordionItemClassNames = {
     base: "py-2",
     title: "text-xl",
   };
+
+  const [email, setEmail] = useState("");
 
   return (
     <div className="container px-6 py-20">
@@ -25,8 +27,10 @@ export default function CheckoutPage() {
           <Accordion
             variant="splitted"
             className="!px-0 max-w-xl"
-            disabledKeys={["2", "3", "4"]}
-            defaultExpandedKeys={["1"]}
+            selectedKeys={selectedKeys}
+            onSelectionChange={(key) =>
+              setSelectedKeys(new Set((key as any)?.currentKey || "1"))
+            }
           >
             <AccordionItem
               key="1"
@@ -34,7 +38,21 @@ export default function CheckoutPage() {
               title="1. อีเมลของคุณ"
               classNames={AccordionItemClassNames}
             >
-              <Input autoFocus label="อีเมล" variant="bordered" />
+              <Input
+                value={email}
+                onValueChange={setEmail}
+                autoFocus
+                label="อีเมล"
+                variant="bordered"
+                className="mb-4"
+              />
+              <Button
+                color="secondary"
+                onClick={() => setSelectedKeys(new Set("2"))}
+                fullWidth
+              >
+                ยืนยัน
+              </Button>
             </AccordionItem>
             <AccordionItem
               key="2"
@@ -53,7 +71,7 @@ export default function CheckoutPage() {
               {defaultContent}
             </AccordionItem>
             <AccordionItem
-              key="3"
+              key="4"
               aria-label="Accordion 3"
               title="4. วิธีการชำระเงิน"
               classNames={AccordionItemClassNames}
