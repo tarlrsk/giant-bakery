@@ -8,7 +8,7 @@ const token = "testToken";
 
 axios.defaults.baseURL = baseURL;
 
-axios.defaults.headers.common = { Authorization: `bearer ${token}` };
+axios.defaults.headers.common = { Authorization: token };
 
 export const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
