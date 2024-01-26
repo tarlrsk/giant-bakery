@@ -30,14 +30,18 @@ export default function ProductDetail({ slug }: Props) {
     setCounter(counter + 1);
   };
 
+  const encodedSlug = decodeURIComponent(slug);
+
   return (
-    <div className="relative flex items-center justify-center gap-8">
-      <Image src="/cake-1.svg" alt="cake" width={100} height={100} />
+    <div className="relative flex items-center justify-center gap-36">
+      <Image src="/cake-1.svg" alt="cake" width={420} height={420} />
 
       <div className="relative flex flex-col w-auto gap-8">
-        <div className="relative flex flex-col gap-2">
-          <div className="relative flex flex-col">
-            <h1 className="font-semibold text-4xl leading-normal">{slug}</h1>
+        <div className="relative flex flex-col gap-4">
+          <div className="relative flex flex-col gap-5">
+            <h1 className="font-semibold text-4xl leading-normal">
+              {encodedSlug}
+            </h1>
             <p className="font-normal text-xl">
               Lorem ipsum dolor sit amet consectetur adipisicing elit.
             </p>
@@ -59,7 +63,7 @@ export default function ProductDetail({ slug }: Props) {
           <div className="font-semibold text-4xl leading-normal">฿49.-</div>
         </div>
 
-        <div className="relative flex gap-8">
+        <div className="relative flex gap-10">
           <div className="relative flex border-1 rounded-[8px] border-black">
             <Button
               onClick={decrement}

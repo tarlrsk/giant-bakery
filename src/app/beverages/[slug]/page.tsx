@@ -7,7 +7,7 @@ type Props = {
   };
 };
 
-export default function BakeryDetail({ params }: Props) {
+export default function BeverageDetail({ params }: Props) {
   const { slug } = params;
   return (
     <div className="flex w-auto h-auto items-center justify-center p-[9.1rem]">
