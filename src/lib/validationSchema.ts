@@ -100,6 +100,7 @@ export const refreshmentValidationSchema = z.object({
   name: z.string({ required_error: "Name is required." }).min(3).max(255),
   description: z.string().min(10).max(255),
   image: z.string().optional(),
+  type: z.enum(["NONE"]),
   category: z.enum(["BAKERY", "BEVERAGE"]),
   status: z.enum(["IN_STOCK", "LOW", "OUT_OF_STOCK"]),
   minQty: z.number({ required_error: "Min quantity is required." }),

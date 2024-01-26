@@ -147,12 +147,13 @@ model Variant {
 }
 
 model Refreshment {
-  id            String              @id @default(auto()) @map("_id") @db.ObjectId
+  id            String               @id @default(auto()) @map("_id") @db.ObjectId
   name          String
   description   String?
   imageFileName String?
   image         String?
-  category      RefreshmentCategory
+  type          RefreshmentType
+  category      RefreshmentCategory?
   status        StockStatus
   minQty        Int
   maxQty        Int
@@ -163,9 +164,9 @@ model Refreshment {
   width         Float
   price         Float
   isActive      Boolean
-  isDeleted     Boolean             @default(false)
-  createdAt     DateTime            @default(now())
-  updatedAt     DateTime            @updatedAt
+  isDeleted     Boolean              @default(false)
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
   deletedAt     DateTime?
 
   snackBox   SnackBox?   @relation(fields: [snackBoxId], references: [id])
@@ -174,9 +175,9 @@ model Refreshment {
 }
 
 model SnackBox {
-  id         String        @id @default(auto()) @map("_id") @db.ObjectId
-  snacks     Refreshment[]
-  orderItems OrderItem[]
+  id           String        @id @default(auto()) @map("_id") @db.ObjectId
+  refreshments Refreshment[]
+  orderItems   OrderItem[]
 }
 
 model Order {
@@ -209,7 +210,7 @@ model OrderItem {
 
   cake         Cake        @relation(fields: [cakeId], references: [id])
   customCake   CustomCake  @relation(fields: [customCakeId], references: [id])
-  snack        Refreshment @relation(fields: [snackId], references: [id])
+  refreshment  Refreshment @relation(fields: [snackId], references: [id])
   snackBox     SnackBox    @relation(fields: [snackBoxId], references: [id])
   order        Order?      @relation(fields: [orderId], references: [id])
   cakeId       String      @db.ObjectId
@@ -248,9 +249,13 @@ enum Role {
   ADMIN
 }
 
-enum RefreshmentCategory {
+enum RefreshmentType {
   BAKERY
   BEVERAGE
+}
+
+enum RefreshmentCategory {
+  NONE
 }
 
 enum CakeType {
