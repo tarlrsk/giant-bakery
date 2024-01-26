@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { cookies } from "next/headers";
 import InfoIcon from "@/components/icons/InfoIcon";
 import getCurrentUser from "@/actions/getCurrentUser";
@@ -108,10 +109,12 @@ function ItemCartView({
         <div className="md:col-span-2">
           <CartSummaryTable />
           <Button
-            fullWidth
-            size="lg"
+            href="/cart/checkout"
+            as={Link}
             color="secondary"
+            size="lg"
             className=" font-medium text-xl rounded-none"
+            fullWidth
           >
             ดำเนินการต่อ
           </Button>
