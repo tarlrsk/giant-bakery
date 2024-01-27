@@ -255,7 +255,10 @@ enum RefreshmentType {
 }
 
 enum RefreshmentCategory {
-  NONE
+  BREAD
+  PIE
+  COOKIE
+  SNACK
 }
 
 enum CakeType {

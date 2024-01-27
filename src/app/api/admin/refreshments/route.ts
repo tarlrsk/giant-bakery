@@ -36,6 +36,7 @@ export async function POST(req: NextRequest) {
     const validation = refreshmentValidationSchema.safeParse({
       name,
       description,
+      type,
       category,
       status,
       minQty,
