@@ -3,6 +3,7 @@ import Link from "next/link";
 import React, { useMemo, useState } from "react";
 import { QRCodeIcon } from "@/components/icons/QRCodeIcon";
 import { CreditCardIcon } from "@/components/icons/CreditCardIcon";
+import CheckoutSummaryTable from "@/components/cart-table/CheckoutSummaryTable";
 
 import {
   cn,
@@ -24,7 +25,7 @@ import {
 
 const ACCORDION_ITEM_CLASS_NAMES = {
   base: "py-2",
-  title: "text-xl",
+  title: "text-xl text-primaryT-darker",
   trigger: "data-[open=true]:cursor-auto",
 };
 
@@ -122,6 +123,7 @@ export default function CheckoutPage() {
       title="2. การจัดส่ง"
       classNames={ACCORDION_ITEM_CLASS_NAMES}
       hideIndicator={selectedKeys.includes("2")}
+      className="text-primaryT-darker"
     >
       <CustomForm>
         <div className=" border p-4 mb-5">
@@ -365,29 +367,37 @@ export default function CheckoutPage() {
 
   return (
     <div className="container px-6 py-20">
-      <div className={`flex flex-col  h-full justify-start items-center gap-6`}>
-        <div className="container px-6">
+      <div className="flex flex-col  h-full w-full justify-start items-center gap-6">
+        <div className="w-full md:container md:mx-auto md:px-36 ">
           <h1 className="text-2xl md:text-3xl font-medium text-left mb-4">
             ดำเนินการชำระเงิน
           </h1>
-          <Accordion
-            variant="splitted"
-            className="!px-0 max-w-xl"
-            selectedKeys={selectedKeys}
-            disabledKeys={ACCORDION_KEYS.filter((key) => key > selectedKeys[0])}
-            onSelectionChange={(event) => {
-              Array.from(event).length > 0 &&
-                setSelectedKeys(Array.from(event) as string[]);
-            }}
-          >
-            {renderEmailItem}
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <Accordion
+                variant="splitted"
+                className="!px-0 max-w-xl"
+                selectedKeys={selectedKeys}
+                disabledKeys={ACCORDION_KEYS.filter(
+                  (key) => key > selectedKeys[0],
+                )}
+                onSelectionChange={(event) => {
+                  Array.from(event).length > 0 &&
+                    setSelectedKeys(Array.from(event) as string[]);
+                }}
+              >
+                {renderEmailItem}
 
-            {renderDeliveryOptionItem}
+                {renderDeliveryOptionItem}
 
-            {renderCommentItem}
+                {renderCommentItem}
 
-            {renderPaymentItem}
-          </Accordion>
+                {renderPaymentItem}
+              </Accordion>
+            </div>
+
+            <CheckoutSummaryTable />
+          </div>
         </div>
       </div>
     </div>
