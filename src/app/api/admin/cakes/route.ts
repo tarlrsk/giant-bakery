@@ -41,6 +41,7 @@ export async function POST(req: NextRequest) {
     const price = parseFloat(formData.get("price") as string);
     const isActive = parseBoolean(formData.get("isActive") as string);
     const variantIds = formData.getAll("variantIds") as string[];
+    const image = formData.get("image") as File | null;
 
     const validation = cakeValidationSchema.safeParse({
       name,
@@ -52,6 +53,8 @@ export async function POST(req: NextRequest) {
       width,
       isActive,
       variantIds,
+      image,
+      description,
     });
 
     if (!validation.success) {
@@ -72,16 +75,6 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const image = formData.get("image") as File | null;
-
-    if (!image) {
-      return responseWrapper(400, null, "Invalid image file.");
-    }
-
-    const imageFileName = `${formatDate(
-      new Date(Date.now()).toString(),
-    )}_${image.name.replace(/\s/g, "_")}`;
-
     let newCake = await prisma.cake.create({
       data: {
         name: name,
@@ -97,24 +90,30 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    const buffer = Buffer.from(await image.arrayBuffer());
+    if (image) {
+      const imageFileName = `${formatDate(
+        new Date(Date.now()).toString(),
+      )}_${image.name.replace(/\s/g, "_")}`;
 
-    const imagePath = `cakes/${type}/${newCake.id}/${imageFileName}`;
+      const buffer = Buffer.from(await image.arrayBuffer());
 
-    const gcsFile = bucket.file(imagePath);
+      const imagePath = `cakes/${type}/${newCake.id}/${imageFileName}`;
 
-    await gcsFile.save(buffer, {
-      metadata: {
-        contentType: image.type,
-      },
-    });
+      const gcsFile = bucket.file(imagePath);
 
-    const imageUrl = await getFileUrl(imagePath);
+      await gcsFile.save(buffer, {
+        metadata: {
+          contentType: image.type,
+        },
+      });
 
-    newCake = await prisma.cake.update({
-      where: { id: newCake.id },
-      data: { image: imageUrl },
-    });
+      const imageUrl = await getFileUrl(imagePath);
+
+      newCake = await prisma.cake.update({
+        where: { id: newCake.id },
+        data: { image: imageUrl, imageFileName: imageFileName },
+      });
+    }
 
     return responseWrapper(201, newCake, null);
   } catch (err: any) {

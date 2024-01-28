@@ -236,6 +236,8 @@ export async function GET(req: NextRequest) {
       if (cake) {
         responseCart.items.push({
           itemsId: presetCake.itemId,
+          imageFileName: cake.imageFileName,
+          image: cake.image,
           quantity: presetCake.quantity,
           pricePer: cake.price,
           price: cake.price * presetCake.quantity,
@@ -292,6 +294,8 @@ export async function GET(req: NextRequest) {
       responseCart.items.push({
         itemsId: refreshment.itemId,
         quantity: refreshment.quantity,
+        imageFileName: refreshmentData.imageFileName,
+        image: refreshmentData.image,
         pricePer: refreshmentData.price,
         price: refreshmentData.price * refreshment.quantity,
         createdAt: refreshment.createdAt,
