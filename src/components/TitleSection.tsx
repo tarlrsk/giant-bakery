@@ -14,7 +14,7 @@ export default function TitleSection({ title }: Props) {
         <h1 className="text-8xl font-bold text-primaryT-darker leading-normal">
           {title}
         </h1>
-        <p className="text-5xl font-semibold text-primaryT-dark">
+        <p className="text-5xl font-semibold text-primaryT-dark opacity-50">
           CUKEDOH BAKERY
         </p>
       </div>
