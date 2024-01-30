@@ -10,13 +10,18 @@ export async function GET(req: NextRequest) {
       "category",
     ) as RefreshmentCategory;
 
+    const whereCondition: any = {
+      type: type,
+      isActive: true,
+      isDeleted: false,
+    };
+
+    if (category) {
+      whereCondition.category = category;
+    }
+
     const refreshments = await prisma.refreshment.findMany({
-      where: {
-        type: type,
-        category: category,
-        isActive: true,
-        isDeleted: false,
-      },
+      where: whereCondition,
     });
 
     if (refreshments.length === 0) {
