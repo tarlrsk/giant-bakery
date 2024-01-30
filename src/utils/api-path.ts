@@ -12,7 +12,20 @@ const paths = () => {
   const getCustomerAddress = (userId: string) =>
     createUrl(`customers/${userId}/addresses`);
 
-  return { getCart, updateCartItem, deleteCartItem, getCustomerAddress };
+  const createCustomerAddress = (userId: string) =>
+    createUrl(`customers/${userId}/addresses`);
+
+  const getInterExpressLocation = (zipCode: string) =>
+    `https://api-intership.interexpress.co.th/v1/operation-areas/post-code/${zipCode}`;
+
+  return {
+    getCart,
+    updateCartItem,
+    deleteCartItem,
+    getCustomerAddress,
+    createCustomerAddress,
+    getInterExpressLocation,
+  };
 };
 
 export default paths;

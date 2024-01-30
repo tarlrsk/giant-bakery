@@ -1,8 +1,12 @@
 "use client";
 import useSWR from "swr";
 import Link from "next/link";
+import toast from "react-hot-toast";
+import paths from "@/utils/api-path";
 import { fetcher } from "@/utils/axios";
+import useSWRMutation from "swr/mutation";
 import AddIcon from "@/components/icons/AddIcon";
+import getCurrentUser from "@/actions/getCurrentUser";
 import { EditIcon } from "@/components/icons/EditIcon";
 import { QRCodeIcon } from "@/components/icons/QRCodeIcon";
 import React, { useMemo, useState, useEffect } from "react";
@@ -30,8 +34,6 @@ import {
   useDisclosure,
   AutocompleteItem,
 } from "@nextui-org/react";
-import getCurrentUser from "@/actions/getCurrentUser";
-import paths from "@/utils/api-path";
 
 // ----------------------------------------------------------------------
 
@@ -43,15 +45,33 @@ const ACCORDION_ITEM_CLASS_NAMES = {
 
 const ACCORDION_KEYS = ["1", "2", "3", "4"];
 
-const DISTRICT_DATA = [{ label: "เมืองระยอง", value: "01" }];
-
 const PAYMENT_TYPE_OPTIONS = [
   { value: "full", label: "เต็มจำนวน" },
   { value: "deposit", label: "มัดจำ (ชำระส่วนที่เหลือเมื่อออเดอร์เสร็จ)" },
 ];
 
-const INTER_EXPRESS_ZIP_CODE_API =
-  "https://api-intership.interexpress.co.th/v1/operation-areas/post-code";
+async function sendCreateCustomerAddressRequest(
+  url: string,
+  {
+    arg,
+  }: {
+    arg: {
+      cFirstName: string;
+      cLastName: string;
+      address: string;
+      district: string;
+      subdistrict: string;
+      province: string;
+      postcode: string;
+      phone: string;
+    };
+  },
+) {
+  await fetch(url, {
+    method: "POST",
+    body: JSON.stringify(arg),
+  }).then((res) => res.json());
+}
 
 // ----------------------------------------------------------------------
 
@@ -79,20 +99,28 @@ export default function CheckoutPage() {
   // Payment state
   const [selectedPaymentType, setSelectedPaymentType] = useState(["full"]);
 
-  const { getCustomerAddress } = paths();
+  const { getCustomerAddress, createCustomerAddress, getInterExpressLocation } =
+    paths();
 
   // User Current Address API
   const { data: userAddressData } = useSWR(
     userData ? getCustomerAddress(userData.id) : null,
     fetcher,
   );
-  // Delivery API
-  const { data: locationData } = useSWR(
-    zipCode.length === 5 ? `${INTER_EXPRESS_ZIP_CODE_API}/${zipCode}` : null,
-    fetcher,
+  const {
+    trigger: triggerCreateCustomerAddress,
+    isMutating: isMutatingCreateCustomerAddress,
+  } = useSWRMutation(
+    userData ? createCustomerAddress(userData.id) : null,
+    sendCreateCustomerAddressRequest,
   );
 
-  console.log("userAddressData", userAddressData);
+  const currentUserAddresses = userAddressData?.response?.data || [];
+  // Delivery API
+  const { data: locationData } = useSWR(
+    zipCode.length === 5 ? getInterExpressLocation(zipCode) : null,
+    fetcher,
+  );
 
   function handleGoNextSection(key: string) {
     const nextKey: string = (Number(key) + 1).toString();
@@ -150,12 +178,11 @@ export default function CheckoutPage() {
   }, [locationData]);
 
   useEffect(() => {
-    async function getUser() {
+    async function getUserData() {
       const currentUser = await getCurrentUser();
-      console.log("currentUser", currentUser);
       setUserData(currentUser);
     }
-    getUser();
+    getUserData();
   }, []);
 
   const renderEmailItem = (
@@ -234,14 +261,16 @@ export default function CheckoutPage() {
           <div className="flex flex-col gap-4 mb-4">
             <div className="flex flex-row justify-between items-center">
               <h3>ข้อมูลผู้รับสินค้า</h3>
-              <Button
-                color="primary"
-                variant="bordered"
-                startContent={<EditIcon width={20} height={20} />}
-                onPress={onOpen}
-              >
-                เลือกที่อยู่อื่น
-              </Button>
+              {currentUserAddresses.length > 0 && (
+                <Button
+                  color="primary"
+                  variant="bordered"
+                  startContent={<EditIcon width={20} height={20} />}
+                  onPress={onOpen}
+                >
+                  เลือกที่อยู่อื่น
+                </Button>
+              )}
             </div>
             <div className=" flex gap-4">
               <Input
@@ -359,7 +388,8 @@ export default function CheckoutPage() {
         )}
 
         <ConfirmButton
-          onClickButton={() => {
+          isLoading={isMutatingCreateCustomerAddress}
+          onClickButton={async () => {
             if (selectedDeliveryOption === "delivery") {
               if (
                 firstName &&
@@ -369,7 +399,21 @@ export default function CheckoutPage() {
                 subDistrict &&
                 district
               ) {
-                handleGoNextSection("2");
+                try {
+                  await triggerCreateCustomerAddress({
+                    cFirstName: firstName,
+                    cLastName: lastName,
+                    address: address,
+                    district: district,
+                    subdistrict: subDistrict,
+                    province: province,
+                    postcode: zipCode,
+                    phone: phone,
+                  });
+                  handleGoNextSection("2");
+                } catch (error) {
+                  toast("เกิดข้อผิดพลาด กรุณาลองใหม่ภายหลัง");
+                }
               }
             } else {
               handleGoNextSection("2");
@@ -511,10 +555,17 @@ export default function CheckoutPage() {
 
 // ----------------------------------------------------------------------
 
-const ConfirmButton = ({ onClickButton }: { onClickButton: () => void }) => {
+const ConfirmButton = ({
+  onClickButton,
+  isLoading = false,
+}: {
+  onClickButton: () => void;
+  isLoading?: boolean;
+}) => {
   return (
     <Button
       color="secondary"
+      isLoading={isLoading}
       onClick={onClickButton}
       size="lg"
       className=" text-lg rounded-xs"
