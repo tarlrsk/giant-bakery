@@ -2,12 +2,14 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { customerSignUpValidationSchema } from "@/lib/validationSchema";
+import { Prisma } from "@prisma/client";
 
 // ----------------------------------------------------------------------
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password, confirmPassword, phone } = await req.json();
+    const { email, password, confirmPassword, phone, cookieId } =
+      await req.json();
 
     if (!email?.trim()) {
       return responseWrapper(400, null, "กรุณาใส่อีเมล");
@@ -56,6 +58,22 @@ export async function POST(req: NextRequest) {
         phone: phone,
       },
     });
+
+    if (cookieId) {
+      let cart = await prisma.cart.findFirst({
+        where: {
+          userId: cookieId,
+        },
+      });
+      if (cart) {
+        cart = await prisma.cart.update({
+          where: {
+            id: cart.id,
+          },
+          data: { userId: newUser.id, type: "MEMBER" },
+        });
+      }
+    }
 
     return responseWrapper(201, newUser, null);
   } catch (err: any) {
