@@ -9,7 +9,11 @@ const paths = () => {
     createUrl(`carts?userId=${userId}&itemId=${itemId}`);
   const updateCartItem = createUrl("carts");
 
-  return { getCart, updateCartItem, deleteCartItem };
+  // Bakery
+  const getBakeryByCat = (category: string) =>
+    createUrl(`bakery?category=${category}`);
+
+  return { getCart, updateCartItem, deleteCartItem, getBakeryByCat };
 };
 
 export default paths;
