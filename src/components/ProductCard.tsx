@@ -1,6 +1,7 @@
 import React from "react";
+import Image from "next/image";
 
-import { Card, Image, Button } from "@nextui-org/react";
+import { Card, Button } from "@nextui-org/react";
 
 type Props = {
   name: string;
@@ -15,6 +16,8 @@ export default function ProductCard({ name, price, img }: Props) {
         <Image
           src={img}
           alt={name}
+          width={1000}
+          height={128}
           className="w-full h-32 object-cover mb-4 rounded-md"
         />
         <div className="flex-col justify-start items-center gap-1 flex">

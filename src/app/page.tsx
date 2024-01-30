@@ -25,11 +25,11 @@ export default function Home() {
           </p>
         </div>
         <div className="relative flex flex-wrap-custom gap-28">
-          <ProductCard name="temp 1" price={8.0} img="logo.png" />
-          <ProductCard name="temp 2" price={8.0} img="logo.png" />
-          <ProductCard name="temp 3" price={8.0} img="logo.png" />
-          <ProductCard name="temp 4" price={8.0} img="logo.png" />
-          <ProductCard name="temp 5" price={8.0} img="logo.png" />
+          <ProductCard name="temp 2" price={8.0} img="/logo.png" />
+          <ProductCard name="temp 1" price={8.0} img="/logo.png" />
+          <ProductCard name="temp 3" price={8.0} img="/logo.png" />
+          <ProductCard name="temp 4" price={8.0} img="/logo.png" />
+          <ProductCard name="temp 5" price={8.0} img="/logo.png" />
         </div>
       </div>
       <div className="relative flex flex-col gap-2 mb-2">
