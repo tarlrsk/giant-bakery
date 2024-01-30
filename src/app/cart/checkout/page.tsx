@@ -1,7 +1,11 @@
 "use client";
+import useSWR from "swr";
 import Link from "next/link";
-import React, { useMemo, useState } from "react";
+import { fetcher } from "@/utils/axios";
+import AddIcon from "@/components/icons/AddIcon";
+import { EditIcon } from "@/components/icons/EditIcon";
 import { QRCodeIcon } from "@/components/icons/QRCodeIcon";
+import React, { useMemo, useState, useEffect } from "react";
 import { CreditCardIcon } from "@/components/icons/CreditCardIcon";
 import CheckoutSummaryTable from "@/components/cart-table/CheckoutSummaryTable";
 
@@ -9,15 +13,21 @@ import {
   cn,
   Input,
   Radio,
+  Modal,
   Button,
   Select,
   Divider,
   Textarea,
   Accordion,
+  ModalBody,
   RadioGroup,
   SelectItem,
+  ModalHeader,
+  ModalFooter,
   Autocomplete,
+  ModalContent,
   AccordionItem,
+  useDisclosure,
   AutocompleteItem,
 } from "@nextui-org/react";
 
@@ -33,15 +43,13 @@ const ACCORDION_KEYS = ["1", "2", "3", "4"];
 
 const DISTRICT_DATA = [{ label: "เมืองระยอง", value: "01" }];
 
-const SUB_DISTRICT_DATA = [
-  { label: "เนินพระ", value: "01" },
-  { label: "ท่าประดู่", value: "02" },
-];
-
 const PAYMENT_TYPE_OPTIONS = [
   { value: "full", label: "เต็มจำนวน" },
   { value: "deposit", label: "มัดจำ (ชำระส่วนที่เหลือเมื่อออเดอร์เสร็จ)" },
 ];
+
+const INTER_EXPRESS_ZIP_CODE_API =
+  "https://api-intership.interexpress.co.th/v1/operation-areas/post-code";
 
 // ----------------------------------------------------------------------
 
@@ -50,6 +58,7 @@ export default function CheckoutPage() {
   // Email state
   const [email, setEmail] = useState("");
   // Delivery state
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [selectedDeliveryOption, setSelectedDeliveryOption] =
     useState("delivery");
   const [zipCode, setZipCode] = useState("");
@@ -60,10 +69,18 @@ export default function CheckoutPage() {
   const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
-  // Comment
+  const [subDistrictOptions, setSubDistrictOptions] = useState([]);
+  const [districtOptions, setDistrictOptions] = useState([]);
+  // Comment state
   const [comment, setComment] = useState("");
-  // Payment
+  // Payment state
   const [selectedPaymentType, setSelectedPaymentType] = useState(["full"]);
+
+  // Delivery API
+  const { data: locationData } = useSWR(
+    zipCode.length === 5 ? `${INTER_EXPRESS_ZIP_CODE_API}/${zipCode}` : null,
+    fetcher,
+  );
 
   function handleGoNextSection(key: string) {
     const nextKey: string = (Number(key) + 1).toString();
@@ -85,6 +102,40 @@ export default function CheckoutPage() {
     if (zipCode === "") return false;
     return validateZipCode(zipCode) ? false : true;
   }, [zipCode]);
+
+  useEffect(() => {
+    if (
+      !locationData?.subDistricts ||
+      !locationData?.district ||
+      !locationData?.province
+    )
+      return;
+
+    const subDistrictsData = locationData.subDistricts.map(
+      (el: { id: any; names: { th: any } }) => ({
+        value: el.names.th,
+        label: el.names.th,
+      }),
+    );
+
+    const districtsData = locationData.district.map(
+      (el: { id: any; names: { th: any } }) => ({
+        value: el.names.th,
+        label: el.names.th,
+      }),
+    );
+
+    const provinceData = locationData.province.map(
+      (el: { id: any; names: { th: any } }) => ({
+        value: el.names.th,
+        label: el.names.th,
+      }),
+    );
+
+    setSubDistrictOptions(subDistrictsData);
+    setDistrictOptions(districtsData);
+    setProvince(provinceData[0].label);
+  }, [locationData]);
 
   const renderEmailItem = (
     <AccordionItem
@@ -160,6 +211,17 @@ export default function CheckoutPage() {
 
         {selectedDeliveryOption === "delivery" && (
           <div className="flex flex-col gap-4 mb-4">
+            <div className="flex flex-row justify-between items-center">
+              <h3>ข้อมูลผู้รับสินค้า</h3>
+              <Button
+                color="primary"
+                variant="bordered"
+                startContent={<EditIcon width={20} height={20} />}
+                onPress={onOpen}
+              >
+                เลือกที่อยู่อื่น
+              </Button>
+            </div>
             <div className=" flex gap-4">
               <Input
                 value={firstName}
@@ -203,7 +265,21 @@ export default function CheckoutPage() {
               <Input
                 value={zipCode}
                 onValueChange={(e: string) => {
-                  e.length <= 5 && setZipCode(e);
+                  if (e.length <= 5) {
+                    setZipCode(e);
+
+                    const hasFetchedLocation =
+                      province ||
+                      subDistrictOptions.length ||
+                      districtOptions.length;
+                    if (e.length < 5 && hasFetchedLocation) {
+                      setSubDistrict("");
+                      setSubDistrictOptions([]);
+                      setDistrict("");
+                      setDistrictOptions([]);
+                      setProvince("");
+                    }
+                  }
                 }}
                 label="รหัสไปรษณีย์"
                 variant="bordered"
@@ -214,7 +290,7 @@ export default function CheckoutPage() {
                 isRequired
               />
               <Autocomplete
-                defaultItems={SUB_DISTRICT_DATA}
+                items={subDistrictOptions}
                 label="แขวง/ตำบล"
                 variant="bordered"
                 selectedKey={subDistrict}
@@ -223,9 +299,10 @@ export default function CheckoutPage() {
                 }
                 isRequired
               >
-                {(subDistrict) => (
+                {(subDistrict: { value: number; label: string }) => (
                   <AutocompleteItem
                     key={subDistrict.value}
+                    value={subDistrict.label}
                     className=" rounded-sm"
                   >
                     {subDistrict.label}
@@ -236,7 +313,7 @@ export default function CheckoutPage() {
 
             <div className=" flex gap-4">
               <Autocomplete
-                defaultItems={DISTRICT_DATA}
+                items={districtOptions}
                 label="เขต/อำเภอ"
                 variant="bordered"
                 selectedKey={district}
@@ -245,9 +322,9 @@ export default function CheckoutPage() {
                 }
                 isRequired
               >
-                {(district) => (
+                {(district: { value: number; label: string }) => (
                   <AutocompleteItem
-                    key={district.value}
+                    key={district.label}
                     className=" rounded-sm"
                   >
                     {district.label}
@@ -397,6 +474,13 @@ export default function CheckoutPage() {
             </div>
 
             <CheckoutSummaryTable />
+
+            <CustomAddressModal
+              isOpen={isOpen}
+              onOpenChange={onOpenChange}
+              onClickEditAddress={(e) => console.log("edit:", e)}
+              onClickAddAddress={(e) => console.log("add:", e)}
+            />
           </div>
         </div>
       </div>
@@ -453,6 +537,100 @@ const CustomPaymentRadio = (props: any) => {
     >
       {children}
     </Radio>
+  );
+};
+
+export const CustomSelectAddressRadio = (props: any) => {
+  const { children, ...otherProps } = props;
+
+  return (
+    <Radio
+      {...otherProps}
+      classNames={{
+        base: cn(
+          "inline-flex m-0 bg-content1 hover:bg-content2 items-center justify-between",
+          "flex-row-reverse max-w-none cursor-pointer rounded-lg gap-4 p-4 border-2",
+          "data-[selected=true]:border-primary",
+        ),
+      }}
+    >
+      <span className=" text-sm">{children}</span>
+    </Radio>
+  );
+};
+
+const CustomAddressModal = ({
+  isOpen,
+  onOpenChange,
+  onClickEditAddress,
+  onClickAddAddress,
+}: {
+  isOpen: boolean;
+  onOpenChange: () => void;
+  onClickEditAddress: (selected: string) => void;
+  onClickAddAddress: (selected: string) => void;
+}) => {
+  const [selected, setSelected] = useState("address1");
+  return (
+    <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+      <ModalContent>
+        {(onClose) => (
+          <>
+            <ModalHeader className="flex flex-col gap-1 mt-3">
+              เลือกที่อยู่อื่น
+            </ModalHeader>
+            <ModalBody>
+              <RadioGroup value={selected} onValueChange={setSelected}>
+                <CustomSelectAddressRadio
+                  description="88 หมู่ที่ 8 ถนน บางนา-ตราด
+                          ต. บางเสาธง, อ. บางเสาธง, สมุทรปราการ 10540"
+                  value="address1"
+                >
+                  ปิยพนธ์ วู (097 357 5121)
+                </CustomSelectAddressRadio>
+                <CustomSelectAddressRadio
+                  description="88 หมู่ที่ 8 ถนน บางนา-ตราด
+                          ต. บางเสาธง, อ. บางเสาธง, สมุทรปราการ 10540"
+                  value="address2"
+                >
+                  ปิยพนธ์ วู (097 357 5121)
+                </CustomSelectAddressRadio>
+                <CustomSelectAddressRadio
+                  description="88 หมู่ที่ 8 ถนน บางนา-ตราด
+                          ต. บางเสาธง, อ. บางเสาธง, สมุทรปราการ 10540"
+                  value="address3"
+                >
+                  ปิยพนธ์ วู (097 357 5121)
+                </CustomSelectAddressRadio>
+              </RadioGroup>
+            </ModalBody>
+            <ModalFooter>
+              <Button
+                fullWidth
+                size="lg"
+                color="primary"
+                onPress={() => onClickEditAddress(selected)}
+                startContent={<EditIcon />}
+                variant="bordered"
+                className=" gap-unit-2"
+              >
+                แก้ไขที่อยู่
+              </Button>
+              <Button
+                fullWidth
+                size="lg"
+                color="primary"
+                onPress={() => onClickAddAddress(selected)}
+                startContent={<AddIcon />}
+                className=" gap-unit-1"
+              >
+                เพิ่มที่อยู่ใหม่
+              </Button>
+            </ModalFooter>
+          </>
+        )}
+      </ModalContent>
+    </Modal>
   );
 };
 

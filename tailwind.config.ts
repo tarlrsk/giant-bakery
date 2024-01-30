@@ -85,7 +85,7 @@ const config: Config = {
               400: "#AB630A",
               500: "#3D2200",
               DEFAULT: "#DE8F2C",
-              foreground: "#3D2200",
+              foreground: "#FFFFFF",
             },
             secondary: {
               100: "#FFE3E0",
