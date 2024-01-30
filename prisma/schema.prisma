@@ -94,19 +94,22 @@ model CustomerAddress {
 }
 
 model Cake {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  type      CakeType
-  price     Float
-  weight    Float
-  height    Float
-  length    Float
-  width     Float
-  isActive  Boolean
-  isDeleted Boolean   @default(false)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  description   String?
+  imageFileName String?
+  image         String?
+  type          CakeType
+  price         Float
+  weight        Float
+  height        Float
+  length        Float
+  width         Float
+  isActive      Boolean
+  isDeleted     Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
 
   variants   Variant[]   @relation(fields: [variantIds], references: [id])
   orderItems OrderItem[]
@@ -255,7 +258,10 @@ enum RefreshmentType {
 }
 
 enum RefreshmentCategory {
-  NONE
+  BREAD
+  PIE
+  COOKIE
+  SNACK
 }
 
 enum CakeType {
