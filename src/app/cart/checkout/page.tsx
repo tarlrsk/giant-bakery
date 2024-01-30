@@ -30,6 +30,8 @@ import {
   useDisclosure,
   AutocompleteItem,
 } from "@nextui-org/react";
+import getCurrentUser from "@/actions/getCurrentUser";
+import paths from "@/utils/api-path";
 
 // ----------------------------------------------------------------------
 
@@ -54,6 +56,7 @@ const INTER_EXPRESS_ZIP_CODE_API =
 // ----------------------------------------------------------------------
 
 export default function CheckoutPage() {
+  const [userData, setUserData] = useState<any>(null);
   const [selectedKeys, setSelectedKeys] = useState(["1"]);
   // Email state
   const [email, setEmail] = useState("");
@@ -76,11 +79,20 @@ export default function CheckoutPage() {
   // Payment state
   const [selectedPaymentType, setSelectedPaymentType] = useState(["full"]);
 
+  const { getCustomerAddress } = paths();
+
+  // User Current Address API
+  const { data: userAddressData } = useSWR(
+    userData ? getCustomerAddress(userData.id) : null,
+    fetcher,
+  );
   // Delivery API
   const { data: locationData } = useSWR(
     zipCode.length === 5 ? `${INTER_EXPRESS_ZIP_CODE_API}/${zipCode}` : null,
     fetcher,
   );
+
+  console.log("userAddressData", userAddressData);
 
   function handleGoNextSection(key: string) {
     const nextKey: string = (Number(key) + 1).toString();
@@ -136,6 +148,15 @@ export default function CheckoutPage() {
     setDistrictOptions(districtsData);
     setProvince(provinceData[0].label);
   }, [locationData]);
+
+  useEffect(() => {
+    async function getUser() {
+      const currentUser = await getCurrentUser();
+      console.log("currentUser", currentUser);
+      setUserData(currentUser);
+    }
+    getUser();
+  }, []);
 
   const renderEmailItem = (
     <AccordionItem
