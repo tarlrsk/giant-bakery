@@ -16,6 +16,22 @@ const zodIsObjectId = (zString: z.ZodString) => {
   }, "Invalid ObjectId");
 };
 
+const MAX_FILE_SIZE = 50000000; //kilobytes
+const ACCEPTED_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+];
+
+const zodIsImage = z
+  .any()
+  .refine((file) => file?.size <= MAX_FILE_SIZE, `Max image size is 50MB.`)
+  .refine(
+    (file) => ACCEPTED_IMAGE_TYPES.includes(file?.type),
+    "Only .jpg, .jpeg, .png and .webp formats are supported.",
+  );
+
 // Auth ----------------------------------------------------------------------
 
 export const customerSignUpValidationSchema = z
@@ -88,7 +104,7 @@ export const customerAddressValidationSchema = z.object({
 
 export const variantValidationSchema = z.object({
   name: z.string({ required_error: "Name is required." }).min(3).max(255),
-  image: z.string().optional(),
+  image: z.string().nullable(),
   type: z.enum(["BASE", "FILLINGS", "FROSTINGS", "CREAM"]),
   isActive: z.boolean(),
   isVisualized: z.boolean(),
@@ -98,9 +114,10 @@ export const variantValidationSchema = z.object({
 
 export const refreshmentValidationSchema = z.object({
   name: z.string({ required_error: "Name is required." }).min(3).max(255),
-  description: z.string().min(10).max(255),
-  image: z.string().optional(),
-  category: z.enum(["BAKERY", "BEVERAGE"]),
+  description: z.string().min(10).max(255).nullable(),
+  image: zodIsImage.nullable(),
+  type: z.enum(["BAKERY", "BEVERAGE"]),
+  category: z.enum(["BREAD", "PIE", "COOKIE", "SNACK"]).nullable(),
   status: z.enum(["IN_STOCK", "LOW", "OUT_OF_STOCK"]),
   minQty: z.number({ required_error: "Min quantity is required." }),
   maxQty: z.number({ required_error: "Max quantity is required." }),
@@ -117,6 +134,8 @@ export const refreshmentValidationSchema = z.object({
 
 export const cakeValidationSchema = z.object({
   name: z.string({ required_error: "Name is required." }).min(3).max(255),
+  description: z.string().min(10).max(255).nullable(),
+  image: zodIsImage.nullable(),
   type: z.enum(["PRESET", "CUSTOM"]),
   price: z.number().multipleOf(0.01),
   weight: z.number().multipleOf(0.01),

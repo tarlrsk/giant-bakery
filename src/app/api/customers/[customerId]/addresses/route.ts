@@ -36,7 +36,7 @@ export async function GET(
 
     if (!customerAddresses || customerAddresses.length === 0) {
       return responseWrapper(
-        404,
+        200,
         null,
         `User with given id ${customerId} does not have any addresses.`,
       );

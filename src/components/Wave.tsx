@@ -1,6 +1,5 @@
 import React from "react";
-
-import { Image } from "@nextui-org/react";
+import Image from "next/image";
 
 export default function Wave() {
   return (
@@ -8,8 +7,8 @@ export default function Wave() {
       <Image
         src={"curve.svg"}
         alt="curve"
-        width={"100%"}
-        height={"100vh"}
+        width={5000}
+        height={100}
         className="z-0"
       />
     </div>

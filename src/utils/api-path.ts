@@ -1,4 +1,4 @@
-const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+const baseUrl = process.env.NEXT_PUBLIC_URL as string;
 
 const createUrl = (endpoint: string) => `${baseUrl}/api/${endpoint}`;
 

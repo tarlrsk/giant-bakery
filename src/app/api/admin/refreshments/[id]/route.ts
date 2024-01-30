@@ -7,7 +7,11 @@ import { getFileUrl } from "@/lib/gcs/getFileUrl";
 import { parseBoolean } from "@/lib/parseBoolean";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { refreshmentValidationSchema } from "@/lib/validationSchema";
-import type { StockStatus, RefreshmentCategory } from "@prisma/client";
+import type {
+  StockStatus,
+  RefreshmentType,
+  RefreshmentCategory,
+} from "@prisma/client";
 
 // ----------------------------------------------------------------------
 
@@ -82,6 +86,7 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
 
     const name = formData.get("name") as string;
     const description = formData.get("description") as string;
+    const type = formData.get("type") as RefreshmentType;
     const category = formData.get("category") as RefreshmentCategory;
     const status = formData.get("status") as StockStatus;
     const minQty = parseInt(formData.get("minQty") as string);
@@ -97,6 +102,7 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
     const validation = refreshmentValidationSchema.safeParse({
       name,
       description,
+      type,
       category,
       status,
       minQty,
@@ -148,6 +154,7 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
         description: description,
         imageFileName: imageFileName,
         image: imageUrl,
+        type: type,
         category: category,
         status: status,
         minQty: minQty,
@@ -193,16 +200,13 @@ export async function DELETE(
       );
     }
 
-    const deletedRefreshment = await prisma.refreshment.update({
+    await prisma.refreshment.update({
       where: { id: refreshment.id },
       data: {
         isDeleted: true,
         deletedAt: new Date(Date.now()),
       },
     });
-
-    // const oldImage = bucket.file(refreshment.imageFileName as string);
-    // await oldImage.delete();
 
     return responseWrapper(200, null, null);
   } catch (err: any) {
