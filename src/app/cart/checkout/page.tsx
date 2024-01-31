@@ -1,13 +1,14 @@
 "use client";
-import useSWR from "swr";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import paths from "@/utils/api-path";
 import { fetcher } from "@/utils/axios";
 import useSWRMutation from "swr/mutation";
+import useSWR, { useSWRConfig } from "swr";
 import AddIcon from "@/components/icons/AddIcon";
 import getCurrentUser from "@/actions/getCurrentUser";
 import { EditIcon } from "@/components/icons/EditIcon";
+import DeleteIcon from "@/components/icons/DeleteIcon";
 import { QRCodeIcon } from "@/components/icons/QRCodeIcon";
 import React, { useMemo, useState, useEffect } from "react";
 import { CreditCardIcon } from "@/components/icons/CreditCardIcon";
@@ -73,15 +74,55 @@ async function sendCreateCustomerAddressRequest(
   }).then((res) => res.json());
 }
 
+async function sendUpdateCustomerAddressRequest(
+  url: string,
+  {
+    arg,
+  }: {
+    arg: {
+      addressId: string;
+      cFirstName: string;
+      cLastName: string;
+      address: string;
+      district: string;
+      subdistrict: string;
+      province: string;
+      postcode: string;
+      phone: string;
+    };
+  },
+) {
+  await fetch(url, {
+    method: "PUT",
+    body: JSON.stringify(arg),
+  }).then((res) => res.json());
+}
+
+async function sendDeleteCustomerAddressRequest(
+  url: string,
+  { arg }: { arg: { addressId: string } },
+) {
+  await fetch(url, {
+    method: "DELETE",
+    body: JSON.stringify(arg),
+  }).then((res) => res.json());
+}
+
 // ----------------------------------------------------------------------
 
 export default function CheckoutPage() {
+  const { mutate } = useSWRConfig();
+
   const [userData, setUserData] = useState<any>(null);
   const [selectedKeys, setSelectedKeys] = useState(["1"]);
   // Email state
   const [email, setEmail] = useState("");
   // Delivery state
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [currentAddressAction, setCurrentAddressAction] = useState<
+    "add" | "update"
+  >("add");
+  const [selectedAddressId, setSelectedAddressId] = useState("");
   const [selectedDeliveryOption, setSelectedDeliveryOption] =
     useState("delivery");
   const [zipCode, setZipCode] = useState("");
@@ -99,8 +140,13 @@ export default function CheckoutPage() {
   // Payment state
   const [selectedPaymentType, setSelectedPaymentType] = useState(["full"]);
 
-  const { getCustomerAddress, createCustomerAddress, getInterExpressLocation } =
-    paths();
+  const {
+    getCustomerAddress,
+    createCustomerAddress,
+    updateCustomerAddress,
+    deleteCustomerAddress,
+    getInterExpressLocation,
+  } = paths();
 
   // User Current Address API
   const { data: userAddressData } = useSWR(
@@ -114,8 +160,31 @@ export default function CheckoutPage() {
     userData ? createCustomerAddress(userData.id) : null,
     sendCreateCustomerAddressRequest,
   );
+  const {
+    trigger: triggerUpdateCustomerAddress,
+    isMutating: isMutatingUpdateCustomerAddress,
+  } = useSWRMutation(
+    userData ? updateCustomerAddress(userData.id) : null,
+    sendUpdateCustomerAddressRequest,
+  );
+  const { trigger: triggerDeleteCustomerAddress } = useSWRMutation(
+    userData ? deleteCustomerAddress(userData.id) : null,
+    sendDeleteCustomerAddressRequest,
+  );
 
-  const currentUserAddresses = userAddressData?.response?.data || [];
+  const currentUserAddresses: {
+    id: string;
+    cFirstName: string;
+    cLastName: string;
+    address: string;
+    district: string;
+    subdistrict: string;
+    province: string;
+    postcode: string;
+    phone: string;
+    userId: string;
+  }[] = userAddressData?.response?.data || [];
+
   // Delivery API
   const { data: locationData } = useSWR(
     zipCode.length === 5 ? getInterExpressLocation(zipCode) : null,
@@ -388,7 +457,9 @@ export default function CheckoutPage() {
         )}
 
         <ConfirmButton
-          isLoading={isMutatingCreateCustomerAddress}
+          isLoading={
+            isMutatingCreateCustomerAddress || isMutatingUpdateCustomerAddress
+          }
           onClickButton={async () => {
             if (selectedDeliveryOption === "delivery") {
               if (
@@ -400,16 +471,30 @@ export default function CheckoutPage() {
                 district
               ) {
                 try {
-                  await triggerCreateCustomerAddress({
-                    cFirstName: firstName,
-                    cLastName: lastName,
-                    address: address,
-                    district: district,
-                    subdistrict: subDistrict,
-                    province: province,
-                    postcode: zipCode,
-                    phone: phone,
-                  });
+                  if (currentAddressAction === "update") {
+                    await triggerUpdateCustomerAddress({
+                      addressId: selectedAddressId,
+                      cFirstName: firstName,
+                      cLastName: lastName,
+                      address: address,
+                      district: district,
+                      subdistrict: subDistrict,
+                      province: province,
+                      postcode: zipCode,
+                      phone: phone,
+                    });
+                  } else {
+                    await triggerCreateCustomerAddress({
+                      cFirstName: firstName,
+                      cLastName: lastName,
+                      address: address,
+                      district: district,
+                      subdistrict: subDistrict,
+                      province: province,
+                      postcode: zipCode,
+                      phone: phone,
+                    });
+                  }
                   handleGoNextSection("2");
                 } catch (error) {
                   toast("เกิดข้อผิดพลาด กรุณาลองใหม่ภายหลัง");
@@ -543,8 +628,44 @@ export default function CheckoutPage() {
             <CustomAddressModal
               isOpen={isOpen}
               onOpenChange={onOpenChange}
-              onClickEditAddress={(e) => console.log("edit:", e)}
-              onClickAddAddress={(e) => console.log("add:", e)}
+              userAddresses={currentUserAddresses}
+              onClickEditAddress={(addressId) => {
+                const selectedAddress = currentUserAddresses.find(
+                  (address: { id: string }) => address.id === addressId,
+                );
+                setFirstName(selectedAddress?.cFirstName || "");
+                setLastName(selectedAddress?.cLastName || "");
+                setPhone(selectedAddress?.phone || "");
+                setAddress(selectedAddress?.address || "");
+                setZipCode(selectedAddress?.postcode || "");
+                setSubDistrict(selectedAddress?.subdistrict || "");
+                setDistrict(selectedAddress?.district || "");
+                setProvince(selectedAddress?.province || "");
+                setCurrentAddressAction("update");
+                setSelectedAddressId(addressId);
+              }}
+              onClickAddAddress={() => {
+                setFirstName("");
+                setLastName("");
+                setPhone("");
+                setAddress("");
+                setZipCode("");
+                setSubDistrict("");
+                setDistrict("");
+                setProvince("");
+                setCurrentAddressAction("add");
+              }}
+              onClickDeleteAddress={async (addressId, onClose) => {
+                try {
+                  await triggerDeleteCustomerAddress({ addressId });
+                  mutate(createCustomerAddress(userData.id));
+                  onClose();
+                  toast.success("ลบที่อยู่สำเร็จ");
+                } catch (error) {
+                  console.error(error);
+                  toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่ภายหลัง");
+                }
+              }}
             />
           </div>
         </div>
@@ -636,67 +757,91 @@ const CustomAddressModal = ({
   onOpenChange,
   onClickEditAddress,
   onClickAddAddress,
+  onClickDeleteAddress,
+  userAddresses,
 }: {
   isOpen: boolean;
   onOpenChange: () => void;
+  onClickAddAddress: () => void;
   onClickEditAddress: (selected: string) => void;
-  onClickAddAddress: (selected: string) => void;
+  onClickDeleteAddress: (selected: string, onClose: () => void) => void;
+  userAddresses: {
+    id: string;
+    address: string;
+    subdistrict: string;
+    district: string;
+    province: string;
+    postcode: string;
+    cFirstName: string;
+    cLastName: string;
+    phone: string;
+  }[];
 }) => {
   const [selected, setSelected] = useState("address1");
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+    <Modal
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
+      hideCloseButton
+      className="py-2"
+    >
       <ModalContent>
         {(onClose) => (
           <>
-            <ModalHeader className="flex flex-col gap-1 mt-3">
+            <ModalHeader className="flex flex-row gap-1 items-center justify-between">
               เลือกที่อยู่อื่น
+              <Button
+                color="danger"
+                variant="light"
+                onPress={() => {
+                  onClickDeleteAddress(selected, onClose);
+                }}
+                startContent={<DeleteIcon />}
+                className=" gap-unit-1 hover:!bg-transparent hover:text-opacity-75"
+              >
+                ลบที่อยู่
+              </Button>
             </ModalHeader>
             <ModalBody>
               <RadioGroup value={selected} onValueChange={setSelected}>
-                <CustomSelectAddressRadio
-                  description="88 หมู่ที่ 8 ถนน บางนา-ตราด
-                          ต. บางเสาธง, อ. บางเสาธง, สมุทรปราการ 10540"
-                  value="address1"
-                >
-                  ปิยพนธ์ วู (097 357 5121)
-                </CustomSelectAddressRadio>
-                <CustomSelectAddressRadio
-                  description="88 หมู่ที่ 8 ถนน บางนา-ตราด
-                          ต. บางเสาธง, อ. บางเสาธง, สมุทรปราการ 10540"
-                  value="address2"
-                >
-                  ปิยพนธ์ วู (097 357 5121)
-                </CustomSelectAddressRadio>
-                <CustomSelectAddressRadio
-                  description="88 หมู่ที่ 8 ถนน บางนา-ตราด
-                          ต. บางเสาธง, อ. บางเสาธง, สมุทรปราการ 10540"
-                  value="address3"
-                >
-                  ปิยพนธ์ วู (097 357 5121)
-                </CustomSelectAddressRadio>
+                {userAddresses.map((eachAddress) => (
+                  <CustomSelectAddressRadio
+                    key={eachAddress.id}
+                    description={`${eachAddress.address} ต. ${eachAddress.subdistrict} อ. ${eachAddress.district}, ${eachAddress.province} ${eachAddress.postcode}`}
+                    value={eachAddress.id}
+                  >
+                    {`${eachAddress.cFirstName} ${eachAddress.cLastName} (${eachAddress.phone})`}
+                  </CustomSelectAddressRadio>
+                ))}
               </RadioGroup>
             </ModalBody>
-            <ModalFooter>
+            <ModalFooter className="flex flex-col">
               <Button
-                fullWidth
-                size="lg"
                 color="primary"
-                onPress={() => onClickEditAddress(selected)}
-                startContent={<EditIcon />}
                 variant="bordered"
-                className=" gap-unit-2"
-              >
-                แก้ไขที่อยู่
-              </Button>
-              <Button
-                fullWidth
-                size="lg"
-                color="primary"
-                onPress={() => onClickAddAddress(selected)}
+                size="md"
+                onPress={() => {
+                  onClickAddAddress();
+                  onClose();
+                }}
                 startContent={<AddIcon />}
                 className=" gap-unit-1"
               >
-                เพิ่มที่อยู่ใหม่
+                เพิ่มที่อยู่
+              </Button>
+              <Button
+                fullWidth
+                size="md"
+                color="primary"
+                onPress={() => {
+                  onClickEditAddress(selected);
+                  onClose();
+                }}
+                // In case design changes
+                // startContent={<EditIcon />}
+                className=" gap-unit-2"
+              >
+                ยืนยัน
               </Button>
             </ModalFooter>
           </>
