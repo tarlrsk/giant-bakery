@@ -733,7 +733,7 @@ const CustomPaymentRadio = (props: any) => {
   );
 };
 
-export const CustomSelectAddressRadio = (props: any) => {
+const CustomSelectAddressRadio = (props: any) => {
   const { children, ...otherProps } = props;
 
   return (
