@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { isObjectId } from "@/lib/objectId";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { customerAddressValidationSchema } from "@/lib/validationSchema";
 
@@ -99,6 +100,131 @@ export async function POST(
     });
 
     return responseWrapper(201, newAddress, null);
+  } catch (err: any) {
+    return responseWrapper(500, null, err.message);
+  }
+}
+
+export async function PUT(
+  req: NextRequest,
+  { params }: GetAddressByCustomerIdProps,
+) {
+  try {
+    const { customerId } = params;
+
+    const validCustomerId = isObjectId(customerId);
+
+    if (!validCustomerId) {
+      return responseWrapper(
+        400,
+        null,
+        "Invalid Object Id (customerId field).",
+      );
+    }
+
+    const body = await req.json();
+
+    const { id } = body;
+
+    const validId = isObjectId(id);
+
+    if (!validId) {
+      return responseWrapper(400, null, "Invalid Object Id (id field).");
+    }
+
+    const validation = customerAddressValidationSchema.safeParse(body);
+
+    if (!validation.success) {
+      return responseWrapper(400, null, validation.error.format());
+    }
+
+    const customerAddresses = await prisma.customerAddress.findMany({
+      where: { userId: customerId },
+    });
+
+    if (!customerAddresses) {
+      return responseWrapper(
+        404,
+        null,
+        `User with given id ${customerId} does not have any addresses.`,
+      );
+    }
+
+    const address = customerAddresses.find((address) => address.id === id);
+
+    if (!address) {
+      return responseWrapper(
+        404,
+        null,
+        `Addresss with given id ${id} not found.`,
+      );
+    }
+
+    const updatedAddress = await prisma.customerAddress.update({
+      where: { id: id },
+      data: body,
+    });
+
+    return responseWrapper(200, updatedAddress, null);
+  } catch (err: any) {
+    return responseWrapper(500, null, err.message);
+  }
+}
+
+export async function DELETE(
+  _req: NextRequest,
+  { params }: GetAddressByCustomerIdProps,
+) {
+  try {
+    const { customerId } = params;
+
+    const validCustomerId = isObjectId(customerId);
+
+    if (!validCustomerId) {
+      return responseWrapper(
+        400,
+        null,
+        "Invalid Object Id (customerId field).",
+      );
+    }
+
+    const body = await _req.json();
+
+    const { id } = body;
+
+    const validId = isObjectId(id);
+
+    if (!validId) {
+      return responseWrapper(400, null, "Invalid Object Id (id field).");
+    }
+
+    const customerAddresses = await prisma.customerAddress.findMany({
+      where: { userId: customerId },
+    });
+
+    if (!customerAddresses) {
+      return responseWrapper(
+        404,
+        null,
+        `The user with given id ${customerId} does not have any addresses.`,
+      );
+    }
+
+    const address = customerAddresses.find((address) => address.id === id);
+
+    if (!address) {
+      return responseWrapper(
+        404,
+        null,
+        `Addresss with given id ${id} not found.`,
+      );
+    }
+
+    await prisma.customerAddress.delete({
+      where: { id: id },
+    });
+
+    return responseWrapper(200, null, null);
   } catch (err: any) {
     return responseWrapper(500, null, err.message);
   }
