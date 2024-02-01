@@ -1,9 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
-import { arraysEqual } from "@/lib/arrayTool";
-import { GenerateObjectIdString } from "@/lib/objectId";
 import { responseWrapper } from "@/utils/api-response-wrapper";
-import { Cart, CakeType, CustomCakeCart } from "@prisma/client";
+import { CakeType, CartItemType } from "@prisma/client";
 import { cartCustomCakeValidationSchema } from "@/lib/validationSchema";
 
 // ----------------------------------------------------------------------
@@ -50,51 +48,109 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const CartInclude = {
+      items: {
+        include: {
+          presetCake: {
+            include: {
+              variants: true,
+            },
+          },
+          customCake: {
+            include: {
+              cake: true,
+              variants: true,
+            },
+          },
+          refreshment: true,
+          snackBox: {
+            include: {
+              refreshments: true,
+            },
+          },
+        },
+      },
+    };
+
     let cart = await prisma.cart.findFirst({
       where: {
         userId: userId,
         type: type,
       },
+      include: CartInclude,
     });
 
     if (!cart) {
-      cart = {} as Cart;
-      cart.id = GenerateObjectIdString();
-      cart.customCakes = [];
-      cart.type = type;
-      cart.userId = userId;
+      cart = await prisma.cart.create({
+        data: {
+          userId: userId,
+          type: type,
+        },
+        include: CartInclude,
+      });
     }
 
-    const existingCakeIndex = cart.customCakes.findIndex(
+    const existingItem = cart.items.find(
       (item) =>
-        item.cakeId === cakeId && arraysEqual(item.variantIds, variantIds),
+        item.customCake?.cakeId === cakeId &&
+        item.customCake?.variants.length === variantIds.length &&
+        item.customCake?.variants.every((variant) =>
+          variantIds.includes(variant.id),
+        ),
     );
 
-    if (existingCakeIndex !== -1) {
-      cart.customCakes[existingCakeIndex].quantity += quantity;
-    } else {
-      if (!cart.customCakes) {
-        cart.customCakes = [];
-      }
+    const existingItemsIndex = cart.items.findIndex(
+      (item) =>
+        item.customCake?.cakeId === cakeId &&
+        item.customCake?.variants.length === variantIds.length &&
+        item.customCake?.variants.every((variant) =>
+          variantIds.includes(variant.id),
+        ),
+    );
 
-      const customCakeItem = {
-        itemId: GenerateObjectIdString(),
-        cakeId: cakeId,
-        quantity: quantity,
-        variantIds: variantIds,
-      } as CustomCakeCart;
-      cart.customCakes.push(customCakeItem);
+    if (existingItem) {
+      cart.items[existingItemsIndex] = await prisma.cartItem.update({
+        where: {
+          id: existingItem.id,
+        },
+        data: {
+          quantity: existingItem.quantity + quantity,
+        },
+        include: CartInclude.items.include,
+      });
+    } else {
+      cart = await prisma.cart.update({
+        where: {
+          id: cart.id,
+        },
+        data: {
+          items: {
+            create: {
+              type: CartItemType.CUSTOM_CAKE,
+              quantity: quantity,
+              customCake: {
+                create: {
+                  name: cake.name,
+                  price: cake.price,
+                  isActive: true,
+                  cake: {
+                    connect: {
+                      id: cakeId,
+                    },
+                  },
+                  variants: {
+                    connect: variantIds.map((id: string) => ({ id: id })),
+                  },
+                },
+              },
+            },
+          },
+        },
+        include: CartInclude,
+      });
     }
 
-    const updatedCart = await prisma.cart.upsert({
-      create: cart,
-      update: {
-        customCakes: cart.customCakes,
-      },
-      where: { id: cart.id || "" },
-    });
-
-    return responseWrapper(200, updatedCart, null);
+    return responseWrapper(200, cart, null);
   } catch (err: any) {
     return responseWrapper(500, null, err.message);
   }

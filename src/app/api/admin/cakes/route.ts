@@ -86,7 +86,9 @@ export async function POST(req: NextRequest) {
         length: length,
         width: width,
         isActive: isActive,
-        variantIds: variantIds,
+        variants: {
+          connect: variantIds.map((id) => ({ id: id })),
+        },
       },
     });
 
