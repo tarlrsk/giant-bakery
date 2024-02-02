@@ -54,7 +54,7 @@ export const customerSignInValidationSchema = z.object({
 // Customer Address ----------------------------------------------------------
 
 export const customerAddressValidationSchema = z.object({
-  id: zodIsObjectId(z.string()).nullable(),
+  id: z.string().uuid().nullish(),
   cFirstName: z
     .string({ required_error: "First name is required." })
     .min(3)

@@ -9,6 +9,7 @@
   - A unique constraint covering the columns `[userId]` on the table `Cart` will be added. If there are existing duplicate values, this will fail.
   - Made the column `userId` on table `Cart` required. This step will fail if there are existing NULL values in that column.
   - Added the required column `cakeId` to the `CustomCake` table without a default value. This is not possible if the table is not empty.
+  - Added the required column `price` to the `SnackBox` table without a default value. This is not possible if the table is not empty.
 
 */
 -- DropForeignKey
@@ -43,6 +44,9 @@ ALTER TABLE "CustomCake" DROP COLUMN "type",
 ADD COLUMN     "cakeId" TEXT NOT NULL,
 ALTER COLUMN "isActive" SET DEFAULT true;
 
+-- AlterTable
+ALTER TABLE "SnackBox" ADD COLUMN     "price" DOUBLE PRECISION NOT NULL;
+
 -- DropTable
 DROP TABLE "_CakeToCart";
 
@@ -65,6 +69,8 @@ CREATE TABLE "CartItem" (
     "refreshmentId" TEXT,
     "snackBoxId" TEXT,
     "cartId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3),
 
     CONSTRAINT "CartItem_pkey" PRIMARY KEY ("id")
 );

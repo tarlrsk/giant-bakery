@@ -350,34 +350,3 @@ enum DiscountType {
   NORMAL
   SNACK_BOX
 }
-
-// Types (Composite Type) ----------------------------------------------------------------------
-
-// type PresetCakeCart {
-//   itemId    String   @db.ObjectId
-//   cakeId    String   @db.ObjectId
-//   quantity  Int      @default(1)
-//   createdAt DateTime @default(now())
-// }
-
-// type CustomCakeCart {
-//   itemId     String   @db.ObjectId
-//   cakeId     String   @db.ObjectId
-//   quantity   Int      @default(1)
-//   variantIds String[]
-//   createdAt  DateTime @default(now())
-// }
-
-// type RefreshmentCart {
-//   itemId        String   @db.ObjectId
-//   refreshmentId String   @db.ObjectId
-//   quantity      Int      @default(1)
-//   createdAt     DateTime @default(now())
-// }
-
-// type SnackBoxCart {
-//   itemId         String   @db.ObjectId
-//   refreshmentIds String[] @db.ObjectId
-//   quantity       Int      @default(1)
-//   createdAt      DateTime @default(now())
-// }
