@@ -17,6 +17,9 @@ export async function GET(req: NextRequest) {
         isActive: true,
         isDeleted: false,
       },
+      orderBy: {
+        category: "asc",
+      },
     });
 
     if (refreshments.length === 0) {
