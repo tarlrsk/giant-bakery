@@ -1,8 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { CartType } from "@prisma/client";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { updateQtyCartValidateSchema } from "@/lib/validationSchema";
-import { CartType } from "@prisma/client";
 
 const CartInclude = {
   items: {
