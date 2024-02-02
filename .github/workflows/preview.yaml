@@ -28,4 +28,5 @@ jobs:
         run: |
           npm install -g yarn
           yarn
+          yarn prisma generate
           yarn run build
