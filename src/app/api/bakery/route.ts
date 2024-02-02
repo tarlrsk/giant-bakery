@@ -9,8 +9,6 @@ export async function GET(req: NextRequest) {
       "category",
     ) as RefreshmentCategory;
 
-    console.log(category);
-
     const refreshments = await prisma.refreshment.findMany({
       where: {
         type: RefreshmentType.BAKERY,
