@@ -153,11 +153,7 @@ export async function PUT(
     });
 
     if (!customerAddresses) {
-      return responseWrapper(
-        404,
-        null,
-        `User with given id ${customerId} does not have any addresses.`,
-      );
+      return responseWrapper(200, null, null);
     }
 
     const cAddress = customerAddresses.find((address) => address.id === id);
@@ -222,11 +218,7 @@ export async function DELETE(
     });
 
     if (!customerAddresses) {
-      return responseWrapper(
-        404,
-        null,
-        `The user with given id ${customerId} does not have any addresses.`,
-      );
+      return responseWrapper(200, null, null);
     }
 
     const address = customerAddresses.find((address) => address.id === id);
