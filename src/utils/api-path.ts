@@ -2,7 +2,7 @@ const baseUrl = process.env.NEXT_PUBLIC_URL as string;
 
 const createUrl = (endpoint: string) => `${baseUrl}/api/${endpoint}`;
 
-const paths = () => {
+const apiPaths = () => {
   // Cart
   const getCart = (userId: string) => createUrl(`carts?userId=${userId}`);
   const deleteCartItem = (userId: string, itemId: string) =>
@@ -16,4 +16,4 @@ const paths = () => {
   return { getCart, updateCartItem, deleteCartItem, getBakeryByCat };
 };
 
-export default paths;
+export default apiPaths;
