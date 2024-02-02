@@ -1,20 +1,9 @@
 import { z } from "zod";
-import mongoose from "mongoose";
-
 const isNumeric = (value: string) => /^\d+$/.test(value);
 
 const phoneRegex = new RegExp(
   /^([+]?[\s0-9]+)?(\d{3}|[(]?[0-9]+[)])?([-]?[\s]?[0-9])+$/,
 );
-
-const zodIsObjectId = (zString: z.ZodString) => {
-  return zString.refine((val) => {
-    if (!mongoose.isValidObjectId(val)) {
-      return false;
-    }
-    return true;
-  }, "Invalid ObjectId");
-};
 
 const MAX_FILE_SIZE = 50000000; //kilobytes
 const ACCEPTED_IMAGE_TYPES = [
@@ -65,7 +54,7 @@ export const customerSignInValidationSchema = z.object({
 // Customer Address ----------------------------------------------------------
 
 export const customerAddressValidationSchema = z.object({
-  id: zodIsObjectId(z.string()).nullable(),
+  id: z.string().uuid().nullish(),
   cFirstName: z
     .string({ required_error: "First name is required." })
     .min(3)
@@ -105,7 +94,7 @@ export const customerAddressValidationSchema = z.object({
 
 export const variantValidationSchema = z.object({
   name: z.string({ required_error: "Name is required." }).min(3).max(255),
-  image: z.string().nullable(),
+  image: zodIsImage.nullable(),
   type: z.enum(["BASE", "FILLINGS", "FROSTINGS", "CREAM"]),
   isActive: z.boolean(),
   isVisualized: z.boolean(),
@@ -144,48 +133,43 @@ export const cakeValidationSchema = z.object({
   length: z.number().multipleOf(0.01),
   width: z.number().multipleOf(0.01),
   isActive: z.boolean(),
-  variantIds: z.array(
-    z.string().refine((val) => {
-      return mongoose.isValidObjectId(val);
-    }),
-  ),
+  variantIds: z.array(z.string().uuid()),
 });
 
 // Cart ------------------------------------------------------------------
 
 export const cartCustomCakeValidationSchema = z.object({
-  userId: zodIsObjectId(z.string()),
+  userId: z.string().uuid(),
   type: z.enum(["GUEST", "MEMBER"]),
-  cakeId: zodIsObjectId(z.string()),
-  variantIds: z.array(zodIsObjectId(z.string())),
+  cakeId: z.string(),
+  variantIds: z.array(z.string()),
   quantity: z.number(),
 });
 
 export const cartPresetCakeValidationSchema = z.object({
-  userId: zodIsObjectId(z.string()),
+  userId: z.string().uuid(),
   type: z.enum(["GUEST", "MEMBER"]),
-  cakeId: zodIsObjectId(z.string()),
+  cakeId: z.string().uuid(),
   quantity: z.number(),
 });
 
 export const cartRefreshmentValidationSchema = z.object({
-  userId: zodIsObjectId(z.string()),
+  userId: z.string().uuid(),
   type: z.enum(["GUEST", "MEMBER"]),
-  refreshmentId: zodIsObjectId(z.string()),
+  refreshmentId: z.string(),
   quantity: z.number(),
 });
 
 export const cartSnackBoxValidationSchema = z.object({
-  userId: zodIsObjectId(z.string()),
+  userId: z.string().uuid(),
   type: z.enum(["GUEST", "MEMBER"]),
-  refreshmentIds: z.array(zodIsObjectId(z.string())),
+  refreshmentIds: z.array(z.string().uuid()),
   quantity: z.number(),
 });
 
 export const updateQtyCartValidateSchema = z.object({
-  userId: zodIsObjectId(z.string()),
-  type: z.enum(["PRESET_CAKE", "CUSTOM_CAKE", "REFRESHMENT", "SNACK_BOX"]),
-  itemId: zodIsObjectId(z.string()),
+  userId: z.string().uuid(),
+  itemId: z.string(),
   quantity: z.number(),
 });
 

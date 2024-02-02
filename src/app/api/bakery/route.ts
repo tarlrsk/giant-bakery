@@ -5,25 +5,19 @@ import { RefreshmentType, RefreshmentCategory } from "@prisma/client";
 
 export async function GET(req: NextRequest) {
   try {
-    const type: RefreshmentType = "BAKERY";
     const category = req.nextUrl.searchParams.get(
       "category",
     ) as RefreshmentCategory;
 
-    const whereCondition: any = {
-      type: type,
-      isActive: true,
-      isDeleted: false,
-    };
-
-    if (category) {
-      whereCondition.category = category;
-    }
+    console.log(category);
 
     const refreshments = await prisma.refreshment.findMany({
-      where: whereCondition,
-      orderBy: {
-        category: "asc",
+      where: {
+        type: RefreshmentType.BAKERY,
+        category:
+          category !== null && String(category) !== "" ? category : undefined,
+        isActive: true,
+        isDeleted: false,
       },
     });
 

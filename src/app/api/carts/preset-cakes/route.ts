@@ -1,8 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
-import { GenerateObjectIdString } from "@/lib/objectId";
+import { CakeType, CartItemType } from "@prisma/client";
 import { responseWrapper } from "@/utils/api-response-wrapper";
-import { Cart, CakeType, PresetCakeCart } from "@prisma/client";
 import { cartPresetCakeValidationSchema } from "@/lib/validationSchema";
 
 // ----------------------------------------------------------------------
@@ -34,49 +33,89 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const CartInclude = {
+      items: {
+        include: {
+          presetCake: {
+            include: {
+              variants: true,
+            },
+          },
+          customCake: {
+            include: {
+              cake: true,
+              variants: true,
+            },
+          },
+          refreshment: true,
+          snackBox: {
+            include: {
+              refreshments: true,
+            },
+          },
+        },
+      },
+    };
+
     let cart = await prisma.cart.findFirst({
       where: {
         userId: userId,
         type: type,
       },
+      include: CartInclude,
     });
 
     if (!cart) {
-      cart = {} as Cart;
-      cart.id = GenerateObjectIdString();
-      cart.presetCakes = [];
-      cart.type = type;
-      cart.userId = userId;
+      cart = await prisma.cart.create({
+        data: {
+          userId: userId,
+          type: type,
+        },
+        include: CartInclude,
+      });
     }
 
-    const existingCakeIndex = cart.presetCakes.findIndex(
-      (item) => item.cakeId === cakeId,
+    const existingItem = cart.items.find(
+      (item) => item.presetCakesId === cakeId,
     );
 
-    if (existingCakeIndex !== -1) {
-      cart.presetCakes[existingCakeIndex].quantity += quantity;
-    } else {
-      if (!cart.presetCakes) {
-        cart.presetCakes = [];
-      }
+    const existingItemIndex = cart.items.findIndex(
+      (item) => item.presetCakesId === cakeId,
+    );
 
-      const presetCakeItem = {
-        itemId: GenerateObjectIdString(),
-        cakeId: cakeId,
-        quantity: quantity,
-      } as PresetCakeCart;
-      cart.presetCakes.push(presetCakeItem);
+    if (existingItem) {
+      cart.items[existingItemIndex] = await prisma.cartItem.update({
+        where: {
+          id: existingItem.id,
+        },
+        data: {
+          quantity: existingItem.quantity + quantity,
+        },
+        include: CartInclude.items.include,
+      });
+    } else {
+      cart = await prisma.cart.update({
+        where: {
+          id: cart.id,
+        },
+        data: {
+          items: {
+            create: {
+              type: CartItemType.PRESET_CAKE,
+              quantity: quantity,
+              presetCake: {
+                connect: {
+                  id: cakeId,
+                },
+              },
+            },
+          },
+        },
+        include: CartInclude,
+      });
     }
 
-    const updatedCart = await prisma.cart.upsert({
-      create: cart,
-      update: {
-        presetCakes: cart.presetCakes,
-      },
-      where: { id: cart.id || "" },
-    });
-
-    return responseWrapper(200, updatedCart, null);
+    return responseWrapper(200, cart, null);
   } catch (err: any) {
     return responseWrapper(500, null, err.message);
   }

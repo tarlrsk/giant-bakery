@@ -18,19 +18,19 @@ export async function POST(req: NextRequest) {
     const type = formData.get("type") as VariantType;
     const isActive = parseBoolean(formData.get("isActive") as string);
     const isVisualized = parseBoolean(formData.get("isVisualized") as string);
+    const image = formData.get("image") as File | null;
 
     const validation = variantValidationSchema.safeParse({
       name,
       type,
       isActive,
       isVisualized,
+      image,
     });
 
     if (!validation.success) {
       return responseWrapper(400, null, validation.error.message);
     }
-
-    const image = formData.get("image") as File | null;
 
     if (!image) {
       return responseWrapper(400, null, "Invalid image file.");

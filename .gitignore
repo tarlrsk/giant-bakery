@@ -38,3 +38,7 @@ next-env.d.ts
 # gcs files
 gcssa*
 .env*.local
+
+bobo-cukedoh-cli
+/config
+atlas.hcl
