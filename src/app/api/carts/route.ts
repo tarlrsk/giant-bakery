@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { updateQtyCartValidateSchema } from "@/lib/validationSchema";
-import { Variant, CakeType, CartType, Refreshment } from "@prisma/client";
+import { CartType } from "@prisma/client";
 
 const CartInclude = {
   items: {

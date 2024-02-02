@@ -1,8 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { CartItemType } from "@prisma/client";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { cartRefreshmentValidationSchema } from "@/lib/validationSchema";
-import { CartItemType } from "@prisma/client";
 
 // ----------------------------------------------------------------------
 
