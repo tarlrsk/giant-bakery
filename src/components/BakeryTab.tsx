@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { Refreshment } from "@prisma/client";
 import React, { useState, useEffect } from "react";
 import { getBakeryByCategory } from "@/actions/bakeryActions";
@@ -17,6 +18,8 @@ const TAB_ITEMS = [
 ];
 
 export default function BakeryTab() {
+  const router = useRouter();
+
   const [selectedCategory, setSelectedCategory] = useState<any>("");
   const [bakeryData, setBakeryData] = useState<Refreshment[]>([]);
 
@@ -49,13 +52,14 @@ export default function BakeryTab() {
           ></Tab>
         ))}
       </Tabs>
-      <div className="grid grid-cols-5 gap-24 pb-24">
+      <div className="grid grid-cols-5 gap-24 pb-28">
         {Object.values(bakeryData)?.map((item: Refreshment) => (
           <ProductCard
             key={item.id}
             name={item.name}
             price={item.price}
             img={item.image ? `${item.image as string}` : "/"}
+            onClick={() => router.push(`/bakery/${item.name}`)}
           />
         ))}
       </div>
