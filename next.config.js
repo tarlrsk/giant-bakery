@@ -1,7 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    remotePatterns: ["storage.googleapis.com/*"],
+    remotePatterns: [
+      {
+        hostname: "storage.googleapis.com",
+      },
+    ],
   },
   webpack: (config) => {
     config.resolve.fallback = {
