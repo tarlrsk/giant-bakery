@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
-import { CartType } from "@prisma/client";
+import { CartItemType, CartType } from "@prisma/client";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { updateQtyCartValidateSchema } from "@/lib/validationSchema";
 
@@ -206,7 +206,7 @@ export async function GET(req: NextRequest) {
     cart.items.forEach((item) => {
       let baseResponse = {
         itemId: "",
-        type: item.type,
+        itemType: item.type,
         pricePer: 0,
         price: 0,
       };
@@ -214,27 +214,23 @@ export async function GET(req: NextRequest) {
       switch (item.type) {
         case "PRESET_CAKE":
           baseResponse.pricePer = item.presetCake?.price || 0;
-          baseResponse.price = baseResponse.pricePer * item.quantity;
-
           responseItem = { ...baseResponse, ...item.presetCake };
+          responseItem.price = baseResponse.pricePer * item.quantity;
           break;
         case "CUSTOM_CAKE":
           baseResponse.pricePer = item.customCake?.price || 0;
-          baseResponse.price = baseResponse.pricePer * item.quantity;
-
           responseItem = { ...baseResponse, ...item.customCake };
+          responseItem.price = baseResponse.pricePer * item.quantity;
           break;
         case "REFRESHMENT":
           baseResponse.pricePer = item.refreshment?.price || 0;
-          baseResponse.price = baseResponse.pricePer * item.quantity;
-
           responseItem = { ...baseResponse, ...item.refreshment };
+          responseItem.price = baseResponse.pricePer * item.quantity;
           break;
         case "SNACK_BOX":
-          baseResponse.pricePer = item.refreshment?.price || 0;
-          baseResponse.price = baseResponse.pricePer * item.quantity;
-
-          responseItem = { ...baseResponse, ...item.refreshment };
+          baseResponse.pricePer = item.snackBox?.price || 0;
+          responseItem = { ...baseResponse, ...item.snackBox };
+          responseItem.price = baseResponse.pricePer * item.quantity;
           break;
       }
       responseItem.itemId = item.id;
