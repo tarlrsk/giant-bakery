@@ -97,12 +97,28 @@ CREATE TABLE "VerificationToken" (
 -- CreateTable
 CREATE TABLE "Cart" (
     "id" TEXT NOT NULL,
-    "userId" TEXT,
+    "userId" TEXT NOT NULL,
     "type" "CartType" NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Cart_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "CartItem" (
+    "id" TEXT NOT NULL,
+    "quantity" INTEGER NOT NULL,
+    "type" "CartItemType" NOT NULL,
+    "presetCakesId" TEXT,
+    "customCakeId" TEXT,
+    "refreshmentId" TEXT,
+    "snackBoxId" TEXT,
+    "cartId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3),
+
+    CONSTRAINT "CartItem_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -147,11 +163,11 @@ CREATE TABLE "Cake" (
 CREATE TABLE "CustomCake" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
-    "type" "CakeType" NOT NULL DEFAULT 'CUSTOM',
     "price" DOUBLE PRECISION NOT NULL,
-    "isActive" BOOLEAN NOT NULL,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "cakeId" TEXT NOT NULL,
 
     CONSTRAINT "CustomCake_pkey" PRIMARY KEY ("id")
 );
@@ -204,6 +220,7 @@ CREATE TABLE "Refreshment" (
 -- CreateTable
 CREATE TABLE "SnackBox" (
     "_id" TEXT NOT NULL,
+    "price" DOUBLE PRECISION NOT NULL,
 
     CONSTRAINT "SnackBox_pkey" PRIMARY KEY ("_id")
 );
@@ -270,31 +287,7 @@ CREATE TABLE "Discount" (
 );
 
 -- CreateTable
-CREATE TABLE "_CartToCustomCake" (
-    "A" TEXT NOT NULL,
-    "B" TEXT NOT NULL
-);
-
--- CreateTable
-CREATE TABLE "_CartToRefreshment" (
-    "A" TEXT NOT NULL,
-    "B" TEXT NOT NULL
-);
-
--- CreateTable
-CREATE TABLE "_CartToSnackBox" (
-    "A" TEXT NOT NULL,
-    "B" TEXT NOT NULL
-);
-
--- CreateTable
 CREATE TABLE "_CakeToVariant" (
-    "A" TEXT NOT NULL,
-    "B" TEXT NOT NULL
-);
-
--- CreateTable
-CREATE TABLE "_CakeToCart" (
     "A" TEXT NOT NULL,
     "B" TEXT NOT NULL
 );
@@ -321,40 +314,28 @@ CREATE UNIQUE INDEX "VerificationToken_token_key" ON "VerificationToken"("token"
 CREATE UNIQUE INDEX "VerificationToken_identifier_token_key" ON "VerificationToken"("identifier", "token");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Cart_userId_key" ON "Cart"("userId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "CartItem_customCakeId_key" ON "CartItem"("customCakeId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "CartItem_refreshmentId_key" ON "CartItem"("refreshmentId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "CartItem_snackBoxId_key" ON "CartItem"("snackBoxId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "CustomerAddress_userId_key" ON "CustomerAddress"("userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Order_userId_key" ON "Order"("userId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "_CartToCustomCake_AB_unique" ON "_CartToCustomCake"("A", "B");
-
--- CreateIndex
-CREATE INDEX "_CartToCustomCake_B_index" ON "_CartToCustomCake"("B");
-
--- CreateIndex
-CREATE UNIQUE INDEX "_CartToRefreshment_AB_unique" ON "_CartToRefreshment"("A", "B");
-
--- CreateIndex
-CREATE INDEX "_CartToRefreshment_B_index" ON "_CartToRefreshment"("B");
-
--- CreateIndex
-CREATE UNIQUE INDEX "_CartToSnackBox_AB_unique" ON "_CartToSnackBox"("A", "B");
-
--- CreateIndex
-CREATE INDEX "_CartToSnackBox_B_index" ON "_CartToSnackBox"("B");
-
--- CreateIndex
 CREATE UNIQUE INDEX "_CakeToVariant_AB_unique" ON "_CakeToVariant"("A", "B");
 
 -- CreateIndex
 CREATE INDEX "_CakeToVariant_B_index" ON "_CakeToVariant"("B");
-
--- CreateIndex
-CREATE UNIQUE INDEX "_CakeToCart_AB_unique" ON "_CakeToCart"("A", "B");
-
--- CreateIndex
-CREATE INDEX "_CakeToCart_B_index" ON "_CakeToCart"("B");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "_CustomCakeToVariant_AB_unique" ON "_CustomCakeToVariant"("A", "B");
@@ -369,7 +350,25 @@ ALTER TABLE "Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId"
 ALTER TABLE "Session" ADD CONSTRAINT "Session_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "CartItem" ADD CONSTRAINT "CartItem_presetCakesId_fkey" FOREIGN KEY ("presetCakesId") REFERENCES "Cake"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CartItem" ADD CONSTRAINT "CartItem_customCakeId_fkey" FOREIGN KEY ("customCakeId") REFERENCES "CustomCake"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CartItem" ADD CONSTRAINT "CartItem_refreshmentId_fkey" FOREIGN KEY ("refreshmentId") REFERENCES "Refreshment"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CartItem" ADD CONSTRAINT "CartItem_snackBoxId_fkey" FOREIGN KEY ("snackBoxId") REFERENCES "SnackBox"("_id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CartItem" ADD CONSTRAINT "CartItem_cartId_fkey" FOREIGN KEY ("cartId") REFERENCES "Cart"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "CustomerAddress" ADD CONSTRAINT "CustomerAddress_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CustomCake" ADD CONSTRAINT "CustomCake_cakeId_fkey" FOREIGN KEY ("cakeId") REFERENCES "Cake"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Refreshment" ADD CONSTRAINT "Refreshment_snackBoxId_fkey" FOREIGN KEY ("snackBoxId") REFERENCES "SnackBox"("_id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -399,34 +398,10 @@ ALTER TABLE "OrderItem" ADD CONSTRAINT "OrderItem_snackBoxId_fkey" FOREIGN KEY (
 ALTER TABLE "OrderItem" ADD CONSTRAINT "OrderItem_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "_CartToCustomCake" ADD CONSTRAINT "_CartToCustomCake_A_fkey" FOREIGN KEY ("A") REFERENCES "Cart"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_CartToCustomCake" ADD CONSTRAINT "_CartToCustomCake_B_fkey" FOREIGN KEY ("B") REFERENCES "CustomCake"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_CartToRefreshment" ADD CONSTRAINT "_CartToRefreshment_A_fkey" FOREIGN KEY ("A") REFERENCES "Cart"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_CartToRefreshment" ADD CONSTRAINT "_CartToRefreshment_B_fkey" FOREIGN KEY ("B") REFERENCES "Refreshment"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_CartToSnackBox" ADD CONSTRAINT "_CartToSnackBox_A_fkey" FOREIGN KEY ("A") REFERENCES "Cart"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_CartToSnackBox" ADD CONSTRAINT "_CartToSnackBox_B_fkey" FOREIGN KEY ("B") REFERENCES "SnackBox"("_id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "_CakeToVariant" ADD CONSTRAINT "_CakeToVariant_A_fkey" FOREIGN KEY ("A") REFERENCES "Cake"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_CakeToVariant" ADD CONSTRAINT "_CakeToVariant_B_fkey" FOREIGN KEY ("B") REFERENCES "Variant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_CakeToCart" ADD CONSTRAINT "_CakeToCart_A_fkey" FOREIGN KEY ("A") REFERENCES "Cake"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_CakeToCart" ADD CONSTRAINT "_CakeToCart_B_fkey" FOREIGN KEY ("B") REFERENCES "Cart"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_CustomCakeToVariant" ADD CONSTRAINT "_CustomCakeToVariant_A_fkey" FOREIGN KEY ("A") REFERENCES "CustomCake"("id") ON DELETE CASCADE ON UPDATE CASCADE;
