@@ -124,7 +124,17 @@ export async function PUT(
 
     const body = await req.json();
 
-    const { id } = body;
+    const {
+      id,
+      cFirstName,
+      cLastName,
+      address,
+      district,
+      subdistrict,
+      province,
+      postcode,
+      phone,
+    } = body;
 
     const validId = isObjectId(id);
 
@@ -150,9 +160,9 @@ export async function PUT(
       );
     }
 
-    const address = customerAddresses.find((address) => address.id === id);
+    const cAddress = customerAddresses.find((address) => address.id === id);
 
-    if (!address) {
+    if (!cAddress) {
       return responseWrapper(
         404,
         null,
@@ -162,7 +172,16 @@ export async function PUT(
 
     const updatedAddress = await prisma.customerAddress.update({
       where: { id: id },
-      data: body,
+      data: {
+        cFirstName: cFirstName,
+        cLastName: cLastName,
+        address: address,
+        district: district,
+        subdistrict: subdistrict,
+        province: province,
+        postcode: postcode,
+        phone: phone,
+      },
     });
 
     return responseWrapper(200, updatedAddress, null);
