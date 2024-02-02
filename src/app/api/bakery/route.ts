@@ -22,6 +22,9 @@ export async function GET(req: NextRequest) {
 
     const refreshments = await prisma.refreshment.findMany({
       where: whereCondition,
+      orderBy: {
+        category: "asc",
+      },
     });
 
     if (refreshments.length === 0) {
