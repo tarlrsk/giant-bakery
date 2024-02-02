@@ -1,7 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
-import { Cart, RefreshmentCart } from "@prisma/client";
-import { GenerateObjectIdString } from "@/lib/objectId";
+import { CartItemType } from "@prisma/client";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { cartRefreshmentValidationSchema } from "@/lib/validationSchema";
 
@@ -33,49 +32,89 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const CartInclude = {
+      items: {
+        include: {
+          presetCake: {
+            include: {
+              variants: true,
+            },
+          },
+          customCake: {
+            include: {
+              cake: true,
+              variants: true,
+            },
+          },
+          refreshment: true,
+          snackBox: {
+            include: {
+              refreshments: true,
+            },
+          },
+        },
+      },
+    };
+
     let cart = await prisma.cart.findFirst({
       where: {
         userId: userId,
         type: type,
       },
+      include: CartInclude,
     });
 
     if (!cart) {
-      cart = {} as Cart;
-      cart.id = GenerateObjectIdString();
-      cart.refreshments = [];
-      cart.type = type;
-      cart.userId = userId;
+      cart = await prisma.cart.create({
+        data: {
+          userId: userId,
+          type: type,
+        },
+        include: CartInclude,
+      });
     }
 
-    const existingRefreshmentItem = cart.refreshments.findIndex(
+    const existingItem = cart.items.find(
       (item) => item.refreshmentId === refreshmentId,
     );
 
-    if (existingRefreshmentItem !== -1) {
-      cart.refreshments[existingRefreshmentItem].quantity += quantity;
-    } else {
-      if (!cart.refreshments) {
-        cart.refreshments = [];
-      }
+    const existingItemIndex = cart.items.findIndex(
+      (item) => item.refreshmentId === refreshmentId,
+    );
 
-      const refreshmentItem = {
-        itemId: GenerateObjectIdString(),
-        refreshmentId: refreshmentId,
-        quantity: quantity,
-      } as RefreshmentCart;
-      cart.refreshments.push(refreshmentItem);
+    if (existingItem) {
+      cart.items[existingItemIndex] = await prisma.cartItem.update({
+        where: {
+          id: existingItem.id,
+        },
+        data: {
+          quantity: existingItem.quantity + quantity,
+        },
+        include: CartInclude.items.include,
+      });
+    } else {
+      cart = await prisma.cart.update({
+        where: {
+          id: cart.id,
+        },
+        data: {
+          items: {
+            create: {
+              type: CartItemType.REFRESHMENT,
+              quantity: quantity,
+              refreshment: {
+                connect: {
+                  id: refreshmentId,
+                },
+              },
+            },
+          },
+        },
+        include: CartInclude,
+      });
     }
 
-    const updatedCart = await prisma.cart.upsert({
-      create: cart,
-      update: {
-        refreshments: cart.refreshments,
-      },
-      where: { id: cart.id || "" },
-    });
-
-    return responseWrapper(200, updatedCart, null);
+    return responseWrapper(200, cart, null);
   } catch (err: any) {
     return responseWrapper(500, null, err.message);
   }

@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
-import { isObjectId } from "@/lib/objectId";
+import { validate as isValidUUID } from "uuid";
 import { cakeValidationSchema } from "@/lib/validationSchema";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 
@@ -16,10 +16,8 @@ export async function GET(_req: NextRequest, { params }: GetCakeByIdProps) {
   try {
     const { id } = params;
 
-    const validId = isObjectId(id);
-
-    if (!validId) {
-      return responseWrapper(400, null, "Invalid Object Id.");
+    if (!isValidUUID(id)) {
+      return responseWrapper(400, null, "Invalid uuid.");
     }
 
     const cake = await prisma.cake.findUnique({
@@ -45,9 +43,7 @@ export async function PUT(req: NextRequest, { params }: GetCakeByIdProps) {
   try {
     const { id } = params;
 
-    const validId = isObjectId(id);
-
-    if (!validId) {
+    if (!isValidUUID(id)) {
       return responseWrapper(400, null, "Invalid Object Id.");
     }
     const body = await req.json();
@@ -90,9 +86,7 @@ export async function DELETE(_req: NextRequest, { params }: GetCakeByIdProps) {
   try {
     const { id } = params;
 
-    const validId = isObjectId(id);
-
-    if (!validId) {
+    if (!isValidUUID(id)) {
       return responseWrapper(400, null, "Invalid Object Id.");
     }
 

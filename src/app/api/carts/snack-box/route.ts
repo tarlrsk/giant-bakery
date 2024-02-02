@@ -1,8 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
-import { arraysEqual } from "@/lib/arrayTool";
-import { Cart, SnackBoxCart } from "@prisma/client";
-import { GenerateObjectIdString } from "@/lib/objectId";
+import { CartItemType } from "@prisma/client";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { cartSnackBoxValidationSchema } from "@/lib/validationSchema";
 
@@ -17,7 +15,6 @@ export async function POST(req: NextRequest) {
       return responseWrapper(400, null, validation.error.format());
     }
 
-    // TODO USER ID FROM TOKEN OR COOKIE ID
     const { refreshmentIds, type, userId, quantity } = body;
     const refreshments = await prisma.refreshment.findMany({
       where: {
@@ -37,50 +34,105 @@ export async function POST(req: NextRequest) {
         "One or more refreshmentIds not found.",
       );
     }
+    const CartInclude = {
+      items: {
+        include: {
+          presetCake: {
+            include: {
+              variants: true,
+            },
+          },
+          customCake: {
+            include: {
+              cake: true,
+              variants: true,
+            },
+          },
+          refreshment: true,
+          snackBox: {
+            include: {
+              refreshments: true,
+            },
+          },
+        },
+      },
+    };
 
     let cart = await prisma.cart.findFirst({
       where: {
         userId: userId,
         type: type,
       },
+      include: CartInclude,
     });
 
     if (!cart) {
-      cart = {} as Cart;
-      cart.id = GenerateObjectIdString();
-      cart.snackBoxes = [];
-      cart.type = type;
-      cart.userId = userId;
+      cart = await prisma.cart.create({
+        data: {
+          userId: userId,
+          type: type,
+        },
+        include: CartInclude,
+      });
     }
 
-    const existingSnackBoxItem = cart.snackBoxes.findIndex((item) =>
-      arraysEqual(item.refreshmentIds, refreshmentIds),
+    const existingItem = cart.items.find(
+      (item) =>
+        item.snackBox?.refreshments.length === refreshmentIds.length &&
+        item.snackBox?.refreshments.every((refreshment) =>
+          refreshmentIds.includes(refreshment.id),
+        ),
     );
 
-    if (existingSnackBoxItem !== -1) {
-      cart.snackBoxes[existingSnackBoxItem].quantity += quantity;
-    } else {
-      if (!cart.snackBoxes) {
-        cart.snackBoxes = [];
-      }
+    const existingItemIndex = cart.items.findIndex(
+      (item) =>
+        item.snackBox?.refreshments.length === refreshmentIds.length &&
+        item.snackBox?.refreshments.every((refreshment) =>
+          refreshmentIds.includes(refreshment.id),
+        ),
+    );
 
-      const snackBoxItem = {
-        itemId: GenerateObjectIdString(),
-        refreshmentIds: refreshmentIds,
-        quantity: quantity,
-      } as SnackBoxCart;
-      cart.snackBoxes.push(snackBoxItem);
-    }
-
-    const updatedCart = await prisma.cart.upsert({
-      create: cart,
-      update: {
-        snackBoxes: cart.snackBoxes,
-      },
-      where: { id: cart.id || "" },
+    let snackBoxPrice = 0;
+    refreshments.forEach((refreshment) => {
+      snackBoxPrice += refreshment.price;
     });
 
-    return responseWrapper(200, updatedCart, null);
+    if (existingItem) {
+      cart.items[existingItemIndex] = await prisma.cartItem.update({
+        where: {
+          id: existingItem.id,
+        },
+        data: {
+          quantity: existingItem.quantity + quantity,
+        },
+        include: CartInclude.items.include,
+      });
+    } else {
+      cart = await prisma.cart.update({
+        where: {
+          id: cart.id,
+        },
+        data: {
+          items: {
+            create: {
+              type: CartItemType.SNACK_BOX,
+              quantity: quantity,
+              snackBox: {
+                create: {
+                  price: snackBoxPrice,
+                  refreshments: {
+                    connect: refreshments,
+                  },
+                },
+              },
+            },
+          },
+        },
+        include: CartInclude,
+      });
+    }
+
+    return responseWrapper(200, cart, null);
   } catch (err: any) {
     return responseWrapper(500, null, err.message);
   }

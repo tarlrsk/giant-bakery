@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
-import { isObjectId } from "@/lib/objectId";
+import { validate as isValidUUID } from "uuid";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { customerAddressValidationSchema } from "@/lib/validationSchema";
 
@@ -112,14 +112,8 @@ export async function PUT(
   try {
     const { customerId } = params;
 
-    const validCustomerId = isObjectId(customerId);
-
-    if (!validCustomerId) {
-      return responseWrapper(
-        400,
-        null,
-        "Invalid Object Id (customerId field).",
-      );
+    if (!isValidUUID(customerId)) {
+      return responseWrapper(400, null, "Invalid uuid.");
     }
 
     const body = await req.json();
@@ -136,10 +130,8 @@ export async function PUT(
       phone,
     } = body;
 
-    const validId = isObjectId(id);
-
-    if (!validId) {
-      return responseWrapper(400, null, "Invalid Object Id (id field).");
+    if (!isValidUUID(id)) {
+      return responseWrapper(400, null, "Invalid uuid.");
     }
 
     const validation = customerAddressValidationSchema.safeParse(body);
@@ -193,24 +185,16 @@ export async function DELETE(
   try {
     const { customerId } = params;
 
-    const validCustomerId = isObjectId(customerId);
-
-    if (!validCustomerId) {
-      return responseWrapper(
-        400,
-        null,
-        "Invalid Object Id (customerId field).",
-      );
+    if (!isValidUUID(customerId)) {
+      return responseWrapper(400, null, "Invalid uuidid.");
     }
 
     const body = await _req.json();
 
     const { id } = body;
 
-    const validId = isObjectId(id);
-
-    if (!validId) {
-      return responseWrapper(400, null, "Invalid Object Id (id field).");
+    if (!isValidUUID(id)) {
+      return responseWrapper(400, null, "Invalid uuidid.");
     }
 
     const customerAddresses = await prisma.customerAddress.findMany({

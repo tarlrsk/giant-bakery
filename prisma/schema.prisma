@@ -7,24 +7,24 @@ generator client {
 }
 
 datasource db {
-  provider = "mongodb"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 // Auth Model ----------------------------------------------------------------------
 
 model Account {
-  id                String  @id @default(auto()) @map("_id") @db.ObjectId
-  userId            String  @db.ObjectId
+  id                String  @id @default(uuid())
+  userId            String
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.String
-  access_token      String? @db.String
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.String
+  id_token          String?
   session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -33,16 +33,16 @@ model Account {
 }
 
 model Session {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  id           String   @id @default(uuid())
   sessionToken String   @unique
-  userId       String   @db.ObjectId
+  userId       String
   expires      DateTime
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model User {
-  id             String            @id @default(auto()) @map("_id") @db.ObjectId
+  id             String            @id @default(uuid())
   name           String?
   email          String?           @unique
   emailVerified  DateTime?
@@ -57,7 +57,7 @@ model User {
 }
 
 model VerificationToken {
-  identifier String   @id @default(auto()) @map("_id") @db.ObjectId
+  identifier String   @id @default(uuid())
   token      String   @unique
   expires    DateTime
 
@@ -67,19 +67,34 @@ model VerificationToken {
 // System Model ----------------------------------------------------------------------
 
 model Cart {
-  id           String            @id @default(auto()) @map("_id") @db.ObjectId
-  userId       String?           @db.ObjectId
-  type         CartType
-  createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @updatedAt
-  presetCakes  PresetCakeCart[]
-  customCakes  CustomCakeCart[]
-  refreshments RefreshmentCart[]
-  snackBoxes   SnackBoxCart[]
+  id        String     @id @default(uuid())
+  userId    String     @unique
+  type      CartType
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  items     CartItem[]
+}
+
+model CartItem {
+  id            String       @id @default(uuid())
+  quantity      Int
+  type          CartItemType
+  presetCakesId String?
+  presetCake    Cake?        @relation(fields: [presetCakesId], references: [id], onDelete: Cascade)
+  customCakeId  String?      @unique
+  customCake    CustomCake?  @relation(fields: [customCakeId], references: [id], onDelete: Cascade)
+  refreshmentId String?      @unique
+  refreshment   Refreshment? @relation(fields: [refreshmentId], references: [id], onDelete: Cascade)
+  snackBoxId    String?      @unique
+  snackBox      SnackBox?    @relation(fields: [snackBoxId], references: [id], onDelete: Cascade)
+  cartId        String
+  cart          Cart         @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime?    @updatedAt
 }
 
 model CustomerAddress {
-  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  id          String @id @default(uuid())
   cFirstName  String
   cLastName   String
   address     String
@@ -90,11 +105,11 @@ model CustomerAddress {
   phone       String
 
   user   User   @relation(fields: [userId], references: [id])
-  userId String @unique @db.ObjectId
+  userId String @unique
 }
 
 model Cake {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  id            String    @id @default(uuid())
   name          String
   description   String?
   imageFileName String?
@@ -111,27 +126,29 @@ model Cake {
   updatedAt     DateTime  @updatedAt
   deletedAt     DateTime?
 
-  variants   Variant[]   @relation(fields: [variantIds], references: [id])
+  variants   Variant[]
   orderItems OrderItem[]
-  variantIds String[]    @db.ObjectId
+  cartItems  CartItem[]
+  CustomCake CustomCake[]
 }
 
 model CustomCake {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  id        String   @id @default(uuid())
   name      String
-  type      CakeType @default(CUSTOM)
   price     Float
-  isActive  Boolean
+  isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  variants   Variant[]   @relation(fields: [variantIds], references: [id])
+  cakeId     String
+  cake       Cake        @relation(fields: [cakeId], references: [id])
+  variants   Variant[]
   orderItems OrderItem[]
-  variantIds String[]    @db.ObjectId
+  CartItems  CartItem?
 }
 
 model Variant {
-  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  id            String      @id @default(uuid())
   name          String
   imageFileName String?
   image         String?
@@ -143,14 +160,12 @@ model Variant {
   updatedAt     DateTime    @updatedAt
   deletedAt     DateTime?
 
-  cakes         Cake[]       @relation(fields: [cakeIds], references: [id])
-  customCakes   CustomCake[] @relation(fields: [customCakeIds], references: [id])
-  cakeIds       String[]     @db.ObjectId
-  customCakeIds String[]     @db.ObjectId
+  cakes       Cake[]
+  customCakes CustomCake[]
 }
 
 model Refreshment {
-  id            String               @id @default(auto()) @map("_id") @db.ObjectId
+  id            String               @id @default(uuid())
   name          String
   description   String?
   imageFileName String?
@@ -173,18 +188,21 @@ model Refreshment {
   deletedAt     DateTime?
 
   snackBox   SnackBox?   @relation(fields: [snackBoxId], references: [id])
-  snackBoxId String?     @db.ObjectId
+  snackBoxId String?
   orderItems OrderItem[]
+  CartItems  CartItem[]
 }
 
 model SnackBox {
-  id           String        @id @default(auto()) @map("_id") @db.ObjectId
+  id           String        @id @default(uuid()) @map("_id")
+  price        Float
   refreshments Refreshment[]
   orderItems   OrderItem[]
+  CartItems    CartItem?
 }
 
 model Order {
-  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  id          String       @id @default(uuid())
   weight      Float
   width       Float
   length      Float
@@ -200,14 +218,14 @@ model Order {
   user       User        @relation(fields: [userId], references: [id])
   payment    Payment     @relation(fields: [paymentId], references: [id])
   discount   Discount    @relation(fields: [discountId], references: [id])
-  userId     String      @unique @db.ObjectId
-  paymentId  String      @db.ObjectId
-  discountId String      @db.ObjectId
+  userId     String      @unique
+  paymentId  String
+  discountId String
   orderItems OrderItem[]
 }
 
 model OrderItem {
-  id    String @id @default(auto()) @map("_id") @db.ObjectId
+  id    String @id @default(uuid())
   qty   Int
   price Float
 
@@ -216,15 +234,15 @@ model OrderItem {
   refreshment  Refreshment @relation(fields: [snackId], references: [id])
   snackBox     SnackBox    @relation(fields: [snackBoxId], references: [id])
   order        Order?      @relation(fields: [orderId], references: [id])
-  cakeId       String      @db.ObjectId
-  snackId      String      @db.ObjectId
-  customCakeId String      @db.ObjectId
-  snackBoxId   String      @db.ObjectId
-  orderId      String?     @db.ObjectId
+  cakeId       String
+  snackId      String
+  customCakeId String
+  snackBoxId   String
+  orderId      String?
 }
 
 model Payment {
-  id        String        @id @default(auto()) @map("_id") @db.ObjectId
+  id        String        @id @default(uuid())
   amount    Float
   provider  String
   type      PaymentType
@@ -235,7 +253,7 @@ model Payment {
 }
 
 model Discount {
-  id        String       @id @default(auto()) @map("_id") @db.ObjectId
+  id        String       @id @default(uuid())
   condition String
   pct       String // percentage
   type      DiscountType
@@ -267,6 +285,13 @@ enum RefreshmentCategory {
 enum CakeType {
   CUSTOM
   PRESET
+}
+
+enum CartItemType {
+  PRESET_CAKE
+  CUSTOM_CAKE
+  REFRESHMENT
+  SNACK_BOX
 }
 
 enum CartType {
@@ -324,35 +349,4 @@ enum PaymentStatus {
 enum DiscountType {
   NORMAL
   SNACK_BOX
-}
-
-// Types (Composite Type) ----------------------------------------------------------------------
-
-type PresetCakeCart {
-  itemId    String   @db.ObjectId
-  cakeId    String   @db.ObjectId
-  quantity  Int      @default(1)
-  createdAt DateTime @default(now())
-}
-
-type CustomCakeCart {
-  itemId     String   @db.ObjectId
-  cakeId     String   @db.ObjectId
-  quantity   Int      @default(1)
-  variantIds String[]
-  createdAt  DateTime @default(now())
-}
-
-type RefreshmentCart {
-  itemId        String   @db.ObjectId
-  refreshmentId String   @db.ObjectId
-  quantity      Int      @default(1)
-  createdAt     DateTime @default(now())
-}
-
-type SnackBoxCart {
-  itemId         String   @db.ObjectId
-  refreshmentIds String[] @db.ObjectId
-  quantity       Int      @default(1)
-  createdAt      DateTime @default(now())
 }
