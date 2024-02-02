@@ -19,18 +19,14 @@ const TAB_ITEMS = [
 export default function BakeryTab() {
   const [selectedCategory, setSelectedCategory] = useState<any>("");
   const [bakeryData, setBakeryData] = useState<Refreshment[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
       try {
         const res = await getBakeryByCategory(selectedCategory);
         setBakeryData(res?.response.data ?? []);
       } catch (error) {
         console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
       }
     };
     fetchData();
@@ -50,24 +46,19 @@ export default function BakeryTab() {
             key={item.key}
             title={item.title}
             className="flex justify-center items-center text-center text-2xl text-primaryT-darker font-semibold w-28 mx-8"
-          >
-            {loading ? (
-              <p>Loading...</p>
-            ) : (
-              <div className="flex gap-5 text-5xl">
-                {Object.values(bakeryData)?.map((item: Refreshment) => (
-                  <ProductCard
-                    key={item.id}
-                    name={item.name}
-                    price={item.price}
-                    img={`/${item.imageFileName as string}`}
-                  />
-                ))}
-              </div>
-            )}
-          </Tab>
+          ></Tab>
         ))}
       </Tabs>
+      <div className="grid grid-cols-5 gap-24 pb-24">
+        {Object.values(bakeryData)?.map((item: Refreshment) => (
+          <ProductCard
+            key={item.id}
+            name={item.name}
+            price={item.price}
+            img={item.image ? `${item.image as string}` : "/"}
+          />
+        ))}
+      </div>
     </div>
   );
 }
