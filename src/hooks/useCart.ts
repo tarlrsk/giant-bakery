@@ -5,7 +5,6 @@ import { fetcher } from "@/utils/axios";
 // ----------------------------------------------------------------------
 
 export default function useCart(userId: string) {
-  console.log("hi");
   const {
     data: cartItemsData,
     error: cartItemsError,
