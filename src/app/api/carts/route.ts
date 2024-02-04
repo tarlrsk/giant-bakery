@@ -1,21 +1,79 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { CartType } from "@prisma/client";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { updateQtyCartValidateSchema } from "@/lib/validationSchema";
-import { Variant, CakeType, CartType, Refreshment } from "@prisma/client";
 
-enum CartItemType {
-  PRESET_CAKE = "PRESET_CAKE",
-  CUSTOM_CAKE = "CUSTOM_CAKE",
-  REFRESHMENT = "REFRESHMENT",
-  SNACK_BOX = "SNACK_BOX",
-}
+const CartInclude = {
+  items: {
+    include: {
+      presetCake: {
+        include: {
+          variants: true,
+        },
+      },
+      customCake: {
+        include: {
+          cake: true,
+          variants: true,
+        },
+      },
+      refreshment: true,
+      snackBox: {
+        include: {
+          refreshments: true,
+        },
+      },
+    },
+  },
+};
 
-enum CartItemTypeField {
-  PRESET_CAKE = "presetCakes",
-  CUSTOM_CAKE = "customCakes",
-  REFRESHMENT = "refreshments",
-  SNACK_BOX = "snackBoxes",
+async function deleteItem(cartItem: any, itemId: string) {
+  switch (cartItem.type) {
+    case "PRESET_CAKE":
+      await prisma.cartItem.delete({
+        where: {
+          id: itemId,
+        },
+      });
+      break;
+    case "CUSTOM_CAKE":
+      if (!cartItem.customCakeId) {
+        return responseWrapper(
+          500,
+          null,
+          `Something went wrong with custom cake item.`,
+        );
+      }
+      await prisma.customCake.delete({
+        where: {
+          id: cartItem.customCakeId,
+        },
+      });
+      break;
+
+    case "REFRESHMENT":
+      await prisma.cartItem.delete({
+        where: {
+          id: itemId,
+        },
+      });
+      break;
+    case "SNACK_BOX":
+      if (!cartItem.snackBoxId) {
+        return responseWrapper(
+          500,
+          null,
+          `Something went wrong with snack box item.`,
+        );
+      }
+      await prisma.snackBox.delete({
+        where: {
+          id: cartItem.snackBoxId,
+        },
+      });
+      break;
+  }
 }
 
 export async function DELETE(req: NextRequest) {
@@ -30,9 +88,11 @@ export async function DELETE(req: NextRequest) {
       return responseWrapper(400, null, "ItemId is required");
     }
 
-    const cart = await prisma.cart.findFirst({
+    let cart = await prisma.cart.findFirst({
       where: { userId: userId },
+      include: CartInclude,
     });
+
     if (!cart) {
       return responseWrapper(
         404,
@@ -41,47 +101,21 @@ export async function DELETE(req: NextRequest) {
       );
     }
 
-    let itemArray: any[] | undefined;
-    let itemType: string | undefined;
-
-    for (const field of Object.keys(cart)) {
-      const fieldType = field as keyof typeof cart;
-
-      if (Array.isArray(cart[fieldType])) {
-        const fieldArray = cart[fieldType] as any[];
-
-        const itemIndex = fieldArray.findIndex(
-          (item) => item.itemId === itemId,
-        );
-
-        if (itemIndex !== -1) {
-          itemArray = fieldArray;
-          itemType = fieldType;
-          break;
-        }
-      }
-    }
-
-    if (!itemArray || !itemType) {
+    const cartItem = cart.items.find((item) => item.id === itemId);
+    if (!cartItem) {
       return responseWrapper(
         404,
         null,
-        `Item with itemId ${itemId} not found in your cart.`,
+        `Item with giver id ${itemId} is not found.`,
       );
     }
-
-    itemArray.splice(
-      itemArray.findIndex((item) => item.itemId === itemId),
-      1,
-    );
-
-    const updateData = { [itemType]: { set: itemArray } };
-    const updatedCart = await prisma.cart.update({
-      where: { id: cart.id },
-      data: updateData,
+    deleteItem(cartItem, itemId);
+    cart = await prisma.cart.findFirst({
+      where: { userId: userId },
+      include: CartInclude,
     });
 
-    return responseWrapper(200, updatedCart, null);
+    return responseWrapper(200, cart, null);
   } catch (err: any) {
     return responseWrapper(500, null, err.message);
   }
@@ -99,7 +133,10 @@ export async function PUT(req: NextRequest) {
 
     const { userId, quantity, itemId, type } = body;
 
-    const cart = await prisma.cart.findFirst({ where: { userId: userId } });
+    const cart = await prisma.cart.findFirst({
+      where: { userId: userId },
+      include: CartInclude,
+    });
     if (!cart) {
       return responseWrapper(
         404,
@@ -108,50 +145,30 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    let itemArray;
-    switch (type) {
-      case CartItemType.PRESET_CAKE:
-        itemArray = cart.presetCakes;
-        break;
-      case CartItemType.CUSTOM_CAKE:
-        itemArray = cart.customCakes;
-        break;
-      case CartItemType.REFRESHMENT:
-        itemArray = cart.refreshments;
-        break;
-      case CartItemType.SNACK_BOX:
-        itemArray = cart.snackBoxes;
-        break;
-      default:
-        return responseWrapper(400, null, "Invalid cart item type");
-    }
-
-    const itemIndex = itemArray.findIndex((item) => item.itemId === itemId);
-
-    if (itemIndex === -1) {
+    let cartItem = cart.items.find((item) => item.id === itemId);
+    if (!cartItem) {
       return responseWrapper(
         404,
         null,
-        `Item with itemId ${itemId} not found in your cart.`,
+        `Item with giver id ${itemId} is not found.`,
       );
     }
 
     if (quantity === 0) {
-      itemArray.splice(
-        itemArray.findIndex((item) => item.itemId === itemId),
-        1,
-      );
+      deleteItem(cartItem, itemId);
     } else {
-      itemArray[itemIndex].quantity = quantity;
+      cartItem = await prisma.cartItem.update({
+        where: {
+          id: cartItem.id,
+        },
+        data: {
+          quantity: quantity,
+        },
+        include: CartInclude.items.include,
+      });
     }
 
-    const field = CartItemTypeField[type as keyof typeof CartItemTypeField];
-    const updateData = { [field]: { set: itemArray } };
-    await prisma.cart.update({
-      where: { id: cart.id },
-      data: updateData,
-    });
-    return responseWrapper(200, itemArray[itemIndex], null);
+    return responseWrapper(200, cart, null);
   } catch (err: any) {
     return responseWrapper(500, null, err.message);
   }
@@ -177,6 +194,7 @@ export async function GET(req: NextRequest) {
       where: {
         userId: userId,
       },
+      include: CartInclude,
     });
     if (!cart) {
       return responseWrapper(200, responseCart, null);
@@ -184,153 +202,43 @@ export async function GET(req: NextRequest) {
 
     responseCart.cartId = cart.id;
     responseCart.type = cart.type;
-
-    const cakeIds: string[] = cart.presetCakes.map(
-      (presetCakeItem) => presetCakeItem.cakeId,
-    );
-
-    cakeIds.push(
-      ...cart.customCakes.map((customCakeItem) => customCakeItem.cakeId),
-    );
-
-    const variantIds: string[] = cart.customCakes.flatMap(
-      (customCakeItem) => customCakeItem.variantIds,
-    );
-
-    const refreshmentIds: string[] = cart.refreshments.map(
-      (refreshmentItem) => refreshmentItem.refreshmentId,
-    );
-
-    refreshmentIds.push(
-      ...cart.snackBoxes.flatMap((snackBoxItem) => snackBoxItem.refreshmentIds),
-    );
-
-    const cakes = await prisma.cake.findMany({
-      where: {
-        id: { in: cakeIds },
-        isDeleted: false,
-      },
-      include: {
-        variants: true,
-      },
-    });
-
-    const variants = await prisma.variant.findMany({
-      where: {
-        id: { in: variantIds },
-        isDeleted: false,
-      },
-    });
-
-    const refreshments = await prisma.refreshment.findMany({
-      where: {
-        id: { in: refreshmentIds },
-        isDeleted: false,
-      },
-    });
-
-    cart.presetCakes.forEach((presetCake) => {
-      const cake = cakes.find(
-        (v) => v.id === presetCake.cakeId && v.type === CakeType.PRESET,
-      );
-      if (cake) {
-        responseCart.items.push({
-          itemsId: presetCake.itemId,
-          imageFileName: cake.imageFileName,
-          image: cake.image,
-          quantity: presetCake.quantity,
-          pricePer: cake.price,
-          price: cake.price * presetCake.quantity,
-          createdAt: presetCake.createdAt,
-          type: CartItemType.PRESET_CAKE,
-          cakeId: cake.id,
-          name: cake.name,
-          variants: cake.variants,
-        });
-        responseCart.totalPrice += cake.price * presetCake.quantity;
+    responseCart.totalPrice = 0;
+    cart.items.forEach((item) => {
+      let baseResponse = {
+        itemId: "",
+        itemType: item.type,
+        pricePer: 0,
+        price: 0,
+      };
+      let responseItem: any;
+      switch (item.type) {
+        case "PRESET_CAKE":
+          baseResponse.pricePer = item.presetCake?.price || 0;
+          responseItem = { ...baseResponse, ...item.presetCake };
+          responseItem.price = baseResponse.pricePer * item.quantity;
+          break;
+        case "CUSTOM_CAKE":
+          baseResponse.pricePer = item.customCake?.price || 0;
+          responseItem = { ...baseResponse, ...item.customCake };
+          responseItem.price = baseResponse.pricePer * item.quantity;
+          break;
+        case "REFRESHMENT":
+          baseResponse.pricePer = item.refreshment?.price || 0;
+          responseItem = { ...baseResponse, ...item.refreshment };
+          responseItem.price = baseResponse.pricePer * item.quantity;
+          break;
+        case "SNACK_BOX":
+          baseResponse.pricePer = item.snackBox?.price || 0;
+          responseItem = { ...baseResponse, ...item.snackBox };
+          responseItem.price = baseResponse.pricePer * item.quantity;
+          break;
       }
-    });
-
-    cart.customCakes.forEach((customCake) => {
-      const cake = cakes.find(
-        (v) => v.id === customCake.cakeId && v.type === CakeType.CUSTOM,
-      );
-
-      const variantCustomCake = [] as Variant[];
-      customCake.variantIds.forEach((variantId) => {
-        const variant = variants.find((v) => v.id === variantId);
-        if (variant) {
-          variantCustomCake.push(variant);
-        }
-      });
-
-      if (cake) {
-        responseCart.items.push({
-          itemsId: customCake.itemId,
-          quantity: customCake.quantity,
-          pricePer: cake.price,
-          price: cake.price * customCake.quantity,
-          createdAt: customCake.createdAt,
-          type: CartItemType.CUSTOM_CAKE,
-          cakeId: cake.id,
-          name: cake.name,
-          variants: variantCustomCake,
-        });
-        responseCart.totalPrice += cake.price * customCake.quantity;
-      }
-    });
-
-    cart.refreshments.forEach((refreshment) => {
-      const refreshmentData = refreshments.find(
-        (v) => v.id === refreshment.refreshmentId,
-      );
-      if (!refreshmentData) {
-        return responseWrapper(
-          404,
-          null,
-          `Refreshment with given id ${refreshment.refreshmentId} is not found.`,
-        );
-      }
-      responseCart.items.push({
-        itemsId: refreshment.itemId,
-        quantity: refreshment.quantity,
-        imageFileName: refreshmentData.imageFileName,
-        image: refreshmentData.image,
-        pricePer: refreshmentData.price,
-        price: refreshmentData.price * refreshment.quantity,
-        createdAt: refreshment.createdAt,
-        type: CartItemType.REFRESHMENT,
-        refreshmentId: refreshmentData.id,
-        name: refreshmentData.name,
-      });
-      responseCart.totalPrice += refreshmentData.price * refreshment.quantity;
-    });
-
-    cart.snackBoxes.forEach((snackBox) => {
-      const snackBoxRefreshment = [] as Refreshment[];
-      let snackBoxPrice = 0;
-
-      snackBox.refreshmentIds.forEach((refreshmentId) => {
-        const refreshmentData = refreshments.find(
-          (v) => v.id === refreshmentId,
-        );
-
-        if (refreshmentData) {
-          snackBoxRefreshment.push(refreshmentData);
-          snackBoxPrice += refreshmentData.price;
-        }
-      });
-
-      responseCart.items.push({
-        itemsId: snackBox.itemId,
-        quantity: snackBox.quantity,
-        pricePer: snackBoxPrice,
-        price: snackBoxPrice * snackBox.quantity,
-        createdAt: snackBox.createdAt,
-        type: CartItemType.SNACK_BOX,
-        refreshments: snackBoxRefreshment,
-      });
-      responseCart.totalPrice += snackBoxPrice * snackBox.quantity;
+      responseItem.itemId = item.id;
+      responseItem.quantity = item.quantity;
+      responseItem.createdAt = item.createdAt;
+      responseItem.updatedAt = item.updatedAt;
+      responseCart.items.push(responseItem);
+      responseCart.totalPrice += responseItem.price;
     });
 
     responseCart.items.sort(

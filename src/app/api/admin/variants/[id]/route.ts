@@ -1,11 +1,11 @@
 import { prisma } from "@/lib/prisma";
 import { bucket } from "@/lib/gcs/gcs";
 import { NextRequest } from "next/server";
-import { isObjectId } from "@/lib/objectId";
 import { formatDate } from "@/lib/formatDate";
-import { getFileUrl } from "@/lib/gcs/getFileUrl";
+import { validate as isValidUUID } from "uuid";
 import { parseBoolean } from "@/lib/parseBoolean";
 import type { VariantType } from "@prisma/client";
+import { getFileUrl } from "@/lib/gcs/getFileUrl";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { variantValidationSchema } from "@/lib/validationSchema";
 
@@ -21,10 +21,8 @@ export async function GET(_req: NextRequest, { params }: GetVariantById) {
   try {
     const { id } = params;
 
-    const validId = isObjectId(id);
-
-    if (!validId) {
-      return responseWrapper(400, null, "Invalid Object Id.");
+    if (!isValidUUID(id)) {
+      return responseWrapper(400, null, "Invalid uuid.");
     }
 
     let variant = await prisma.variant.findUnique({
@@ -60,10 +58,8 @@ export async function PUT(req: NextRequest, { params }: GetVariantById) {
   try {
     const { id } = params;
 
-    const validId = isObjectId(id);
-
-    if (!validId) {
-      return responseWrapper(400, null, "Invalid Object Id.");
+    if (!isValidUUID(id)) {
+      return responseWrapper(400, null, "Invalid uuid.");
     }
 
     const formData = await req.formData();
@@ -147,10 +143,8 @@ export async function DELETE(_req: NextRequest, { params }: GetVariantById) {
   try {
     const { id } = params;
 
-    const validId = isObjectId(id);
-
-    if (!validId) {
-      return responseWrapper(400, null, "Invalid Object Id.");
+    if (!isValidUUID(id)) {
+      return responseWrapper(400, null, "Invalid uuid.");
     }
 
     const variant = await prisma.variant.findUnique({

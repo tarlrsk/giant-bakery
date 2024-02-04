@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { validate as isValidUUID } from "uuid";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { customerAddressValidationSchema } from "@/lib/validationSchema";
 
@@ -99,6 +100,126 @@ export async function POST(
     });
 
     return responseWrapper(201, newAddress, null);
+  } catch (err: any) {
+    return responseWrapper(500, null, err.message);
+  }
+}
+
+export async function PUT(
+  req: NextRequest,
+  { params }: GetAddressByCustomerIdProps,
+) {
+  try {
+    const { customerId } = params;
+
+    if (!isValidUUID(customerId)) {
+      return responseWrapper(400, null, "Invalid uuid.");
+    }
+
+    const body = await req.json();
+
+    const {
+      id,
+      cFirstName,
+      cLastName,
+      address,
+      district,
+      subdistrict,
+      province,
+      postcode,
+      phone,
+    } = body;
+
+    if (!isValidUUID(id)) {
+      return responseWrapper(400, null, "Invalid uuid.");
+    }
+
+    const validation = customerAddressValidationSchema.safeParse(body);
+
+    if (!validation.success) {
+      return responseWrapper(400, null, validation.error.format());
+    }
+
+    const customerAddresses = await prisma.customerAddress.findMany({
+      where: { userId: customerId },
+    });
+
+    if (!customerAddresses) {
+      return responseWrapper(200, null, null);
+    }
+
+    const cAddress = customerAddresses.find((address) => address.id === id);
+
+    if (!cAddress) {
+      return responseWrapper(
+        404,
+        null,
+        `Addresss with given id ${id} not found.`,
+      );
+    }
+
+    const updatedAddress = await prisma.customerAddress.update({
+      where: { id: id },
+      data: {
+        cFirstName: cFirstName,
+        cLastName: cLastName,
+        address: address,
+        district: district,
+        subdistrict: subdistrict,
+        province: province,
+        postcode: postcode,
+        phone: phone,
+      },
+    });
+
+    return responseWrapper(200, updatedAddress, null);
+  } catch (err: any) {
+    return responseWrapper(500, null, err.message);
+  }
+}
+
+export async function DELETE(
+  _req: NextRequest,
+  { params }: GetAddressByCustomerIdProps,
+) {
+  try {
+    const { customerId } = params;
+
+    if (!isValidUUID(customerId)) {
+      return responseWrapper(400, null, "Invalid uuidid.");
+    }
+
+    const body = await _req.json();
+
+    const { id } = body;
+
+    if (!isValidUUID(id)) {
+      return responseWrapper(400, null, "Invalid uuidid.");
+    }
+
+    const customerAddresses = await prisma.customerAddress.findMany({
+      where: { userId: customerId },
+    });
+
+    if (!customerAddresses) {
+      return responseWrapper(200, null, null);
+    }
+
+    const address = customerAddresses.find((address) => address.id === id);
+
+    if (!address) {
+      return responseWrapper(
+        404,
+        null,
+        `Addresss with given id ${id} not found.`,
+      );
+    }
+
+    await prisma.customerAddress.delete({
+      where: { id: id },
+    });
+
+    return responseWrapper(200, null, null);
   } catch (err: any) {
     return responseWrapper(500, null, err.message);
   }
