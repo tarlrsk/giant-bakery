@@ -3,8 +3,8 @@ import { withAuth, NextRequestWithAuth } from "next-auth/middleware";
 
 const allowedOrigins =
   process.env.NODE_ENV === "production"
-    ? ["https://giantbakery.vercel.app", "https://giantbakery-uat.vercel.app"]
-    : ["https://giantbakery-stg.vercel.app", "http://localhost:3000"];
+    ? ["https://cukedoh.vercel.app/", "https://cukedoh-uat.vercel.app/"]
+    : ["https://cukedoh-stg.vercel.app/", "http://localhost:3000"];
 
 export default withAuth(
   function middleware(req: NextRequestWithAuth) {

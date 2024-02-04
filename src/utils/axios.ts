@@ -2,13 +2,9 @@ import axios from "axios";
 
 // ----------------------------------------------------------------------
 
-const baseURL = process.env.NEXT_PUBLIC_URL as string;
+const baseUrl = `${process.env.NEXT_PUBLIC_URL as string}/api`;
 
-const token = "testToken";
-
-axios.defaults.baseURL = baseURL;
-
-axios.defaults.headers.common = { Authorization: token };
+axios.defaults.baseURL = baseUrl;
 
 export const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 

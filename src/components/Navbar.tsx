@@ -207,7 +207,6 @@ export default function Navbar({
           />
           <Button
             onClick={() => {
-              console.log("hi", currentUser);
               router.push("/cart");
             }}
             isIconOnly

@@ -31,6 +31,7 @@ const config: Config = {
         facebook: {
           main: "#0165E1",
         },
+        disabled: "#A1A1AA",
         primaryT: {
           lighter: "#FFF1E0",
           light: "#FFD199",
@@ -84,7 +85,7 @@ const config: Config = {
               400: "#AB630A",
               500: "#3D2200",
               DEFAULT: "#DE8F2C",
-              foreground: "#3D2200",
+              foreground: "#FFFFFF",
             },
             secondary: {
               100: "#FFE3E0",
@@ -101,7 +102,6 @@ const config: Config = {
             default: {
               foreground: "#3D2200",
             },
-            foreground: "#3D2200",
           },
         },
       },
