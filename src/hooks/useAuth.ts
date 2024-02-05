@@ -1,48 +1,33 @@
 import { z } from "zod";
-import axios from "@/utils/axios";
-import useSWRMutation from "swr/mutation";
+import { signUp, ISignUpRequest } from "@/actions/userActions";
 import { signIn, signOut as onSignOut } from "next-auth/react";
-import {
-  customerSignInValidationSchema,
-  customerSignUpValidationSchema,
-} from "@/lib/validationSchema";
+import { customerSignInValidationSchema } from "@/lib/validationSchema";
 
 // ----------------------------------------------------------------------
 
-type signUpProps = z.infer<typeof customerSignUpValidationSchema>;
-
 type signInProps = z.infer<typeof customerSignInValidationSchema>;
-
-async function sendRequest(
-  url: string,
-  { arg }: { arg: signUpProps | signInProps },
-) {
-  await axios(url, {
-    method: "POST",
-    data: arg,
-  })
-    .then((res) => res.data)
-    .catch((error) => {
-      if (error.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
-        throw new Error(error.response.data.response.error);
-      } else if (error.request) {
-        // The request was made but no response was received
-        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-        // http.ClientRequest in node.js
-        throw new Error("Unexpected error");
-      } else {
-        // Something happened in setting up the request that triggered an Error
-        throw new Error("Unexpected error");
-      }
-    });
-}
 
 // ----------------------------------------------------------------------
 
 export function useAuth() {
-  const { trigger: onSignUp } = useSWRMutation("/auth/signup", sendRequest);
+  async function onSignUp(body: ISignUpRequest) {
+    try {
+      const res = await signUp(body);
+      if (!res.response.success) {
+        throw Object(res);
+      } else {
+        return res.response;
+      }
+    } catch (error: any) {
+      if (error.response.data) {
+        throw new Error(error.response.data.response.error);
+      } else if (error.response.error) {
+        throw new Error(error.response.error);
+      } else {
+        throw new Error("Unexpected error");
+      }
+    }
+  }
 
   async function onSignIn(
     type: "credentials" | "facebook" | "google",
