@@ -12,18 +12,6 @@ export default function BeverageItems() {
 
   const [items, setItems] = useState<Refreshment[]>([]);
 
-  //   useEffect(() => {
-  //     const fetchData = async () => {
-  //       try {
-  //         const res = await getBakeryByCategory(selectedCategory);
-  //         setBakeryData(res?.response.data ?? []);
-  //       } catch (error) {
-  //         console.error("Error fetching data:", error);
-  //       }
-  //     };
-  //     fetchData();
-  //   }, [selectedCategory]);
-
   useEffect(() => {
     const fetchData = async () => {
       try {
