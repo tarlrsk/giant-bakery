@@ -24,7 +24,7 @@ export default function Home() {
             ไดเอ็ตแคมป์ริกเตอร์ ฮอตแซ็กโซโฟนฟินิกซ์เทควันโดมะกัน
           </p>
         </div>
-        <div className="relative flex flex-wrap-custom gap-28">
+        <div className="relative flex flex-wrap-custom gap-20">
           <ProductCard name="temp 2" price={8.0} img="/logo.png" />
           <ProductCard name="temp 1" price={8.0} img="/logo.png" />
           <ProductCard name="temp 3" price={8.0} img="/logo.png" />
