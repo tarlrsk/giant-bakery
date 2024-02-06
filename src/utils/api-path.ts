@@ -3,6 +3,8 @@ const baseUrl = process.env.NEXT_PUBLIC_URL as string;
 const createUrl = (endpoint: string) => `${baseUrl}/api/${endpoint}`;
 
 const apiPaths = () => {
+  // Auth
+  const signUp = createUrl("auth/signup");
   // Cart
   const getCart = (userId: string) => createUrl(`carts?userId=${userId}`);
   const deleteCartItem = (userId: string, itemId: string) =>
@@ -29,6 +31,7 @@ const apiPaths = () => {
     `https://api-intership.interexpress.co.th/v1/operation-areas/post-code/${zipCode}`;
 
   return {
+    signUp,
     getCart,
     updateCartItem,
     deleteCartItem,

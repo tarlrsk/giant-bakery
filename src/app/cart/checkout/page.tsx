@@ -6,7 +6,7 @@ import { fetcher } from "@/utils/axios";
 import useSWRMutation from "swr/mutation";
 import useSWR, { useSWRConfig } from "swr";
 import AddIcon from "@/components/icons/AddIcon";
-import getCurrentUser from "@/actions/getCurrentUser";
+import getCurrentUser from "@/actions/userActions";
 import { EditIcon } from "@/components/icons/EditIcon";
 import DeleteIcon from "@/components/icons/DeleteIcon";
 import { QRCodeIcon } from "@/components/icons/QRCodeIcon";

@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 import apiPaths from "@/utils/api-path";
 import { revalidateTag } from "next/cache";
 
-import getCurrentUser from "./getCurrentUser";
+import getCurrentUser from "./userActions";
 
 // ----------------------------------------------------------------------
 
