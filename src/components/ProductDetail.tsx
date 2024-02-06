@@ -21,13 +21,11 @@ export default function ProductDetail({ slug }: Props) {
   };
 
   const decrement = () => {
-    if (counter > 1) {
-      setCounter(counter - 1);
-    }
+    if (counter > 1) setCounter(counter - 1);
   };
 
   const increment = () => {
-    setCounter(counter + 1);
+    if (counter < 999) setCounter(counter + 1);
   };
 
   const encodedSlug = decodeURIComponent(slug);
