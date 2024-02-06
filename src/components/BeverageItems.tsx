@@ -7,7 +7,16 @@ import { getAllBeverages } from "@/actions/beverageActions";
 
 import ProductCard from "./ProductCard";
 
-export default function BeverageItems() {
+export default function BeverageItems({
+  size = "md",
+  cols,
+  onClick,
+  ...other
+}: {
+  size?: "sm" | "md";
+  cols: number;
+  onClick?: (selected?: string) => void;
+}) {
   const router = useRouter();
 
   const [items, setItems] = useState<Refreshment[]>([]);
@@ -25,20 +34,26 @@ export default function BeverageItems() {
   }, []);
 
   return (
-    <div className="relative flex flex-col justify-center items-center">
-      <div className="flex flex-col justify-center items-center gap-20">
-        <div className="grid grid-cols-5 gap-24 pb-28">
-          {Object.values(items)?.map((item: Refreshment) => (
-            <ProductCard
-              key={item.id}
-              name={item.name}
-              price={item.price}
-              img={item.image ? `${item.image as string}` : "/"}
-              onClick={() => router.push(`/bakery/${item.name}`)}
-            />
-          ))}
-        </div>
-      </div>
+    <div
+      className={`grid grid-cols-${cols} gap-${
+        size === "sm" ? 7 : 14
+      } justify-center items-center`}
+      {...other}
+    >
+      {Object.values(items)?.map((item: Refreshment) => (
+        <ProductCard
+          key={item.id}
+          name={item.name}
+          size={size}
+          price={item.price}
+          img={item.image ? `${item.image as string}` : "/"}
+          onClick={
+            onClick
+              ? () => onClick(item.id)
+              : () => router.push(`/bakery/${item.name}`)
+          }
+        />
+      ))}
     </div>
   );
 }

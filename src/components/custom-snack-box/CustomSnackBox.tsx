@@ -15,6 +15,7 @@ import {
 
 import { BoxIcon } from "../icons/BoxIcon";
 import { RHFRadioGroup } from "../hook-form";
+import BeverageItems from "../BeverageItems";
 import FormProvider from "../hook-form/form-provider";
 
 // ----------------------------------------------------------------------
@@ -63,6 +64,7 @@ export default function CustomSnackBox() {
   });
 
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [selectedTab, setSelectedTab] = useState("bakery");
 
   const { watch, handleSubmit } = methods;
 
@@ -78,7 +80,9 @@ export default function CustomSnackBox() {
 
   const { selectedPackaging, selectedDrinkOption } = values;
 
-  const renderFirstPage = (
+  const renderPackageHeader = <h2 className=" text-xl">เลือกบรรจุภัณฑ์</h2>;
+
+  const renderPackageSection = (
     <div className="grid gap-2 md:grid-cols-3 md:gap-4">
       <div className="md:col-span-1">
         <Image
@@ -126,72 +130,86 @@ export default function CustomSnackBox() {
     </div>
   );
 
-  return (
-    <div className="flex flex-col m-6 p-6 border border-black rounded-sm gap-4 max-w-screen-md">
-      <div className="flex justify-center md:justify-between items-center">
-        {currentPage === 1 && <h2 className=" text-xl">เลือกบรรจุภัณฑ์</h2>}
-        {currentPage === 2 && (
-          <h2 className=" text-xl">{`เลือกขนมและเครื่องดื่ม ${PACKAGING_OPTIONS.find(
-            (option) => option.value === selectedPackaging,
-          )?.amount} ชิ้น`}</h2>
-        )}
-        {currentPage === 2 && (
-          <Popover placement="bottom" radius="md">
-            <PopoverTrigger>
-              <Button isIconOnly disableAnimation className="bg-transparent">
-                <BoxIcon width={30} height={30} />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent>
-              <div className="px-1 py-2">
-                <div className="text-small font-medium text-center text-white bg-primaryT-darker rounded-sm py-2 px-4">
-                  ชุดเบรกของฉัน
-                </div>
-                <div className="text-tiny py-2">ราคารวมกล่องละ</div>
-              </div>
-            </PopoverContent>
-          </Popover>
-        )}
-      </div>
-      {currentPage === 1 && renderFirstPage}
-      {currentPage === 2 && (
-        <>
-          <Tabs
-            variant="underlined"
-            aria-label="Product Tabs"
-            size="lg"
-            color="secondary"
-            classNames={{ tabList: "px-0" }}
-          >
-            <Tab key="bakery" title="เบเกอรี่" />
-            <Tab key="cake" title="เค้ก" />
-            {selectedDrinkOption !== "none" && (
-              <Tab key="drinks" title="เครื่องดื่ม" />
-            )}
-          </Tabs>
-          <div className=" flex flex-row gap-4">
-            <Button
-              fullWidth
-              size="lg"
-              variant="bordered"
-              color="secondary"
-              className="rounded-sm"
-              onClick={() => setCurrentPage(1)}
-            >
-              ย้อนกลับ
-            </Button>
-            <Button
-              fullWidth
-              size="lg"
-              color="secondary"
-              className="rounded-sm"
-              onClick={() => setCurrentPage(3)}
-            >
-              เลือกจำนวนกล่อง
-            </Button>
+  const renderSnackHeader = (
+    <>
+      <h2 className=" text-xl">{`เลือกขนมและเครื่องดื่ม ${PACKAGING_OPTIONS.find(
+        (option) => option.value === selectedPackaging,
+      )?.amount} ชิ้น`}</h2>
+
+      <Popover placement="bottom" radius="md">
+        <PopoverTrigger>
+          <Button isIconOnly disableAnimation className="bg-transparent">
+            <BoxIcon width={30} height={30} />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent>
+          <div className="px-1 py-2">
+            <div className="text-small font-medium text-center text-white bg-primaryT-darker rounded-sm py-2 px-4">
+              ชุดเบรกของฉัน
+            </div>
+            <div className="text-tiny py-2">ราคารวมกล่องละ</div>
           </div>
-        </>
-      )}
+        </PopoverContent>
+      </Popover>
+    </>
+  );
+
+  const renderSnackSection = (
+    <>
+      <Tabs
+        variant="underlined"
+        aria-label="Product Tabs"
+        size="lg"
+        color="secondary"
+        classNames={{ tabList: "px-0" }}
+        selectedKey={selectedTab}
+        onSelectionChange={(selected) => setSelectedTab(selected as string)}
+      >
+        <Tab key="bakery" title="เบเกอรี่" />
+        <Tab key="cake" title="เค้ก" />
+        {selectedDrinkOption !== "none" && (
+          <Tab key="drinks" title="เครื่องดื่ม" />
+        )}
+      </Tabs>
+
+      <BeverageItems
+        cols={4}
+        size="sm"
+        onClick={(selected) => console.log("itemId:", selected)}
+      />
+
+      <div className=" flex flex-row gap-4">
+        <Button
+          fullWidth
+          size="lg"
+          variant="bordered"
+          color="secondary"
+          className="rounded-sm"
+          onClick={() => setCurrentPage(1)}
+        >
+          ย้อนกลับ
+        </Button>
+        <Button
+          fullWidth
+          size="lg"
+          color="secondary"
+          className="rounded-sm"
+          onClick={() => setCurrentPage(3)}
+        >
+          เลือกจำนวนกล่อง
+        </Button>
+      </div>
+    </>
+  );
+
+  return (
+    <div className="flex flex-col m-6 p-6 border border-black rounded-sm gap-4 max-w-screen-lg">
+      <div className="flex justify-center md:justify-between items-center">
+        {currentPage === 1 && renderPackageHeader}
+        {currentPage === 2 && renderSnackHeader}
+      </div>
+      {currentPage === 1 && renderPackageSection}
+      {currentPage === 2 && renderSnackSection}
     </div>
   );
 }
