@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
 import InfoIcon from "@/components/icons/InfoIcon";
-import getCurrentUser from "@/actions/getCurrentUser";
+import getCurrentUser from "@/actions/userActions";
 import BasketIcon from "@/components/icons/BasketIcon";
 import CartItemTable from "@/components/cart-table/CartItemTable";
 import { getCartData, updateCartItem } from "@/actions/cartActions";

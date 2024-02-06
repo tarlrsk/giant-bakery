@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { IBM_Plex_Sans_Thai } from "next/font/google";
-import getCurrentUser from "@/actions/getCurrentUser";
+import getCurrentUser from "@/actions/userActions";
 
 import "./globals.css";
 import Providers from "./providers";
