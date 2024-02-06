@@ -1,6 +1,8 @@
+import paths from "@/lib/paths";
 import { prisma } from "@/lib/prisma";
 import { bucket } from "@/lib/gcs/gcs";
 import { NextRequest } from "next/server";
+import { revalidatePath } from "next/cache";
 import { formatDate } from "@/lib/formatDate";
 import { getFileUrl } from "@/lib/gcs/getFileUrl";
 import { parseBoolean } from "@/lib/parseBoolean";
@@ -103,6 +105,8 @@ export async function POST(req: NextRequest) {
         data: { image: imageUrl, imageFileName: imageFileName },
       });
     }
+
+    revalidatePath(paths.bakeryList());
 
     return responseWrapper(201, newRefreshment, null);
   } catch (err: any) {

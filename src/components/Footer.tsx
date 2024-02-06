@@ -29,7 +29,7 @@ const FOOTER_ICONS = {
 
 export default function Footer() {
   return (
-    <div className="flex items-center gap-16 px-24 py-8 relative bg-primaryT-darker">
+    <div className="flex flex-col md:flex-row items-center gap-16 px-24 py-8 relative bg-primaryT-darker">
       <div className="inline-flex flex-col items-center gap-2 relative">
         <Image src="/logo-white.png" width={250} height={64} alt="logo" />
         <div className="inline-flex items-start gap-7 relative flex-[0_0_auto]">
