@@ -140,7 +140,7 @@ export default function Navbar({
             </motion.div>
           </NavbarItem>
         ))}
-        <div className=" flex flex-row items-center h-full gap-8 justify-between">
+        <div className="flex flex-row items-center h-full gap-8 justify-between">
           <NavbarItem className="group relative">
             <motion.div
               initial="rest"
@@ -149,7 +149,7 @@ export default function Navbar({
               onClick={onOpen}
             >
               {currentUser ? (
-                <Dropdown className=" rounded-md min-w-40">
+                <Dropdown className="rounded-md min-w-40">
                   <DropdownTrigger>
                     <Button
                       variant="light"
@@ -219,18 +219,81 @@ export default function Navbar({
       </NavbarContent>
 
       <NavbarMenu>
-        {NAV_ITEMS.map((item, index) => (
-          <NavbarMenuItem key={`${item}-${index}`}>
-            <Link
-              color="foreground"
-              className="w-full"
-              href={item.link}
-              size="lg"
-            >
-              {item.label}
-            </Link>
-          </NavbarMenuItem>
-        ))}
+        <div className="relative flex flex-col gap-8 my-5">
+          {NAV_ITEMS.map((item, index) => (
+            <NavbarMenuItem key={`${item}-${index}`}>
+              <Link
+                color="foreground"
+                className="w-full"
+                href={item.link}
+                size="lg"
+              >
+                {item.label}
+              </Link>
+            </NavbarMenuItem>
+          ))}
+          <div className="flex flex-row items-center gap-8 justify-between">
+            <NavbarItem className="group relative">
+              <motion.div
+                initial="rest"
+                whileHover="hover"
+                animate="rest"
+                onClick={onOpen}
+              >
+                {currentUser ? (
+                  <Dropdown className="rounded-md min-w-full">
+                    <DropdownTrigger>
+                      <Button
+                        variant="light"
+                        className="text-xl bg-transparent hover:!bg-transparent aria-expanded:!opacity-85 px-0"
+                        disableRipple
+                        endContent={<DropdownIcon width={32} height={32} />}
+                      >
+                        บัญชีของฉัน
+                      </Button>
+                    </DropdownTrigger>
+                    <DropdownMenu
+                      aria-label="Static Actions"
+                      variant="flat"
+                      className="pb-0"
+                    >
+                      <DropdownSection showDivider>
+                        <DropdownItem key="new" className=" rounded-sm ">
+                          <p className=" text-base">ออเดอร์</p>
+                        </DropdownItem>
+                        <DropdownItem key="copy" className=" rounded-sm ">
+                          <p className=" text-base">ประวัติการสั่งซื้อ</p>
+                        </DropdownItem>
+                      </DropdownSection>
+
+                      <DropdownSection>
+                        <DropdownItem
+                          key="delete"
+                          className="text-danger  rounded-sm "
+                          color="danger"
+                          onClick={() => onSignOut()}
+                        >
+                          <p className=" text-base">ออกจากระบบ</p>
+                        </DropdownItem>
+                      </DropdownSection>
+                    </DropdownMenu>
+                  </Dropdown>
+                ) : (
+                  <p
+                    className=" text-xl cursor-pointer text-primaryT-darker"
+                    onClick={onOpen}
+                  >
+                    เข้าสู่ระบบ/สมัคร
+                  </p>
+                )}
+                <motion.div
+                  variants={underlinedMotion}
+                  className="flex h-0.5 w-full items-center absolute bottom-0 bg-primaryT-main"
+                />
+              </motion.div>
+            </NavbarItem>
+          </div>
+        </div>
       </NavbarMenu>
       <AuthModal isOpen={isOpen} onOpenChange={onOpenChange} />
     </NextNavbar>
