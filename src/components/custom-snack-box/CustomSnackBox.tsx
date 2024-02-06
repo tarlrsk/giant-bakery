@@ -1,11 +1,21 @@
 "use client";
 
-import { useEffect } from "react";
+import Image from "next/image";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 
+import {
+  Tab,
+  Tabs,
+  Button,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@nextui-org/react";
+
+import { BoxIcon } from "../icons/BoxIcon";
 import { RHFRadioGroup } from "../hook-form";
 import FormProvider from "../hook-form/form-provider";
-import { Button } from "@nextui-org/react";
 
 // ----------------------------------------------------------------------
 
@@ -16,13 +26,24 @@ type PackagingForm = {
 };
 
 const PACKAGING_OPTIONS = [
-  { value: "paper-bag", label: "ถุงกระดาษ", description: "4 ชิ้นต่อถุง" },
-  { value: "snack-box", label: "กล่องขนม", description: "2-4 ชิ้นต่อถุง" },
-];
-
-const SNACK_BOX_SIZE_OPTIONS = [
-  { value: "small", label: "เล็ก", description: "บรรจุได้ 2 ชิ้น" },
-  { value: "medium", label: "กลาง", description: "บรรจุได้ 4 ชิ้น" },
+  {
+    value: "paper-bag",
+    label: "ถุงกระดาษ",
+    description: "4 ชิ้นต่อถุง",
+    amount: 4,
+  },
+  {
+    value: "snack-box-s",
+    label: "กล่องขนม (S)",
+    description: "2 ชิ้นต่อถุง",
+    amount: 2,
+  },
+  {
+    value: "snack-box-m",
+    label: "กล่องขนม (M)",
+    description: "4 ชิ้นต่อถุง",
+    amount: 4,
+  },
 ];
 
 const DRINK_OPTIONS = [
@@ -37,12 +58,13 @@ export default function CustomSnackBox() {
   const methods = useForm<PackagingForm>({
     defaultValues: {
       selectedPackaging: "paper-bag",
-      selectedSnackBoxSize: "none",
       selectedDrinkOption: "included",
     },
   });
 
-  const { watch, setValue, handleSubmit } = methods;
+  const [currentPage, setCurrentPage] = useState<number>(1);
+
+  const { watch, handleSubmit } = methods;
 
   const onSubmit = handleSubmit(async (data) => {
     try {
@@ -54,22 +76,24 @@ export default function CustomSnackBox() {
 
   const values = watch();
 
-  const { selectedPackaging, selectedSnackBoxSize, selectedDrinkOption } =
-    values;
+  const { selectedPackaging, selectedDrinkOption } = values;
 
-  console.log("values", values);
-
-  useEffect(() => {
-    if (selectedPackaging === "paper-bag") {
-      setValue("selectedSnackBoxSize", "none");
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedPackaging]);
-
-  return (
-    <div className="flex flex-col m-6 p-6 border border-black rounded-sm gap-4">
-      <div className="flex ">เลือกบรรจุภัณฑ์</div>
-      <div className="flex flex-col">
+  const renderFirstPage = (
+    <div className="grid gap-2 md:grid-cols-3 md:gap-4">
+      <div className="md:col-span-1">
+        <Image
+          src={
+            selectedPackaging === "paper-bag"
+              ? "/paper-bag.jpeg"
+              : "/snack-box.png"
+          }
+          width={250}
+          height={250}
+          className=" mx-auto"
+          alt="paper bag image"
+        />
+      </div>
+      <div className="md:col-span-2">
         <FormProvider methods={methods} onSubmit={onSubmit}>
           <div className="flex flex-col gap-4">
             <RHFRadioGroup
@@ -80,16 +104,6 @@ export default function CustomSnackBox() {
               color="primary"
             />
 
-            {selectedPackaging === "snack-box" && (
-              <RHFRadioGroup
-                name="selectedSnackBoxSize"
-                options={SNACK_BOX_SIZE_OPTIONS}
-                label="ไซส์กล่อง"
-                orientation="horizontal"
-                color="primary"
-              />
-            )}
-
             <RHFRadioGroup
               name="selectedDrinkOption"
               options={DRINK_OPTIONS}
@@ -98,11 +112,86 @@ export default function CustomSnackBox() {
               color="secondary"
             />
           </div>
-          <Button fullWidth size="lg" color="secondary" className="mt-5">
+          <Button
+            fullWidth
+            size="lg"
+            color="secondary"
+            className="mt-6 rounded-sm"
+            onClick={() => setCurrentPage(2)}
+          >
             เลือกขนมและเครื่องดื่ม
           </Button>
         </FormProvider>
       </div>
+    </div>
+  );
+
+  return (
+    <div className="flex flex-col m-6 p-6 border border-black rounded-sm gap-4 max-w-screen-md">
+      <div className="flex justify-center md:justify-between items-center">
+        {currentPage === 1 && <h2 className=" text-xl">เลือกบรรจุภัณฑ์</h2>}
+        {currentPage === 2 && (
+          <h2 className=" text-xl">{`เลือกขนมและเครื่องดื่ม ${PACKAGING_OPTIONS.find(
+            (option) => option.value === selectedPackaging,
+          )?.amount} ชิ้น`}</h2>
+        )}
+        {currentPage === 2 && (
+          <Popover placement="bottom" radius="md">
+            <PopoverTrigger>
+              <Button isIconOnly disableAnimation className="bg-transparent">
+                <BoxIcon width={30} height={30} />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent>
+              <div className="px-1 py-2">
+                <div className="text-small font-medium text-center text-white bg-primaryT-darker rounded-sm py-2 px-4">
+                  ชุดเบรกของฉัน
+                </div>
+                <div className="text-tiny py-2">ราคารวมกล่องละ</div>
+              </div>
+            </PopoverContent>
+          </Popover>
+        )}
+      </div>
+      {currentPage === 1 && renderFirstPage}
+      {currentPage === 2 && (
+        <>
+          <Tabs
+            variant="underlined"
+            aria-label="Product Tabs"
+            size="lg"
+            color="secondary"
+            classNames={{ tabList: "px-0" }}
+          >
+            <Tab key="bakery" title="เบเกอรี่" />
+            <Tab key="cake" title="เค้ก" />
+            {selectedDrinkOption !== "none" && (
+              <Tab key="drinks" title="เครื่องดื่ม" />
+            )}
+          </Tabs>
+          <div className=" flex flex-row gap-4">
+            <Button
+              fullWidth
+              size="lg"
+              variant="bordered"
+              color="secondary"
+              className="rounded-sm"
+              onClick={() => setCurrentPage(1)}
+            >
+              ย้อนกลับ
+            </Button>
+            <Button
+              fullWidth
+              size="lg"
+              color="secondary"
+              className="rounded-sm"
+              onClick={() => setCurrentPage(3)}
+            >
+              เลือกจำนวนกล่อง
+            </Button>
+          </div>
+        </>
+      )}
     </div>
   );
 }

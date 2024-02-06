@@ -50,15 +50,16 @@ export const CustomRadio = (props: any) => {
 
   return (
     <Radio
+      size="sm"
       {...otherProps}
       classNames={{
         base: cn(
           "m-0 bg-content1 hover:bg-content2 items-center justify-center text-center",
           "cursor-pointer rounded-lg gap-4 px-4 py-2 border-1 max-w-none grow",
-          "data-[selected=true]:bg-secondaryT-main rounded-sm",
+          "data-[selected=true]:border-secondaryT-main  data-[selected=true]:border-1.5 rounded-sm",
         ),
-        label: isSelected && "text-white text-base",
-        description: "justify-center" && isSelected && "text-slate-200",
+        label: "text-base",
+        description: "justify-center",
         wrapper: "hidden",
       }}
     >
