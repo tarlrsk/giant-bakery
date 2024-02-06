@@ -5,6 +5,9 @@ const paths = {
   bakeryList() {
     return "/bakery";
   },
+  beverageList() {
+    return "/beverages";
+  },
 };
 
 export default paths;
