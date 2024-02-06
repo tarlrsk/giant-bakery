@@ -1,8 +1,8 @@
 "use server";
 
 // import toast from "react-hot-toast";
-import paths from "@/utils/api-path";
 import { cookies } from "next/headers";
+import apiPaths from "@/utils/api-path";
 import { revalidateTag } from "next/cache";
 
 import getCurrentUser from "./userActions";
@@ -16,7 +16,7 @@ export async function updateCartItem(
   quantity: number,
   action: "increase" | "decrease" | "remove",
 ) {
-  const { updateCartItem, deleteCartItem } = paths();
+  const { updateCartItem, deleteCartItem } = apiPaths();
 
   const updatedQuantity = action === "increase" ? quantity + 1 : quantity - 1;
   const isDeleted = action === "remove" || updatedQuantity === 0;
@@ -40,7 +40,7 @@ export async function getCartData() {
     currentUser?.id ||
     `COOKIE_ID_${cookies().get("next-auth.csrf-token")?.value as string}`;
 
-  const { getCart } = paths();
+  const { getCart } = apiPaths();
 
   const res = await fetch(getCart(userId), { next: { tags: ["cart"] } });
 

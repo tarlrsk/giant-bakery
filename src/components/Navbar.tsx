@@ -47,6 +47,18 @@ type Props = {
   hasShadow?: boolean;
 };
 
+const underlinedMotion = {
+  rest: { opacity: 0, ease: "easeOut", duration: 0.15, type: "tween" },
+  hover: {
+    opacity: 1,
+    transition: {
+      duration: 0.15,
+      type: "tween",
+      ease: "easeIn",
+    },
+  },
+};
+
 export default function Navbar({
   currentUser,
   transparent = false,
@@ -58,18 +70,6 @@ export default function Navbar({
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  const underlinedMotion = {
-    rest: { opacity: 0, ease: "easeOut", duration: 0.15, type: "tween" },
-    hover: {
-      opacity: 1,
-      transition: {
-        duration: 0.15,
-        type: "tween",
-        ease: "easeIn",
-      },
-    },
-  };
 
   return (
     <NextNavbar
