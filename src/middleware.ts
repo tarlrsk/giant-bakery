@@ -19,8 +19,8 @@ export default withAuth(
     }
 
     if (
-      (req.nextUrl.pathname.startsWith("/api/admin") ||
-        req.nextUrl.pathname.startsWith("/admin")) &&
+      (req.nextUrl.pathname.startsWith("/api/portal") ||
+        req.nextUrl.pathname.startsWith("/portal")) &&
       req.nextauth.token?.role !== "ADMIN"
     )
       return NextResponse.rewrite(new URL("/denied", req.url));
@@ -36,5 +36,5 @@ export default withAuth(
 );
 
 export const config = {
-  matcher: ["/api/admin/:path*", "/admin/:path*"],
+  matcher: ["/api/portal/:path*", "/portal/:path*"],
 };

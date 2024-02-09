@@ -1,4 +1,4 @@
-import paths from "@/lib/paths";
+import paths from "@/utils/paths";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { revalidatePath } from "next/cache";

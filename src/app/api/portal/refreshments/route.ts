@@ -1,4 +1,4 @@
-import paths from "@/lib/paths";
+import paths from "@/utils/paths";
 import { prisma } from "@/lib/prisma";
 import { bucket } from "@/lib/gcs/gcs";
 import { NextRequest } from "next/server";
