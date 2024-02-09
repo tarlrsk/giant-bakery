@@ -1,6 +1,6 @@
 "use server";
 
-import paths from "@/lib/paths";
+import paths from "@/utils/paths";
 import apiPaths from "@/utils/api-path";
 import { revalidatePath } from "next/cache";
 
