@@ -1,36 +1,40 @@
 const baseUrl = process.env.NEXT_PUBLIC_URL as string;
 
-const createUrl = (endpoint: string) => `${baseUrl}/api/${endpoint}`;
+const createAdminUrl = (endpoint: string) =>
+  `${baseUrl}/api/portal/${endpoint}`;
+
+const createClientUrl = (endpoint: string) =>
+  `${baseUrl}/api/client/${endpoint}`;
 
 const apiPaths = () => {
   // Auth
-  const signUp = createUrl("auth/signup");
+  const signUp = createClientUrl("auth/signup");
 
   // Cart
-  const getCart = (userId: string) => createUrl(`carts?userId=${userId}`);
+  const getCart = (userId: string) => createClientUrl(`carts?userId=${userId}`);
   const deleteCartItem = (userId: string, itemId: string) =>
-    createUrl(`carts?userId=${userId}&itemId=${itemId}`);
-  const updateCartItem = createUrl("carts");
+    createClientUrl(`carts?userId=${userId}&itemId=${itemId}`);
+  const updateCartItem = createClientUrl("carts");
 
   // Bakery
   const getBakeryByCat = (category: string) =>
-    createUrl(`bakery?category=${category}`);
+    createClientUrl(`bakery?category=${category}`);
 
   // Beverage
-  const getBeverages = () => createUrl(`beverages`);
+  const getBeverages = () => createClientUrl(`beverages`);
 
   // Customer Address
   const getCustomerAddress = (userId: string) =>
-    createUrl(`customers/${userId}/addresses`);
+    createClientUrl(`customers/${userId}/addresses`);
 
   const createCustomerAddress = (userId: string) =>
-    createUrl(`customers/${userId}/addresses`);
+    createClientUrl(`customers/${userId}/addresses`);
 
   const updateCustomerAddress = (userId: string) =>
-    createUrl(`customers/${userId}/addresses`);
+    createClientUrl(`customers/${userId}/addresses`);
 
   const deleteCustomerAddress = (userId: string) =>
-    createUrl(`customers/${userId}/addresses`);
+    createClientUrl(`customers/${userId}/addresses`);
 
   // InterExpress
   const getInterExpressLocation = (zipCode: string) =>
