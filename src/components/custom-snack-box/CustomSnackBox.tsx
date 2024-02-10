@@ -13,6 +13,7 @@ import {
   PopoverTrigger,
 } from "@nextui-org/react";
 
+import BakeryItems from "../BakeryItems";
 import { BoxIcon } from "../icons/BoxIcon";
 import { RHFRadioGroup } from "../hook-form";
 import BeverageItems from "../BeverageItems";
@@ -64,7 +65,9 @@ export default function CustomSnackBox() {
   });
 
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [selectedTab, setSelectedTab] = useState("bakery");
+  const [selectedTab, setSelectedTab] = useState<
+    "bakeries" | "cakes" | "drinks"
+  >("bakeries");
 
   const { watch, handleSubmit } = methods;
 
@@ -163,20 +166,32 @@ export default function CustomSnackBox() {
         color="secondary"
         classNames={{ tabList: "px-0" }}
         selectedKey={selectedTab}
-        onSelectionChange={(selected) => setSelectedTab(selected as string)}
+        onSelectionChange={(selected) =>
+          setSelectedTab(selected as "bakeries" | "cakes" | "drinks")
+        }
       >
-        <Tab key="bakery" title="เบเกอรี่" />
-        <Tab key="cake" title="เค้ก" />
+        <Tab key="bakeries" title="เบเกอรี่" />
+        <Tab key="cakes" title="เค้ก" />
         {selectedDrinkOption !== "none" && (
           <Tab key="drinks" title="เครื่องดื่ม" />
         )}
       </Tabs>
 
-      <BeverageItems
-        cols={4}
-        size="sm"
-        onClick={(selected) => console.log("itemId:", selected)}
-      />
+      {selectedTab === "bakeries" && (
+        <BakeryItems
+          cols={5}
+          size="sm"
+          onClick={(selected) => console.log("itemId:", selected)}
+        />
+      )}
+
+      {selectedTab === "drinks" && (
+        <BeverageItems
+          cols={5}
+          size="sm"
+          onClick={(selected) => console.log("itemId:", selected)}
+        />
+      )}
 
       <div className=" flex flex-row gap-4">
         <Button

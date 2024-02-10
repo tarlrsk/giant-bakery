@@ -20,23 +20,21 @@ export default function ProductCard({
 }: Props) {
   let imgSize: { width: number; height: number } = { width: 800, height: 128 };
   let padding = 12;
-  let cardWidth = 52;
   let fontSize = "lg";
 
   if (size === "sm") {
-    imgSize.width = 400;
-    imgSize.height = 64;
+    imgSize.width = 180;
+    imgSize.height = 50;
 
-    padding = 3;
+    padding = 2;
     fontSize = "md";
-    cardWidth = 48;
   }
 
   return (
     <Card
       className={` bg-white pb-${
-        size === "sm" ? 4 : 6
-      } rounded-md shadow-md w-${cardWidth}`}
+        size === "sm" ? "4" : "6"
+      } rounded-md shadow-md`}
     >
       <div onClick={onClick}>
         <Image
@@ -44,14 +42,18 @@ export default function ProductCard({
           alt={name}
           width={imgSize.width}
           height={imgSize.height}
-          className="w-full min-h-32 object-cover mb-4 rounded-sm"
+          className=" object-cover mb-4 rounded-sm"
         />
-        <div
-          className={`flex flex-col ${
-            size === "md" && "items-center"
-          } px-6 gap-${size === "sm" ? 1 : 2}`}
+        <article
+          className={`flex flex-col flex-wrap text-pretty px-6 gap-${
+            size === "sm" ? "1" : "2 items-center"
+          }`}
         >
-          <p className={`text-black text-${fontSize} font-normal`}>{name}</p>
+          <p
+            className={`text-black truncate text-${fontSize} font-normal max-w-full`}
+          >
+            {name}
+          </p>
 
           {size === "sm" ? (
             <div className="flex flex-row w-full justify-between items-center ">
@@ -84,7 +86,7 @@ export default function ProductCard({
               </Button>
             </>
           )}
-        </div>
+        </article>
       </div>
     </Card>
   );

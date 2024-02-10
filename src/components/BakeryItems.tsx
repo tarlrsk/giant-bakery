@@ -3,11 +3,13 @@
 import { useRouter } from "next/navigation";
 import { Refreshment } from "@prisma/client";
 import React, { useState, useEffect } from "react";
-import { getAllBeverages } from "@/actions/beverageActions";
+import { getAllBakeries } from "@/actions/bakeryActions";
 
 import ProductCard from "./ProductCard";
 
-export default function BeverageItems({
+// ----------------------------------------------------------------------
+
+export default function BakeryItems({
   size = "md",
   cols,
   onClick,
@@ -24,7 +26,7 @@ export default function BeverageItems({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await getAllBeverages();
+        const res = await getAllBakeries();
         setItems(res?.response.data ?? []);
       } catch (error) {
         console.log("Error fetching data:", error);
@@ -40,7 +42,7 @@ export default function BeverageItems({
       } justify-center items-baseline`}
       {...other}
     >
-      {Object.values(items)?.map((item: Refreshment) => (
+      {Object.values(items)?.map((item: any) => (
         <ProductCard
           key={item.id}
           name={item.name}
@@ -50,7 +52,7 @@ export default function BeverageItems({
           onClick={
             onClick
               ? () => onClick(item.id)
-              : () => router.push(`/beverages/${item.name}`)
+              : () => router.push(`/bakery/${item.name}`)
           }
         />
       ))}

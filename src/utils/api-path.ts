@@ -20,6 +20,8 @@ const apiPaths = () => {
   const getBakeryByCat = (category: string) =>
     createClientUrl(`bakery?category=${category}`);
 
+  const getBakeries = () => createClientUrl(`bakery?category=`);
+
   // Beverage
   const getBeverages = () => createClientUrl(`beverages`);
 
@@ -46,6 +48,7 @@ const apiPaths = () => {
     updateCartItem,
     deleteCartItem,
     getBakeryByCat,
+    getBakeries,
     getBeverages,
     getCustomerAddress,
     createCustomerAddress,
