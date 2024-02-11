@@ -11,6 +11,7 @@ import type {
   StockStatus,
   RefreshmentType,
   RefreshmentCategory,
+  UnitType,
 } from "@prisma/client";
 
 // ----------------------------------------------------------------------
@@ -88,6 +89,9 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
     const minQty = parseInt(formData.get("minQty") as string);
     const maxQty = parseInt(formData.get("maxQty") as string);
     const currQty = parseInt(formData.get("currQty") as string);
+    const ingredient = formData.get("ingredient") as string;
+    const quantity = Number(formData.get("quantity")) as number | null;
+    const unitType = formData.get("unitType") as UnitType;
     const weight = parseFloat(formData.get("weight") as string);
     const height = parseFloat(formData.get("height") as string);
     const length = parseFloat(formData.get("length") as string);
@@ -110,6 +114,9 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
       width,
       price,
       isActive,
+      quantity,
+      unitType,
+      ingredient,
     });
 
     if (!validation.success) {
@@ -162,6 +169,9 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
         width: width,
         price: price,
         isActive: isActive,
+        quantity: quantity!,
+        unitType: unitType,
+        ingredient: ingredient,
       },
     });
 

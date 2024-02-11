@@ -168,6 +168,9 @@ model Refreshment {
   id            String               @id @default(uuid())
   name          String
   description   String?
+  ingredient    String?
+  quantity      Int                  @default(0)
+  unitType      UnitType             @default(PIECE)
   imageFileName String?
   image         String?
   type          RefreshmentType
@@ -349,4 +352,8 @@ enum PaymentStatus {
 enum DiscountType {
   NORMAL
   SNACK_BOX
+}
+
+enum UnitType {
+  PIECE
 }
