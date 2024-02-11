@@ -2,8 +2,6 @@
   Warnings:
 
   - You are about to drop the column `description` on the `Cake` table. All the data in the column will be lost.
-  - You are about to drop the column `ingredient` on the `Refreshment` table. All the data in the column will be lost.
-  - You are about to drop the column `unitType` on the `Refreshment` table. All the data in the column will be lost.
   - The primary key for the `SnackBox` table will be changed. If it partially fails, the table could be left without primary key constraint.
   - You are about to drop the column `_id` on the `SnackBox` table. All the data in the column will be lost.
   - The required column `id` was added to the `SnackBox` table with a prisma-level default value. This is not possible if the table is not empty. Please add this column as optional, then populate it before making it required.
@@ -25,8 +23,7 @@ ADD COLUMN     "remark" TEXT,
 ADD COLUMN     "unitTypeId" TEXT;
 
 -- AlterTable
-ALTER TABLE "Refreshment" DROP COLUMN "ingredient",
-DROP COLUMN "unitType",
+ALTER TABLE "Refreshment" ADD COLUMN     "quantity" INTEGER NOT NULL DEFAULT 0,
 ADD COLUMN     "remark" TEXT,
 ADD COLUMN     "unitTypeId" TEXT;
 
@@ -36,13 +33,10 @@ DROP COLUMN "_id",
 ADD COLUMN     "id" TEXT NOT NULL,
 ADD CONSTRAINT "SnackBox_pkey" PRIMARY KEY ("id");
 
--- DropEnum
-DROP TYPE "UnitType";
-
 -- CreateTable
 CREATE TABLE "UnitType" (
     "id" TEXT NOT NULL,
-    "Name_th" TEXT NOT NULL,
+    "name_th" TEXT NOT NULL,
 
     CONSTRAINT "UnitType_pkey" PRIMARY KEY ("id")
 );
