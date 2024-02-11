@@ -6,26 +6,14 @@ import { revalidatePath } from "next/cache";
 
 // ----------------------------------------------------------------------
 
-export async function getBakeryByCategory(category: string) {
-  const { getBakeryByCat } = apiPaths();
+export async function getAllPresetCakes() {
+  const { getCakes } = apiPaths();
 
-  const res = await fetch(getBakeryByCat(category));
-
-  const data = await res.json();
-
-  revalidatePath(paths.bakeryList());
-
-  return data;
-}
-
-export async function getAllBakeries() {
-  const { getBakeries } = apiPaths();
-
-  const res = await fetch(getBakeries());
+  const res = await fetch(getCakes());
 
   const data = await res.json();
 
-  revalidatePath(paths.bakeryList());
+  revalidatePath(paths.cakeList());
 
   return data;
 }

@@ -8,6 +8,9 @@ const paths = {
   beverageList() {
     return "/beverages";
   },
+  cakeList() {
+    return "/cakes";
+  },
 };
 
 export default paths;

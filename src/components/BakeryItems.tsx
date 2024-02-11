@@ -1,9 +1,10 @@
 "use client";
 
+import useSWR from "swr";
+import apiPaths from "@/utils/api-path";
+import { fetcher } from "@/utils/axios";
 import { useRouter } from "next/navigation";
 import { Refreshment } from "@prisma/client";
-import React, { useState, useEffect } from "react";
-import { getAllBakeries } from "@/actions/bakeryActions";
 
 import ProductCard from "./ProductCard";
 
@@ -17,23 +18,15 @@ export default function BakeryItems({
 }: {
   size?: "sm" | "md";
   cols: number;
-  onClick?: (selected?: string) => void;
+  onClick?: (selected: any) => void;
 }) {
   const router = useRouter();
 
-  const [items, setItems] = useState<Refreshment[]>([]);
+  const { getBakeries } = apiPaths();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await getAllBakeries();
-        setItems(res?.response.data ?? []);
-      } catch (error) {
-        console.log("Error fetching data:", error);
-      }
-    };
-    fetchData();
-  }, []);
+  const { data } = useSWR(getBakeries(), fetcher);
+
+  const items: Refreshment[] = data?.response?.data || [];
 
   return (
     <div
@@ -51,7 +44,7 @@ export default function BakeryItems({
           img={item.image ? `${item.image as string}` : "/"}
           onClick={
             onClick
-              ? () => onClick(item.id)
+              ? () => onClick(item)
               : () => router.push(`/bakery/${item.name}`)
           }
         />

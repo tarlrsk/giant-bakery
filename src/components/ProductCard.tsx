@@ -67,7 +67,7 @@ export default function ProductCard({
                 onClick={onClick}
                 className={`bg-secondaryT-main items-center text-white text-${size} rounded-sm px-${padding}`}
               >
-                ใส่ตะกร้า
+                เพิ่ม
               </Button>
             </div>
           ) : (

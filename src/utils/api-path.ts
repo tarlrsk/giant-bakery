@@ -25,6 +25,9 @@ const apiPaths = () => {
   // Beverage
   const getBeverages = () => createClientUrl(`beverages`);
 
+  // Cake
+  const getCakes = () => createClientUrl(`cakes`);
+
   // Customer Address
   const getCustomerAddress = (userId: string) =>
     createClientUrl(`customers/${userId}/addresses`);
@@ -48,6 +51,7 @@ const apiPaths = () => {
     updateCartItem,
     deleteCartItem,
     getBakeryByCat,
+    getCakes,
     getBakeries,
     getBeverages,
     getCustomerAddress,

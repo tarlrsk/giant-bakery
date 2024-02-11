@@ -1,23 +1,26 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import {
   Tab,
   Tabs,
+  Badge,
   Button,
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@nextui-org/react";
 
+import CakeItems from "../CakeItems";
 import BakeryItems from "../BakeryItems";
 import { BoxIcon } from "../icons/BoxIcon";
 import { RHFRadioGroup } from "../hook-form";
 import BeverageItems from "../BeverageItems";
 import FormProvider from "../hook-form/form-provider";
+import CustomSnackBoxItems from "./CustomSnackBoxItems";
 
 // ----------------------------------------------------------------------
 
@@ -25,6 +28,14 @@ type PackagingForm = {
   selectedPackaging: "paper-bag" | "snack-box";
   selectedSnackBoxSize: "none" | "small" | "medium";
   selectedDrinkOption: "included" | "excluded" | "none";
+};
+
+type ICustomSnackBoxItem = {
+  id: string;
+  name: string;
+  image: string;
+  price: number;
+  quantity: number;
 };
 
 const PACKAGING_OPTIONS = [
@@ -68,6 +79,7 @@ export default function CustomSnackBox() {
   const [selectedTab, setSelectedTab] = useState<
     "bakeries" | "cakes" | "drinks"
   >("bakeries");
+  const [title, setTitle] = useState("");
 
   const { watch, handleSubmit } = methods;
 
@@ -82,6 +94,75 @@ export default function CustomSnackBox() {
   const values = watch();
 
   const { selectedPackaging, selectedDrinkOption } = values;
+
+  const [selectedItems, setSelectedItems] = useState<
+    {
+      id: string;
+      name: string;
+      image: string;
+      price: number;
+      quantity: number;
+    }[]
+  >([]);
+
+  const itemAmount = useMemo(() => {
+    return selectedItems.reduce((prev, curr) => prev + curr.quantity, 0);
+  }, [selectedItems]);
+
+  const onAddItem = (item: {
+    id: string;
+    name: string;
+    image: string;
+    price: number;
+  }) => {
+    const foundItemIndex = selectedItems.findIndex(
+      (currentItem: { id: string }) => currentItem.id === item.id,
+    );
+    if (foundItemIndex !== -1) {
+      const foundItem: {
+        id: string;
+        name: string;
+        image: string;
+        price: number;
+        quantity: number;
+      } = selectedItems[foundItemIndex];
+
+      const { id, name, image, quantity } = foundItem;
+
+      const newItem = {
+        id,
+        name,
+        image,
+        quantity: quantity + 1,
+        price: item.price * (quantity + 1),
+      };
+
+      const newSelectedItems = selectedItems.map((item, index: number) => {
+        if (index === foundItemIndex) {
+          return newItem;
+        }
+        return item;
+      });
+
+      setSelectedItems(newSelectedItems);
+    } else {
+      const { id, name, image, price } = item;
+      setSelectedItems((prev) => [
+        ...prev,
+        {
+          id,
+          name,
+          image,
+          price,
+          quantity: 1,
+        },
+      ]);
+    }
+  };
+
+  const onRemoveItem = (item: ICustomSnackBoxItem) => {
+    setSelectedItems((prev) => prev.filter((el) => el.id !== item.id));
+  };
 
   const renderPackageHeader = <h2 className=" text-xl">เลือกบรรจุภัณฑ์</h2>;
 
@@ -124,7 +205,27 @@ export default function CustomSnackBox() {
             size="lg"
             color="secondary"
             className="mt-6 rounded-sm"
-            onClick={() => setCurrentPage(2)}
+            onClick={() => {
+              let tempTitle;
+              if (selectedDrinkOption === "included") {
+                tempTitle = `เลือกขนม ${
+                  PACKAGING_OPTIONS.find(
+                    (option) => option.value === selectedPackaging,
+                  )?.amount! - 1
+                } ชิ้น และเครื่องดื่ม 1 กล่อง`;
+              } else if (selectedDrinkOption === "excluded") {
+                tempTitle = `เลือกขนม ${PACKAGING_OPTIONS.find(
+                  (option) => option.value === selectedPackaging,
+                )?.amount} ชิ้น และเครื่องดื่ม 1 กล่อง`;
+              } else {
+                tempTitle = `เลือกขนม ${PACKAGING_OPTIONS.find(
+                  (option) => option.value === selectedPackaging,
+                )?.amount} ชิ้น`;
+              }
+
+              setTitle(tempTitle);
+              setCurrentPage(2);
+            }}
           >
             เลือกขนมและเครื่องดื่ม
           </Button>
@@ -135,22 +236,42 @@ export default function CustomSnackBox() {
 
   const renderSnackHeader = (
     <>
-      <h2 className=" text-xl">{`เลือกขนมและเครื่องดื่ม ${PACKAGING_OPTIONS.find(
-        (option) => option.value === selectedPackaging,
-      )?.amount} ชิ้น`}</h2>
+      <h2 className=" text-xl">{title}</h2>
 
       <Popover placement="bottom" radius="md">
-        <PopoverTrigger>
-          <Button isIconOnly disableAnimation className="bg-transparent">
-            <BoxIcon width={30} height={30} />
-          </Button>
-        </PopoverTrigger>
+        <Badge
+          content={itemAmount}
+          color="secondary"
+          variant="solid"
+          placement="bottom-right"
+          isInvisible={itemAmount === 0}
+          showOutline={false}
+          className="mb-1 mr-1"
+        >
+          <PopoverTrigger>
+            <Button isIconOnly disableAnimation className="bg-transparent">
+              <BoxIcon width={30} height={30} />
+            </Button>
+          </PopoverTrigger>
+        </Badge>
+
         <PopoverContent>
           <div className="px-1 py-2">
-            <div className="text-small font-medium text-center text-white bg-primaryT-darker rounded-sm py-2 px-4">
+            <div className="text-small font-medium text-center text-white bg-primaryT-darker rounded-sm py-2 px-4 min-w-72 mb-2">
               ชุดเบรกของฉัน
             </div>
-            <div className="text-tiny py-2">ราคารวมกล่องละ</div>
+
+            <CustomSnackBoxItems
+              items={selectedItems}
+              onRemoveItem={onRemoveItem}
+            />
+
+            {selectedItems.length > 0 && (
+              <div className="text-sm py-2 px-4 font-medium">{`ราคารวมกล่องละ ${selectedItems.reduce(
+                (prev, curr) => prev + curr.price,
+                0,
+              )} บาท`}</div>
+            )}
           </div>
         </PopoverContent>
       </Popover>
@@ -176,23 +297,31 @@ export default function CustomSnackBox() {
           <Tab key="drinks" title="เครื่องดื่ม" />
         )}
       </Tabs>
+      <div className="overflow-y-auto max-h-unit-96 mb-4">
+        {selectedTab === "bakeries" && (
+          <BakeryItems
+            cols={5}
+            size="sm"
+            onClick={(selected) => onAddItem(selected)}
+          />
+        )}
 
-      {selectedTab === "bakeries" && (
-        <BakeryItems
-          cols={5}
-          size="sm"
-          onClick={(selected) => console.log("itemId:", selected)}
-        />
-      )}
+        {selectedTab === "cakes" && (
+          <CakeItems
+            cols={5}
+            size="sm"
+            onClick={(selected) => onAddItem(selected)}
+          />
+        )}
 
-      {selectedTab === "drinks" && (
-        <BeverageItems
-          cols={5}
-          size="sm"
-          onClick={(selected) => console.log("itemId:", selected)}
-        />
-      )}
-
+        {selectedTab === "drinks" && (
+          <BeverageItems
+            cols={5}
+            size="sm"
+            onClick={(selected) => onAddItem(selected)}
+          />
+        )}
+      </div>
       <div className=" flex flex-row gap-4">
         <Button
           fullWidth
@@ -200,7 +329,10 @@ export default function CustomSnackBox() {
           variant="bordered"
           color="secondary"
           className="rounded-sm"
-          onClick={() => setCurrentPage(1)}
+          onClick={() => {
+            setSelectedItems([]);
+            setCurrentPage(1);
+          }}
         >
           ย้อนกลับ
         </Button>
@@ -219,7 +351,7 @@ export default function CustomSnackBox() {
 
   return (
     <div className="flex flex-col m-6 p-6 border border-black rounded-sm gap-4 max-w-screen-lg">
-      <div className="flex justify-center md:justify-between items-center">
+      <div className="flex justify-center md:justify-between items-center relative">
         {currentPage === 1 && renderPackageHeader}
         {currentPage === 2 && renderSnackHeader}
       </div>
