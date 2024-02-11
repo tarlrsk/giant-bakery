@@ -111,7 +111,9 @@ model CustomerAddress {
 model Cake {
   id            String    @id @default(uuid())
   name          String
-  description   String?
+  remark        String?
+  unitTypeId    String?
+  quantity      Int       @default(0)
   imageFileName String?
   image         String?
   type          CakeType
@@ -130,6 +132,7 @@ model Cake {
   orderItems OrderItem[]
   cartItems  CartItem[]
   CustomCake CustomCake[]
+  unitType   UnitType?    @relation(fields: [unitTypeId], references: [id])
 }
 
 model CustomCake {
@@ -144,7 +147,7 @@ model CustomCake {
   cake       Cake        @relation(fields: [cakeId], references: [id])
   variants   Variant[]
   orderItems OrderItem[]
-  CartItems  CartItem?
+  cartItems  CartItem?
 }
 
 model Variant {
@@ -168,9 +171,9 @@ model Refreshment {
   id            String               @id @default(uuid())
   name          String
   description   String?
-  ingredient    String?
+  remark        String?
   quantity      Int                  @default(0)
-  unitType      UnitType             @default(PIECE)
+  unitTypeId    String?
   imageFileName String?
   image         String?
   type          RefreshmentType
@@ -193,15 +196,16 @@ model Refreshment {
   snackBox   SnackBox?   @relation(fields: [snackBoxId], references: [id])
   snackBoxId String?
   orderItems OrderItem[]
-  CartItems  CartItem[]
+  cartItems  CartItem[]
+  unitType   UnitType?   @relation(fields: [unitTypeId], references: [id])
 }
 
 model SnackBox {
-  id           String        @id @default(uuid()) @map("_id")
+  id           String        @id @default(uuid())
   price        Float
   refreshments Refreshment[]
   orderItems   OrderItem[]
-  CartItems    CartItem?
+  cartItems    CartItem?
 }
 
 model Order {
@@ -242,6 +246,13 @@ model OrderItem {
   customCakeId String
   snackBoxId   String
   orderId      String?
+}
+
+model UnitType {
+  id          String        @id @default(uuid())
+  name_th     String
+  refreshment Refreshment[]
+  cake        Cake[]
 }
 
 model Payment {
@@ -352,8 +363,4 @@ enum PaymentStatus {
 enum DiscountType {
   NORMAL
   SNACK_BOX
-}
-
-enum UnitType {
-  PIECE
 }

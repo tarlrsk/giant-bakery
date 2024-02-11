@@ -51,6 +51,9 @@ export async function GET(_req: NextRequest, { params }: GetRefreshmentById) {
       data: {
         image: newFileUrl,
       },
+      include: {
+        unitType: true,
+      },
     });
 
     return responseWrapper(200, refreshment, null);
@@ -89,9 +92,9 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
     const minQty = parseInt(formData.get("minQty") as string);
     const maxQty = parseInt(formData.get("maxQty") as string);
     const currQty = parseInt(formData.get("currQty") as string);
-    const ingredient = formData.get("ingredient") as string;
+    const remark = formData.get("remark") as string;
     const quantity = Number(formData.get("quantity")) as number | null;
-    const unitType = formData.get("unitType") as UnitType;
+    const unitType = formData.get("unitType") as string;
     const weight = parseFloat(formData.get("weight") as string);
     const height = parseFloat(formData.get("height") as string);
     const length = parseFloat(formData.get("length") as string);
@@ -116,7 +119,7 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
       isActive,
       quantity,
       unitType,
-      ingredient,
+      remark,
     });
 
     if (!validation.success) {
@@ -170,8 +173,11 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
         price: price,
         isActive: isActive,
         quantity: quantity!,
-        unitType: unitType,
-        ingredient: ingredient,
+        unitTypeId: unitType,
+        remark: remark,
+      },
+      include: {
+        unitType: true,
       },
     });
 
@@ -209,6 +215,9 @@ export async function DELETE(
       data: {
         isDeleted: true,
         deletedAt: new Date(Date.now()),
+      },
+      include: {
+        unitType: true,
       },
     });
 
