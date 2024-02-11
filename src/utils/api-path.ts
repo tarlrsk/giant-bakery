@@ -1,10 +1,14 @@
 const baseUrl = process.env.NEXT_PUBLIC_URL as string;
+const interExpressUrl = process.env.NEXT_PUBLIC_INTER_EXPRESS_API as string;
 
 const createAdminUrl = (endpoint: string) =>
   `${baseUrl}/api/portal/${endpoint}`;
 
 const createClientUrl = (endpoint: string) =>
   `${baseUrl}/api/client/${endpoint}`;
+
+const createInterExpressUrl = (endpoint: string) =>
+  `${interExpressUrl}/${endpoint}`;
 
 const apiPaths = () => {
   // Auth
