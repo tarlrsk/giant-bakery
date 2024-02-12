@@ -27,6 +27,7 @@ export async function GET(_req: NextRequest, { params }: GetCakeByIdProps) {
       },
       include: {
         variants: true,
+        unitType: true,
       },
     });
 
@@ -53,6 +54,10 @@ export async function PUT(req: NextRequest, { params }: GetCakeByIdProps) {
         id: id,
         isDeleted: false,
       },
+      include: {
+        variants: true,
+        unitType: true,
+      },
     });
 
     if (!cake) {
@@ -70,6 +75,10 @@ export async function PUT(req: NextRequest, { params }: GetCakeByIdProps) {
         id: cake.id,
       },
       data: body,
+      include: {
+        variants: true,
+        unitType: true,
+      },
     });
 
     return responseWrapper(200, updatedCake, null);
@@ -92,6 +101,10 @@ export async function DELETE(_req: NextRequest, { params }: GetCakeByIdProps) {
 
     const cake = await prisma.cake.findUnique({
       where: { id: id, isDeleted: false },
+      include: {
+        variants: true,
+        unitType: true,
+      },
     });
 
     if (!cake) {
@@ -103,6 +116,10 @@ export async function DELETE(_req: NextRequest, { params }: GetCakeByIdProps) {
       data: {
         isDeleted: true,
         deletedAt: new Date(Date.now()),
+      },
+      include: {
+        variants: true,
+        unitType: true,
       },
     });
 

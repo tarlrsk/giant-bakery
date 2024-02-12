@@ -111,7 +111,9 @@ model CustomerAddress {
 model Cake {
   id            String    @id @default(uuid())
   name          String
-  description   String?
+  remark        String?
+  unitTypeId    String?
+  quantity      Int       @default(0)
   imageFileName String?
   image         String?
   type          CakeType
@@ -130,6 +132,7 @@ model Cake {
   orderItems OrderItem[]
   cartItems  CartItem[]
   CustomCake CustomCake[]
+  unitType   UnitType?    @relation(fields: [unitTypeId], references: [id])
 }
 
 model CustomCake {
@@ -144,7 +147,7 @@ model CustomCake {
   cake       Cake        @relation(fields: [cakeId], references: [id])
   variants   Variant[]
   orderItems OrderItem[]
-  CartItems  CartItem?
+  cartItems  CartItem?
 }
 
 model Variant {
@@ -168,6 +171,9 @@ model Refreshment {
   id            String               @id @default(uuid())
   name          String
   description   String?
+  remark        String?
+  quantity      Int                  @default(0)
+  unitTypeId    String?
   imageFileName String?
   image         String?
   type          RefreshmentType
@@ -187,18 +193,28 @@ model Refreshment {
   updatedAt     DateTime             @updatedAt
   deletedAt     DateTime?
 
-  snackBox   SnackBox?   @relation(fields: [snackBoxId], references: [id])
-  snackBoxId String?
   orderItems OrderItem[]
-  CartItems  CartItem[]
+  cartItems  CartItem[]
+  unitType   UnitType?             @relation(fields: [unitTypeId], references: [id])
+  snackBoxes SnackBoxRefreshment[]
 }
 
 model SnackBox {
-  id           String        @id @default(uuid()) @map("_id")
+  id           String                @id @default(uuid())
   price        Float
-  refreshments Refreshment[]
+  packageType  SnackBoxPackageType   @default(SNACK_BOX_S)
+  beverage     SnackBoxBeverage      @default(NONE)
   orderItems   OrderItem[]
-  CartItems    CartItem?
+  cartItems    CartItem?
+  refreshments SnackBoxRefreshment[]
+}
+
+model SnackBoxRefreshment {
+  id            String      @id @default(uuid())
+  refreshmentId String
+  refreshment   Refreshment @relation(fields: [refreshmentId], references: [id])
+  snackBoxId    String
+  snackBox      SnackBox    @relation(fields: [snackBoxId], references: [id])
 }
 
 model Order {
@@ -239,6 +255,13 @@ model OrderItem {
   customCakeId String
   snackBoxId   String
   orderId      String?
+}
+
+model UnitType {
+  id          String        @id @default(uuid())
+  name_th     String
+  refreshment Refreshment[]
+  cake        Cake[]
 }
 
 model Payment {
@@ -349,4 +372,16 @@ enum PaymentStatus {
 enum DiscountType {
   NORMAL
   SNACK_BOX
+}
+
+enum SnackBoxPackageType {
+  PAPER_BAG
+  SNACK_BOX_S
+  SNACK_BOX_M
+}
+
+enum SnackBoxBeverage {
+  INCLUDE
+  EXCLUDE
+  NONE
 }
