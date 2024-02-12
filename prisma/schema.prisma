@@ -193,19 +193,28 @@ model Refreshment {
   updatedAt     DateTime             @updatedAt
   deletedAt     DateTime?
 
-  snackBox   SnackBox?   @relation(fields: [snackBoxId], references: [id])
-  snackBoxId String?
   orderItems OrderItem[]
   cartItems  CartItem[]
-  unitType   UnitType?   @relation(fields: [unitTypeId], references: [id])
+  unitType   UnitType?             @relation(fields: [unitTypeId], references: [id])
+  snackBoxes SnackBoxRefreshment[]
 }
 
 model SnackBox {
-  id           String        @id @default(uuid())
+  id           String                @id @default(uuid())
   price        Float
-  refreshments Refreshment[]
+  packageType  SnackBoxPackageType   @default(SNACK_BOX_S)
+  beverage     SnackBoxBeverage      @default(NONE)
   orderItems   OrderItem[]
   cartItems    CartItem?
+  refreshments SnackBoxRefreshment[]
+}
+
+model SnackBoxRefreshment {
+  id            String      @id @default(uuid())
+  refreshmentId String
+  refreshment   Refreshment @relation(fields: [refreshmentId], references: [id])
+  snackBoxId    String
+  snackBox      SnackBox    @relation(fields: [snackBoxId], references: [id])
 }
 
 model Order {
@@ -363,4 +372,16 @@ enum PaymentStatus {
 enum DiscountType {
   NORMAL
   SNACK_BOX
+}
+
+enum SnackBoxPackageType {
+  PAPER_BAG
+  SNACK_BOX_S
+  SNACK_BOX_M
+}
+
+enum SnackBoxBeverage {
+  INCLUDE
+  EXCLUDE
+  NONE
 }
