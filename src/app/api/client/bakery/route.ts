@@ -17,6 +17,9 @@ export async function GET(req: NextRequest) {
         isActive: true,
         isDeleted: false,
       },
+      include: {
+        unitType: true,
+      },
       orderBy: {
         category: "asc",
       },

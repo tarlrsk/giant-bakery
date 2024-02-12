@@ -13,6 +13,9 @@ export async function GET(_req: NextRequest) {
         isActive: true,
         isDeleted: false,
       },
+      include: {
+        unitType: true,
+      },
     });
 
     if (refreshments.length === 0) {
