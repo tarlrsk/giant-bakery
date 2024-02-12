@@ -21,7 +21,11 @@ const CartInclude = {
       refreshment: true,
       snackBox: {
         include: {
-          refreshments: true,
+          refreshments: {
+            include: {
+              refreshment: true,
+            },
+          },
         },
       },
     },
