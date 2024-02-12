@@ -8,6 +8,9 @@ export async function POST(req: NextRequest) {
   try {
     const product = await stripe.products.create({
       name: "T-shirt",
+      images: [
+        "https://image.makewebeasy.net/makeweb/m_1920x0/Ub8wb5z91/Homemadebakery2022/14_%E0%B9%80%E0%B8%AD%E0%B9%81%E0%B8%84%E0%B8%A5%E0%B8%A3%E0%B9%8C%E0%B8%A7%E0%B8%B2%E0%B8%99%E0%B8%B4%E0%B8%A5%E0%B8%A5%E0%B8%B2%E0%B9%82%E0%B8%AE%E0%B8%A1%E0%B9%80%E0%B8%A1%E0%B8%94.jpg",
+      ],
     });
     const price = await stripe.prices.create({
       product: product.id,
@@ -21,6 +24,21 @@ export async function POST(req: NextRequest) {
           // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
           price: price.id,
           quantity: 1,
+        },
+        {
+          // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
+          price: price.id,
+          quantity: 2,
+        },
+        {
+          // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
+          price: price.id,
+          quantity: 1,
+        },
+        {
+          // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
+          price: price.id,
+          quantity: 4,
         },
       ],
       mode: "payment",
