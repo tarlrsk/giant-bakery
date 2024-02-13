@@ -55,7 +55,7 @@ export default function CakePaginationContainer({ cakeType }: Props) {
               name={cake.name}
               price={cake.price}
               img={cake.image as string}
-              onClick={() => router.push(`/cakes/${cake.name}`)}
+              onClick={() => router.push(`/cakes/${cake.name}?${cake.id}`)}
             />
           ))}
         </div>
