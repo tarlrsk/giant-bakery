@@ -1,5 +1,7 @@
 const baseUrl = process.env.NEXT_PUBLIC_URL as string;
 
+const createBaseApiUrl = (endpoint: string) => `${baseUrl}/api/${endpoint}`;
+
 const createAdminUrl = (endpoint: string) =>
   `${baseUrl}/api/portal/${endpoint}`;
 
@@ -8,7 +10,7 @@ const createClientUrl = (endpoint: string) =>
 
 const apiPaths = () => {
   // Auth
-  const signUp = createClientUrl("auth/signup");
+  const signUp = createBaseApiUrl("auth/signup");
 
   // Cart
   const getCart = (userId: string) => createClientUrl(`carts?userId=${userId}`);
@@ -22,6 +24,10 @@ const apiPaths = () => {
 
   // Beverage
   const getBeverages = () => createClientUrl(`beverages`);
+
+  // Cake
+  const getCakesByType = (type: string) =>
+    createClientUrl(`cakes?type=${type}`);
 
   // Customer Address
   const getCustomerAddress = (userId: string) =>
@@ -47,6 +53,7 @@ const apiPaths = () => {
     deleteCartItem,
     getBakeryByCat,
     getBeverages,
+    getCakesByType,
     getCustomerAddress,
     createCustomerAddress,
     updateCustomerAddress,
