@@ -44,6 +44,9 @@ const apiPaths = () => {
   const getInterExpressLocation = (zipCode: string) =>
     `https://api-intership.interexpress.co.th/v1/operation-areas/post-code/${zipCode}`;
 
+  const getPrice = () =>
+    `https://api-intership.interexpress.co.th/v1/price/check`;
+
   return {
     signUp,
     getCart,
@@ -56,6 +59,7 @@ const apiPaths = () => {
     updateCustomerAddress,
     deleteCustomerAddress,
     getInterExpressLocation,
+    getPrice,
   };
 };
 
