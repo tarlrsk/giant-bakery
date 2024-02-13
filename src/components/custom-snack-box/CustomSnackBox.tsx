@@ -1,8 +1,12 @@
 "use client";
 
 import Image from "next/image";
+import toast from "react-hot-toast";
+import apiPaths from "@/utils/api-path";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
+import useSWRMutation from "swr/mutation";
+import getCurrentUser from "@/actions/userActions";
 
 import {
   Tab,
@@ -25,9 +29,8 @@ import CustomSnackBoxItems from "./CustomSnackBoxItems";
 // ----------------------------------------------------------------------
 
 type PackagingForm = {
-  selectedPackaging: "paper-bag" | "snack-box";
-  selectedSnackBoxSize: "none" | "small" | "medium";
-  selectedDrinkOption: "included" | "excluded" | "none";
+  selectedPackaging: "PAPER_BAG" | "SNACK_BOX_S" | "SNACK_BOX_M";
+  selectedDrinkOption: "INCLUDE" | "EXCLUDE" | "NONE";
 };
 
 type ICustomSnackBoxItem = {
@@ -40,19 +43,19 @@ type ICustomSnackBoxItem = {
 
 const PACKAGING_OPTIONS = [
   {
-    value: "paper-bag",
+    value: "PAPER_BAG",
     label: "ถุงกระดาษ",
     description: "4 ชิ้นต่อถุง",
     amount: 4,
   },
   {
-    value: "snack-box-s",
+    value: "SNACK_BOX_S",
     label: "กล่องขนม (S)",
     description: "2 ชิ้นต่อถุง",
     amount: 2,
   },
   {
-    value: "snack-box-m",
+    value: "SNACK_BOX_M",
     label: "กล่องขนม (M)",
     description: "4 ชิ้นต่อถุง",
     amount: 4,
@@ -60,9 +63,9 @@ const PACKAGING_OPTIONS = [
 ];
 
 const DRINK_OPTIONS = [
-  { value: "included", label: "ใส่ในบรรจุภัณฑ์" },
-  { value: "excluded", label: "ใส่ถุงแยกต่างหาก" },
-  { value: "none", label: "ไม่เลือกเครื่องดื่ม" },
+  { value: "INCLUDE", label: "ใส่ในบรรจุภัณฑ์" },
+  // { value: "excluded", label: "ใส่ถุงแยกต่างหาก" },
+  { value: "NONE", label: "ไม่เลือกเครื่องดื่ม" },
 ];
 
 // ----------------------------------------------------------------------
@@ -70,8 +73,8 @@ const DRINK_OPTIONS = [
 export default function CustomSnackBox() {
   const methods = useForm<PackagingForm>({
     defaultValues: {
-      selectedPackaging: "paper-bag",
-      selectedDrinkOption: "included",
+      selectedPackaging: "PAPER_BAG",
+      selectedDrinkOption: "INCLUDE",
     },
   });
 
@@ -79,7 +82,22 @@ export default function CustomSnackBox() {
   const [selectedTab, setSelectedTab] = useState<
     "bakeries" | "cakes" | "drinks"
   >("bakeries");
-  const [title, setTitle] = useState("");
+  const [selectSnackBoxTitle, setSelectSnackBoxTitle] = useState("");
+  const [snackBoxQty, setSnackBoxQty] = useState(1);
+  const [selectedItems, setSelectedItems] = useState<
+    {
+      id: string;
+      name: string;
+      image: string;
+      price: number;
+      quantity: number;
+    }[]
+  >([]);
+
+  const { addSnackBoxToCart } = apiPaths();
+
+  const { trigger: triggerAddToCart, isMutating: isMutatingAddToCart } =
+    useSWRMutation(addSnackBoxToCart(), sendAddSnackBoxRequest);
 
   const { watch, handleSubmit } = methods;
 
@@ -94,16 +112,6 @@ export default function CustomSnackBox() {
   const values = watch();
 
   const { selectedPackaging, selectedDrinkOption } = values;
-
-  const [selectedItems, setSelectedItems] = useState<
-    {
-      id: string;
-      name: string;
-      image: string;
-      price: number;
-      quantity: number;
-    }[]
-  >([]);
 
   const itemAmount = useMemo(() => {
     return selectedItems.reduce((prev, curr) => prev + curr.quantity, 0);
@@ -164,14 +172,54 @@ export default function CustomSnackBox() {
     setSelectedItems((prev) => prev.filter((el) => el.id !== item.id));
   };
 
-  const renderPackageHeader = <h2 className=" text-xl">เลือกบรรจุภัณฑ์</h2>;
+  const handleDecrement = () => {
+    if (snackBoxQty > 1) setSnackBoxQty(snackBoxQty - 1);
+  };
+
+  const handleIncrement = () => {
+    if (snackBoxQty < 999) setSnackBoxQty(snackBoxQty + 1);
+  };
+
+  const handleInputChange = (e: any) => {
+    let inputValue = e.target.value;
+    inputValue =
+      isNaN(inputValue) || inputValue === "" ? 1 : parseInt(inputValue, 10);
+    inputValue = Math.min(Math.max(inputValue, 1), 999);
+    setSnackBoxQty(inputValue);
+  };
+
+  async function handleAddToCart() {
+    const currentUser = await getCurrentUser();
+
+    const body: IAddCustomSnackBoxToCart = {
+      userId: currentUser?.id || "",
+      type: currentUser?.role === "CUSTOMER" ? "MEMBER" : "GUEST",
+      packageType: selectedPackaging,
+      beverage: selectedDrinkOption,
+      refreshmentIds: selectedItems.map((item) => item.id),
+      quantity: snackBoxQty,
+    };
+    console.log("body", body);
+
+    try {
+      const res = await triggerAddToCart(body);
+      console.log("res", res);
+    } catch (error) {
+      console.error(error);
+      toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
+    }
+  }
+
+  const renderPackageHeader = (
+    <h2 className=" text-xl font-medium">เลือกบรรจุภัณฑ์</h2>
+  );
 
   const renderPackageSection = (
     <div className="grid gap-2 md:grid-cols-3 md:gap-4">
       <div className="md:col-span-1">
         <Image
           src={
-            selectedPackaging === "paper-bag"
+            selectedPackaging === "PAPER_BAG"
               ? "/paper-bag.jpeg"
               : "/snack-box.png"
           }
@@ -207,13 +255,13 @@ export default function CustomSnackBox() {
             className="mt-6 rounded-sm"
             onClick={() => {
               let tempTitle;
-              if (selectedDrinkOption === "included") {
+              if (selectedDrinkOption === "INCLUDE") {
                 tempTitle = `เลือกขนม ${
                   PACKAGING_OPTIONS.find(
                     (option) => option.value === selectedPackaging,
                   )?.amount! - 1
                 } ชิ้น และเครื่องดื่ม 1 กล่อง`;
-              } else if (selectedDrinkOption === "excluded") {
+              } else if (selectedDrinkOption === "EXCLUDE") {
                 tempTitle = `เลือกขนม ${PACKAGING_OPTIONS.find(
                   (option) => option.value === selectedPackaging,
                 )?.amount} ชิ้น และเครื่องดื่ม 1 กล่อง`;
@@ -223,7 +271,7 @@ export default function CustomSnackBox() {
                 )?.amount} ชิ้น`;
               }
 
-              setTitle(tempTitle);
+              setSelectSnackBoxTitle(tempTitle);
               setCurrentPage(2);
             }}
           >
@@ -236,7 +284,7 @@ export default function CustomSnackBox() {
 
   const renderSnackHeader = (
     <>
-      <h2 className=" text-xl">{title}</h2>
+      <h2 className=" text-xl font-medium">{selectSnackBoxTitle}</h2>
 
       <Popover placement="bottom" radius="md">
         <Badge
@@ -293,7 +341,7 @@ export default function CustomSnackBox() {
       >
         <Tab key="bakeries" title="เบเกอรี่" />
         <Tab key="cakes" title="เค้ก" />
-        {selectedDrinkOption !== "none" && (
+        {selectedDrinkOption !== "NONE" && (
           <Tab key="drinks" title="เครื่องดื่ม" />
         )}
       </Tabs>
@@ -349,16 +397,141 @@ export default function CustomSnackBox() {
     </>
   );
 
+  const renderSnackBoxAmountHeader = (
+    <h2 className=" text-xl font-medium">เลือกจำนวนสแน็คบ็อกส์</h2>
+  );
+
+  const renderSelectAmountSection = (
+    <div className="relative flex items-center justify-center gap-20">
+      <div className=" flex flex-col gap-2 justify-center items-center ml-24">
+        <Image
+          src={
+            selectedPackaging === "PAPER_BAG"
+              ? "/paper-bag.jpeg"
+              : "/snack-box.png"
+          }
+          alt="cake"
+          width={280}
+          height={280}
+        />
+        <div className=" flex flex-row gap-2">
+          {selectedItems.map((item, index) => (
+            <Image
+              key={index}
+              src={item.image}
+              alt={item.name}
+              width={55}
+              height={55}
+              className=" border-1 border-primaryT-darker rounded-sm p-0.5"
+            />
+          ))}
+        </div>
+      </div>
+      <div className="relative flex grow flex-col gap-5 mr-24">
+        <div className=" flex flex-col gap-3">
+          <h1 className="font-semibold text-xl leading-normal">
+            {`บรรจุภัณฑ์: ${
+              selectedPackaging === "PAPER_BAG" ? "ถุงกระดาษ" : "กล่องขนม"
+            }`}
+          </h1>
+          <div>
+            <p>
+              {selectedDrinkOption === "EXCLUDE"
+                ? "มีเครื่องดื่ม (ใส่ในบรรจุภัณฑ์)"
+                : "ไม่มีเครื่องดื่ม"}
+            </p>
+            <p>{`ประกอบด้วย: ${selectedItems
+              .map((item) => `${item.name} x${item.quantity}`)
+              .join(", ")}`}</p>
+          </div>
+          <h1 className="font-semibold text-xl leading-normal">162 บาท</h1>
+        </div>
+
+        <div className=" flex flex-row grow gap-6">
+          <div className=" flex border-1 rounded-sm h-12  border-black">
+            <Button
+              size="sm"
+              onClick={handleDecrement}
+              className=" h-full w-full items-center bg-transparent text-black text-xl font-medium rounded-l-sm py-1"
+            >
+              -
+            </Button>
+            <input
+              type="text"
+              value={snackBoxQty}
+              onChange={handleInputChange}
+              className=" h-full w-16 items-center text-center text-black text-xl font-medium py-1 border-x-1 border-x-black"
+            />
+            <Button
+              size="sm"
+              onClick={handleIncrement}
+              className="  h-full w-full items-center bg-transparent text-black text-xl font-medium rounded-r-sm py-1"
+            >
+              +
+            </Button>
+          </div>
+          <Button
+            size="lg"
+            color="secondary"
+            className="items-center w-full text-lg rounded-sm"
+            isLoading={isMutatingAddToCart}
+            onPress={() => handleAddToCart()}
+          >
+            ใส่ตะกร้า
+          </Button>
+        </div>
+
+        <Button
+          fullWidth
+          size="lg"
+          variant="bordered"
+          color="secondary"
+          className="rounded-sm"
+          onClick={() => {
+            setCurrentPage(2);
+          }}
+        >
+          ย้อนกลับ
+        </Button>
+      </div>
+    </div>
+  );
+
   return (
     <div className="flex flex-col m-6 p-6 border border-black rounded-sm gap-4 max-w-screen-lg">
       <div className="flex justify-center md:justify-between items-center relative">
         {currentPage === 1 && renderPackageHeader}
         {currentPage === 2 && renderSnackHeader}
+        {currentPage === 3 && renderSnackBoxAmountHeader}
       </div>
       {currentPage === 1 && renderPackageSection}
       {currentPage === 2 && renderSnackSection}
+      {currentPage === 3 && renderSelectAmountSection}
     </div>
   );
 }
 
 // ----------------------------------------------------------------------
+
+type IAddCustomSnackBoxToCart = {
+  userId: string;
+  type: "MEMBER" | "GUEST";
+  packageType: "PAPER_BAG" | "SNACK_BOX_S" | "SNACK_BOX_M";
+  beverage: "INCLUDE" | "EXCLUDE" | "NONE";
+  refreshmentIds: string[];
+  quantity: number;
+};
+
+async function sendAddSnackBoxRequest(
+  url: string,
+  {
+    arg,
+  }: {
+    arg: IAddCustomSnackBoxToCart;
+  },
+) {
+  await fetch(url, {
+    method: "POST",
+    body: JSON.stringify(arg),
+  }).then((res) => res.json());
+}

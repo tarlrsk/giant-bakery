@@ -49,7 +49,12 @@ export default function CartItemTable({
               avatarProps={{
                 radius: "md",
                 className: "w-14 h-14 md:w-20 md:h-20 md:text-large",
-                src: item.imageUrl,
+                src:
+                  item.type === "SNACK_BOX"
+                    ? item.packageType === "PAPER_BAG"
+                      ? "/paper-bag.jpeg"
+                      : "/snack-box.png"
+                    : item.imageUrl,
               }}
               classNames={{
                 name: "text-sm md:text-lg font-medium",
@@ -85,7 +90,8 @@ export default function CartItemTable({
                     "decrease",
                   ).then(
                     (res) =>
-                      !res.success && toast.error("กรุณาลองใหม่อีกครั้ง"),
+                      !res.response.success &&
+                      toast.error("กรุณาลองใหม่อีกครั้ง"),
                   );
                 }}
               >
@@ -108,7 +114,8 @@ export default function CartItemTable({
                     "increase",
                   ).then(
                     (res) =>
-                      !res.success && toast.error("กรุณาลองใหม่อีกครั้ง"),
+                      !res.response.success &&
+                      toast.error("กรุณาลองใหม่อีกครั้ง"),
                   );
                 }}
               >
@@ -135,7 +142,8 @@ export default function CartItemTable({
                     "remove",
                   ).then(
                     (res) =>
-                      !res.success && toast.error("กรุณาลองใหม่อีกครั้ง"),
+                      !res.response.success &&
+                      toast.error("กรุณาลองใหม่อีกครั้ง"),
                   );
                 }}
               >

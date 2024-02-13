@@ -1,7 +1,6 @@
 "use server";
 
 // import toast from "react-hot-toast";
-import { cookies } from "next/headers";
 import apiPaths from "@/utils/api-path";
 import { revalidateTag } from "next/cache";
 
@@ -11,49 +10,40 @@ import getCurrentUser from "./userActions";
 
 export async function updateCartItem(
   userId: string,
-  type: string,
   itemId: string,
+  type: string,
   quantity: number,
   action: "increase" | "decrease" | "remove",
 ) {
   const { updateCartItem, deleteCartItem } = apiPaths();
 
-  const updatedQuantity = action === "increase" ? quantity + 1 : quantity - 1;
+  const updatedQuantity: number =
+    action === "increase" ? quantity + 1 : quantity - 1;
   const isDeleted = action === "remove" || updatedQuantity === 0;
 
   const res = await fetch(
     isDeleted ? deleteCartItem(userId, itemId) : updateCartItem,
     {
       method: isDeleted ? "DELETE" : "PUT",
-      body: JSON.stringify({ userId, type, itemId, updatedQuantity }),
+      body: JSON.stringify({ userId, itemId, quantity: updatedQuantity }),
+      cache: "no-store",
     },
   );
-  const data = await res.json();
   revalidateTag("cart");
+
+  const data = await res.json();
 
   return data;
 }
 
 export async function getCartData() {
   const currentUser = await getCurrentUser();
-  const userId =
-    currentUser?.id ||
-    `COOKIE_ID_${cookies().get("next-auth.csrf-token")?.value as string}`;
 
   const { getCart } = apiPaths();
 
-  const res = await fetch(getCart(userId), { next: { tags: ["cart"] } });
-
-  if (!res.ok) {
-    return {
-      response: {
-        data: {
-          totalPrice: 0,
-          items: [],
-        },
-      },
-    };
-  }
+  const res = await fetch(getCart(currentUser?.id || ""), {
+    next: { tags: ["cart"] },
+  });
 
   const data = await res.json();
 

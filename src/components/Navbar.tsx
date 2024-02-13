@@ -42,7 +42,7 @@ const NAV_ITEMS = [
 // ----------------------------------------------------------------------
 
 type Props = {
-  currentUser: User | null;
+  currentUser: User | any;
   transparent?: boolean;
   hasShadow?: boolean;
 };

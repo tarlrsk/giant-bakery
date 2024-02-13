@@ -56,7 +56,11 @@ export default async function getCurrentUser() {
     });
 
     if (!currentUser) {
-      return null;
+      const cookieId = `COOKIE_ID_${
+        cookies().get("next-auth.csrf-token")?.value as string
+      }`;
+
+      return { id: cookieId, role: "GUEST" };
     }
 
     return currentUser;

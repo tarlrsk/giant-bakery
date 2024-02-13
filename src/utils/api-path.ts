@@ -41,6 +41,8 @@ const apiPaths = () => {
   const deleteCustomerAddress = (userId: string) =>
     createClientUrl(`customers/${userId}/addresses`);
 
+  // Snack Box
+  const addSnackBoxToCart = () => createClientUrl(`carts/snack-box`);
   // InterExpress
   const getInterExpressLocation = (zipCode: string) =>
     `https://api-intership.interexpress.co.th/v1/operation-areas/post-code/${zipCode}`;
@@ -59,6 +61,7 @@ const apiPaths = () => {
     updateCustomerAddress,
     deleteCustomerAddress,
     getInterExpressLocation,
+    addSnackBoxToCart,
   };
 };
 
