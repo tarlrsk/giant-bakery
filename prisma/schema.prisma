@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider      = "prisma-client-js"
   binaryTargets = ["native", "rhel-openssl-1.0.x"]
@@ -10,8 +7,6 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
-// Auth Model ----------------------------------------------------------------------
 
 model Account {
   id                String  @id @default(uuid())
@@ -26,8 +21,7 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -37,23 +31,22 @@ model Session {
   sessionToken String   @unique
   userId       String
   expires      DateTime
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model User {
-  id             String            @id @default(uuid())
+  id             String           @id @default(uuid())
   name           String?
-  email          String?           @unique
+  email          String?          @unique
   emailVerified  DateTime?
   hashedPassword String?
   image          String?
   phone          String?
-  role           Role              @default(CUSTOMER)
+  role           Role             @default(CUSTOMER)
   accounts       Account[]
+  addresses      CustomerAddress?
+  orders         Order?
   sessions       Session[]
-  orders         Order[]
-  addresses      CustomerAddress[]
 }
 
 model VerificationToken {
@@ -63,8 +56,6 @@ model VerificationToken {
 
   @@unique([identifier, token])
 }
-
-// System Model ----------------------------------------------------------------------
 
 model Cart {
   id        String     @id @default(uuid())
@@ -80,17 +71,17 @@ model CartItem {
   quantity      Int
   type          CartItemType
   presetCakesId String?
-  presetCake    Cake?        @relation(fields: [presetCakesId], references: [id], onDelete: Cascade)
   customCakeId  String?      @unique
-  customCake    CustomCake?  @relation(fields: [customCakeId], references: [id], onDelete: Cascade)
   refreshmentId String?      @unique
-  refreshment   Refreshment? @relation(fields: [refreshmentId], references: [id], onDelete: Cascade)
   snackBoxId    String?      @unique
-  snackBox      SnackBox?    @relation(fields: [snackBoxId], references: [id], onDelete: Cascade)
   cartId        String
-  cart          Cart         @relation(fields: [cartId], references: [id], onDelete: Cascade)
   createdAt     DateTime     @default(now())
   updatedAt     DateTime?    @updatedAt
+  cart          Cart         @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  customCake    CustomCake?  @relation(fields: [customCakeId], references: [id], onDelete: Cascade)
+  presetCake    Cake?        @relation(fields: [presetCakesId], references: [id], onDelete: Cascade)
+  refreshment   Refreshment? @relation(fields: [refreshmentId], references: [id], onDelete: Cascade)
+  snackBox      SnackBox?    @relation(fields: [snackBoxId], references: [id], onDelete: Cascade)
 }
 
 model CustomerAddress {
@@ -103,13 +94,12 @@ model CustomerAddress {
   province    String
   postcode    String
   phone       String
-
-  user   User   @relation(fields: [userId], references: [id])
-  userId String @unique
+  userId      String @unique
+  user        User   @relation(fields: [userId], references: [id])
 }
 
 model Cake {
-  id            String    @id @default(uuid())
+  id            String       @id @default(uuid())
   name          String
   description   String?
   imageFileName String?
@@ -121,47 +111,44 @@ model Cake {
   length        Float
   width         Float
   isActive      Boolean
-  isDeleted     Boolean   @default(false)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  isDeleted     Boolean      @default(false)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
   deletedAt     DateTime?
-
-  variants   Variant[]
-  orderItems OrderItem[]
-  cartItems  CartItem[]
-  CustomCake CustomCake[]
+  cartItems     CartItem[]
+  CustomCake    CustomCake[]
+  orderItems    OrderItem[]
+  variants      Variant[]    @relation("CakeToVariant")
 }
 
 model CustomCake {
-  id        String   @id @default(uuid())
-  name      String
-  price     Float
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
+  id         String      @id @default(uuid())
+  name       String
+  price      Float
+  isActive   Boolean     @default(true)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
   cakeId     String
-  cake       Cake        @relation(fields: [cakeId], references: [id])
-  variants   Variant[]
-  orderItems OrderItem[]
   CartItems  CartItem?
+  cake       Cake        @relation(fields: [cakeId], references: [id])
+  orderItems OrderItem[]
+  variants   Variant[]   @relation("CustomCakeToVariant")
 }
 
 model Variant {
-  id            String      @id @default(uuid())
+  id            String       @id @default(uuid())
   name          String
   imageFileName String?
   image         String?
   type          VariantType
   isActive      Boolean
   isVisualized  Boolean
-  isDeleted     Boolean     @default(false)
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  isDeleted     Boolean      @default(false)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
   deletedAt     DateTime?
-
-  cakes       Cake[]
-  customCakes CustomCake[]
+  cakes         Cake[]       @relation("CakeToVariant")
+  customCakes   CustomCake[] @relation("CustomCakeToVariant")
 }
 
 model Refreshment {
@@ -186,19 +173,18 @@ model Refreshment {
   createdAt     DateTime             @default(now())
   updatedAt     DateTime             @updatedAt
   deletedAt     DateTime?
-
-  snackBox   SnackBox?   @relation(fields: [snackBoxId], references: [id])
-  snackBoxId String?
-  orderItems OrderItem[]
-  CartItems  CartItem[]
+  snackBoxId    String?
+  CartItems     CartItem?
+  orderItems    OrderItem[]
+  snackBox      SnackBox?            @relation(fields: [snackBoxId], references: [id])
 }
 
 model SnackBox {
   id           String        @id @default(uuid()) @map("_id")
   price        Float
-  refreshments Refreshment[]
-  orderItems   OrderItem[]
   CartItems    CartItem?
+  orderItems   OrderItem[]
+  refreshments Refreshment[]
 }
 
 model Order {
@@ -214,31 +200,29 @@ model Order {
   status      OrderStatus
   orderedAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
-
-  user       User        @relation(fields: [userId], references: [id])
-  payment    Payment     @relation(fields: [paymentId], references: [id])
-  discount   Discount    @relation(fields: [discountId], references: [id])
-  userId     String      @unique
-  paymentId  String
-  discountId String
-  orderItems OrderItem[]
+  userId      String       @unique
+  paymentId   String
+  discountId  String
+  discount    Discount     @relation(fields: [discountId], references: [id])
+  payment     Payment      @relation(fields: [paymentId], references: [id])
+  user        User         @relation(fields: [userId], references: [id])
+  orderItems  OrderItem[]
 }
 
 model OrderItem {
-  id    String @id @default(uuid())
-  qty   Int
-  price Float
-
-  cake         Cake        @relation(fields: [cakeId], references: [id])
-  customCake   CustomCake  @relation(fields: [customCakeId], references: [id])
-  refreshment  Refreshment @relation(fields: [snackId], references: [id])
-  snackBox     SnackBox    @relation(fields: [snackBoxId], references: [id])
-  order        Order?      @relation(fields: [orderId], references: [id])
+  id           String      @id @default(uuid())
+  qty          Int
+  price        Float
   cakeId       String
   snackId      String
   customCakeId String
   snackBoxId   String
   orderId      String?
+  cake         Cake        @relation(fields: [cakeId], references: [id])
+  customCake   CustomCake  @relation(fields: [customCakeId], references: [id])
+  order        Order?      @relation(fields: [orderId], references: [id])
+  snackBox     SnackBox    @relation(fields: [snackBoxId], references: [id])
+  refreshment  Refreshment @relation(fields: [snackId], references: [id])
 }
 
 model Payment {
@@ -255,15 +239,13 @@ model Payment {
 model Discount {
   id        String       @id @default(uuid())
   condition String
-  pct       String // percentage
+  pct       String
   type      DiscountType
   isActive  Boolean
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
   order     Order[]
 }
-
-// Enum -----------------------------------------------------------------------------------
 
 enum Role {
   CUSTOMER
@@ -324,7 +306,7 @@ enum ReceivedVia {
 
 enum DeliveryType {
   NORMAL
-  CONTROL // Temprature control.
+  CONTROL
 }
 
 enum OrderStatus {
