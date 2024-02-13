@@ -169,8 +169,6 @@ export const cartSnackBoxValidationSchema = z.object({
   userId: z.string().uuid(),
   type: z.enum(["GUEST", "MEMBER"]),
   refreshmentIds: z.array(z.string().uuid()),
-  packageType: z.enum(["PAPER_BAG", "SNACK_BOX_S", "SNACK_BOX_M"]),
-  beverage: z.enum(["INCLUDE", "EXCLUDE", "NONE"]),
   quantity: z.number(),
 });
 

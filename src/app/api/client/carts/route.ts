@@ -21,11 +21,7 @@ const CartInclude = {
       refreshment: true,
       snackBox: {
         include: {
-          refreshments: {
-            include: {
-              refreshment: true,
-            },
-          },
+          refreshments: true,
         },
       },
     },
