@@ -13,6 +13,9 @@ export async function GET(req: NextRequest) {
         isActive: true,
         isDeleted: false,
       },
+      include: {
+        unitType: true,
+      },
     });
 
     if (cakes.length === 0) {
