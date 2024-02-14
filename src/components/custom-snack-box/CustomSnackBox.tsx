@@ -535,7 +535,7 @@ export default function CustomSnackBox() {
   );
 
   return (
-    <div className="flex flex-col m-6 p-6 border border-black rounded-sm gap-4 max-w-screen-lg">
+    <div className="flex flex-col m-6 p-6 border  rounded-sm gap-4 max-w-screen-lg">
       <div className="flex justify-center md:justify-between items-center relative">
         {currentPage === 1 && renderPackageHeader}
         {currentPage === 2 && renderSnackHeader}
