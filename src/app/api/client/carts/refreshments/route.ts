@@ -46,14 +46,10 @@ export async function POST(req: NextRequest) {
               variants: true,
             },
           },
-          refreshments: true,
+          refreshment: true,
           snackBox: {
             include: {
-              refreshments: {
-                include: {
-                  refreshment: true,
-                },
-              },
+              refreshments: true,
             },
           },
         },

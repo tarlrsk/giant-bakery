@@ -1,9 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
-import { CartItemType, Refreshment } from "@prisma/client";
+import { CartItemType } from "@prisma/client";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { cartSnackBoxValidationSchema } from "@/lib/validationSchema";
-import { connect } from "http2";
 
 // ----------------------------------------------------------------------
 
@@ -16,21 +15,12 @@ export async function POST(req: NextRequest) {
       return responseWrapper(400, null, validation.error.format());
     }
 
-    const { refreshmentIds, type, userId, packageType, beverage, quantity } =
-      body;
-    const data = await prisma.refreshment.findMany({
+    const { refreshmentIds, type, userId, quantity } = body;
+    const refreshments = await prisma.refreshment.findMany({
       where: {
         id: { in: refreshmentIds },
         isDeleted: false,
       },
-    });
-
-    const refreshments: Refreshment[] = [];
-    refreshmentIds.forEach((id: string) => {
-      let refreshment = data.find((r) => r.id === id);
-      if (refreshment) {
-        refreshments.push(refreshment);
-      }
     });
 
     const allRefreshmentsFound = refreshmentIds.every((id: string) =>
@@ -61,11 +51,7 @@ export async function POST(req: NextRequest) {
           refreshment: true,
           snackBox: {
             include: {
-              refreshments: {
-                include: {
-                  refreshment: true,
-                },
-              },
+              refreshments: true,
             },
           },
         },
@@ -94,20 +80,16 @@ export async function POST(req: NextRequest) {
       (item) =>
         item.snackBox?.refreshments.length === refreshmentIds.length &&
         item.snackBox?.refreshments.every((refreshment) =>
-          refreshmentIds.includes(refreshment.refreshmentId),
-        ) &&
-        item.snackBox?.packageType === packageType &&
-        item.snackBox?.beverage === beverage,
+          refreshmentIds.includes(refreshment.id),
+        ),
     );
 
     const existingItemIndex = cart.items.findIndex(
       (item) =>
         item.snackBox?.refreshments.length === refreshmentIds.length &&
         item.snackBox?.refreshments.every((refreshment) =>
-          refreshmentIds.includes(refreshment.refreshmentId),
-        ) &&
-        item.snackBox?.packageType === packageType &&
-        item.snackBox?.beverage === beverage,
+          refreshmentIds.includes(refreshment.id),
+        ),
     );
 
     let snackBoxPrice = 0;
@@ -138,13 +120,8 @@ export async function POST(req: NextRequest) {
               snackBox: {
                 create: {
                   price: snackBoxPrice,
-                  packageType: packageType,
-                  beverage: beverage,
                   refreshments: {
-                    create: refreshments.map((refreshment) => ({
-                      // Assuming refreshment.id is a string or number
-                      refreshmentId: refreshment.id,
-                    })),
+                    connect: refreshments,
                   },
                 },
               },
