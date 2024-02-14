@@ -4,13 +4,6 @@ import { responseWrapper } from "@/utils/api-response-wrapper";
 import { fetcher } from "@/utils/axios";
 import { NextRequest } from "next/server";
 
-type GetPriceParam = {
-  params: {
-    addressId: string;
-    cartId: string;
-  };
-};
-
 type BoxDetails = {
   ServiceId: number;
   ServiceControlId: number;
@@ -46,10 +39,23 @@ type Shipment = {
   BoxDetails: BoxDetails[];
 };
 
-export async function GET(req: NextRequest, { params }: GetPriceParam) {
+type TotalPriceResponse = {
+  subTotal: number;
+  shippingFee: number;
+  discounts: Discounts[];
+  totalDiscount: number;
+  total: number;
+};
+
+type Discounts = {
+  name: string;
+  discount: number;
+};
+
+export async function GET(req: NextRequest) {
   try {
     const addressId = req.nextUrl.searchParams.get("addressId") as string;
-    const cartId = req.nextUrl.searchParams.get("cartId") as string;
+    const userId = req.nextUrl.searchParams.get("userId") as string;
 
     const address = await prisma.customerAddress.findFirst({
       where: {
@@ -65,20 +71,24 @@ export async function GET(req: NextRequest, { params }: GetPriceParam) {
       );
     }
 
-    const { getInterExpressLocation, getPrice } = apiPaths();
+    const { getInterExpressLocation, getPrice, getCart } = apiPaths();
+    // Get CartData
+    const cartRes = await fetch(getCart(userId));
+    const cartData = await cartRes.json();
+    const response = {
+      subTotal: cartData.response.data.subTotal,
+      discounts: [
+        {
+          name: "BLABLABLA",
+          discount: 10,
+        },
+      ],
+      totalDiscount: 10,
+    } as TotalPriceResponse;
 
+    // Get Destination Location
     const res = await fetch(getInterExpressLocation(address.postcode));
     const data = await res.json();
-
-    const res2 = await fetch(getInterExpressLocation("21000"));
-    const osgData = await res2.json();
-    const filterOsgData = filterDataByNameTh(
-      "เนินพระ",
-      "เมืองระยอง",
-      "ระยอง",
-      osgData,
-    );
-
     const filterDesData = filterDataByNameTh(
       address.subdistrict,
       address.district,
@@ -86,6 +96,17 @@ export async function GET(req: NextRequest, { params }: GetPriceParam) {
       data,
     );
 
+    // Get Osg Location
+    const osgRes = await fetch(getInterExpressLocation("21000"));
+    const osgData = await osgRes.json();
+    const filterOsgData = filterDataByNameTh(
+      "เนินพระ",
+      "เมืองระยอง",
+      "ระยอง",
+      osgData,
+    );
+
+    // Map Get InterExpressPrice Body
     const getPriceBody = {
       orgSubDistricts: filterOsgData.subDistricts.id,
       orgDistrict: filterOsgData.districts.id,
@@ -108,9 +129,9 @@ export async function GET(req: NextRequest, { params }: GetPriceParam) {
         {
           ServiceId: 2,
           ServiceControlId: 5,
-          TemperatureTypeId: 8,
+          TemperatureTypeId: 1,
           TemperatureControlId: 2,
-          PackageCount: 2,
+          PackageCount: 1,
           boxSize: "S1",
           boxDesc: "≤ 5 กก. หรือ ≤ 7,500 ลบ.ซม.",
           Weight: 0,
@@ -118,17 +139,38 @@ export async function GET(req: NextRequest, { params }: GetPriceParam) {
           Length: 20,
           Height: 15,
         },
+        // {
+        //   ServiceId: 2,
+        //   ServiceControlId: 5,
+        //   TemperatureTypeId: 1,
+        //   TemperatureControlId: 2,
+        //   PackageCount: 1,
+        //   boxSize: "S2",
+        //   boxDesc: "≤ 10 กก. หรือ ≤ 15,000 ลบ.ซม.",
+        //   Weight: 5,
+        //   Width: 24,
+        //   Length: 36,
+        //   Height: 15,
+        // },
       ],
     } as Shipment;
 
+    // Fetch InterExpress Get Price API
     const getPriceRes = await fetch(getPrice(), {
       method: "POST",
       headers: new Headers({ "content-type": "application/json" }),
       body: JSON.stringify(getPriceBody),
     });
     const getPriceData = await getPriceRes.json();
+    response.shippingFee = getPriceData.reduce(
+      (sum: any, box: any) => sum + box.totalRate,
+      0,
+    );
 
-    return responseWrapper(200, getPriceData, null);
+    response.total =
+      response.subTotal + response.shippingFee - response.totalDiscount;
+
+    return responseWrapper(200, response, null);
   } catch (err: any) {
     return responseWrapper(500, null, err.message);
   }
