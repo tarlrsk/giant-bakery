@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
         },
       ],
       mode: "payment",
-      success_url: `http://localhost:3000/?success=true`,
+      success_url: `http://localhost:3000/?success=true`, // TODO CHANGE TO HEAD ORIGIN URL
       cancel_url: `http://localhost:3000/?canceled=true`,
     });
     // res.redirect(303, session.url);
