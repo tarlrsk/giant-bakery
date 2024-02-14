@@ -19,6 +19,7 @@ import {
 } from "@nextui-org/react";
 
 import CakeItems from "../CakeItems";
+import Iconify from "../icons/Iconify";
 import BakeryItems from "../BakeryItems";
 import { BoxIcon } from "../icons/BoxIcon";
 import { RHFRadioGroup } from "../hook-form";
@@ -39,6 +40,7 @@ type ICustomSnackBoxItem = {
   image: string;
   price: number;
   quantity: number;
+  type: string;
 };
 
 const PACKAGING_OPTIONS = [
@@ -84,22 +86,14 @@ export default function CustomSnackBox() {
   >("bakeries");
   const [selectSnackBoxTitle, setSelectSnackBoxTitle] = useState("");
   const [snackBoxQty, setSnackBoxQty] = useState(1);
-  const [selectedItems, setSelectedItems] = useState<
-    {
-      id: string;
-      name: string;
-      image: string;
-      price: number;
-      quantity: number;
-    }[]
-  >([]);
+  const [selectedItems, setSelectedItems] = useState<ICustomSnackBoxItem[]>([]);
 
   const { addSnackBoxToCart } = apiPaths();
 
   const { trigger: triggerAddToCart, isMutating: isMutatingAddToCart } =
     useSWRMutation(addSnackBoxToCart(), sendAddSnackBoxRequest);
 
-  const { watch, handleSubmit } = methods;
+  const { watch, handleSubmit, reset } = methods;
 
   const onSubmit = handleSubmit(async (data) => {
     try {
@@ -122,6 +116,7 @@ export default function CustomSnackBox() {
     name: string;
     image: string;
     price: number;
+    type: string;
   }) => {
     const foundItemIndex = selectedItems.findIndex(
       (currentItem: { id: string }) => currentItem.id === item.id,
@@ -133,12 +128,14 @@ export default function CustomSnackBox() {
         image: string;
         price: number;
         quantity: number;
+        type: string;
       } = selectedItems[foundItemIndex];
 
-      const { id, name, image, quantity } = foundItem;
+      const { id, name, image, quantity, type } = foundItem;
 
       const newItem = {
         id,
+        type,
         name,
         image,
         quantity: quantity + 1,
@@ -154,7 +151,7 @@ export default function CustomSnackBox() {
 
       setSelectedItems(newSelectedItems);
     } else {
-      const { id, name, image, price } = item;
+      const { id, name, image, price, type } = item;
       setSelectedItems((prev) => [
         ...prev,
         {
@@ -162,6 +159,7 @@ export default function CustomSnackBox() {
           name,
           image,
           price,
+          type,
           quantity: 1,
         },
       ]);
@@ -179,6 +177,35 @@ export default function CustomSnackBox() {
   const handleIncrement = () => {
     if (snackBoxQty < 999) setSnackBoxQty(snackBoxQty + 1);
   };
+
+  const limitQty =
+    PACKAGING_OPTIONS.find((option) => option.value === selectedPackaging)
+      ?.amount || 0;
+
+  const limitSnackQty =
+    selectedDrinkOption !== "NONE" ? limitQty - 1 : limitQty;
+
+  const limitDrinkQty = selectedDrinkOption !== "NONE" ? 1 : 0;
+
+  const isMatchLimitDrinkQty = useMemo(() => {
+    const drinkItems = selectedItems.filter((item) => item.type === "BEVERAGE");
+    const drinkItemsQty = drinkItems.reduce(
+      (acc, item) => acc + item.quantity,
+      0,
+    );
+
+    return drinkItemsQty === limitDrinkQty;
+  }, [limitDrinkQty, selectedItems]);
+
+  const isMatchLimitSnackQty = useMemo(() => {
+    const snackItems = selectedItems.filter((item) => item.type !== "BEVERAGE");
+    const snackItemsQty = snackItems.reduce(
+      (acc, item) => acc + item.quantity,
+      0,
+    );
+
+    return snackItemsQty === limitSnackQty;
+  }, [limitSnackQty, selectedItems]);
 
   const handleInputChange = (e: any) => {
     let inputValue = e.target.value;
@@ -199,11 +226,13 @@ export default function CustomSnackBox() {
       refreshmentIds: selectedItems.map((item) => item.id),
       quantity: snackBoxQty,
     };
-    console.log("body", body);
 
     try {
       const res = await triggerAddToCart(body);
-      console.log("res", res);
+      toast.success("จัดชุดเบรกสำเร็จ");
+      setCurrentPage(1);
+      reset();
+      setSelectedItems([]);
     } catch (error) {
       console.error(error);
       toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
@@ -254,24 +283,6 @@ export default function CustomSnackBox() {
             color="secondary"
             className="mt-6 rounded-sm"
             onClick={() => {
-              let tempTitle;
-              if (selectedDrinkOption === "INCLUDE") {
-                tempTitle = `เลือกขนม ${
-                  PACKAGING_OPTIONS.find(
-                    (option) => option.value === selectedPackaging,
-                  )?.amount! - 1
-                } ชิ้น และเครื่องดื่ม 1 กล่อง`;
-              } else if (selectedDrinkOption === "EXCLUDE") {
-                tempTitle = `เลือกขนม ${PACKAGING_OPTIONS.find(
-                  (option) => option.value === selectedPackaging,
-                )?.amount} ชิ้น และเครื่องดื่ม 1 กล่อง`;
-              } else {
-                tempTitle = `เลือกขนม ${PACKAGING_OPTIONS.find(
-                  (option) => option.value === selectedPackaging,
-                )?.amount} ชิ้น`;
-              }
-
-              setSelectSnackBoxTitle(tempTitle);
               setCurrentPage(2);
             }}
           >
@@ -284,7 +295,7 @@ export default function CustomSnackBox() {
 
   const renderSnackHeader = (
     <>
-      <h2 className=" text-xl font-medium">{selectSnackBoxTitle}</h2>
+      <h2 className=" text-xl font-medium">เลือกเบเกอรี่และเครื่องดื่ม</h2>
 
       <Popover placement="bottom" radius="md">
         <Badge
@@ -371,6 +382,27 @@ export default function CustomSnackBox() {
         )}
       </div>
       <div className=" flex flex-row gap-4">
+        <div
+          className={` flex flex-row gap-2 items-center ${
+            isMatchLimitSnackQty ? "text-green-600" : ""
+          }`}
+        >
+          <Iconify icon="charm:circle-tick" size={24} />
+          <div className=" mt-1">{`โปรดเลือกขนมทั้งหมด ${limitSnackQty} ชิ้น`}</div>
+        </div>
+        {!!limitDrinkQty && (
+          <div
+            className={` flex flex-row gap-2 items-center ${
+              isMatchLimitDrinkQty ? "text-green-600" : ""
+            }`}
+          >
+            <Iconify icon="charm:circle-tick" size={24} />
+            <div className=" mt-1">{`โปรดเลือกเครื่องดื่ม ${limitDrinkQty} กล่อง`}</div>
+          </div>
+        )}
+      </div>
+
+      <div className=" flex flex-row gap-4">
         <Button
           fullWidth
           size="lg"
@@ -388,8 +420,11 @@ export default function CustomSnackBox() {
           fullWidth
           size="lg"
           color="secondary"
+          isDisabled={!isMatchLimitDrinkQty || !isMatchLimitSnackQty}
           className="rounded-sm"
-          onClick={() => setCurrentPage(3)}
+          onClick={() => {
+            setCurrentPage(3);
+          }}
         >
           เลือกจำนวนกล่อง
         </Button>
@@ -475,7 +510,9 @@ export default function CustomSnackBox() {
             color="secondary"
             className="items-center w-full text-lg rounded-sm"
             isLoading={isMutatingAddToCart}
-            onPress={() => handleAddToCart()}
+            onPress={() => {
+              handleAddToCart();
+            }}
           >
             ใส่ตะกร้า
           </Button>

@@ -15,23 +15,29 @@ export async function updateCartItem(
   quantity: number,
   action: "increase" | "decrease" | "remove",
 ) {
-  const { updateCartItem, deleteCartItem } = apiPaths();
+  const { updateCartItem } = apiPaths();
 
-  const updatedQuantity: number =
-    action === "increase" ? quantity + 1 : quantity - 1;
-  const isDeleted = action === "remove" || updatedQuantity === 0;
+  let updatedQuantity;
 
-  const res = await fetch(
-    isDeleted ? deleteCartItem(userId, itemId) : updateCartItem,
-    {
-      method: isDeleted ? "DELETE" : "PUT",
-      body: JSON.stringify({ userId, itemId, quantity: updatedQuantity }),
-      cache: "no-store",
-    },
-  );
+  if (action === "increase") {
+    updatedQuantity = quantity + 1;
+  } else if (action === "decrease") {
+    updatedQuantity = quantity - 1;
+  } else {
+    updatedQuantity = 0;
+  }
+
+  const res = await fetch(updateCartItem, {
+    method: "PUT",
+    body: JSON.stringify({ userId, itemId, quantity: updatedQuantity }),
+    cache: "no-store",
+  });
+
   revalidateTag("cart");
 
   const data = await res.json();
+
+  console.log("data", data);
 
   return data;
 }

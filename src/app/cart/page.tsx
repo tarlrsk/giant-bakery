@@ -28,10 +28,8 @@ interface ICartResponse {
 
 export default function CartPage() {
   return (
-    <div className="container px-6 h-screen pt-20">
-      <div
-        className={`flex flex-col  h-full justify-center items-center gap-6`}
-      >
+    <div className="py-20">
+      <div className={`flex flex-col justify-center items-center gap-6`}>
         <ItemCartView />
       </div>
     </div>
