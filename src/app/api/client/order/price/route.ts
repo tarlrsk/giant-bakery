@@ -1,8 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import apiPaths from "@/utils/api-path";
-import { responseWrapper } from "@/utils/api-response-wrapper";
-import { fetcher } from "@/utils/axios";
 import { NextRequest } from "next/server";
+import { responseWrapper } from "@/utils/api-response-wrapper";
 
 type BoxDetails = {
   ServiceId: number;
