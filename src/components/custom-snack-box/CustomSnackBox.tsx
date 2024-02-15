@@ -29,9 +29,13 @@ import CustomSnackBoxItems from "./CustomSnackBoxItems";
 
 // ----------------------------------------------------------------------
 
-type PackagingForm = {
-  selectedPackaging: "PAPER_BAG" | "SNACK_BOX_S" | "SNACK_BOX_M";
-  selectedDrinkOption: "INCLUDE" | "EXCLUDE" | "NONE";
+type IPackaging = "PAPER_BAG" | "SNACK_BOX_S" | "SNACK_BOX_M";
+
+type IDrinkOption = "INCLUDE" | "EXCLUDE" | "NONE";
+
+type IPackagingForm = {
+  selectedPackaging: IPackaging;
+  selectedDrinkOption: IDrinkOption;
 };
 
 type ICustomSnackBoxItem = {
@@ -73,7 +77,7 @@ const DRINK_OPTIONS = [
 // ----------------------------------------------------------------------
 
 export default function CustomSnackBox() {
-  const methods = useForm<PackagingForm>({
+  const methods = useForm<IPackagingForm>({
     defaultValues: {
       selectedPackaging: "PAPER_BAG",
       selectedDrinkOption: "INCLUDE",
@@ -221,8 +225,8 @@ export default function CustomSnackBox() {
     const body: IAddCustomSnackBoxToCart = {
       userId: currentUser?.id || "",
       type: currentUser?.role === "CUSTOMER" ? "MEMBER" : "GUEST",
-      packageType: selectedPackaging,
-      beverage: selectedDrinkOption,
+      packageType: selectedPackaging as IPackaging,
+      beverage: selectedDrinkOption as IDrinkOption,
       refreshmentIds: selectedItems.map((item) => item.id),
       quantity: snackBoxQty,
     };
