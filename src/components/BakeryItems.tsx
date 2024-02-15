@@ -8,7 +8,9 @@ import { Refreshment } from "@prisma/client";
 
 import ProductCard from "./ProductCard";
 
-export default function BeverageItems({
+// ----------------------------------------------------------------------
+
+export default function BakeryItems({
   size = "md",
   cols,
   onClick,
@@ -20,9 +22,9 @@ export default function BeverageItems({
 }) {
   const router = useRouter();
 
-  const { getBeverages } = apiPaths();
+  const { getBakeries } = apiPaths();
 
-  const { data } = useSWR(getBeverages(), fetcher);
+  const { data } = useSWR(getBakeries(), fetcher);
 
   const items: Refreshment[] = data?.response?.data || [];
 
@@ -33,7 +35,7 @@ export default function BeverageItems({
       } justify-center items-baseline`}
       {...other}
     >
-      {Object.values(items)?.map((item: Refreshment) => (
+      {Object.values(items)?.map((item: any) => (
         <ProductCard
           key={item.id}
           name={item.name}
@@ -43,7 +45,7 @@ export default function BeverageItems({
           onClick={
             onClick
               ? () => onClick(item)
-              : () => router.push(`/beverages/${item.name}?${item.id}`)
+              : () => router.push(`/bakery/${item.name}`)
           }
         />
       ))}

@@ -47,6 +47,7 @@ export interface ICartItem {
   pricePer: number;
   price: number;
   createdAt: string;
+  packageType?: "PAPER_BAG" | "SNACK_BOX_S" | "SNACK_BOX_M";
   description?: string;
   cakeId?: string;
   refreshmentId?: string;

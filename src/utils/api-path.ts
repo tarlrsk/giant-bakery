@@ -26,8 +26,13 @@ const apiPaths = () => {
   const getBakeryByCat = (category: string) =>
     createClientUrl(`bakery?category=${category}`);
 
+  const getBakeries = () => createClientUrl(`bakery?category=`);
+
   // Beverage
   const getBeverages = () => createClientUrl(`beverages`);
+
+  // Cake
+  const getCakes = () => createClientUrl(`cakes`);
 
   // Cake
   const getCakesByType = (type: string) =>
@@ -46,6 +51,8 @@ const apiPaths = () => {
   const deleteCustomerAddress = (userId: string) =>
     createClientUrl(`customers/${userId}/addresses`);
 
+  // Snack Box
+  const addSnackBoxToCart = () => createClientUrl(`carts/snack-box`);
   // InterExpress
   const getInterExpressLocation = (zipCode: string) =>
     `https://api-intership.interexpress.co.th/v1/operation-areas/post-code/${zipCode}`;
@@ -59,6 +66,8 @@ const apiPaths = () => {
     updateCartItem,
     deleteCartItem,
     getBakeryByCat,
+    getCakes,
+    getBakeries,
     getBeverages,
     getCakesByType,
     getCustomerAddress,
@@ -66,6 +75,7 @@ const apiPaths = () => {
     updateCustomerAddress,
     deleteCustomerAddress,
     getInterExpressLocation,
+    addSnackBoxToCart,
     getPrice,
   };
 };

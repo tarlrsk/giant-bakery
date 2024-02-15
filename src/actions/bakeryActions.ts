@@ -17,3 +17,15 @@ export async function getBakeryByCategory(category: string) {
 
   return data;
 }
+
+export async function getAllBakeries() {
+  const { getBakeries } = apiPaths();
+
+  const res = await fetch(getBakeries());
+
+  const data = await res.json();
+
+  revalidatePath(paths.bakeryList());
+
+  return data;
+}

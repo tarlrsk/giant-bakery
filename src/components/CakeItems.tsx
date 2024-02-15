@@ -1,14 +1,15 @@
 "use client";
 
 import useSWR from "swr";
-import apiPaths from "@/utils/api-path";
+import React from "react";
 import { fetcher } from "@/utils/axios";
+import apiPaths from "@/utils/api-path";
 import { useRouter } from "next/navigation";
 import { Refreshment } from "@prisma/client";
 
 import ProductCard from "./ProductCard";
 
-export default function BeverageItems({
+export default function CakeItems({
   size = "md",
   cols,
   onClick,
@@ -20,9 +21,9 @@ export default function BeverageItems({
 }) {
   const router = useRouter();
 
-  const { getBeverages } = apiPaths();
+  const { getCakes } = apiPaths();
 
-  const { data } = useSWR(getBeverages(), fetcher);
+  const { data } = useSWR(getCakes(), fetcher);
 
   const items: Refreshment[] = data?.response?.data || [];
 
@@ -43,7 +44,7 @@ export default function BeverageItems({
           onClick={
             onClick
               ? () => onClick(item)
-              : () => router.push(`/beverages/${item.name}?${item.id}`)
+              : () => router.push(`/cakes/${item.name}`)
           }
         />
       ))}
