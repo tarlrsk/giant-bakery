@@ -11,7 +11,6 @@ import type {
   StockStatus,
   RefreshmentType,
   RefreshmentCategory,
-  UnitType,
 } from "@prisma/client";
 
 // ----------------------------------------------------------------------

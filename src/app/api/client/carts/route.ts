@@ -180,7 +180,7 @@ export async function GET(req: NextRequest) {
       cartId: null as string | null,
       userId: null as string | null,
       type: null as CartType | null,
-      totalPrice: 0,
+      subTotal: 0,
       items: [] as any,
     };
 
@@ -202,7 +202,7 @@ export async function GET(req: NextRequest) {
 
     responseCart.cartId = cart.id;
     responseCart.type = cart.type;
-    responseCart.totalPrice = 0;
+    responseCart.subTotal = 0;
     cart.items.forEach((item) => {
       let baseResponse = {
         itemId: "",
@@ -238,7 +238,7 @@ export async function GET(req: NextRequest) {
       responseItem.createdAt = item.createdAt;
       responseItem.updatedAt = item.updatedAt;
       responseCart.items.push(responseItem);
-      responseCart.totalPrice += responseItem.price;
+      responseCart.subTotal += responseItem.price;
     });
 
     responseCart.items.sort(
