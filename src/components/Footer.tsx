@@ -39,17 +39,17 @@ export default function Footer() {
         </div>
       </div>
       <div className="inline-flex flex-col items-start relative">
-        <div className="self-stretch font-semibold text-3xl leading-normal relative mt-[-1.00px] text-background-default tracking-normal">
+        <div className="self-stretch font-semibold text-3xl leading-normal relative mt-[-1.00px] text-common-white tracking-normal">
           ติดต่อเรา
         </div>
         <div className="flex-col items-start gap-3 inline-flex relative flex-[0_0_auto]">
-          <p className="w-fit font-normal text-xl leading-9 relative mt-[-1.00px] text-background-default tracking-normal">
+          <p className="w-fit font-normal text-xl leading-9 relative mt-[-1.00px] text-common-white tracking-normal">
             ที่อยู่ 299 หมู่ 4 ต. เนินพระ อ. เมือง จ. ระยอง 21000 <br />
             (เปิดทุกวัน เวลา 7:00 - 18:00 น.)
           </p>
           <div className="items-center justify-center gap-3 inline-flex relative flex-[0_0_auto]">
             {FOOTER_ICONS["telephone"]}
-            <div className="relative w-fit mt-[-1.00px] font-medium text-background-default text-xl text-center tracking-normal leading-normal">
+            <div className="relative w-fit mt-[-1.00px] font-medium text-common-white text-xl text-center tracking-normal leading-normal">
               087-xxx-xxxx, 02-xxx-xxxx
             </div>
           </div>

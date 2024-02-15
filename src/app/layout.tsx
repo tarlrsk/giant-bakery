@@ -2,8 +2,8 @@ import * as React from "react";
 import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { IBM_Plex_Sans_Thai } from "next/font/google";
 import getCurrentUser from "@/actions/userActions";
+import { IBM_Plex_Sans_Thai } from "next/font/google";
 
 import "./globals.css";
 import Providers from "./providers";
@@ -35,11 +35,13 @@ export default async function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </head>
 
-      <body className={`${ibm.className} text-primaryT-darker`}>
+      <body className={`${ibm.className} text-primaryT-darker `}>
         <Providers>
-          <Navbar currentUser={currentUser} hasShadow={true} />
-          <main>{children}</main>
-          <Footer />
+          <div className=" flex flex-col h-screen justify-between">
+            <Navbar currentUser={currentUser} hasShadow={true} />
+            <main>{children}</main>
+            <Footer />
+          </div>
         </Providers>
       </body>
     </html>

@@ -1,7 +1,9 @@
+import paths from "@/utils/paths";
 import { prisma } from "@/lib/prisma";
 import { bucket } from "@/lib/gcs/gcs";
 import { CakeType } from "@prisma/client";
 import { NextRequest } from "next/server";
+import { revalidatePath } from "next/cache";
 import { formatDate } from "@/lib/formatDate";
 import { parseBoolean } from "@/lib/parseBoolean";
 import { getFileUrl } from "@/lib/gcs/getFileUrl";
@@ -32,7 +34,9 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
 
     const name = formData.get("name") as string;
-    const description = formData.get("description") as string;
+    const remark = formData.get("remark") as string;
+    const unitType = formData.get("unitType") as string;
+    const quantity = formData.get("quantity") as number | null;
     const type = formData.get("type") as CakeType;
     const weight = parseFloat(formData.get("weight") as string);
     const height = parseFloat(formData.get("height") as string);
@@ -54,7 +58,9 @@ export async function POST(req: NextRequest) {
       isActive,
       variantIds,
       image,
-      description,
+      remark,
+      quantity,
+      unitType,
     });
 
     if (!validation.success) {
@@ -78,7 +84,7 @@ export async function POST(req: NextRequest) {
     let newCake = await prisma.cake.create({
       data: {
         name: name,
-        description: description,
+        remark: remark,
         type: type,
         price: price,
         weight: weight,
@@ -89,6 +95,14 @@ export async function POST(req: NextRequest) {
         variants: {
           connect: variantIds.map((id) => ({ id: id })),
         },
+        unitType: {
+          connect: {
+            id: unitType,
+          },
+        },
+      },
+      include: {
+        unitType: true,
       },
     });
 
@@ -114,8 +128,13 @@ export async function POST(req: NextRequest) {
       newCake = await prisma.cake.update({
         where: { id: newCake.id },
         data: { image: imageUrl, imageFileName: imageFileName },
+        include: {
+          unitType: true,
+        },
       });
     }
+
+    revalidatePath(paths.cakeList());
 
     return responseWrapper(201, newCake, null);
   } catch (err: any) {

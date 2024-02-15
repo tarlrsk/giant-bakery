@@ -1,14 +1,18 @@
 "use client";
 
+import useSWR from "swr";
 import Image from "next/image";
 import { User } from "@prisma/client";
 import { motion } from "framer-motion";
 import React, { useState } from "react";
+import apiPaths from "@/utils/api-path";
+import { fetcher } from "@/utils/axios";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter, usePathname } from "next/navigation";
 
 import {
   Link,
+  Badge,
   Button,
   Divider,
   Dropdown,
@@ -42,7 +46,7 @@ const NAV_ITEMS = [
 // ----------------------------------------------------------------------
 
 type Props = {
-  currentUser: User | null;
+  currentUser: User | any;
   transparent?: boolean;
   hasShadow?: boolean;
 };
@@ -70,6 +74,17 @@ export default function Navbar({
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const { getCart } = apiPaths();
+  const { data: cartData } = useSWR(getCart(currentUser?.id || ""), fetcher);
+
+  const cartItems: { quantity: number }[] =
+    cartData?.response?.data?.items || [];
+
+  const cartItemsAmount = cartItems.reduce(
+    (acc, item) => acc + item.quantity,
+    0,
+  );
 
   return (
     <NextNavbar
@@ -205,16 +220,25 @@ export default function Navbar({
             orientation="vertical"
             className=" h-2/3 bg-primaryT-darker w-0.25"
           />
-          <Button
-            onClick={() => {
-              router.push("/cart");
-            }}
-            isIconOnly
-            size="lg"
-            className="bg-transparent rounded-full"
+          <Badge
+            content={cartItemsAmount}
+            isInvisible={cartItemsAmount === 0}
+            color="primary"
+            showOutline={false}
+            placement="bottom-right"
+            className=" mb-1.5 mr-1.5"
           >
-            <BasketIcon width={32} height={32} />
-          </Button>
+            <Button
+              onClick={() => {
+                router.push("/cart");
+              }}
+              isIconOnly
+              size="lg"
+              className="bg-transparent rounded-full"
+            >
+              <BasketIcon width={40} height={40} />
+            </Button>
+          </Badge>
         </div>
       </NavbarContent>
 

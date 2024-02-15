@@ -117,6 +117,9 @@ export const refreshmentValidationSchema = z.object({
   length: z.number().multipleOf(0.01),
   width: z.number().multipleOf(0.01),
   price: z.number().multipleOf(0.01),
+  quantity: z.number().multipleOf(0.01),
+  unitType: z.string().uuid(),
+  remark: z.string().nullable(),
   isActive: z.boolean(),
 });
 
@@ -124,7 +127,7 @@ export const refreshmentValidationSchema = z.object({
 
 export const cakeValidationSchema = z.object({
   name: z.string({ required_error: "Name is required." }).min(3).max(255),
-  description: z.string().min(10).max(255).nullable(),
+  remark: z.string().nullable(),
   image: zodIsImage.nullable(),
   type: z.enum(["PRESET", "CUSTOM"]),
   price: z.number().multipleOf(0.01),
@@ -134,6 +137,8 @@ export const cakeValidationSchema = z.object({
   width: z.number().multipleOf(0.01),
   isActive: z.boolean(),
   variantIds: z.array(z.string().uuid()),
+  quantity: z.number().multipleOf(0.01).nullable(),
+  unitType: z.string().uuid(),
 });
 
 // Cart ------------------------------------------------------------------

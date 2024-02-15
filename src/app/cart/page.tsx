@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { cookies } from "next/headers";
 import InfoIcon from "@/components/icons/InfoIcon";
 import getCurrentUser from "@/actions/userActions";
 import BasketIcon from "@/components/icons/BasketIcon";
@@ -25,54 +24,13 @@ interface ICartResponse {
   };
 }
 
-const MOCKUP_ITEMS: ICartItem[] = [
-  {
-    name: "เอแคลร์",
-    imageUrl:
-      "https://image.makewebeasy.net/makeweb/m_1920x0/Ub8wb5z91/Homemadebakery2022/14_%E0%B9%80%E0%B8%AD%E0%B9%81%E0%B8%84%E0%B8%A5%E0%B8%A3%E0%B9%8C%E0%B8%A7%E0%B8%B2%E0%B8%99%E0%B8%B4%E0%B8%A5%E0%B8%A5%E0%B8%B2%E0%B9%82%E0%B8%AE%E0%B8%A1%E0%B9%80%E0%B8%A1%E0%B8%94.jpg",
-    description: "ไส้นมฮอกไกโด",
-    quantity: 2,
-    pricePer: 49,
-    price: 98,
-    itemId: "test",
-    type: "test",
-    createdAt: "test",
-  },
-];
-
 // ----------------------------------------------------------------------
 
-export default async function CartPage() {
-  const currentUser = await getCurrentUser();
-  const userId =
-    currentUser?.id ||
-    `COOKIE_ID_${cookies().get("next-auth.csrf-token")?.value as string}`;
-
-  const res: ICartResponse = await getCartData();
-
-  const items = res.response.data.items;
-
-  const hasItem = items?.length === 0;
-
-  const discount: string =
-    "สั่งเบเกอรี่หรือเค้กเพิ่มอีก 695 บาทเพื่อรับส่วนลด 5%";
-
+export default function CartPage() {
   return (
-    <div className="container px-6 h-screen pt-20">
-      <div
-        className={`flex flex-col  h-full ${
-          hasItem ? "justify-start" : "justify-center"
-        } items-center gap-6`}
-      >
-        {hasItem ? (
-          <ItemCartView
-            userId={userId}
-            items={MOCKUP_ITEMS}
-            discount={discount}
-          />
-        ) : (
-          <EmptyCartView />
-        )}
+    <div className="py-20">
+      <div className={`flex flex-col justify-center items-center gap-6`}>
+        <ItemCartView />
       </div>
     </div>
   );
@@ -80,15 +38,19 @@ export default async function CartPage() {
 
 // ----------------------------------------------------------------------
 
-function ItemCartView({
-  userId,
-  items,
-  discount,
-}: {
-  userId: string;
-  items: ICartItem[];
-  discount: string;
-}) {
+async function ItemCartView() {
+  const currentUser = await getCurrentUser();
+  const res: ICartResponse = await getCartData();
+
+  const items = res.response.data.items;
+
+  const discount: string =
+    "สั่งเบเกอรี่หรือเค้กเพิ่มอีก 695 บาทเพื่อรับส่วนลด 5%";
+
+  if (items.length < 1) {
+    return <EmptyCartView />;
+  }
+
   return (
     <div className="container px-6">
       <h1 className="text-2xl md:text-3xl font-medium text-left mb-4">
@@ -101,7 +63,7 @@ function ItemCartView({
       <div className="grid grid-cols-1 md:grid-cols-6 gap-6">
         <div className="md:col-span-4 ">
           <CartItemTable
-            userId={userId}
+            userId={currentUser?.id || ""}
             items={items}
             onUpdateCartItem={updateCartItem}
           />

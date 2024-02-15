@@ -59,7 +59,7 @@ export default function BakeryTab() {
             name={item.name}
             price={item.price}
             img={item.image ? `${item.image as string}` : "/"}
-            onClick={() => router.push(`/bakery/${item.name}`)}
+            onClick={() => router.push(`/bakery/${item.name}?${item.id}`)}
           />
         ))}
       </div>
