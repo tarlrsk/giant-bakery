@@ -76,7 +76,7 @@ export default function Navbar({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const { getCart } = apiPaths();
-  const { data: cartData } = useSWR(getCart(currentUser.id), fetcher);
+  const { data: cartData } = useSWR(getCart(currentUser?.id || ""), fetcher);
 
   const cartItems: { quantity: number }[] =
     cartData?.response?.data?.items || [];
