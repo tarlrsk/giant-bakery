@@ -20,9 +20,7 @@ export async function GET(req: NextRequest) {
       include: {
         unitType: true,
       },
-      orderBy: {
-        category: "asc",
-      },
+      orderBy: [{ category: "asc" }, { name: "asc" }],
     });
 
     if (refreshments.length === 0) {

@@ -16,6 +16,7 @@ export async function GET(req: NextRequest) {
       include: {
         unitType: true,
       },
+      orderBy: { name: "asc" },
     });
 
     if (cakes.length === 0) {

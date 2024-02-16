@@ -16,6 +16,7 @@ export async function GET(_req: NextRequest) {
       include: {
         unitType: true,
       },
+      orderBy: { name: "asc" },
     });
 
     if (refreshments.length === 0) {
