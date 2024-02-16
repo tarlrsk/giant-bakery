@@ -45,7 +45,7 @@ export default function ProductCard({
           className=" object-cover mb-4 rounded-sm"
         />
         <article
-          className={`flex flex-col flex-wrap text-pretty px-6 gap-${
+          className={`flex flex-col flex-wrap text-pretty p-6 gap-${
             size === "sm" ? "1" : "2 items-center"
           }`}
         >
