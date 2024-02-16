@@ -5,7 +5,7 @@ import Footer from "@/components/Footer";
 import getCurrentUser from "@/actions/userActions";
 import { IBM_Plex_Sans_Thai } from "next/font/google";
 
-import "../globals.css";
+import "./globals.css";
 import ClientProviders from "./providers";
 
 // ----------------------------------------------------------------------
@@ -30,7 +30,9 @@ export default async function Layout({
   const currentUser = await getCurrentUser();
   return (
     <ClientProviders>
-      <div className=" flex flex-col h-screen justify-between">
+      <div
+        className={`${ibm.className} flex flex-col h-screen justify-between`}
+      >
         <Navbar currentUser={currentUser} hasShadow={true} />
         <main>{children}</main>
         <Footer />
