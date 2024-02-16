@@ -121,7 +121,9 @@ export async function POST(req: NextRequest) {
                 create: {
                   price: snackBoxPrice,
                   refreshments: {
-                    connect: refreshments,
+                    create: refreshmentIds.map((refreshmentId: string) => ({
+                      refreshment: { connect: { id: refreshmentId } },
+                    })),
                   },
                 },
               },
