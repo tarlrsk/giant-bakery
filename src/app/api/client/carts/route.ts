@@ -1,9 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
-import { CartType, SnackBoxRefreshment, Variant } from "@prisma/client";
+import { CartType } from "@prisma/client";
+import { getFileUrl } from "@/lib/gcs/getFileUrl";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { updateQtyCartValidateSchema } from "@/lib/validationSchema";
-import { getFileUrl } from "@/lib/gcs/getFileUrl";
 
 const CartInclude = {
   items: {
