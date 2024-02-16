@@ -5,8 +5,40 @@ import apiPaths from "@/utils/api-path";
 import { revalidateTag } from "next/cache";
 
 import getCurrentUser from "./userActions";
+import { responseWrapper } from "@/utils/api-response-wrapper";
+import { getFileUrl } from "@/lib/gcs/getFileUrl";
+import { prisma } from "@/lib/prisma";
+import { CartType } from "@prisma/client";
 
 // ----------------------------------------------------------------------
+
+const CartInclude = {
+  items: {
+    include: {
+      presetCake: {
+        include: {
+          variants: true,
+        },
+      },
+      customCake: {
+        include: {
+          cake: true,
+          variants: true,
+        },
+      },
+      refreshment: true,
+      snackBox: {
+        include: {
+          refreshments: {
+            include: {
+              refreshment: true,
+            },
+          },
+        },
+      },
+    },
+  },
+};
 
 export async function updateCartItem(
   userId: string,
@@ -45,13 +77,123 @@ export async function updateCartItem(
 export async function getCartData() {
   const currentUser = await getCurrentUser();
 
-  const { getCart } = apiPaths();
+  try {
+    let responseCart = {
+      cartId: null as string | null,
+      userId: null as string | null,
+      type: null as CartType | null,
+      subTotal: 0,
+      items: [] as any,
+    };
 
-  const res = await fetch(getCart(currentUser?.id || ""), {
-    next: { tags: ["cart"] },
-  });
+    const userId = currentUser?.id;
+    if (!userId) {
+      return responseWrapper(200, responseCart, null).json();
+    }
+    responseCart.userId = userId;
 
-  const data = await res.json();
+    const cart = await prisma.cart.findFirst({
+      where: {
+        userId: userId,
+      },
+      include: CartInclude,
+    });
+    if (!cart) {
+      return responseWrapper(200, responseCart, null).json();
+    }
 
-  return data;
+    responseCart.cartId = cart.id;
+    responseCart.type = cart.type;
+    responseCart.subTotal = 0;
+    for (var item of cart.items) {
+      let baseResponse = {
+        itemId: "",
+        itemType: item.type,
+        pricePer: 0,
+        price: 0,
+      };
+      let responseItem: any;
+      switch (item.type) {
+        case "PRESET_CAKE":
+          baseResponse.pricePer = item.presetCake?.price || 0;
+          responseItem = { ...baseResponse, ...item.presetCake };
+          responseItem.price = baseResponse.pricePer * item.quantity;
+          if (
+            responseItem &&
+            responseItem.imagePath &&
+            responseItem.imagePath != ""
+          ) {
+            responseItem.image = await getFileUrl(responseItem.imagePath);
+          }
+          break;
+        case "CUSTOM_CAKE":
+          baseResponse.pricePer = item.customCake?.price || 0;
+          responseItem = { ...baseResponse, ...item.customCake };
+          responseItem.price = baseResponse.pricePer * item.quantity;
+          if (
+            responseItem &&
+            responseItem.imagePath &&
+            responseItem.imagePath != ""
+          ) {
+            responseItem.image = await getFileUrl(responseItem.imagePath);
+            for (var variant of responseItem.variants) {
+              if (variant.imagePath) {
+                variant.image = await getFileUrl(variant.imagePath);
+              }
+            }
+          }
+          break;
+        case "REFRESHMENT":
+          baseResponse.pricePer = item.refreshment?.price || 0;
+          responseItem = { ...baseResponse, ...item.refreshment };
+          responseItem.price = baseResponse.pricePer * item.quantity;
+          if (
+            responseItem &&
+            responseItem.imagePath &&
+            responseItem.imagePath != ""
+          ) {
+            responseItem.image = await getFileUrl(responseItem.imagePath);
+          }
+          break;
+        case "SNACK_BOX":
+          baseResponse.pricePer = item.snackBox?.price || 0;
+          responseItem = { ...baseResponse, ...item.snackBox };
+          responseItem.price = baseResponse.pricePer * item.quantity;
+          if (
+            responseItem &&
+            responseItem.imagePath &&
+            responseItem.imagePath != ""
+          ) {
+            responseItem.image = await getFileUrl(responseItem.imagePath);
+            for (var snackBoxRefreshment of responseItem.refreshments) {
+              if (snackBoxRefreshment.refreshment.imagePath) {
+                snackBoxRefreshment.refreshment.image = await getFileUrl(
+                  snackBoxRefreshment.refreshment.imagePath,
+                );
+              }
+            }
+          }
+          break;
+      }
+      responseItem.itemId = item.id;
+      responseItem.quantity = item.quantity;
+      responseItem.createdAt = item.createdAt;
+      responseItem.updatedAt = item.updatedAt;
+      responseCart.items.push(responseItem);
+      responseCart.subTotal += responseItem.price;
+    }
+
+    responseCart.items.sort(
+      (
+        a: { createdAt: { getTime: () => number } },
+        b: { createdAt: { getTime: () => number } },
+      ) => {
+        return a.createdAt.getTime() - b.createdAt.getTime();
+      },
+    );
+
+    return responseWrapper(200, responseCart, null).json();
+  } catch (err: any) {
+    return responseWrapper(500, null, err.message).json();
+  }
 }

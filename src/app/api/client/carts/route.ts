@@ -208,7 +208,7 @@ export async function GET(req: NextRequest) {
     responseCart.cartId = cart.id;
     responseCart.type = cart.type;
     responseCart.subTotal = 0;
-    cart.items.forEach(async (item) => {
+    for (var item of cart.items) {
       let baseResponse = {
         itemId: "",
         itemType: item.type,
@@ -239,11 +239,11 @@ export async function GET(req: NextRequest) {
             responseItem.imagePath != ""
           ) {
             responseItem.image = await getFileUrl(responseItem.imagePath);
-            responseItem.variants.forEach(async (variant: Variant) => {
+            for (var variant of responseItem.variants) {
               if (variant.imagePath) {
                 variant.image = await getFileUrl(variant.imagePath);
               }
-            });
+            }
           }
           break;
         case "REFRESHMENT":
@@ -268,15 +268,13 @@ export async function GET(req: NextRequest) {
             responseItem.imagePath != ""
           ) {
             responseItem.image = await getFileUrl(responseItem.imagePath);
-            responseItem.refreshments.forEach(
-              async (snackBoxRefreshment: any) => {
-                if (snackBoxRefreshment.refreshment.imagePath) {
-                  snackBoxRefreshment.refreshment.image = await getFileUrl(
-                    snackBoxRefreshment.refreshment.imagePath,
-                  );
-                }
-              },
-            );
+            for (var snackBoxRefreshment of responseItem.refreshments) {
+              if (snackBoxRefreshment.refreshment.imagePath) {
+                snackBoxRefreshment.refreshment.image = await getFileUrl(
+                  snackBoxRefreshment.refreshment.imagePath,
+                );
+              }
+            }
           }
           break;
       }
@@ -286,7 +284,7 @@ export async function GET(req: NextRequest) {
       responseItem.updatedAt = item.updatedAt;
       responseCart.items.push(responseItem);
       responseCart.subTotal += responseItem.price;
-    });
+    }
 
     responseCart.items.sort(
       (

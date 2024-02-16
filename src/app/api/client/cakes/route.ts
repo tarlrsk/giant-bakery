@@ -24,10 +24,10 @@ export async function GET(req: NextRequest) {
       return responseWrapper(200, null, "No Content");
     }
 
-    cakes.forEach(async (cake) => {
+    for (var cake of cakes) {
       if (cake.imagePath != null && cake.imagePath != "")
         cake.image = await getFileUrl(cake.imagePath);
-    });
+    }
 
     return responseWrapper(200, cakes, null);
   } catch (err: any) {
