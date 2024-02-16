@@ -25,8 +25,8 @@ export default function Home() {
           </p>
         </div>
         <div className="container flex flex-wrap-custom gap-20">
-          <ProductCard name="temp 2" price={8.0} img="/logo.png" />
           <ProductCard name="temp 1" price={8.0} img="/logo.png" />
+          <ProductCard name="temp 2" price={8.0} img="/logo.png" />
           <ProductCard name="temp 3" price={8.0} img="/logo.png" />
           <ProductCard name="temp 4" price={8.0} img="/logo.png" />
           <ProductCard name="temp 5" price={8.0} img="/logo.png" />
