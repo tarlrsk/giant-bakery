@@ -10,21 +10,25 @@ import ProductCard from "./ProductCard";
 
 // ----------------------------------------------------------------------
 
+type Props = {
+  size?: "sm" | "md";
+  cols: number;
+  category: "BREAD" | "PIE" | "COOKIE" | "SNACK" | "";
+  onClick?: (selected: any) => void;
+};
+
 export default function BakeryItems({
   size = "md",
   cols,
+  category,
   onClick,
   ...other
-}: {
-  size?: "sm" | "md";
-  cols: number;
-  onClick?: (selected: any) => void;
-}) {
+}: Props) {
   const router = useRouter();
 
   const { getBakeries } = apiPaths();
 
-  const { data } = useSWR(getBakeries(), fetcher);
+  const { data } = useSWR(`${getBakeries()}${category}`, fetcher);
 
   const items: Refreshment[] = data?.response?.data || [];
 
@@ -45,7 +49,7 @@ export default function BakeryItems({
           onClick={
             onClick
               ? () => onClick(item)
-              : () => router.push(`/bakery/${item.name}`)
+              : () => router.push(`/bakery/${item.name}?id=${item.id}`)
           }
         />
       ))}
