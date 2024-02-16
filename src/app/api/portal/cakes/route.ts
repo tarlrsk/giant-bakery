@@ -127,7 +127,11 @@ export async function POST(req: NextRequest) {
 
       newCake = await prisma.cake.update({
         where: { id: newCake.id },
-        data: { image: imageUrl, imageFileName: imageFileName },
+        data: {
+          image: imageUrl,
+          imageFileName: imageFileName,
+          imagePath: imagePath,
+        },
         include: {
           unitType: true,
         },

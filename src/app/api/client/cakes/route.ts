@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { CakeType } from "@prisma/client";
 import { NextRequest } from "next/server";
 import { responseWrapper } from "@/utils/api-response-wrapper";
+import { getFileUrl } from "@/lib/gcs/getFileUrl";
 
 export async function GET(req: NextRequest) {
   try {
@@ -21,6 +22,11 @@ export async function GET(req: NextRequest) {
     if (cakes.length === 0) {
       return responseWrapper(200, null, "No Content");
     }
+
+    cakes.forEach(async (cake) => {
+      if (cake.imageFileName != null && cake.imageFileName != "")
+        cake.image = await getFileUrl(cake.imageFileName);
+    });
 
     return responseWrapper(200, cakes, null);
   } catch (err: any) {

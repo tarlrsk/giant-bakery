@@ -1,8 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
-import { CartType } from "@prisma/client";
+import { CartType, SnackBoxRefreshment, Variant } from "@prisma/client";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { updateQtyCartValidateSchema } from "@/lib/validationSchema";
+import { getFileUrl } from "@/lib/gcs/getFileUrl";
 
 const CartInclude = {
   items: {
@@ -21,7 +22,11 @@ const CartInclude = {
       refreshment: true,
       snackBox: {
         include: {
-          refreshments: true,
+          refreshments: {
+            include: {
+              refreshment: true,
+            },
+          },
         },
       },
     },
@@ -203,7 +208,7 @@ export async function GET(req: NextRequest) {
     responseCart.cartId = cart.id;
     responseCart.type = cart.type;
     responseCart.subTotal = 0;
-    cart.items.forEach((item) => {
+    cart.items.forEach(async (item) => {
       let baseResponse = {
         itemId: "",
         itemType: item.type,
@@ -216,21 +221,63 @@ export async function GET(req: NextRequest) {
           baseResponse.pricePer = item.presetCake?.price || 0;
           responseItem = { ...baseResponse, ...item.presetCake };
           responseItem.price = baseResponse.pricePer * item.quantity;
+          if (
+            responseItem &&
+            responseItem.imageFileName &&
+            responseItem.imageFileName != ""
+          ) {
+            responseItem.image = await getFileUrl(responseItem.imageFileName);
+          }
           break;
         case "CUSTOM_CAKE":
           baseResponse.pricePer = item.customCake?.price || 0;
           responseItem = { ...baseResponse, ...item.customCake };
           responseItem.price = baseResponse.pricePer * item.quantity;
+          if (
+            responseItem &&
+            responseItem.imageFileName &&
+            responseItem.imageFileName != ""
+          ) {
+            responseItem.image = await getFileUrl(responseItem.imageFileName);
+            responseItem.variants.forEach(async (variant: Variant) => {
+              if (variant.imageFileName) {
+                variant.image = await getFileUrl(variant.imageFileName);
+              }
+            });
+          }
           break;
         case "REFRESHMENT":
           baseResponse.pricePer = item.refreshment?.price || 0;
           responseItem = { ...baseResponse, ...item.refreshment };
           responseItem.price = baseResponse.pricePer * item.quantity;
+          if (
+            responseItem &&
+            responseItem.imageFileName &&
+            responseItem.imageFileName != ""
+          ) {
+            responseItem.image = await getFileUrl(responseItem.imageFileName);
+          }
           break;
         case "SNACK_BOX":
           baseResponse.pricePer = item.snackBox?.price || 0;
           responseItem = { ...baseResponse, ...item.snackBox };
           responseItem.price = baseResponse.pricePer * item.quantity;
+          if (
+            responseItem &&
+            responseItem.imageFileName &&
+            responseItem.imageFileName != ""
+          ) {
+            responseItem.image = await getFileUrl(responseItem.imageFileName);
+            responseItem.refreshments.forEach(
+              async (snackBoxRefreshment: any) => {
+                if (snackBoxRefreshment.refreshment.imageFileName) {
+                  snackBoxRefreshment.refreshment.image = await getFileUrl(
+                    snackBoxRefreshment.refreshment.imageFileName,
+                  );
+                }
+              },
+            );
+          }
           break;
       }
       responseItem.itemId = item.id;

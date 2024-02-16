@@ -37,6 +37,7 @@ next-env.d.ts
 
 # gcs files
 gcssa*
+cukedoh-stg-gcs.json
 .env*.local
 
 bobo-cukedoh-cli
