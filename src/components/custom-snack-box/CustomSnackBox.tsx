@@ -363,7 +363,7 @@ export default function CustomSnackBox() {
       <div className="overflow-y-auto max-h-unit-96 mb-4">
         {selectedTab === "bakeries" && (
           <BakeryItems
-            cols={5}
+            cols={4}
             size="sm"
             onClick={(selected) => onAddItem(selected)}
           />
@@ -371,7 +371,7 @@ export default function CustomSnackBox() {
 
         {selectedTab === "cakes" && (
           <CakeItems
-            cols={5}
+            cols={4}
             size="sm"
             onClick={(selected) => onAddItem(selected)}
           />
@@ -379,7 +379,7 @@ export default function CustomSnackBox() {
 
         {selectedTab === "drinks" && (
           <BeverageItems
-            cols={5}
+            cols={4}
             size="sm"
             onClick={(selected) => onAddItem(selected)}
           />

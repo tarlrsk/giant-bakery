@@ -37,8 +37,8 @@ export default function BakeryItems({
   return (
     <div
       className={`grid grid-cols-${cols} gap-${
-        size === "sm" ? 4 : 14
-      } justify-center items-baseline`}
+        size === "sm" ? 4 : 10
+      } justify-center items-baseline hover:cursor-pointer`}
       {...other}
     >
       {Object.values(items)?.map((item: any) => (

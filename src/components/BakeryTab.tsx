@@ -35,7 +35,7 @@ export default function BakeryTab() {
         ))}
       </Tabs>
       <div className="container px-6 pb-40">
-        <BakeryItems cols={5} category={selectedCategory} />
+        <BakeryItems cols={4} category={selectedCategory} />
       </div>
     </div>
   );

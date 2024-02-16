@@ -39,7 +39,7 @@ export default function CakeItems({
 
   const cakeCount = items.length;
 
-  const itemsPerPage = 5;
+  const itemsPerPage = 4;
   const pageSize = Math.ceil(cakeCount / itemsPerPage);
 
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -51,7 +51,7 @@ export default function CakeItems({
       <div
         className={`grid grid-cols-${cols} gap-${
           size === "sm" ? 4 : 14
-        } justify-center items-baseline`}
+        } justify-center items-baseline hover:cursor-pointer`}
         {...other}
       >
         {Object.values(displayItems)?.map((item: Refreshment) => (

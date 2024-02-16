@@ -18,7 +18,6 @@ const apiPaths = () => {
 
   // Cart
   const getCart = (userId: string) => createClientUrl(`carts?userId=${userId}`);
-
   const deleteCartItem = (userId: string, itemId: string) =>
     createClientUrl(`carts?userId=${userId}&itemId=${itemId}`);
   const updateCartItem = createClientUrl("carts");
