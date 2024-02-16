@@ -7,7 +7,7 @@ export default function BeveragePage() {
     <section>
       <TitleSection title={"เครื่องดื่ม"} />
       <div className="container px-6 pb-40">
-        <BeverageItems cols={5} />
+        <BeverageItems cols={4} />
       </div>
     </section>
   );

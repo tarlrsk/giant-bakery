@@ -22,7 +22,7 @@ export default function CakePaginationContainer({ cakeType }: Props) {
           {cakeType === "PRESET" ? "เค้กสำเร็จรูป" : "เค้กแต่งเอง"}
         </div>
         <div className="container pr-6">
-          <CakeItems cols={5} type={selectedType} />
+          <CakeItems cols={4} type={selectedType} />
         </div>
       </div>
     </div>
