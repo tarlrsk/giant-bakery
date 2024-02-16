@@ -3,8 +3,6 @@ import type { Metadata } from "next";
 import getCurrentUser from "@/actions/userActions";
 import { IBM_Plex_Sans_Thai } from "next/font/google";
 
-import "./globals.css";
-
 // ----------------------------------------------------------------------
 
 const ibm = IBM_Plex_Sans_Thai({

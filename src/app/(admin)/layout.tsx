@@ -1,9 +1,9 @@
 import * as React from "react";
 import type { Metadata } from "next";
-import getCurrentUser from "@/actions/userActions";
+// import getCurrentUser from "@/actions/userActions";
 import { IBM_Plex_Sans_Thai } from "next/font/google";
 
-import "../globals.css";
+import AdminProviders from "./providers";
 
 // ----------------------------------------------------------------------
 
@@ -24,10 +24,12 @@ export default async function Layout({
 }: {
   children: React.ReactNode;
 }) {
-  const currentUser = await getCurrentUser();
+  // const currentUser = await getCurrentUser();
   return (
-    <div className=" flex flex-col h-screen justify-between">
-      <main>{children}</main>
-    </div>
+    <AdminProviders>
+      <div className=" flex flex-col h-screen justify-between">
+        <main>{children}</main>
+      </div>
+    </AdminProviders>
   );
 }
