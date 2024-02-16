@@ -43,7 +43,7 @@ export default function BeverageItems({
           onClick={
             onClick
               ? () => onClick(item)
-              : () => router.push(`/beverages/${item.name}?${item.id}`)
+              : () => router.push(`/beverages/${item.name}?id=${item.id}`)
           }
         />
       ))}
