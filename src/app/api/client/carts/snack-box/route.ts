@@ -1,8 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
-import { CartItemType } from "@prisma/client";
+import { CartItemType, Refreshment } from "@prisma/client";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { cartSnackBoxValidationSchema } from "@/lib/validationSchema";
+import { connect } from "http2";
 
 // ----------------------------------------------------------------------
 
@@ -121,7 +122,9 @@ export async function POST(req: NextRequest) {
                 create: {
                   price: snackBoxPrice,
                   refreshments: {
-                    connect: refreshments,
+                    create: refreshmentIds.map((refreshmentId: string) => ({
+                      refreshment: { connect: { id: refreshmentId } },
+                    })),
                   },
                 },
               },
