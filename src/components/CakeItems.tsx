@@ -14,7 +14,7 @@ import ProductCard from "./ProductCard";
 type Props = {
   size?: "sm" | "md";
   cols: number;
-  type: "PRESET" | "CUSTOM";
+  type?: "PRESET" | "CUSTOM";
   onClick?: (selected: any) => void;
 };
 

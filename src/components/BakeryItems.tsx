@@ -13,7 +13,7 @@ import ProductCard from "./ProductCard";
 type Props = {
   size?: "sm" | "md";
   cols: number;
-  category: "BREAD" | "PIE" | "COOKIE" | "SNACK" | "";
+  category?: "BREAD" | "PIE" | "COOKIE" | "SNACK" | "";
   onClick?: (selected: any) => void;
 };
 
