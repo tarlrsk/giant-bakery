@@ -115,6 +115,7 @@ model Cake {
   unitTypeId    String?
   quantity      Int       @default(0)
   imageFileName String?
+  imagePath     String?
   image         String?
   type          CakeType
   price         Float
@@ -154,6 +155,7 @@ model Variant {
   id            String      @id @default(uuid())
   name          String
   imageFileName String?
+  imagePath     String?
   image         String?
   type          VariantType
   isActive      Boolean
@@ -175,6 +177,7 @@ model Refreshment {
   quantity      Int                  @default(0)
   unitTypeId    String?
   imageFileName String?
+  imagePath     String?
   image         String?
   type          RefreshmentType
   category      RefreshmentCategory?
