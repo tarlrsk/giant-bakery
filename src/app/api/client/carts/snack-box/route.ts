@@ -51,7 +51,11 @@ export async function POST(req: NextRequest) {
           refreshment: true,
           snackBox: {
             include: {
-              refreshments: true,
+              refreshments: {
+                include: {
+                  refreshment: true,
+                },
+              },
             },
           },
         },
@@ -63,7 +67,33 @@ export async function POST(req: NextRequest) {
         userId: userId,
         type: type,
       },
-      include: CartInclude,
+      include: {
+        items: {
+          include: {
+            presetCake: {
+              include: {
+                variants: true,
+              },
+            },
+            customCake: {
+              include: {
+                cake: true,
+                variants: true,
+              },
+            },
+            refreshment: true,
+            snackBox: {
+              include: {
+                refreshments: {
+                  include: {
+                    refreshment: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!cart) {
@@ -121,7 +151,9 @@ export async function POST(req: NextRequest) {
                 create: {
                   price: snackBoxPrice,
                   refreshments: {
-                    connect: refreshments,
+                    create: refreshmentIds.map((refreshmentId: string) => ({
+                      refreshment: { connect: { id: refreshmentId } },
+                    })),
                   },
                 },
               },

@@ -114,7 +114,11 @@ export async function POST(req: NextRequest) {
 
       newRefreshment = await prisma.refreshment.update({
         where: { id: newRefreshment.id },
-        data: { image: imageUrl, imageFileName: imageFileName },
+        data: {
+          image: imageUrl,
+          imageFileName: imageFileName,
+          imagePath: imagePath,
+        },
         include: {
           unitType: true,
         },

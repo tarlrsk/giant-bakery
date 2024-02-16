@@ -49,7 +49,11 @@ export async function POST(req: NextRequest) {
           refreshment: true,
           snackBox: {
             include: {
-              refreshments: true,
+              refreshments: {
+                include: {
+                  refreshment: true,
+                },
+              },
             },
           },
         },

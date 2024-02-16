@@ -69,6 +69,7 @@ export async function POST(req: NextRequest) {
       data: {
         imageFileName: imageFileName,
         image: imageUrl,
+        imagePath: imagePath,
       },
     });
 

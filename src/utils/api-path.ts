@@ -33,7 +33,7 @@ const apiPaths = () => {
   const getBeverages = () => createClientUrl(`beverages`);
 
   // Cake
-  const getCakes = () => createClientUrl(`cakes`);
+  const getCakes = () => createClientUrl(`cakes?type=`);
 
   // Cake
   const getCakesByType = (type: string) =>

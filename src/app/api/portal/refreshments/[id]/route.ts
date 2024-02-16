@@ -49,6 +49,7 @@ export async function GET(_req: NextRequest, { params }: GetRefreshmentById) {
       where: { id: id },
       data: {
         image: newFileUrl,
+        imagePath: imagePath,
       },
       include: {
         unitType: true,

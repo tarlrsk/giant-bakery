@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { RefreshmentType, RefreshmentCategory } from "@prisma/client";
+import { getFileUrl } from "@/lib/gcs/getFileUrl";
 
 export async function GET(req: NextRequest) {
   try {
@@ -20,14 +21,17 @@ export async function GET(req: NextRequest) {
       include: {
         unitType: true,
       },
-      orderBy: {
-        category: "asc",
-      },
+      orderBy: [{ category: "asc" }, { name: "asc" }],
     });
 
     if (refreshments.length === 0) {
       return responseWrapper(200, null, "No Content");
     }
+
+    refreshments.forEach(async (refreshment) => {
+      if (refreshment.imagePath != null && refreshment.imagePath != "")
+        refreshment.image = await getFileUrl(refreshment.imagePath);
+    });
 
     return responseWrapper(200, refreshments, null);
   } catch (err: any) {

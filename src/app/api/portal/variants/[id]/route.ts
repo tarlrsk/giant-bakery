@@ -45,6 +45,7 @@ export async function GET(_req: NextRequest, { params }: GetVariantById) {
       where: { id: id },
       data: {
         image: newFileUrl,
+        imagePath: imagePath,
       },
     });
 
