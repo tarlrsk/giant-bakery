@@ -223,10 +223,10 @@ export async function GET(req: NextRequest) {
           responseItem.price = baseResponse.pricePer * item.quantity;
           if (
             responseItem &&
-            responseItem.imageFileName &&
-            responseItem.imageFileName != ""
+            responseItem.imagePath &&
+            responseItem.imagePath != ""
           ) {
-            responseItem.image = await getFileUrl(responseItem.imageFileName);
+            responseItem.image = await getFileUrl(responseItem.imagePath);
           }
           break;
         case "CUSTOM_CAKE":
@@ -235,13 +235,13 @@ export async function GET(req: NextRequest) {
           responseItem.price = baseResponse.pricePer * item.quantity;
           if (
             responseItem &&
-            responseItem.imageFileName &&
-            responseItem.imageFileName != ""
+            responseItem.imagePath &&
+            responseItem.imagePath != ""
           ) {
-            responseItem.image = await getFileUrl(responseItem.imageFileName);
+            responseItem.image = await getFileUrl(responseItem.imagePath);
             responseItem.variants.forEach(async (variant: Variant) => {
-              if (variant.imageFileName) {
-                variant.image = await getFileUrl(variant.imageFileName);
+              if (variant.imagePath) {
+                variant.image = await getFileUrl(variant.imagePath);
               }
             });
           }
@@ -252,10 +252,10 @@ export async function GET(req: NextRequest) {
           responseItem.price = baseResponse.pricePer * item.quantity;
           if (
             responseItem &&
-            responseItem.imageFileName &&
-            responseItem.imageFileName != ""
+            responseItem.imagePath &&
+            responseItem.imagePath != ""
           ) {
-            responseItem.image = await getFileUrl(responseItem.imageFileName);
+            responseItem.image = await getFileUrl(responseItem.imagePath);
           }
           break;
         case "SNACK_BOX":
@@ -264,15 +264,15 @@ export async function GET(req: NextRequest) {
           responseItem.price = baseResponse.pricePer * item.quantity;
           if (
             responseItem &&
-            responseItem.imageFileName &&
-            responseItem.imageFileName != ""
+            responseItem.imagePath &&
+            responseItem.imagePath != ""
           ) {
-            responseItem.image = await getFileUrl(responseItem.imageFileName);
+            responseItem.image = await getFileUrl(responseItem.imagePath);
             responseItem.refreshments.forEach(
               async (snackBoxRefreshment: any) => {
-                if (snackBoxRefreshment.refreshment.imageFileName) {
+                if (snackBoxRefreshment.refreshment.imagePath) {
                   snackBoxRefreshment.refreshment.image = await getFileUrl(
-                    snackBoxRefreshment.refreshment.imageFileName,
+                    snackBoxRefreshment.refreshment.imagePath,
                   );
                 }
               },

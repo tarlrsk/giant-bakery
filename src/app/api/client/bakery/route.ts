@@ -31,8 +31,8 @@ export async function GET(req: NextRequest) {
     }
 
     refreshments.forEach(async (refreshment) => {
-      if (refreshment.imageFileName != null && refreshment.imageFileName != "")
-        refreshment.image = await getFileUrl(refreshment.imageFileName);
+      if (refreshment.imagePath != null && refreshment.imagePath != "")
+        refreshment.image = await getFileUrl(refreshment.imagePath);
     });
 
     return responseWrapper(200, refreshments, null);
