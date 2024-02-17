@@ -123,9 +123,9 @@ export async function POST(req: NextRequest) {
     );
 
     let snackBoxPrice = 0;
-    refreshments.forEach((refreshment) => {
+    for (var refreshment of refreshments) {
       snackBoxPrice += refreshment.price;
-    });
+    }
 
     if (existingItem) {
       cart.items[existingItemIndex] = await prisma.cartItem.update({
