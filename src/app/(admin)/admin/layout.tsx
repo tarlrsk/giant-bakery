@@ -1,8 +1,5 @@
 import * as React from "react";
 
-import "./globals.css";
-import AdminProviders from "./providers";
-
 // ----------------------------------------------------------------------
 
 export default async function Layout({
@@ -10,10 +7,9 @@ export default async function Layout({
 }: {
   children: React.ReactNode;
 }) {
-  // const currentUser = await getCurrentUser();
   return (
-    <AdminProviders>
+    <div className=" flex flex-col h-screen justify-between">
       <main>{children}</main>
-    </AdminProviders>
+    </div>
   );
 }
