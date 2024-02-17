@@ -14,14 +14,14 @@ import TakeoutDiningRoundedIcon from "@mui/icons-material/TakeoutDiningRounded";
 
 const navItems = [
   { label: "Home", icon: <HomeIcon /> },
-  { label: "Order", icon: <BookmarkRoundedIcon /> },
+  { label: "Orders", icon: <BookmarkRoundedIcon /> },
 
   {
-    label: "Product",
+    label: "Products",
     icon: <BakeryDiningRoundedIcon />,
   },
-  { label: "Cake", icon: <TakeoutDiningRoundedIcon /> },
-  { label: "Variant", icon: <LayersIcon /> },
+  { label: "Cakes", icon: <TakeoutDiningRoundedIcon /> },
+  { label: "Variants", icon: <LayersIcon /> },
 ];
 
 // ----------------------------------------------------------------------
