@@ -6,7 +6,6 @@ import React, { useState } from "react";
 import { Button } from "@nextui-org/react";
 
 type Props = {
-  id: string;
   slug: string;
 };
 
