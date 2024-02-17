@@ -8,13 +8,13 @@ import { Refreshment } from "@prisma/client";
 import { useSearchParams } from "next/navigation";
 import ProductDetail from "@/components/ProductDetail";
 
-type BeverageDetailParams = {
+type BakeryDetailParams = {
   params: {
     slug: string;
   };
 };
 
-export default function BeverageDetail({ params }: BeverageDetailParams) {
+export default function BakeryDetail({ params }: BakeryDetailParams) {
   const searchParams = useSearchParams();
 
   const id = searchParams.get("id") as string;
@@ -22,9 +22,9 @@ export default function BeverageDetail({ params }: BeverageDetailParams) {
 
   const decodedSlug = decodeURIComponent(slug) as string;
 
-  const { getBeverageBySlug } = apiPaths();
+  const { getBakeryBySlug } = apiPaths();
 
-  const { data } = useSWR(`${getBeverageBySlug(decodedSlug, id)}`, fetcher);
+  const { data } = useSWR(`${getBakeryBySlug(decodedSlug, id)}`, fetcher);
 
   const item: Refreshment = data?.response?.data || {};
 

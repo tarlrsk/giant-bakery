@@ -24,9 +24,9 @@ export async function GET(req: NextRequest) {
       return responseWrapper(200, null, "No Content");
     }
 
-    for (var cake of cakes) {
-      if (cake.imagePath != null && cake.imagePath != "")
-        cake.image = await getFileUrl(cake.imagePath);
+    for (var item of cakes) {
+      if (item.imagePath != null && item.imagePath != "")
+        item.image = await getFileUrl(item.imagePath);
     }
 
     return responseWrapper(200, cakes, null);

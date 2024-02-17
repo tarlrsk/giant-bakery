@@ -1,5 +1,4 @@
 import React from "react";
-import ProductDetail from "@/components/ProductDetail";
 
 type Props = {
   params: {
@@ -10,8 +9,6 @@ type Props = {
 export default function SnackBoxDetail({ params }: Props) {
   const { slug } = params;
   return (
-    <div className="flex w-auto h-auto items-center justify-center p-[9.1rem]">
-      <ProductDetail slug={slug} />
-    </div>
+    <div className="flex w-auto h-auto items-center justify-center p-[9.1rem]"></div>
   );
 }

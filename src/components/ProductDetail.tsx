@@ -6,10 +6,22 @@ import React, { useState } from "react";
 import { Button } from "@nextui-org/react";
 
 type Props = {
-  slug: string;
+  name: string;
+  description?: string | null;
+  image?: string;
+  weight: string;
+  currQty: number;
+  price: string;
 };
 
-export default function ProductDetail({ slug }: Props) {
+export default function ProductDetail({
+  name,
+  description,
+  image,
+  weight,
+  currQty,
+  price,
+}: Props) {
   const [counter, setCounter] = useState(1);
 
   const handleInputChange = (e: any) => {
@@ -28,37 +40,29 @@ export default function ProductDetail({ slug }: Props) {
     if (counter < 999) setCounter(counter + 1);
   };
 
-  const encodedSlug = decodeURIComponent(slug);
-
   return (
     <div className="relative flex items-center justify-center gap-36">
-      <Image src="/cake-1.svg" alt="cake" width={420} height={420} />
+      <Image src={image as string} alt={name} width={420} height={420} />
 
       <div className="relative flex flex-col w-auto gap-8">
         <div className="relative flex flex-col gap-4">
           <div className="relative flex flex-col gap-5">
-            <h1 className="font-semibold text-4xl leading-normal">
-              {encodedSlug}
-            </h1>
-            <p className="font-normal text-xl">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit.
-            </p>
+            <h1 className="font-semibold text-4xl leading-normal">{name}</h1>
+            <p className="font-normal text-xl">{description}</p>
           </div>
           <div className="relative flex gap-6">
             <div className="relative flex gap-2">
               <h2 className="font-semibold text-xl">น้ำหนัก:</h2>
-              <p className="font-normal text-xl">10 กก</p>
+              <p className="font-normal text-xl">{weight}</p>
             </div>
             <div className="relative flex gap-2">
               <h2 className="font-semibold text-xl">ปริมาณ:</h2>
-              <p className="font-normal text-xl">20 ชิ้น</p>
+              <p className="font-normal text-xl">{currQty}</p>
             </div>
           </div>
-          <div className="relative flex gap-2">
-            <h2 className="font-semibold text-xl">มีส่วนผสมของ:</h2>
-            <p className="font-normal text-xl">ถั่ว แป้ง</p>
+          <div className="font-semibold text-4xl leading-normal">
+            ฿{price}.-
           </div>
-          <div className="font-semibold text-4xl leading-normal">฿49.-</div>
         </div>
 
         <div className="relative flex gap-10">
