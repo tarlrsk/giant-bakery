@@ -31,7 +31,7 @@ export default function CakeItems({
 
   const { getCakes } = apiPaths();
 
-  const { data } = useSWR(`${getCakes()}${type}`, fetcher);
+  const { data } = useSWR(`${getCakes(type as string)}`, fetcher);
 
   const items: Refreshment[] = data?.response?.data || [];
 
