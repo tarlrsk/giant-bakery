@@ -1,7 +1,9 @@
 "use client";
 
+import { Typography } from "@mui/material";
+
 // ----------------------------------------------------------------------
 
 export default function AdminHome() {
-  return <div>Admin Home</div>;
+  return <Typography>Home</Typography>;
 }

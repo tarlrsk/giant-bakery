@@ -10,7 +10,6 @@ export default async function Layout({
 }: {
   children: React.ReactNode;
 }) {
-  // const currentUser = await getCurrentUser();
   return (
     <AdminProviders>
       <main>{children}</main>
