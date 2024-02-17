@@ -407,6 +407,7 @@ enum RefreshmentCategory {
   PIE
   COOKIE
   SNACK
+  PRESET_SNACK_BOX
 }
 
 enum CakeType {

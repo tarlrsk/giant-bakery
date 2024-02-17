@@ -24,6 +24,9 @@
   - Added the required column `orderId` to the `Payment` table without a default value. This is not possible if the table is not empty.
 
 */
+-- AlterEnum
+ALTER TYPE "RefreshmentCategory" ADD VALUE 'PRESET_SNACK_BOX';
+
 -- DropForeignKey
 ALTER TABLE "Order" DROP CONSTRAINT "Order_discountId_fkey";
 
