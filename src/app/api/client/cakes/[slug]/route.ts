@@ -37,6 +37,8 @@ export async function GET(req: NextRequest, { params }: GetCakeBySlug) {
     if (cake.imagePath != null && cake.imagePath != "") {
       cake.image = await getFileUrl(cake.imagePath);
     }
+
+    return responseWrapper(200, cake, null);
   } catch (err: any) {
     return responseWrapper(500, null, err.message);
   }
