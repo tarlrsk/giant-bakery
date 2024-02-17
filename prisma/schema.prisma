@@ -233,12 +233,11 @@ model Order {
   orderedAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 
-  user      User       @relation(fields: [userId], references: [id])
-  payment   Payment    @relation(fields: [paymentId], references: [id])
-  discount  Discount[]
-  userId    String     @unique
-  paymentId String
-  remark    String
+  user     User       @relation(fields: [userId], references: [id])
+  payment  Payment[]
+  discount Discount[]
+  userId   String     @unique
+  remark   String?
 
   // Address
   cFirstName       String
@@ -376,7 +375,8 @@ model Payment {
   status    PaymentStatus
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
-  order     Order[]
+  order     Order         @relation(fields: [orderId], references: [id])
+  orderId   String
 }
 
 model Discount {

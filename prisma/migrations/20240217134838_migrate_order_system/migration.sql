@@ -4,6 +4,7 @@
   - You are about to drop the column `discountId` on the `Order` table. All the data in the column will be lost.
   - You are about to drop the column `height` on the `Order` table. All the data in the column will be lost.
   - You are about to drop the column `length` on the `Order` table. All the data in the column will be lost.
+  - You are about to drop the column `paymentId` on the `Order` table. All the data in the column will be lost.
   - You are about to drop the column `price` on the `Order` table. All the data in the column will be lost.
   - You are about to drop the column `weight` on the `Order` table. All the data in the column will be lost.
   - You are about to drop the column `width` on the `Order` table. All the data in the column will be lost.
@@ -16,15 +17,18 @@
   - Added the required column `phone` to the `Order` table without a default value. This is not possible if the table is not empty.
   - Added the required column `postcode` to the `Order` table without a default value. This is not possible if the table is not empty.
   - Added the required column `province` to the `Order` table without a default value. This is not possible if the table is not empty.
-  - Added the required column `remark` to the `Order` table without a default value. This is not possible if the table is not empty.
   - Added the required column `shippingFee` to the `Order` table without a default value. This is not possible if the table is not empty.
   - Added the required column `subTotalPrice` to the `Order` table without a default value. This is not possible if the table is not empty.
   - Added the required column `subdistrict` to the `Order` table without a default value. This is not possible if the table is not empty.
   - Added the required column `totalPrice` to the `Order` table without a default value. This is not possible if the table is not empty.
+  - Added the required column `orderId` to the `Payment` table without a default value. This is not possible if the table is not empty.
 
 */
 -- DropForeignKey
 ALTER TABLE "Order" DROP CONSTRAINT "Order_discountId_fkey";
+
+-- DropForeignKey
+ALTER TABLE "Order" DROP CONSTRAINT "Order_paymentId_fkey";
 
 -- DropForeignKey
 ALTER TABLE "OrderItem" DROP CONSTRAINT "OrderItem_cakeId_fkey";
@@ -45,6 +49,7 @@ ALTER TABLE "OrderItem" DROP CONSTRAINT "OrderItem_snackId_fkey";
 ALTER TABLE "Order" DROP COLUMN "discountId",
 DROP COLUMN "height",
 DROP COLUMN "length",
+DROP COLUMN "paymentId",
 DROP COLUMN "price",
 DROP COLUMN "weight",
 DROP COLUMN "width",
@@ -56,11 +61,14 @@ ADD COLUMN     "district" TEXT NOT NULL,
 ADD COLUMN     "phone" TEXT NOT NULL,
 ADD COLUMN     "postcode" TEXT NOT NULL,
 ADD COLUMN     "province" TEXT NOT NULL,
-ADD COLUMN     "remark" TEXT NOT NULL,
+ADD COLUMN     "remark" TEXT,
 ADD COLUMN     "shippingFee" DOUBLE PRECISION NOT NULL,
 ADD COLUMN     "subTotalPrice" DOUBLE PRECISION NOT NULL,
 ADD COLUMN     "subdistrict" TEXT NOT NULL,
 ADD COLUMN     "totalPrice" DOUBLE PRECISION NOT NULL;
+
+-- AlterTable
+ALTER TABLE "Payment" ADD COLUMN     "orderId" TEXT NOT NULL;
 
 -- DropTable
 DROP TABLE "OrderItem";
@@ -232,6 +240,9 @@ ALTER TABLE "OrderSnackBoxRefreshment" ADD CONSTRAINT "OrderSnackBoxRefreshment_
 
 -- AddForeignKey
 ALTER TABLE "OrderSnackBoxRefreshment" ADD CONSTRAINT "OrderSnackBoxRefreshment_unitTypeId_fkey" FOREIGN KEY ("unitTypeId") REFERENCES "UnitType"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Payment" ADD CONSTRAINT "Payment_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_OrderPresetCakeToVariant" ADD CONSTRAINT "_OrderPresetCakeToVariant_A_fkey" FOREIGN KEY ("A") REFERENCES "OrderPresetCake"("id") ON DELETE CASCADE ON UPDATE CASCADE;
