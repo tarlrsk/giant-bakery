@@ -411,6 +411,7 @@ enum RefreshmentCategory {
   PIE
   COOKIE
   SNACK
+  CAKE
 }
 
 enum CakeType {
