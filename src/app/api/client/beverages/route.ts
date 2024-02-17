@@ -8,7 +8,7 @@ export async function GET(_req: NextRequest) {
   try {
     const type: RefreshmentType = "BEVERAGE";
 
-    const refreshments = await prisma.refreshment.findMany({
+    const beverages = await prisma.refreshment.findMany({
       where: {
         type: type,
         isActive: true,
@@ -20,16 +20,16 @@ export async function GET(_req: NextRequest) {
       orderBy: { name: "asc" },
     });
 
-    if (refreshments.length === 0) {
+    if (beverages.length === 0) {
       return responseWrapper(200, null, "No Content");
     }
 
-    for (var refreshment of refreshments) {
-      if (refreshment.imagePath != null && refreshment.imagePath != "")
-        refreshment.image = await getFileUrl(refreshment.imagePath);
+    for (var item of beverages) {
+      if (item.imagePath != null && item.imagePath != "")
+        item.image = await getFileUrl(item.imagePath);
     }
 
-    return responseWrapper(200, refreshments, null);
+    return responseWrapper(200, beverages, null);
   } catch (err: any) {
     return responseWrapper(500, null, err.message);
   }

@@ -1,3 +1,5 @@
+import { IBakeryCategory } from "@/components/BakeryItems";
+
 export const baseUrl = process.env.NEXT_PUBLIC_URL as string;
 const interExpressUrl = process.env.NEXT_PUBLIC_INTER_EXPRESS_API as string;
 
@@ -23,10 +25,8 @@ const apiPaths = () => {
   const updateCartItem = createClientUrl("carts");
 
   // Bakery
-  const getBakeryByCat = (category: string) =>
-    createClientUrl(`bakery?category=${category}`);
-
-  const getBakeries = () => createClientUrl(`bakery?category=`);
+  const getBakeries = (category: IBakeryCategory) =>
+    createClientUrl(`bakeries?category=${category}`);
 
   // Beverage
   const getBeverages = () => createClientUrl(`beverages`);
@@ -65,10 +65,9 @@ const apiPaths = () => {
     getCart,
     updateCartItem,
     deleteCartItem,
-    getBakeryByCat,
-    getCakes,
     getBakeries,
     getBeverages,
+    getCakes,
     getCakesByType,
     getCustomerAddress,
     createCustomerAddress,

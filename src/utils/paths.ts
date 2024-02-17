@@ -3,7 +3,7 @@ const paths = {
     return "/";
   },
   bakeryList() {
-    return "/bakery";
+    return "/bakeries";
   },
   beverageList() {
     return "/beverages";
