@@ -3,10 +3,7 @@ const paths = {
     return "/";
   },
   bakeryList() {
-    return "/bakeries?category=";
-  },
-  bakeryItem(slug: string, id: string) {
-    return `/bakeries/${slug}?id=${id}`;
+    return "/bakery";
   },
   beverageList() {
     return "/beverages";

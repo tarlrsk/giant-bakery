@@ -26,10 +26,7 @@ const apiPaths = () => {
 
   // Bakery
   const getBakeries = (category: IBakeryCategory) =>
-    createClientUrl(`bakeries?category=${category}`);
-
-  const getBakeryBySlug = (slug: string, id: string) =>
-    createClientUrl(`bakeries/${slug}?id=${id}`);
+    createClientUrl(`bakery?category=${category}`);
 
   // Beverage
   const getBeverages = () => createClientUrl(`beverages`);
@@ -69,7 +66,6 @@ const apiPaths = () => {
     updateCartItem,
     deleteCartItem,
     getBakeries,
-    getBakeryBySlug,
     getBeverages,
     getCakes,
     getCakesByType,
