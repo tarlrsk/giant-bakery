@@ -1,59 +1,83 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Box,
-  Tab,
-  Tabs,
-  AppBar,
-  Button,
-  Toolbar,
-  Container,
-  Typography,
-} from "@mui/material";
+import { useRouter } from "next/navigation";
+import HomeIcon from "@mui/icons-material/Home";
+import LayersIcon from "@mui/icons-material/Layers";
+import { Box, Tab, Tabs, Stack, AppBar } from "@mui/material";
+import BookmarkRoundedIcon from "@mui/icons-material/BookmarkRounded";
+import BakeryDiningRoundedIcon from "@mui/icons-material/BakeryDiningRounded";
+import TakeoutDiningRoundedIcon from "@mui/icons-material/TakeoutDiningRounded";
 
-const navItems = ["Home", "About", "Contact"];
+// ----------------------------------------------------------------------
+
+const navItems = [
+  { label: "Home", icon: <HomeIcon /> },
+  { label: "Order", icon: <BookmarkRoundedIcon /> },
+
+  {
+    label: "Product",
+    icon: <BakeryDiningRoundedIcon />,
+  },
+  { label: "Cake", icon: <TakeoutDiningRoundedIcon /> },
+  { label: "Variant", icon: <LayersIcon /> },
+];
+
+// ----------------------------------------------------------------------
 
 export default function AdminNavbar() {
-  const [value, setValue] = useState(0);
+  const router = useRouter();
+  const [currentPage, setCurrentPage] = useState("Home");
 
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue);
+  const handleChange = (event: React.SyntheticEvent, page: string) => {
+    setCurrentPage(page);
+    if (page === "Home") return router.push("/admin");
+    router.push(`/admin/${page.toLocaleLowerCase()}`);
   };
 
   return (
-    <Box sx={{ display: "flex" }}>
-      <AppBar component="nav">
-        <Container maxWidth="xl">
-          <Toolbar>
-            <Typography
-              variant="h6"
-              component="div"
-              sx={{ flexGrow: 1, display: { xs: "none", sm: "block" } }}
+    <AppBar
+      component="nav"
+      color="default"
+      sx={{
+        boxShadow: 0,
+        borderBottom: 0.25,
+        borderColor: "divider",
+      }}
+    >
+      <Stack direction="row" position="relative">
+        <Box
+          sx={{
+            width: "48px",
+            height: "48.5px",
+            backgroundColor: "secondary.main",
+            position: "absolute",
+          }}
+        />
+
+        <Stack direction="row" alignItems="flex-end" ml={10}>
+          <Box sx={{ height: 1 }}>
+            <Tabs
+              value={currentPage}
+              onChange={handleChange}
+              textColor="secondary"
+              indicatorColor="secondary"
             >
-              Cukedoh
-            </Typography>
-            <Tabs>
-              <Tabs
-                value={value}
-                onChange={handleChange}
-                aria-label="basic tabs example"
-              >
-                <Tab label="Item One" />
-                <Tab label="Item Two" />
-                <Tab label="Item Three" />
-              </Tabs>
-            </Tabs>
-            <Box sx={{ display: { xs: "none", sm: "block" } }}>
-              {navItems.map((item) => (
-                <Button key={item} sx={{ color: "#fff" }}>
-                  {item}
-                </Button>
+              {navItems.map((item, index) => (
+                <Tab
+                  key={index}
+                  disableRipple
+                  iconPosition="start"
+                  icon={item.icon}
+                  label={item.label}
+                  value={item.label}
+                  sx={{ py: 0, minHeight: "48px" }}
+                />
               ))}
-            </Box>
-          </Toolbar>
-        </Container>
-      </AppBar>
-    </Box>
+            </Tabs>
+          </Box>
+        </Stack>
+      </Stack>
+    </AppBar>
   );
 }
