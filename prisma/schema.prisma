@@ -47,7 +47,6 @@ model User {
   email          String?           @unique
   emailVerified  DateTime?
   hashedPassword String?
-  image          String?
   phone          String?
   role           Role              @default(CUSTOMER)
   accounts       Account[]
@@ -115,7 +114,6 @@ model Cake {
   quantity      Int       @default(0)
   imageFileName String?
   imagePath     String?
-  image         String?
   type          CakeType
   price         Float
   weight        Float
@@ -156,7 +154,6 @@ model Variant {
   name          String
   imageFileName String?
   imagePath     String?
-  image         String?
   type          VariantType
   isActive      Boolean
   isVisualized  Boolean
@@ -179,7 +176,6 @@ model Refreshment {
   quantity      Int                  @default(0)
   imageFileName String?
   imagePath     String?
-  image         String?
   type          RefreshmentType
   category      RefreshmentCategory?
   status        StockStatus
@@ -204,12 +200,16 @@ model Refreshment {
 }
 
 model SnackBox {
-  id           String                @id @default(uuid())
-  price        Float
-  packageType  SnackBoxPackageType   @default(SNACK_BOX_S)
-  beverage     SnackBoxBeverage      @default(NONE)
-  cartItems    CartItem?
-  refreshments SnackBoxRefreshment[]
+  id            String                @id @default(uuid())
+  name          String                @default("")
+  imageFilename String?
+  imagePath     String?
+  type          SnackBoxType          @default(CUSTOM)
+  price         Float
+  packageType   SnackBoxPackageType   @default(SNACK_BOX_S)
+  beverage      SnackBoxBeverage      @default(NONE)
+  cartItems     CartItem?
+  refreshments  SnackBoxRefreshment[]
 }
 
 model SnackBoxRefreshment {
@@ -261,7 +261,6 @@ model OrderPresetCake {
   quantity      Int     @default(0)
   imageFileName String?
   imagePath     String?
-  image         String?
   price         Float
   weight        Float
   height        Float
@@ -285,7 +284,6 @@ model OrderCustomCake {
   quantity      Int     @default(0)
   imageFileName String?
   imagePath     String?
-  image         String?
   price         Float
   weight        Float
   height        Float
@@ -310,7 +308,6 @@ model OrderRefreshment {
   quantity      Int                  @default(0)
   imageFileName String?
   imagePath     String?
-  image         String?
   type          RefreshmentType
   category      RefreshmentCategory?
   weight        Float
@@ -342,7 +339,6 @@ model OrderSnackBoxRefreshment {
   quantity        Int                  @default(0)
   imageFileName   String?
   imagePath       String?
-  image           String?
   type            RefreshmentType
   category        RefreshmentCategory?
   weight          Float
@@ -407,7 +403,6 @@ enum RefreshmentCategory {
   PIE
   COOKIE
   SNACK
-  PRESET_SNACK_BOX
 }
 
 enum CakeType {
@@ -477,6 +472,11 @@ enum PaymentStatus {
 enum DiscountType {
   NORMAL
   SNACK_BOX
+}
+
+enum SnackBoxType {
+  PRESET
+  CUSTOM
 }
 
 enum SnackBoxPackageType {
