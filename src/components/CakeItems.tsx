@@ -31,7 +31,7 @@ export default function CakeItems({
 
   const { getCakes } = apiPaths();
 
-  const { data } = useSWR(`${getCakes()}${type}`, fetcher);
+  const { data } = useSWR(`${getCakes(type as string)}`, fetcher);
 
   const items: Refreshment[] = data?.response?.data || [];
 
@@ -64,7 +64,10 @@ export default function CakeItems({
             onClick={
               onClick
                 ? () => onClick(item)
-                : () => router.push(`/cakes/${item.name}?id=${item.id}`)
+                : type === "PRESET"
+                  ? () =>
+                      router.push(`/cakes/preset/${item.name}?id=${item.id}`)
+                  : () => {}
             }
           />
         ))}
