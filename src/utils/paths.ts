@@ -5,6 +5,9 @@ const paths = {
   bakeryList() {
     return "/bakeries";
   },
+  bakeryItem(slug: string, id: string) {
+    return `/bakeries/${slug}?id=${id}`;
+  },
   beverageList() {
     return "/beverages";
   },
