@@ -44,11 +44,9 @@ export const customerSignUpValidationSchema = z
     path: ["confirmPassword"],
   });
 
-export const customerSignInValidationSchema = z.object({
-  email: z.string().min(1, "กรุณาใส่อีเมล").email("กรุณาใส่อีเมลที่ถูกต้อง"),
-  password: z
-    .string({ required_error: "Password is required." })
-    .min(8, "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร"),
+export const signInValidationSchema = z.object({
+  email: z.string({ required_error: "กรุณาใส่อีเมล" }),
+  password: z.string({ required_error: "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร" }),
 });
 
 // Customer Address ----------------------------------------------------------

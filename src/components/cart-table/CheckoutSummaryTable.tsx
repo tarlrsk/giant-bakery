@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import React, { useMemo } from "react";
-import { ICartItem } from "@/app/cart/types";
+import { ICartItem } from "@/app/(client)/cart/types";
 
 import {
   User,

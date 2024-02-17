@@ -2,7 +2,7 @@
 
 import toast from "react-hot-toast";
 import React, { useMemo } from "react";
-import { ICartItem } from "@/app/cart/types";
+import { ICartItem } from "@/app/(client)/cart/types";
 
 import {
   User,
