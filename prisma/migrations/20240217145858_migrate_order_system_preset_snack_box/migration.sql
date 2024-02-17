@@ -1,7 +1,6 @@
 /*
   Warnings:
 
-  - You are about to drop the column `image` on the `Cake` table. All the data in the column will be lost.
   - You are about to drop the column `discountId` on the `Order` table. All the data in the column will be lost.
   - You are about to drop the column `height` on the `Order` table. All the data in the column will be lost.
   - You are about to drop the column `length` on the `Order` table. All the data in the column will be lost.
@@ -9,9 +8,6 @@
   - You are about to drop the column `price` on the `Order` table. All the data in the column will be lost.
   - You are about to drop the column `weight` on the `Order` table. All the data in the column will be lost.
   - You are about to drop the column `width` on the `Order` table. All the data in the column will be lost.
-  - You are about to drop the column `image` on the `Refreshment` table. All the data in the column will be lost.
-  - You are about to drop the column `image` on the `User` table. All the data in the column will be lost.
-  - You are about to drop the column `image` on the `Variant` table. All the data in the column will be lost.
   - You are about to drop the `OrderItem` table. If the table is not empty, all the data it contains will be lost.
   - Added the required column `address` to the `Order` table without a default value. This is not possible if the table is not empty.
   - Added the required column `cFirstName` to the `Order` table without a default value. This is not possible if the table is not empty.
@@ -53,9 +49,6 @@ ALTER TABLE "OrderItem" DROP CONSTRAINT "OrderItem_snackBoxId_fkey";
 ALTER TABLE "OrderItem" DROP CONSTRAINT "OrderItem_snackId_fkey";
 
 -- AlterTable
-ALTER TABLE "Cake" DROP COLUMN "image";
-
--- AlterTable
 ALTER TABLE "Order" DROP COLUMN "discountId",
 DROP COLUMN "height",
 DROP COLUMN "length",
@@ -81,19 +74,10 @@ ADD COLUMN     "totalPrice" DOUBLE PRECISION NOT NULL;
 ALTER TABLE "Payment" ADD COLUMN     "orderId" TEXT NOT NULL;
 
 -- AlterTable
-ALTER TABLE "Refreshment" DROP COLUMN "image";
-
--- AlterTable
 ALTER TABLE "SnackBox" ADD COLUMN     "imageFilename" TEXT,
 ADD COLUMN     "imagePath" TEXT,
 ADD COLUMN     "name" TEXT NOT NULL DEFAULT '',
 ADD COLUMN     "type" "SnackBoxType" NOT NULL DEFAULT 'CUSTOM';
-
--- AlterTable
-ALTER TABLE "User" DROP COLUMN "image";
-
--- AlterTable
-ALTER TABLE "Variant" DROP COLUMN "image";
 
 -- DropTable
 DROP TABLE "OrderItem";
@@ -107,6 +91,7 @@ CREATE TABLE "OrderPresetCake" (
     "quantity" INTEGER NOT NULL DEFAULT 0,
     "imageFileName" TEXT,
     "imagePath" TEXT,
+    "image" TEXT,
     "price" DOUBLE PRECISION NOT NULL,
     "weight" DOUBLE PRECISION NOT NULL,
     "height" DOUBLE PRECISION NOT NULL,
@@ -128,6 +113,7 @@ CREATE TABLE "OrderCustomCake" (
     "quantity" INTEGER NOT NULL DEFAULT 0,
     "imageFileName" TEXT,
     "imagePath" TEXT,
+    "image" TEXT,
     "price" DOUBLE PRECISION NOT NULL,
     "weight" DOUBLE PRECISION NOT NULL,
     "height" DOUBLE PRECISION NOT NULL,
@@ -150,6 +136,7 @@ CREATE TABLE "OrderRefreshment" (
     "quantity" INTEGER NOT NULL DEFAULT 0,
     "imageFileName" TEXT,
     "imagePath" TEXT,
+    "image" TEXT,
     "type" "RefreshmentType" NOT NULL,
     "category" "RefreshmentCategory",
     "weight" DOUBLE PRECISION NOT NULL,
@@ -183,6 +170,7 @@ CREATE TABLE "OrderSnackBoxRefreshment" (
     "quantity" INTEGER NOT NULL DEFAULT 0,
     "imageFileName" TEXT,
     "imagePath" TEXT,
+    "image" TEXT,
     "type" "RefreshmentType" NOT NULL,
     "category" "RefreshmentCategory",
     "weight" DOUBLE PRECISION NOT NULL,
