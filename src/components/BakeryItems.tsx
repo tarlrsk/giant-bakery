@@ -51,7 +51,7 @@ export default function BakeryItems({
           onClick={
             onClick
               ? () => onClick(item)
-              : () => router.push(`/bakery/${item.name}?id=${item.id}`)
+              : () => router.push(`/bakeries/${item.name}?id=${item.id}`)
           }
         />
       ))}
