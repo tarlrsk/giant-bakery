@@ -64,7 +64,10 @@ export default function CakeItems({
             onClick={
               onClick
                 ? () => onClick(item)
-                : () => router.push(`/cakes/${item.name}?id=${item.id}`)
+                : type === "PRESET"
+                  ? () =>
+                      router.push(`/cakes/preset/${item.name}?id=${item.id}`)
+                  : () => {}
             }
           />
         ))}
