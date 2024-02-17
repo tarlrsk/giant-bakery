@@ -1,7 +1,6 @@
 "use client";
 
-import React from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import React, { useState } from "react";
 
 import { Tab, Tabs } from "@nextui-org/react";
 
@@ -16,15 +15,7 @@ const TAB_ITEMS = [
 ];
 
 export default function BakeryTab() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const bakeryCategory = searchParams.get("category") as IBakeryCategory;
-
-  const handleTabSelectionChange = (selectedCategory: IBakeryCategory) => {
-    router.push(`/bakeries?category=${selectedCategory}`, {
-      scroll: false,
-    });
-  };
+  const [selectedCategory, setSelectedCategory] = useState<IBakeryCategory>("");
 
   return (
     <div className="flex flex-col justify-center items-center gap-20">
@@ -32,10 +23,8 @@ export default function BakeryTab() {
         variant={"underlined"}
         aria-label="Tabs"
         items={TAB_ITEMS}
-        selectedKey={bakeryCategory}
-        onSelectionChange={(e) =>
-          handleTabSelectionChange(e as IBakeryCategory)
-        }
+        selectedKey={selectedCategory}
+        onSelectionChange={(e) => setSelectedCategory(e as IBakeryCategory)}
       >
         {TAB_ITEMS.map((item) => (
           <Tab
@@ -46,7 +35,7 @@ export default function BakeryTab() {
         ))}
       </Tabs>
       <div className="container px-6 pb-40">
-        <BakeryItems cols={4} category={bakeryCategory} />
+        <BakeryItems cols={4} category={selectedCategory} />
       </div>
     </div>
   );

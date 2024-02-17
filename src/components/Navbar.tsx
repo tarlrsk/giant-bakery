@@ -37,7 +37,7 @@ import DropdownIcon from "./icons/DropdownIcon";
 // ----------------------------------------------------------------------
 
 const NAV_ITEMS = [
-  { label: "เบเกอรี่", link: "/bakeries?catergory=" },
+  { label: "เบเกอรี่", link: "/bakeries" },
   { label: "เครื่องดื่ม", link: "/beverages" },
   { label: "เค้ก", link: "/cakes" },
   { label: "ชุดเบรก", link: "/snack-box" },
