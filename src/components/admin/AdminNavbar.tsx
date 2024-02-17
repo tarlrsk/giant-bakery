@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import HomeIcon from "@mui/icons-material/Home";
 import LayersIcon from "@mui/icons-material/Layers";
-import { Box, Tab, Tabs, Stack, AppBar } from "@mui/material";
+import { Box, Tab, Tabs, Stack, AppBar, Button } from "@mui/material";
 import BookmarkRoundedIcon from "@mui/icons-material/BookmarkRounded";
 import BakeryDiningRoundedIcon from "@mui/icons-material/BakeryDiningRounded";
 import TakeoutDiningRoundedIcon from "@mui/icons-material/TakeoutDiningRounded";
@@ -27,6 +28,7 @@ const navItems = [
 
 export default function AdminNavbar() {
   const router = useRouter();
+  const { onSignOut } = useAuth();
   const [currentPage, setCurrentPage] = useState("Home");
 
   const handleChange = (event: React.SyntheticEvent, page: string) => {
@@ -45,7 +47,12 @@ export default function AdminNavbar() {
         borderColor: "divider",
       }}
     >
-      <Stack direction="row" position="relative">
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        position="relative"
+      >
         <Box
           sx={{
             width: "48px",
@@ -77,6 +84,15 @@ export default function AdminNavbar() {
             </Tabs>
           </Box>
         </Stack>
+        <Button
+          size="small"
+          variant="outlined"
+          color="secondary"
+          sx={{ mr: 4, height: "36px" }}
+          onClick={() => onSignOut()}
+        >
+          Log out
+        </Button>
       </Stack>
     </AppBar>
   );
