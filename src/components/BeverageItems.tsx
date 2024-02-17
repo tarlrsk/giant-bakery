@@ -30,7 +30,7 @@ export default function BeverageItems({
     <div
       className={`grid grid-cols-${cols} gap-${
         size === "sm" ? 4 : 14
-      } justify-center items-baseline`}
+      } justify-center items-baseline hover:cursor-pointer`}
       {...other}
     >
       {Object.values(items)?.map((item: Refreshment) => (
@@ -43,7 +43,7 @@ export default function BeverageItems({
           onClick={
             onClick
               ? () => onClick(item)
-              : () => router.push(`/beverages/${item.name}?${item.id}`)
+              : () => router.push(`/beverages/${item.name}?id=${item.id}`)
           }
         />
       ))}
