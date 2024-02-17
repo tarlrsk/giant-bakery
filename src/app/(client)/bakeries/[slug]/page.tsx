@@ -11,7 +11,7 @@ export default function BakeryDetail({ params }: Props) {
   const { slug } = params;
   return (
     <div className="flex w-auto h-auto items-center justify-center p-[9.1rem]">
-      <ProductDetail slug={slug} />
+      <ProductDetail slug={slug} id={""} />
     </div>
   );
 }

@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
       "category",
     ) as RefreshmentCategory;
 
-    const refreshments = await prisma.refreshment.findMany({
+    const bakeries = await prisma.refreshment.findMany({
       where: {
         type: RefreshmentType.BAKERY,
         category:
@@ -24,16 +24,16 @@ export async function GET(req: NextRequest) {
       orderBy: [{ category: "asc" }, { name: "asc" }],
     });
 
-    if (refreshments.length === 0) {
+    if (bakeries.length === 0) {
       return responseWrapper(200, null, "No Content");
     }
 
-    for (var refreshment of refreshments) {
-      if (refreshment.imagePath != null && refreshment.imagePath != "")
-        refreshment.image = await getFileUrl(refreshment.imagePath);
+    for (var item of bakeries) {
+      if (item.imagePath != null && item.imagePath != "")
+        item.image = await getFileUrl(item.imagePath);
     }
 
-    return responseWrapper(200, refreshments, null);
+    return responseWrapper(200, bakeries, null);
   } catch (err: any) {
     return responseWrapper(500, null, err.message);
   }
