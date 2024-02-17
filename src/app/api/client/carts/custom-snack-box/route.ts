@@ -2,14 +2,14 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { CartItemType } from "@prisma/client";
 import { responseWrapper } from "@/utils/api-response-wrapper";
-import { cartSnackBoxValidationSchema } from "@/lib/validationSchema";
+import { cartCustomSnackBoxValidationSchema } from "@/lib/validationSchema";
 
 // ----------------------------------------------------------------------
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const validation = cartSnackBoxValidationSchema.safeParse(body);
+    const validation = cartCustomSnackBoxValidationSchema.safeParse(body);
 
     if (!validation.success) {
       return responseWrapper(400, null, validation.error.format());
@@ -111,7 +111,9 @@ export async function POST(req: NextRequest) {
         item.snackBox?.refreshments.length === refreshmentIds.length &&
         item.snackBox?.refreshments.every((refreshment) =>
           refreshmentIds.includes(refreshment.id),
-        ),
+        ) &&
+        item.snackBox?.beverage === body.beverage &&
+        item.snackBox?.packageType == body.packageType,
     );
 
     const existingItemIndex = cart.items.findIndex(
@@ -119,7 +121,9 @@ export async function POST(req: NextRequest) {
         item.snackBox?.refreshments.length === refreshmentIds.length &&
         item.snackBox?.refreshments.every((refreshment) =>
           refreshmentIds.includes(refreshment.id),
-        ),
+        ) &&
+        item.snackBox?.beverage === body.beverage &&
+        item.snackBox?.packageType == body.packageType,
     );
 
     let snackBoxPrice = 0;
@@ -149,6 +153,8 @@ export async function POST(req: NextRequest) {
               quantity: quantity,
               snackBox: {
                 create: {
+                  beverage: body.beverage,
+                  packageType: body.packageType,
                   price: snackBoxPrice,
                   refreshments: {
                     create: refreshmentIds.map((refreshmentId: string) => ({
