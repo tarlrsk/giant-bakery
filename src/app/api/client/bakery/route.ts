@@ -28,10 +28,10 @@ export async function GET(req: NextRequest) {
       return responseWrapper(200, null, "No Content");
     }
 
-    refreshments.forEach(async (refreshment) => {
+    for (var refreshment of refreshments) {
       if (refreshment.imagePath != null && refreshment.imagePath != "")
         refreshment.image = await getFileUrl(refreshment.imagePath);
-    });
+    }
 
     return responseWrapper(200, refreshments, null);
   } catch (err: any) {
