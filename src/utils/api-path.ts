@@ -28,15 +28,20 @@ const apiPaths = () => {
   const getBakeries = (category: IBakeryCategory) =>
     createClientUrl(`bakeries?category=${category}`);
 
+  const getBakeryBySlug = (slug: string, id: string) =>
+    createClientUrl(`bakeries/${slug}?id=${id}`);
+
   // Beverage
   const getBeverages = () => createClientUrl(`beverages`);
 
-  // Cake
-  const getCakes = () => createClientUrl(`cakes?type=`);
+  const getBeverageBySlug = (slug: string, id: string) =>
+    createClientUrl(`beverages/${slug}?id=${id}`);
 
   // Cake
-  const getCakesByType = (type: string) =>
-    createClientUrl(`cakes?type=${type}`);
+  const getCakes = (type: string) => createClientUrl(`cakes?type=${type}`);
+
+  const getCakeBySlug = (slug: string, id: string) =>
+    createClientUrl(`cakes/${slug}?id=${id}`);
 
   // Customer Address
   const getCustomerAddress = (userId: string) =>
@@ -66,9 +71,11 @@ const apiPaths = () => {
     updateCartItem,
     deleteCartItem,
     getBakeries,
+    getBakeryBySlug,
     getBeverages,
+    getBeverageBySlug,
     getCakes,
-    getCakesByType,
+    getCakeBySlug,
     getCustomerAddress,
     createCustomerAddress,
     updateCustomerAddress,

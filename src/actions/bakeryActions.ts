@@ -19,6 +19,14 @@ export async function getBakeriesByCategory(category: IBakeryCategory) {
   return data;
 }
 
-// export async function getBakeryBySlug(slug: string) {
-//   const
-// }
+export async function getBakeryBySlug(slug: string, id: string) {
+  const { getBakeryBySlug } = apiPaths();
+
+  const res = await fetch(getBakeryBySlug(slug, id));
+
+  const data = await res.json();
+
+  revalidatePath(paths.bakeryItem(slug, id));
+
+  return data;
+}
