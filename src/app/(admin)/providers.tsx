@@ -5,28 +5,18 @@ import { createTheme, ThemeProvider } from "@mui/material";
 
 // ----------------------------------------------------------------------
 
-interface ExtendedPaletteColorOptions {
-  lighter?: string;
-  light: string;
-  main: string;
-  dark: string;
-  darker?: string;
-  "50"?: string;
-  "100"?: string;
-  "200"?: string;
-  "300"?: string;
-  "400"?: string;
-  "500"?: string;
-  "600"?: string;
-  "700"?: string;
-  "800"?: string;
-  "900"?: string;
-  "950"?: string;
-  contrastText?: string;
-}
-
-declare module "@mui/material/styles" {
-  interface PaletteColorOptions extends ExtendedPaletteColorOptions {}
+declare module "@mui/material/styles/createPalette" {
+  interface TypeBackground {
+    neutral: string;
+  }
+  interface SimplePaletteColorOptions {
+    lighter: string;
+    darker: string;
+  }
+  interface PaletteColor {
+    lighter: string;
+    darker: string;
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -34,6 +24,9 @@ declare module "@mui/material/styles" {
 const theme = createTheme({
   typography: {
     fontFamily: ["IBM Plex Sans Thai", "Roboto"].join(","),
+    button: {
+      textTransform: "none",
+    },
   },
   palette: {
     primary: {
@@ -53,7 +46,6 @@ const theme = createTheme({
       "700": "#b76017",
       "800": "#924b1a",
       "900": "#753f19",
-      "950": "#3f1e0b",
     },
     secondary: {
       lighter: "#fffac2",
@@ -71,7 +63,6 @@ const theme = createTheme({
       "700": "#a36205",
       "800": "#864d0d",
       "900": "#723f11",
-      "950": "#401708",
       contrastText: "#FFFFFF",
     },
     background: {
