@@ -12,16 +12,18 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     <Box height="100vh">
       <AdminNavbar />
       <Toolbar disableGutters sx={{ minHeight: "0 !important", height: 40 }} />
-      <Box height={1} sx={{ backgroundColor: "#F5F6FA" }}>
-        <Grid container spacing={4} sx={{ height: 1 }}>
-          <Grid item xs={2}>
-            <AdminSidebarCard />
-          </Grid>
-          <Grid item xs={10} sx={{ mt: 5 }}>
-            {children}
-          </Grid>
+      <Grid
+        container
+        spacing={4}
+        sx={{ height: 1, pr: 4, backgroundColor: "#F5F6FA" }}
+      >
+        <Grid item xs={2}>
+          <AdminSidebarCard />
         </Grid>
-      </Box>
+        <Grid item xs={10} sx={{ mt: 5 }}>
+          {children}
+        </Grid>
+      </Grid>
     </Box>
   );
 }
