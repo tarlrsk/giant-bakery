@@ -1,5 +1,7 @@
+import paths from "@/utils/paths";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { revalidatePath } from "next/cache";
 import { SnackBoxType } from "@prisma/client";
 import { getFileUrl } from "@/lib/gcs/getFileUrl";
 import { responseWrapper } from "@/utils/api-response-wrapper";
@@ -34,6 +36,8 @@ export async function GET(_req: NextRequest) {
         }
       }
     }
+
+    revalidatePath(paths.snackBoxList());
 
     return responseWrapper(200, snackBoxes, null);
   } catch (err: any) {

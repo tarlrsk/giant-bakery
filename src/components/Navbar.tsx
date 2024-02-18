@@ -40,7 +40,7 @@ const NAV_ITEMS = [
   { label: "เบเกอรี่", link: "/bakeries?category=" },
   { label: "เครื่องดื่ม", link: "/beverages" },
   { label: "เค้ก", link: "/cakes" },
-  { label: "ชุดเบรก", link: "/snack-box" },
+  { label: "ชุดเบรก", link: "/snack-boxes" },
 ];
 
 // ----------------------------------------------------------------------

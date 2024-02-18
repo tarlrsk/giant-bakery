@@ -539,11 +539,11 @@ export default function CustomSnackBox() {
   );
 
   return (
-    <div className=" w-fit mx-auto">
-      <div className="flex flex-col mx-6 font-medium text-3xl max-w-screen-lg">
+    <div className="relative px-36">
+      <div className="flex flex-col pb-20 text-5xl font-normal max-w-screen-lg">
         ชุดเบรกจัดเอง
       </div>
-      <div className="flex flex-col m-6 p-6 border border-primaryT-darker rounded-sm gap-4 max-w-screen-lg">
+      <div className="flex flex-col p-6 border border-primaryT-darker rounded-sm gap-4 max-w-screen-lg">
         <div className="flex justify-center md:justify-between items-center relative">
           {currentPage === 1 && renderPackageHeader}
           {currentPage === 2 && renderSnackHeader}
