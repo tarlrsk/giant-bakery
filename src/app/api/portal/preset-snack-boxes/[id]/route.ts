@@ -1,17 +1,17 @@
-import { responseWrapper } from "@/utils/api-response-wrapper";
-import { validate as isValidUUID } from "uuid";
-import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { presetSnackBoxesValidateSchema } from "@/lib/validationSchema";
+import { bucket } from "@/lib/gcs/gcs";
+import { NextRequest } from "next/server";
+import { formatDate } from "@/lib/formatDate";
+import { validate as isValidUUID } from "uuid";
+import { parseBoolean } from "@/lib/parseBoolean";
 import { getFileUrl } from "@/lib/gcs/getFileUrl";
+import { responseWrapper } from "@/utils/api-response-wrapper";
+import { presetSnackBoxesValidateSchema } from "@/lib/validationSchema";
 import {
+  SnackBoxType,
   SnackBoxBeverage,
   SnackBoxPackageType,
-  SnackBoxType,
 } from "@prisma/client";
-import { parseBoolean } from "@/lib/parseBoolean";
-import { formatDate } from "@/lib/formatDate";
-import { bucket } from "@/lib/gcs/gcs";
 
 type GetSnackBoxByIdProps = {
   params: {
@@ -31,6 +31,7 @@ export async function GET(_req: NextRequest, { params }: GetSnackBoxByIdProps) {
       where: {
         id: id,
         isDeleted: false,
+        type: SnackBoxType.PRESET,
       },
       include: {
         refreshments: {

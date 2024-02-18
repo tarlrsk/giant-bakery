@@ -92,10 +92,31 @@ export const customerAddressValidationSchema = z.object({
 
 export const variantValidationSchema = z.object({
   name: z.string({ required_error: "Name is required." }).min(3).max(255),
-  image: zodIsImage.nullable(),
-  type: z.enum(["BASE", "FILLINGS", "FROSTINGS", "CREAM"]),
+  type: z.enum([
+    "POUND",
+    "BASE",
+    "FILLING",
+    "CREAM",
+    "TOP_EDGE",
+    "BOTTOM_EDGE",
+    "DECORATION",
+    "SURFACE",
+  ]),
   isActive: z.boolean(),
-  isVisualized: z.boolean(),
+});
+
+export const variantByTypeValidateSchema = z.object({
+  id: z.string().uuid(),
+  type: z.enum([
+    "POUND",
+    "BASE",
+    "FILLING",
+    "CREAM",
+    "TOP_EDGE",
+    "BOTTOM_EDGE",
+    "DECORATION",
+    "SURFACE",
+  ]),
 });
 
 // Refreshments ---------------------------------------------------------------
@@ -103,7 +124,6 @@ export const variantValidationSchema = z.object({
 export const refreshmentValidationSchema = z.object({
   name: z.string({ required_error: "Name is required." }).min(3).max(255),
   description: z.string().min(10).max(255).nullable(),
-  image: zodIsImage.nullable(),
   type: z.enum(["BAKERY", "BEVERAGE"]),
   category: z.enum(["BREAD", "PIE", "COOKIE", "SNACK", "CAKE"]).nullable(),
   status: z.enum(["IN_STOCK", "LOW", "OUT_OF_STOCK"]),
@@ -116,7 +136,7 @@ export const refreshmentValidationSchema = z.object({
   width: z.number().multipleOf(0.01),
   price: z.number().multipleOf(0.01),
   quantity: z.number().multipleOf(0.01),
-  unitType: z.string().uuid(),
+  unitType: z.enum(["กล่อง", "แก้ว", "ขวด", "ชิ้น"]),
   remark: z.string().nullable(),
   isActive: z.boolean(),
 });
@@ -134,9 +154,7 @@ export const cakeValidationSchema = z.object({
   length: z.number().multipleOf(0.01),
   width: z.number().multipleOf(0.01),
   isActive: z.boolean(),
-  variantIds: z.array(z.string().uuid()),
   quantity: z.number().multipleOf(0.01).nullable(),
-  unitType: z.string().uuid(),
 });
 
 // Preset SnackBoxes ------------------------------------------------------------
@@ -160,8 +178,8 @@ export const presetSnackBoxesValidateSchema = z.object({
 export const cartCustomCakeValidationSchema = z.object({
   userId: z.string().uuid(),
   type: z.enum(["GUEST", "MEMBER"]),
+  cakeType: z.enum(["PRESET", "CUSTOM"]),
   cakeId: z.string(),
-  variantIds: z.array(z.string()),
   quantity: z.number(),
 });
 

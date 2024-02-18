@@ -37,15 +37,17 @@ export async function POST(req: NextRequest) {
     const CartInclude = {
       items: {
         include: {
-          presetCake: {
-            include: {
-              variants: true,
-            },
-          },
-          customCake: {
+          customerCake: {
             include: {
               cake: true,
-              variants: true,
+              pound: true,
+              base: true,
+              filling: true,
+              cream: true,
+              topEdge: true,
+              bottomEdge: true,
+              decoration: true,
+              surfaces: true,
             },
           },
           refreshment: true,
@@ -70,15 +72,17 @@ export async function POST(req: NextRequest) {
       include: {
         items: {
           include: {
-            presetCake: {
-              include: {
-                variants: true,
-              },
-            },
-            customCake: {
+            customerCake: {
               include: {
                 cake: true,
-                variants: true,
+                pound: true,
+                base: true,
+                filling: true,
+                cream: true,
+                topEdge: true,
+                bottomEdge: true,
+                decoration: true,
+                surface: true,
               },
             },
             refreshment: true,

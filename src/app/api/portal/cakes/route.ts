@@ -1,4 +1,5 @@
 import paths from "@/utils/paths";
+import { v4 as uuidv4 } from "uuid";
 import { prisma } from "@/lib/prisma";
 import { bucket } from "@/lib/gcs/gcs";
 import { CakeType } from "@prisma/client";
@@ -12,16 +13,57 @@ import { responseWrapper } from "@/utils/api-response-wrapper";
 
 // ----------------------------------------------------------------------
 
+const CakeInclude = {
+  pounds: true,
+  bases: true,
+  fillings: true,
+  creams: true,
+  topEdges: true,
+  bottomEdges: true,
+  decorations: true,
+  surfaces: true,
+};
+
 export async function GET(_req: NextRequest) {
   try {
     const cakes = await prisma.cake.findMany({
       where: {
         isDeleted: false,
       },
-      include: {
-        variants: true,
-      },
+      include: CakeInclude,
     });
+
+    for (var cake of cakes) {
+      for (var cream of cake.creams) {
+        if (cream.imagePath) {
+          cream.image = await getFileUrl(cream.imagePath);
+        }
+      }
+
+      for (var topEdge of cake.topEdges) {
+        if (topEdge.imagePath) {
+          topEdge.image = await getFileUrl(topEdge.imagePath);
+        }
+      }
+
+      for (var bottomEdge of cake.bottomEdges) {
+        if (bottomEdge.imagePath) {
+          bottomEdge.image = await getFileUrl(bottomEdge.imagePath);
+        }
+      }
+
+      for (var decoration of cake.decorations) {
+        if (decoration.imagePath) {
+          decoration.image = await getFileUrl(decoration.imagePath);
+        }
+      }
+
+      for (var surface of cake.surfaces) {
+        if (surface.imagePath) {
+          surface.image = await getFileUrl(surface.imagePath);
+        }
+      }
+    }
 
     return responseWrapper(200, cakes, null);
   } catch (err: any) {
@@ -35,7 +77,6 @@ export async function POST(req: NextRequest) {
 
     const name = formData.get("name") as string;
     const remark = formData.get("remark") as string;
-    const unitType = formData.get("unitType") as string;
     const quantity = formData.get("quantity") as number | null;
     const type = formData.get("type") as CakeType;
     const weight = parseFloat(formData.get("weight") as string);
@@ -44,8 +85,15 @@ export async function POST(req: NextRequest) {
     const width = parseFloat(formData.get("width") as string);
     const price = parseFloat(formData.get("price") as string);
     const isActive = parseBoolean(formData.get("isActive") as string);
-    const variantIds = formData.getAll("variantIds") as string[];
     const image = formData.get("image") as File | null;
+    const poundIds = formData.getAll("poundIds") as string[];
+    const baseIds = formData.getAll("baseIds") as string[];
+    const fillingIds = formData.getAll("fillingIds") as string[];
+    const creamIds = formData.getAll("creamIds") as string[];
+    const topEdgeIds = formData.getAll("topEdgeIds") as string[];
+    const bottomEdgeIds = formData.getAll("bottomEdgeIds") as string[];
+    const decorationIds = formData.getAll("decorationIds") as string[];
+    const surfaceIds = formData.getAll("surfaceIds") as string[];
 
     const validation = cakeValidationSchema.safeParse({
       name,
@@ -56,64 +104,27 @@ export async function POST(req: NextRequest) {
       length,
       width,
       isActive,
-      variantIds,
       image,
       remark,
       quantity,
-      unitType,
     });
 
     if (!validation.success) {
       return responseWrapper(400, null, validation.error.format());
     }
 
-    for (var variantId of variantIds) {
-      let variant = await prisma.variant.findUnique({
-        where: { id: variantId },
-      });
-
-      if (!variant) {
-        return responseWrapper(
-          404,
-          null,
-          `Variant with given id ${variantId} not found.`,
-        );
-      }
-    }
-
-    let newCake = await prisma.cake.create({
-      data: {
-        name: name,
-        remark: remark,
-        type: type,
-        price: price,
-        weight: weight,
-        height: height,
-        length: length,
-        width: width,
-        isActive: isActive,
-        variants: {
-          connect: variantIds.map((id) => ({ id: id })),
-        },
-        unitType: {
-          connect: {
-            id: unitType,
-          },
-        },
-      },
-      include: {
-        unitType: true,
-      },
-    });
-
+    const cakeId = uuidv4();
+    let imageUrl = null;
+    let imageFileName = null;
+    let imagePath = null;
     if (image) {
-      const imageFileName = `${formatDate(
+      imageFileName = `${formatDate(
         new Date(Date.now()).toString(),
       )}_${image.name.replace(/\s/g, "_")}`;
 
       const buffer = Buffer.from(await image.arrayBuffer());
 
-      const imagePath = `cakes/${type}/${newCake.id}/${imageFileName}`;
+      imagePath = `cakes/${type}/${cakeId}/${imageFileName}`;
 
       const gcsFile = bucket.file(imagePath);
 
@@ -123,19 +134,80 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      const imageUrl = await getFileUrl(imagePath);
+      imageUrl = await getFileUrl(imagePath);
+    }
 
-      newCake = await prisma.cake.update({
-        where: { id: newCake.id },
-        data: {
-          image: imageUrl,
-          imageFileName: imageFileName,
-          imagePath: imagePath,
+    let newCake = await prisma.cake.create({
+      data: {
+        id: cakeId,
+        name: name,
+        remark: remark,
+        type: type,
+        price: price,
+        weight: weight,
+        height: height,
+        length: length,
+        width: width,
+        imageFileName: imageFileName,
+        imagePath: imagePath,
+        image: imageUrl,
+        isActive: isActive,
+        pounds: {
+          connect: poundIds.map((id) => ({ id: id })),
         },
-        include: {
-          unitType: true,
+        bases: {
+          connect: baseIds.map((id) => ({ id: id })),
         },
-      });
+        fillings: {
+          connect: fillingIds.map((id) => ({ id: id })),
+        },
+        creams: {
+          connect: creamIds.map((id) => ({ id: id })),
+        },
+        topEdges: {
+          connect: topEdgeIds.map((id) => ({ id: id })),
+        },
+        bottomEdges: {
+          connect: bottomEdgeIds.map((id) => ({ id: id })),
+        },
+        decorations: {
+          connect: decorationIds.map((id) => ({ id: id })),
+        },
+        surfaces: {
+          connect: surfaceIds.map((id) => ({ id: id })),
+        },
+      },
+      include: CakeInclude,
+    });
+
+    for (var cream of newCake.creams) {
+      if (cream.imagePath) {
+        cream.image = await getFileUrl(cream.imagePath);
+      }
+    }
+
+    for (var topEdge of newCake.topEdges) {
+      if (topEdge.imagePath) {
+        topEdge.image = await getFileUrl(topEdge.imagePath);
+      }
+    }
+
+    for (var bottomEdge of newCake.bottomEdges) {
+      if (bottomEdge.imagePath) {
+        bottomEdge.image = await getFileUrl(bottomEdge.imagePath);
+      }
+    }
+
+    for (var decoration of newCake.decorations) {
+      if (decoration.imagePath) {
+        decoration.image = await getFileUrl(decoration.imagePath);
+      }
+    }
+
+    for (var surface of newCake.surfaces) {
+      if (surface.imagePath) {
+        surface.image = await getFileUrl(surface.imagePath);
+      }
     }
 
     revalidatePath(paths.cakeList());

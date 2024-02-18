@@ -15,15 +15,17 @@ import getCurrentUser from "./userActions";
 const CartInclude = {
   items: {
     include: {
-      presetCake: {
-        include: {
-          variants: true,
-        },
-      },
-      customCake: {
+      customerCake: {
         include: {
           cake: true,
-          variants: true,
+          pound: true,
+          base: true,
+          filling: true,
+          cream: true,
+          topEdge: true,
+          bottomEdge: true,
+          decoration: true,
+          surface: true,
         },
       },
       refreshment: true,
@@ -112,34 +114,48 @@ export async function getCartData() {
       };
       let responseItem: any;
       switch (item.type) {
-        case "PRESET_CAKE":
-          baseResponse.pricePer = item.presetCake?.price || 0;
-          responseItem = { ...baseResponse, ...item.presetCake };
+        case "CAKE":
+          baseResponse.pricePer = item.customerCake?.price || 0;
+          responseItem = { ...baseResponse, ...item.customerCake };
           responseItem.price = baseResponse.pricePer * item.quantity;
           if (
-            responseItem &&
-            responseItem.imagePath &&
-            responseItem.imagePath != ""
+            responseItem.cake &&
+            responseItem.cake.imagePath &&
+            responseItem.cake.imagePath != ""
           ) {
-            responseItem.image = await getFileUrl(responseItem.imagePath);
+            responseItem.image = await getFileUrl(responseItem.cake.imagePath);
           }
-          break;
-        case "CUSTOM_CAKE":
-          baseResponse.pricePer = item.customCake?.price || 0;
-          responseItem = { ...baseResponse, ...item.customCake };
-          responseItem.price = baseResponse.pricePer * item.quantity;
-          if (
-            responseItem &&
-            responseItem.imagePath &&
-            responseItem.imagePath != ""
-          ) {
-            responseItem.image = await getFileUrl(responseItem.imagePath);
-            for (var variant of responseItem.variants) {
-              if (variant.imagePath) {
-                variant.image = await getFileUrl(variant.imagePath);
-              }
-            }
+          if (responseItem.cream && responseItem.cream.imagePath) {
+            responseItem.cream.image = await getFileUrl(
+              responseItem.cream.imagePath,
+            );
           }
+          if (responseItem.topEdge && responseItem.topEdge.imagePath) {
+            responseItem.topEdge.image = await getFileUrl(
+              responseItem.topEdge.imagePath,
+            );
+          }
+
+          if (responseItem.bottomEdge && responseItem.bottomEdge.imagePath) {
+            responseItem.bottomEdge.image = await getFileUrl(
+              responseItem.bottomEdge.imagePath,
+            );
+          }
+
+          if (responseItem.decoration && responseItem.decoration.imagePath) {
+            responseItem.decoration.image = await getFileUrl(
+              responseItem.decoration.imagePath,
+            );
+          }
+
+          if (responseItem.surface && responseItem.surface.imagePath) {
+            responseItem.surface.image = await getFileUrl(
+              responseItem.surface.imagePath,
+            );
+          }
+
+          delete responseItem.cake;
+
           break;
         case "REFRESHMENT":
           baseResponse.pricePer = item.refreshment?.price || 0;
