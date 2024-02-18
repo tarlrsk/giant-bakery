@@ -139,6 +139,22 @@ export const cakeValidationSchema = z.object({
   unitType: z.string().uuid(),
 });
 
+// Preset SnackBoxes ------------------------------------------------------------
+
+export const presetSnackBoxesValidateSchema = z.object({
+  name: z.string({ required_error: "Name is required." }).min(3).max(255),
+  image: zodIsImage.nullable(),
+  beverage: z.enum(["INCLUDE", "EXCLUDE", "NONE"]),
+  packageType: z.enum(["PAPER_BAG", "SNACK_BOX_S", "SNACK_BOX_M"]),
+  price: z.number().multipleOf(0.01),
+  weight: z.number().multipleOf(0.01),
+  height: z.number().multipleOf(0.01),
+  length: z.number().multipleOf(0.01),
+  width: z.number().multipleOf(0.01),
+  isActive: z.boolean(),
+  refreshmentIds: z.array(z.string().uuid()),
+});
+
 // Cart ------------------------------------------------------------------
 
 export const cartCustomCakeValidationSchema = z.object({
@@ -163,10 +179,19 @@ export const cartRefreshmentValidationSchema = z.object({
   quantity: z.number(),
 });
 
-export const cartSnackBoxValidationSchema = z.object({
+export const cartCustomSnackBoxValidationSchema = z.object({
   userId: z.string().uuid(),
   type: z.enum(["GUEST", "MEMBER"]),
+  beverage: z.enum(["INCLUDE", "EXCLUDE", "NONE"]),
+  packageType: z.enum(["PAPER_BAG", "SNACK_BOX_S", "SNACK_BOX_M"]),
   refreshmentIds: z.array(z.string().uuid()),
+  quantity: z.number(),
+});
+
+export const cartPresetSnackBoxValidationSchema = z.object({
+  userId: z.string().uuid(),
+  type: z.enum(["GUEST", "MEMBER"]),
+  snackBoxId: z.string().uuid(),
   quantity: z.number(),
 });
 
