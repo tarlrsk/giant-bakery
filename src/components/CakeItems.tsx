@@ -10,8 +10,9 @@ import { Refreshment } from "@prisma/client";
 import { Pagination } from "@nextui-org/react";
 
 import ProductCard from "./ProductCard";
+import { IBakeryCategory } from "./BakeryItems";
 
-export type ICakeType = "PRESET" | "CUSTOM";
+export type ICakeType = "PRESET" | "CUSTOM" | "CAKE";
 
 type Props = {
   size?: "sm" | "md";
@@ -29,9 +30,14 @@ export default function CakeItems({
 }: Props) {
   const router = useRouter();
 
-  const { getCakes } = apiPaths();
+  const { getBakeries, getCakes } = apiPaths();
 
-  const { data } = useSWR(`${getCakes(type as string)}`, fetcher);
+  const fetchPath =
+    type === "PRESET" || type === "CUSTOM"
+      ? getCakes(type as string)
+      : getBakeries(type as IBakeryCategory);
+
+  const { data } = useSWR(fetchPath, fetcher);
 
   const items: Refreshment[] = data?.response?.data || [];
 
