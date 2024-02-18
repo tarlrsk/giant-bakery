@@ -2,24 +2,26 @@
 
 import React, { useState } from "react";
 
-import CakeItems from "./CakeItems";
+import CakeItems, { ICakeType } from "./CakeItems";
 
 type Props = {
-  cakeType: "PRESET" | "CUSTOM";
+  type: ICakeType;
 };
 
-export default function CakePaginationContainer({ cakeType }: Props) {
-  const [selectedType, setSelectedType] = useState<any>();
+export default function CakePaginationContainer({ type }: Props) {
+  const [selectedType, setSelectedType] = useState<ICakeType>();
 
-  if (!selectedType && cakeType) {
-    setSelectedType(cakeType);
+  if (!selectedType && type) {
+    setSelectedType(type);
   }
 
   return (
     <div className="relative">
       <div className="px-36 pb-8">
         <div className="pb-24 text-5xl font-normal">
-          {cakeType === "PRESET" ? "เค้กสำเร็จรูป" : "เค้กแต่งเอง"}
+          {type === "PRESET" && "เค้กสำเร็จรูป (ปอนด์)"}
+          {type === "CAKE" && "เค้กสำเร็จรูป (ชิ้น)"}
+          {type === "CUSTOM" && "เค้กแต่งเอง"}
         </div>
         <div className="container pr-6">
           <CakeItems cols={4} type={selectedType} />

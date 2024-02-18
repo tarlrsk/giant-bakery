@@ -2,51 +2,43 @@
 
 import useSWR from "swr";
 import React, { useState } from "react";
-import { fetcher } from "@/utils/axios";
 import apiPaths from "@/utils/api-path";
+import { fetcher } from "@/utils/axios";
+import { SnackBox } from "@prisma/client";
 import { useRouter } from "next/navigation";
-import { Refreshment } from "@prisma/client";
 
 import { Pagination } from "@nextui-org/react";
 
 import ProductCard from "./ProductCard";
-import { IBakeryCategory } from "./BakeryItems";
 
-export type ICakeType = "PRESET" | "CUSTOM" | "CAKE";
+// ----------------------------------------------------------------------
 
 type Props = {
   size?: "sm" | "md";
   cols: number;
-  type?: ICakeType;
   onClick?: (selected: any) => void;
 };
 
-export default function CakeItems({
+export default function SnackBoxItems({
   size = "md",
   cols,
-  type,
   onClick,
   ...other
 }: Props) {
   const router = useRouter();
 
-  const { getBakeries, getCakes } = apiPaths();
+  const { getPresetSnackBox } = apiPaths();
 
-  const fetchPath =
-    type === "PRESET" || type === "CUSTOM"
-      ? getCakes(type as string)
-      : getBakeries(type as IBakeryCategory);
+  const { data } = useSWR(getPresetSnackBox(), fetcher);
 
-  const { data } = useSWR(fetchPath, fetcher);
-
-  const items: Refreshment[] = data?.response?.data || [];
+  const items: SnackBox[] = data?.response?.data || [];
 
   const [currentPage, setCurrentPage] = useState(1);
 
-  const cakeCount = items.length;
+  const snackBoxCount = items.length;
 
   const itemsPerPage = 4;
-  const pageSize = Math.ceil(cakeCount / itemsPerPage);
+  const pageSize = Math.ceil(snackBoxCount / itemsPerPage);
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
@@ -56,11 +48,11 @@ export default function CakeItems({
     <>
       <div
         className={`grid grid-cols-${cols} gap-${
-          size === "sm" ? 4 : 14
+          size === "sm" ? 4 : 10
         } justify-center items-baseline hover:cursor-pointer`}
         {...other}
       >
-        {Object.values(displayItems)?.map((item: Refreshment) => (
+        {Object.values(displayItems)?.map((item: any) => (
           <ProductCard
             key={item.id}
             name={item.name}
@@ -70,12 +62,7 @@ export default function CakeItems({
             onClick={
               onClick
                 ? () => onClick(item)
-                : type === "PRESET"
-                  ? () =>
-                      router.push(`/cakes/preset/${item.name}?id=${item.id}`)
-                  : type === "CAKE"
-                    ? () => router.push(`/cakes/${item.name}?id=${item.id}`)
-                    : () => {}
+                : () => router.push(`/snack-boxes/${item.name}?id=${item.id}`)
             }
           />
         ))}

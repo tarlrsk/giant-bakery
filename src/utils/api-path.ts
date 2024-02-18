@@ -58,6 +58,12 @@ const apiPaths = () => {
 
   // Snack Box
   const addSnackBoxToCart = () => createClientUrl(`carts/snack-box`);
+
+  const getPresetSnackBox = () => createClientUrl(`snack-boxes`);
+
+  const getPresetSnackBoxBySlug = (slug: string, id: string) =>
+    createClientUrl(`snack-boxes/${slug}?id=${id}`);
+
   // InterExpress
   const getInterExpressLocation = (zipCode: string) =>
     `https://api-intership.interexpress.co.th/v1/operation-areas/post-code/${zipCode}`;
@@ -82,6 +88,8 @@ const apiPaths = () => {
     deleteCustomerAddress,
     getInterExpressLocation,
     addSnackBoxToCart,
+    getPresetSnackBox,
+    getPresetSnackBoxBySlug,
     getPrice,
   };
 };

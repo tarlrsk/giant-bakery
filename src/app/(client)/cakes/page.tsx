@@ -7,10 +7,13 @@ export default function CakePage() {
     <section>
       <TitleSection title={"เค้ก"} />
       <div className="pb-20">
-        <CakePaginationContainer cakeType="PRESET" />
+        <CakePaginationContainer type="CAKE" />
       </div>
       <div className="pb-20">
-        <CakePaginationContainer cakeType="CUSTOM" />
+        <CakePaginationContainer type="PRESET" />
+      </div>
+      <div className="pb-20">
+        <CakePaginationContainer type="CUSTOM" />
       </div>
     </section>
   );
