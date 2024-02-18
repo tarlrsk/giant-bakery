@@ -539,8 +539,8 @@ export default function CustomSnackBox() {
   );
 
   return (
-    <div className=" w-fit mx-auto">
-      <div className="flex flex-col mx-6 font-medium text-3xl max-w-screen-lg">
+    <div className="relative w-fit mx-auto">
+      <div className="flex flex-col mx-6 pb-10 text-5xl font-normal max-w-screen-lg">
         ชุดเบรกจัดเอง
       </div>
       <div className="flex flex-col m-6 p-6 border border-primaryT-darker rounded-sm gap-4 max-w-screen-lg">
