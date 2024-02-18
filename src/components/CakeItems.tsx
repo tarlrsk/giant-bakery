@@ -73,7 +73,9 @@ export default function CakeItems({
                 : type === "PRESET"
                   ? () =>
                       router.push(`/cakes/preset/${item.name}?id=${item.id}`)
-                  : () => {}
+                  : type === "CAKE"
+                    ? () => router.push(`/cakes/${item.name}?id=${item.id}`)
+                    : () => {}
             }
           />
         ))}
