@@ -1,8 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { SnackBoxType } from "@prisma/client";
 import { getFileUrl } from "@/lib/gcs/getFileUrl";
 import { responseWrapper } from "@/utils/api-response-wrapper";
-import { SnackBoxType } from "@prisma/client";
 
 type GetSnackBoxBySlug = {
   params: {
