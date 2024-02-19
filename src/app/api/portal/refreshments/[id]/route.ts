@@ -51,9 +51,6 @@ export async function GET(_req: NextRequest, { params }: GetRefreshmentById) {
         image: newFileUrl,
         imagePath: imagePath,
       },
-      include: {
-        unitType: true,
-      },
     });
 
     return responseWrapper(200, refreshment, null);
@@ -129,6 +126,7 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
     const image = formData.get("image") as File | null;
 
     let imageFileName = refreshment.imageFileName as string;
+    let imageUrl = refreshment.image as string;
 
     if (image) {
       const oldImage = bucket.file(refreshment.imageFileName as string);
@@ -149,9 +147,8 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
       });
 
       imageFileName = updatedImageFileName;
+      imageUrl = await getFileUrl(imageFileName);
     }
-
-    const imageUrl = await getFileUrl(imageFileName);
 
     const updatedRefreshment = await prisma.refreshment.update({
       where: { id: refreshment.id },
@@ -173,11 +170,8 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
         price: price,
         isActive: isActive,
         quantity: quantity!,
-        unitTypeId: unitType,
+        unitType: unitType,
         remark: remark,
-      },
-      include: {
-        unitType: true,
       },
     });
 
@@ -215,9 +209,6 @@ export async function DELETE(
       data: {
         isDeleted: true,
         deletedAt: new Date(Date.now()),
-      },
-      include: {
-        unitType: true,
       },
     });
 

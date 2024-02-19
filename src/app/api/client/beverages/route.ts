@@ -14,9 +14,6 @@ export async function GET(_req: NextRequest) {
         isActive: true,
         isDeleted: false,
       },
-      include: {
-        unitType: true,
-      },
       orderBy: { name: "asc" },
     });
 

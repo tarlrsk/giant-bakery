@@ -76,21 +76,21 @@ model Cart {
 }
 
 model CartItem {
-  id            String       @id @default(uuid())
-  quantity      Int
-  type          CartItemType
-  presetCakesId String?
-  presetCake    Cake?        @relation(fields: [presetCakesId], references: [id], onDelete: Cascade)
-  customCakeId  String?      @unique
-  customCake    CustomCake?  @relation(fields: [customCakeId], references: [id], onDelete: Cascade)
-  refreshmentId String?      @unique
-  refreshment   Refreshment? @relation(fields: [refreshmentId], references: [id], onDelete: Cascade)
-  snackBoxId    String?      @unique
-  snackBox      SnackBox?    @relation(fields: [snackBoxId], references: [id], onDelete: Cascade)
-  cartId        String
-  cart          Cart         @relation(fields: [cartId], references: [id], onDelete: Cascade)
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime?    @updatedAt
+  id                  String             @id @default(uuid())
+  quantity            Int
+  type                CartItemType
+  customerCakeId      String?            @unique
+  customerCake        CustomerCake?      @relation(fields: [customerCakeId], references: [id], onDelete: Cascade)
+  refreshmentId       String?            @unique
+  refreshment         Refreshment?       @relation(fields: [refreshmentId], references: [id], onDelete: Cascade)
+  snackBoxId          String?            @unique
+  snackBox            SnackBox?          @relation(fields: [snackBoxId], references: [id], onDelete: Cascade)
+  cartId              String
+  cart                Cart               @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime?          @updatedAt
+  OrderCustomerCake   OrderCustomerCake? @relation(fields: [orderCustomerCakeId], references: [id])
+  orderCustomerCakeId String?
 }
 
 model CustomerAddress {
@@ -128,47 +128,170 @@ model Cake {
   updatedAt     DateTime  @updatedAt
   deletedAt     DateTime?
 
-  unitType   UnitType?         @relation(fields: [unitTypeId], references: [id])
-  unitTypeId String?
-  variants   Variant[]
-  cartItems  CartItem[]
-  customCake CustomCake[]
-  orderCake  OrderPresetCake[]
+  pounds             MasterCakePound[]
+  bases              MasterCakeBase[]
+  fillings           MasterCakeFilling[]
+  creams             MasterCakeCream[]
+  topEdges           MasterCakeTopEdge[]
+  bottomEdges        MasterCakeBottomEdge[]
+  decorations        MasterCakeDecoration[]
+  surfaces           MasterCakeSurface[]
+  customerCakes      CustomerCake[]
+  OrderCustomerCakes OrderCustomerCake[]
 }
 
-model CustomCake {
+model MasterCakePound {
+  id            String         @id @default(uuid())
+  name_th       String
+  cakes         Cake[]
+  customerCakes CustomerCake[]
+
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+}
+
+model MasterCakeBase {
+  id            String         @id @default(uuid())
+  name_th       String
+  cakes         Cake[]
+  customerCakes CustomerCake[]
+
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+}
+
+model MasterCakeFilling {
+  id            String         @id @default(uuid())
+  name_th       String
+  cakes         Cake[]
+  customerCakes CustomerCake[]
+
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+}
+
+model MasterCakeCream {
+  id            String         @id @default(uuid())
+  name_th       String
+  cakes         Cake[]
+  customerCakes CustomerCake[]
+  imageFileName String?
+  imagePath     String?
+  image         String?
+
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+}
+
+model MasterCakeTopEdge {
+  id            String         @id @default(uuid())
+  name_th       String
+  cakes         Cake[]
+  customerCakes CustomerCake[]
+  imageFileName String?
+  imagePath     String?
+  image         String?
+
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+}
+
+model MasterCakeBottomEdge {
+  id            String         @id @default(uuid())
+  name_th       String
+  cakes         Cake[]
+  customerCakes CustomerCake[]
+  imageFileName String?
+  imagePath     String?
+  image         String?
+
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+}
+
+model MasterCakeDecoration {
+  id            String         @id @default(uuid())
+  name_th       String
+  cakes         Cake[]
+  customerCakes CustomerCake[]
+  imageFileName String?
+  imagePath     String?
+  image         String?
+
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+}
+
+model MasterCakeSurface {
+  id            String         @id @default(uuid())
+  name_th       String
+  cakes         Cake[]
+  customerCakes CustomerCake[]
+  imageFileName String?
+  imagePath     String?
+  image         String?
+
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+}
+
+model CustomerCake {
   id        String   @id @default(uuid())
   name      String
   price     Float
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  type      CakeType
 
-  cakeId          String
-  cake            Cake              @relation(fields: [cakeId], references: [id])
-  variants        Variant[]
-  cartItems       CartItem?
-  orderCustomCake OrderCustomCake[]
-}
-
-model Variant {
-  id            String      @id @default(uuid())
-  name          String
-  imageFileName String?
-  imagePath     String?
-  image         String?
-  type          VariantType
-  isActive      Boolean
-  isVisualized  Boolean
-  isDeleted     Boolean     @default(false)
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  deletedAt     DateTime?
-
-  cakes           Cake[]
-  customCakes     CustomCake[]
-  orderCake       OrderPresetCake[]
-  orderCustomCake OrderCustomCake[]
+  cakeId              String
+  cake                Cake                  @relation(fields: [cakeId], references: [id])
+  orderCakes          OrderCustomerCake[]
+  CartItems           CartItem[]
+  pound               MasterCakePound?      @relation(fields: [poundId], references: [id])
+  base                MasterCakeBase?       @relation(fields: [baseId], references: [id])
+  filling             MasterCakeFilling?    @relation(fields: [fillingId], references: [id])
+  cream               MasterCakeCream?      @relation(fields: [creamId], references: [id])
+  topEdge             MasterCakeTopEdge?    @relation(fields: [topEdgeId], references: [id])
+  bottomEdge          MasterCakeBottomEdge? @relation(fields: [bottomEdgeId], references: [id])
+  decoration          MasterCakeDecoration? @relation(fields: [decorationId], references: [id])
+  surface             MasterCakeSurface?    @relation(fields: [surfaceId], references: [id])
+  poundId             String?
+  baseId              String?
+  fillingId           String?
+  creamId             String?
+  creamColor          String?
+  topEdgeId           String?
+  topEdgeColor        String?
+  bottomEdgeId        String?
+  bottomEdgeColor     String?
+  decorationId        String?
+  surfaceId           String?
+  orderCustomerCakeId String?
 }
 
 model Refreshment {
@@ -197,10 +320,9 @@ model Refreshment {
   updatedAt     DateTime             @updatedAt
   deletedAt     DateTime?
 
-  unitType   UnitType?             @relation(fields: [unitTypeId], references: [id])
-  unitTypeId String?
-  snackBoxes SnackBoxRefreshment[]
-  cartItems  CartItem[]
+  unitType            String                @default("กล่อง")
+  CartItem            CartItem?
+  SnackBoxRefreshment SnackBoxRefreshment[]
 }
 
 model SnackBox {
@@ -260,12 +382,12 @@ model Order {
   province         String
   postcode         String
   phone            String
-  orderPresetCake  OrderPresetCake[]
-  orderCustomCake  OrderCustomCake[]
+  orderCake        OrderCustomerCake[]
   orderRefreshment OrderRefreshment[]
+  orderSnackBox    OrderSnackBox[]
 }
 
-model OrderPresetCake {
+model OrderCustomerCake {
   id            String  @id @default(uuid())
   qty           Int
   name          String
@@ -280,37 +402,29 @@ model OrderPresetCake {
   length        Float
   width         Float
 
-  variants   Variant[]
-  order      Order     @relation(fields: [orderId], references: [id])
-  orderId    String
-  cake       Cake      @relation(fields: [cakeId], references: [id])
-  cakeId     String
-  unitType   UnitType? @relation(fields: [unitTypeId], references: [id])
-  unitTypeId String?
-}
+  order   Order  @relation(fields: [orderId], references: [id])
+  orderId String
 
-model OrderCustomCake {
-  id            String  @id @default(uuid())
-  qty           Int
-  name          String
-  remark        String?
-  quantity      Int     @default(0)
-  imageFileName String?
-  imagePath     String?
-  image         String?
-  price         Float
-  weight        Float
-  height        Float
-  length        Float
-  width         Float
+  cakeId   String
+  cake     Cake     @relation(fields: [cakeId], references: [id])
+  cakeType CakeType
 
-  variants     Variant[]
-  order        Order      @relation(fields: [orderId], references: [id])
-  orderId      String
-  customCake   CustomCake @relation(fields: [customCakeId], references: [id])
-  customCakeId String
-  unitType     UnitType?  @relation(fields: [unitTypeId], references: [id])
-  unitTypeId   String?
+  customerCake   CustomerCake @relation(fields: [customerCakeId], references: [id])
+  customerCakeId String
+
+  CartItem          CartItem[]
+  pound             String?
+  base              String?
+  filling           String?
+  cream             String?
+  creamColor        String?
+  topEdge           String?
+  topEdgeColor      String?
+  bottomEdge        String?
+  bottomEdgeColor   String?
+  decoration        String?
+  surface           String?
+  orderCustomerCake String?
 }
 
 model OrderRefreshment {
@@ -331,19 +445,25 @@ model OrderRefreshment {
   width         Float
   price         Float
 
-  order      Order     @relation(fields: [orderId], references: [id])
-  orderId    String
-  unitType   UnitType? @relation(fields: [unitTypeId], references: [id])
-  unitTypeId String?
+  order    Order  @relation(fields: [orderId], references: [id])
+  orderId  String
+  unitType String @default("กล่อง")
 }
 
 model OrderSnackBox {
-  id           String                     @id @default(uuid())
-  qty          Int
-  price        Float
-  packageType  SnackBoxPackageType        @default(SNACK_BOX_S)
-  beverage     SnackBoxBeverage           @default(NONE)
-  refreshments OrderSnackBoxRefreshment[]
+  id            String                     @id @default(uuid())
+  name          String
+  qty           Int
+  price         Float
+  imageFileName String?
+  imagePath     String?
+  image         String?
+  type          SnackBoxType
+  packageType   SnackBoxPackageType        @default(SNACK_BOX_S)
+  beverage      SnackBoxBeverage           @default(NONE)
+  refreshments  OrderSnackBoxRefreshment[]
+  order         Order                      @relation(fields: [orderId], references: [id])
+  orderId       String
 }
 
 model OrderSnackBoxRefreshment {
@@ -364,19 +484,7 @@ model OrderSnackBoxRefreshment {
   price           Float
   OrderSnackBox   OrderSnackBox?       @relation(fields: [orderSnackBoxId], references: [id])
   orderSnackBoxId String?
-  unitType        UnitType?            @relation(fields: [unitTypeId], references: [id])
-  unitTypeId      String?
-}
-
-model UnitType {
-  id                       String                     @id @default(uuid())
-  name_th                  String
-  refreshment              Refreshment[]
-  cake                     Cake[]
-  orderPresetCake          OrderPresetCake[]
-  orderCustomCake          OrderCustomCake[]
-  orderRefreshment         OrderRefreshment[]
-  orderSnackBoxRefreshment OrderSnackBoxRefreshment[]
+  unitType        String               @default("กล่อง")
 }
 
 model Payment {
@@ -428,8 +536,7 @@ enum CakeType {
 }
 
 enum CartItemType {
-  PRESET_CAKE
-  CUSTOM_CAKE
+  CAKE
   REFRESHMENT
   SNACK_BOX
 }
@@ -437,13 +544,6 @@ enum CartItemType {
 enum CartType {
   MEMBER
   GUEST
-}
-
-enum VariantType {
-  BASE
-  FILLINGS
-  FROSTINGS
-  CREAM
 }
 
 enum StockStatus {

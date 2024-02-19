@@ -21,9 +21,6 @@ export async function GET(req: NextRequest, { params }: GetBakeryBySlug) {
         isActive: true,
         isDeleted: false,
       },
-      include: {
-        unitType: true,
-      },
     });
 
     if (!bakery) {
