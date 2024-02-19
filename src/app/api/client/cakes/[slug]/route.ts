@@ -22,7 +22,14 @@ export async function GET(req: NextRequest, { params }: GetCakeBySlug) {
         isDeleted: false,
       },
       include: {
-        unitType: true,
+        pounds: true,
+        bases: true,
+        fillings: true,
+        creams: true,
+        topEdges: true,
+        bottomEdges: true,
+        decorations: true,
+        surfaces: true,
       },
     });
 
@@ -32,6 +39,36 @@ export async function GET(req: NextRequest, { params }: GetCakeBySlug) {
         null,
         `${slug} with given id ${id} not found.`,
       );
+    }
+
+    for (var cream of cake.creams) {
+      if (cream.imagePath) {
+        cream.image = await getFileUrl(cream.imagePath);
+      }
+    }
+
+    for (var topEdge of cake.topEdges) {
+      if (topEdge.imagePath) {
+        topEdge.image = await getFileUrl(topEdge.imagePath);
+      }
+    }
+
+    for (var bottomEdge of cake.bottomEdges) {
+      if (bottomEdge.imagePath) {
+        bottomEdge.image = await getFileUrl(bottomEdge.imagePath);
+      }
+    }
+
+    for (var decoration of cake.decorations) {
+      if (decoration.imagePath) {
+        decoration.image = await getFileUrl(decoration.imagePath);
+      }
+    }
+
+    for (var surface of cake.surfaces) {
+      if (surface.imagePath) {
+        surface.image = await getFileUrl(surface.imagePath);
+      }
     }
 
     if (cake.imagePath != null && cake.imagePath != "") {

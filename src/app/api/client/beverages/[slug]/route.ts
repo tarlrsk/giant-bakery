@@ -21,9 +21,6 @@ export async function GET(req: NextRequest, { params }: GetBeverageBySlug) {
         isActive: true,
         isDeleted: false,
       },
-      include: {
-        unitType: true,
-      },
     });
 
     if (!beverage) {

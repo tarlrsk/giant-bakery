@@ -16,6 +16,24 @@ import type {
 
 // ----------------------------------------------------------------------
 
+export async function GET(req: NextRequest) {
+  try {
+    let refreshments = await prisma.refreshment.findMany({
+      where: { isDeleted: false },
+    });
+
+    for (var refreshment of refreshments) {
+      if (refreshment.imagePath) {
+        refreshment.image = await getFileUrl(refreshment.imagePath);
+      }
+    }
+
+    return responseWrapper(200, refreshments, null);
+  } catch (err: any) {
+    return responseWrapper(500, null, err.message);
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
@@ -78,14 +96,11 @@ export async function POST(req: NextRequest) {
         height: height,
         length: length,
         width: width,
+        unitType: unitType,
         price: price,
         isActive: isActive,
         quantity: quantity ?? 0,
-        unitTypeId: unitType,
         remark: remark,
-      },
-      include: {
-        unitType: true,
       },
     });
 
@@ -118,9 +133,6 @@ export async function POST(req: NextRequest) {
           image: imageUrl,
           imageFileName: imageFileName,
           imagePath: imagePath,
-        },
-        include: {
-          unitType: true,
         },
       });
     }
