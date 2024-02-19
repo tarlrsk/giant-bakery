@@ -1,10 +1,11 @@
 "use client";
 
+import _ from "lodash";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { useRouter } from "next/navigation";
 import HomeIcon from "@mui/icons-material/Home";
 import LayersIcon from "@mui/icons-material/Layers";
+import { useRouter, usePathname } from "next/navigation";
 import { Box, Tab, Tabs, Stack, AppBar, Button } from "@mui/material";
 import BookmarkRoundedIcon from "@mui/icons-material/BookmarkRounded";
 import BakeryDiningRoundedIcon from "@mui/icons-material/BakeryDiningRounded";
@@ -27,9 +28,13 @@ const navItems = [
 // ----------------------------------------------------------------------
 
 export default function AdminNavbar() {
+  const pathname = usePathname();
   const router = useRouter();
   const { onSignOut } = useAuth();
-  const [currentPage, setCurrentPage] = useState("Home");
+  const activeLink = _.capitalize(pathname.split("/").slice(-1)[0]);
+  const [currentPage, setCurrentPage] = useState(
+    activeLink === "Admin" ? "Home" : activeLink,
+  );
 
   const handleChange = (event: React.SyntheticEvent, page: string) => {
     setCurrentPage(page);
