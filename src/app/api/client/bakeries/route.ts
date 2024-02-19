@@ -13,8 +13,15 @@ export async function GET(req: NextRequest) {
     const bakeries = await prisma.refreshment.findMany({
       where: {
         type: RefreshmentType.BAKERY,
-        category:
-          category !== null && String(category) !== "" ? category : undefined,
+        OR: [
+          { category: category === "CAKE" ? "CAKE" : undefined },
+          {
+            AND: [
+              { category: { not: "CAKE" } },
+              { category: category ? { equals: category } : undefined },
+            ],
+          },
+        ],
         isActive: true,
         isDeleted: false,
       },
