@@ -142,7 +142,7 @@ model Cake {
 
 model MasterCakePound {
   id            String         @id @default(uuid())
-  name_th       String
+  name          String
   cakes         Cake[]
   customerCakes CustomerCake[]
 
@@ -155,7 +155,7 @@ model MasterCakePound {
 
 model MasterCakeBase {
   id            String         @id @default(uuid())
-  name_th       String
+  name          String
   cakes         Cake[]
   customerCakes CustomerCake[]
 
@@ -168,7 +168,7 @@ model MasterCakeBase {
 
 model MasterCakeFilling {
   id            String         @id @default(uuid())
-  name_th       String
+  name          String
   cakes         Cake[]
   customerCakes CustomerCake[]
 
@@ -181,7 +181,7 @@ model MasterCakeFilling {
 
 model MasterCakeCream {
   id            String         @id @default(uuid())
-  name_th       String
+  name          String
   cakes         Cake[]
   customerCakes CustomerCake[]
   imageFileName String?
@@ -197,7 +197,7 @@ model MasterCakeCream {
 
 model MasterCakeTopEdge {
   id            String         @id @default(uuid())
-  name_th       String
+  name          String
   cakes         Cake[]
   customerCakes CustomerCake[]
   imageFileName String?
@@ -213,7 +213,7 @@ model MasterCakeTopEdge {
 
 model MasterCakeBottomEdge {
   id            String         @id @default(uuid())
-  name_th       String
+  name          String
   cakes         Cake[]
   customerCakes CustomerCake[]
   imageFileName String?
@@ -229,7 +229,7 @@ model MasterCakeBottomEdge {
 
 model MasterCakeDecoration {
   id            String         @id @default(uuid())
-  name_th       String
+  name          String
   cakes         Cake[]
   customerCakes CustomerCake[]
   imageFileName String?
@@ -245,7 +245,7 @@ model MasterCakeDecoration {
 
 model MasterCakeSurface {
   id            String         @id @default(uuid())
-  name_th       String
+  name          String
   cakes         Cake[]
   customerCakes CustomerCake[]
   imageFileName String?
