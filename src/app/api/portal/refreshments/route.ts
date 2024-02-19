@@ -54,6 +54,7 @@ export async function POST(req: NextRequest) {
     const length = parseFloat(formData.get("length") as string);
     const width = parseFloat(formData.get("width") as string);
     const price = parseFloat(formData.get("price") as string);
+    const unitRatio = Number(formData.get("unitRatio")) as number | null;
     const isActive = parseBoolean(formData.get("isActive") as string);
     const image = formData.get("image") as File | null;
 
@@ -97,6 +98,7 @@ export async function POST(req: NextRequest) {
         length: length,
         width: width,
         unitType: unitType,
+        unitRatio: unitRatio,
         price: price,
         isActive: isActive,
         quantity: quantity ?? 0,

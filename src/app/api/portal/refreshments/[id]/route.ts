@@ -93,6 +93,7 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
     const remark = formData.get("remark") as string;
     const quantity = Number(formData.get("quantity")) as number | null;
     const unitType = formData.get("unitType") as string;
+    const unitRatio = Number(formData.get("unitRatio")) as number | null;
     const weight = parseFloat(formData.get("weight") as string);
     const height = parseFloat(formData.get("height") as string);
     const length = parseFloat(formData.get("length") as string);
@@ -172,6 +173,7 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
         isActive: isActive,
         quantity: quantity!,
         unitType: unitType,
+        unitRatio: unitRatio,
         remark: remark,
       },
     });
