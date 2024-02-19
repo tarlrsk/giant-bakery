@@ -319,8 +319,9 @@ model Refreshment {
   createdAt     DateTime             @default(now())
   updatedAt     DateTime             @updatedAt
   deletedAt     DateTime?
+  unitType      String               @default("กล่อง")
+  unitRatio     Int?
 
-  unitType            String                @default("กล่อง")
   CartItem            CartItem?
   SnackBoxRefreshment SnackBoxRefreshment[]
 }
