@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
         isDeleted: false,
       },
       orderBy: [{ category: "asc" }, { name: "asc" }],
-      take: amount,
+      take: amount ? amount : undefined,
     });
 
     if (bakeries.length === 0) {
