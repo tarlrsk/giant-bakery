@@ -1,6 +1,8 @@
+import paths from "@/utils/paths";
 import { prisma } from "@/lib/prisma";
 import { bucket } from "@/lib/gcs/gcs";
 import { NextRequest } from "next/server";
+import { revalidatePath } from "next/cache";
 import { formatDate } from "@/lib/formatDate";
 import { validate as isValidUUID } from "uuid";
 import { getFileUrl } from "@/lib/gcs/getFileUrl";
@@ -12,7 +14,6 @@ import type {
   RefreshmentType,
   RefreshmentCategory,
 } from "@prisma/client";
-
 // ----------------------------------------------------------------------
 
 type GetRefreshmentById = {
@@ -175,6 +176,10 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
       },
     });
 
+    revalidatePath(paths.bakeryList());
+    revalidatePath(paths.beverageList());
+    revalidatePath(paths.cakeList());
+
     return responseWrapper(200, updatedRefreshment, null);
   } catch (err: any) {
     return responseWrapper(500, null, `Something went wrong.\n ${err.message}`);
@@ -211,6 +216,10 @@ export async function DELETE(
         deletedAt: new Date(Date.now()),
       },
     });
+
+    revalidatePath(paths.bakeryList());
+    revalidatePath(paths.beverageList());
+    revalidatePath(paths.cakeList());
 
     return responseWrapper(200, null, null);
   } catch (err: any) {

@@ -138,6 +138,8 @@ export async function POST(req: NextRequest) {
     }
 
     revalidatePath(paths.bakeryList());
+    revalidatePath(paths.beverageList());
+    revalidatePath(paths.cakeList());
 
     return responseWrapper(201, newRefreshment, null);
   } catch (err: any) {

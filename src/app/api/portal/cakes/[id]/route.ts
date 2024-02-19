@@ -1,7 +1,9 @@
+import paths from "@/utils/paths";
 import { prisma } from "@/lib/prisma";
 import { bucket } from "@/lib/gcs/gcs";
 import { CakeType } from "@prisma/client";
 import { NextRequest } from "next/server";
+import { revalidatePath } from "next/cache";
 import { formatDate } from "@/lib/formatDate";
 import { validate as isValidUUID } from "uuid";
 import { getFileUrl } from "@/lib/gcs/getFileUrl";
@@ -231,6 +233,8 @@ export async function PUT(req: NextRequest, { params }: GetCakeByIdProps) {
       include: CakeInclude,
     });
 
+    revalidatePath(paths.cakeList());
+
     return responseWrapper(200, updatedCake, null);
   } catch (err: any) {
     return responseWrapper(
@@ -284,6 +288,8 @@ export async function DELETE(_req: NextRequest, { params }: GetCakeByIdProps) {
         surfaces: true,
       },
     });
+
+    revalidatePath(paths.cakeList());
 
     return responseWrapper(200, null, null);
   } catch (err: any) {
