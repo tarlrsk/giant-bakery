@@ -10,6 +10,10 @@ export async function GET(req: NextRequest) {
       "category",
     ) as RefreshmentCategory;
 
+    const amounString = req.nextUrl.searchParams.get("amount") as string;
+
+    const amount = parseInt(amounString, 10);
+
     const bakeries = await prisma.refreshment.findMany({
       where: {
         type: RefreshmentType.BAKERY,
@@ -26,6 +30,7 @@ export async function GET(req: NextRequest) {
         isDeleted: false,
       },
       orderBy: [{ category: "asc" }, { name: "asc" }],
+      take: amount ? amount : undefined,
     });
 
     if (bakeries.length === 0) {
