@@ -1,5 +1,7 @@
+import paths from "@/utils/paths";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { revalidatePath } from "next/cache";
 import { CartItemType } from "@prisma/client";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { cartRefreshmentValidationSchema } from "@/lib/validationSchema";
@@ -119,6 +121,8 @@ export async function POST(req: NextRequest) {
         include: CartInclude,
       });
     }
+
+    revalidatePath(paths.cartList());
 
     return responseWrapper(200, cart, null);
   } catch (err: any) {

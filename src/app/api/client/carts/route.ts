@@ -1,6 +1,8 @@
+import paths from "@/utils/paths";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { CartType } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 import { getFileUrl } from "@/lib/gcs/getFileUrl";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { updateQtyCartValidateSchema } from "@/lib/validationSchema";
@@ -303,6 +305,8 @@ export async function GET(req: NextRequest) {
         return a.createdAt.getTime() - b.createdAt.getTime();
       },
     );
+
+    revalidatePath(paths.cartList());
 
     return responseWrapper(200, responseCart, null);
   } catch (err: any) {
