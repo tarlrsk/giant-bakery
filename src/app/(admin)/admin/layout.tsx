@@ -9,14 +9,10 @@ import AdminSidebarCard from "@/components/admin/AdminSidebarCard";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <Box height="100vh">
+    <Box minHeight="100vh" sx={{ backgroundColor: "#F5F6FA" }}>
       <AdminNavbar />
       <Toolbar disableGutters sx={{ minHeight: "0 !important", height: 40 }} />
-      <Grid
-        container
-        spacing={4}
-        sx={{ height: 1, pr: 4, backgroundColor: "#F5F6FA" }}
-      >
+      <Grid container spacing={4} sx={{ minHeight: "100vh", pr: 4 }}>
         <Grid item xs={2}>
           <AdminSidebarCard />
         </Grid>
