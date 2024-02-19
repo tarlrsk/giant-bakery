@@ -24,7 +24,7 @@ type IAddRefreshmentToCart = {
   quantity: number;
 };
 
-async function sendAddSnackBoxRequest(
+async function sendAddRefreshmentRequest(
   url: string,
   { arg }: { arg: IAddRefreshmentToCart },
 ) {
@@ -49,7 +49,7 @@ export default function BakeryDetail({ params }: BakeryDetailParams) {
   const item: Refreshment = data?.response?.data || {};
 
   const { trigger: triggerAddToCart, isMutating: isMutatingAddToCart } =
-    useSWRMutation(addRefreshmentToCart(), sendAddSnackBoxRequest);
+    useSWRMutation(addRefreshmentToCart(), sendAddRefreshmentRequest);
 
   const [counter, setCounter] = useState(1);
 
@@ -94,7 +94,9 @@ export default function BakeryDetail({ params }: BakeryDetailParams) {
         item={item}
         counter={counter}
         isLoading={isMutatingAddToCart}
-        onClick={handleAddToCart}
+        onClick={() => {
+          handleAddToCart();
+        }}
         onChange={handleInputChange}
         onIncrement={increment}
         onDecrement={decrement}

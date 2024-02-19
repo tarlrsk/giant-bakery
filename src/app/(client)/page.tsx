@@ -1,5 +1,5 @@
 import Wave from "@/components/Wave";
-import ProductCard from "@/components/ProductCard";
+import BakeryItems from "@/components/BakeryItems";
 import FeatureSection from "@/components/FeatureSection";
 import FeatureImageContainer from "@/components/FeatureImageContainer";
 
@@ -25,11 +25,7 @@ export default function Home() {
           </p>
         </div>
         <div className="container flex flex-wrap-custom gap-20">
-          <ProductCard name="temp 2" price={8.0} img="/logo.png" />
-          <ProductCard name="temp 1" price={8.0} img="/logo.png" />
-          <ProductCard name="temp 3" price={8.0} img="/logo.png" />
-          <ProductCard name="temp 4" price={8.0} img="/logo.png" />
-          <ProductCard name="temp 5" price={8.0} img="/logo.png" />
+          <BakeryItems cols={4} category="" amount="4" />
         </div>
       </div>
       <div className="relative flex flex-col gap-2 mb-2">

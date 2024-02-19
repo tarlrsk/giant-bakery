@@ -42,12 +42,12 @@ async function ItemCartView() {
   const currentUser = await getCurrentUser();
   const res: ICartResponse = await getCartData();
 
-  const items = res.response.data.items;
+  const items = res?.response?.data?.items;
 
   const discount: string =
     "สั่งเบเกอรี่หรือเค้กเพิ่มอีก 695 บาทเพื่อรับส่วนลด 5%";
 
-  if (items.length < 1) {
+  if (items?.length < 1) {
     return <EmptyCartView />;
   }
 
