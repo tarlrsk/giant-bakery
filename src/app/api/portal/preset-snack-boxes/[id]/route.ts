@@ -1,6 +1,8 @@
+import paths from "@/utils/paths";
 import { prisma } from "@/lib/prisma";
 import { bucket } from "@/lib/gcs/gcs";
 import { NextRequest } from "next/server";
+import { revalidatePath } from "next/cache";
 import { formatDate } from "@/lib/formatDate";
 import { validate as isValidUUID } from "uuid";
 import { parseBoolean } from "@/lib/parseBoolean";
@@ -210,6 +212,8 @@ export async function PUT(req: NextRequest, { params }: GetSnackBoxByIdProps) {
       (updatedSnackBox as any).image = await getFileUrl(imagePath);
     }
 
+    revalidatePath(paths.snackBoxList());
+
     return responseWrapper(200, updatedSnackBox, null);
   } catch (err: any) {
     return responseWrapper(
@@ -250,6 +254,8 @@ export async function DELETE(
         deletedAt: new Date(Date.now()),
       },
     });
+
+    revalidatePath(paths.snackBoxList());
 
     return responseWrapper(200, null, null);
   } catch (err: any) {

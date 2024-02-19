@@ -17,6 +17,9 @@ const paths = {
   snackBoxList() {
     return "/snack-boxes";
   },
+  cartList() {
+    return "/cart";
+  },
 };
 
 export default paths;
