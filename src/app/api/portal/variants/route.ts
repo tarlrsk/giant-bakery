@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
       case VariantType.POUND:
         newVariant = (await prisma.masterCakePound.create({
           data: {
-            name_th: name,
+            name: name,
             isActive: isActive,
           },
         })) as any;
@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
       case VariantType.BASE:
         newVariant = (await prisma.masterCakeBase.create({
           data: {
-            name_th: name,
+            name: name,
             isActive: isActive,
           },
         })) as any;
@@ -102,7 +102,7 @@ export async function POST(req: NextRequest) {
         newVariant = (await prisma.masterCakeFilling.create({
           data: {
             id: variantId,
-            name_th: name,
+            name: name,
             isActive: isActive,
           },
         })) as any;
@@ -118,7 +118,7 @@ export async function POST(req: NextRequest) {
         newVariant = (await prisma.masterCakeCream.create({
           data: {
             id: variantId,
-            name_th: name,
+            name: name,
             isActive: isActive,
             imageFileName: imageFile.imageFileName,
             imagePath: imageFile.imagePath,
@@ -137,7 +137,7 @@ export async function POST(req: NextRequest) {
         newVariant = (await prisma.masterCakeTopEdge.create({
           data: {
             id: variantId,
-            name_th: name,
+            name: name,
             isActive: isActive,
             imageFileName: imageFile.imageFileName,
             imagePath: imageFile.imagePath,
@@ -156,7 +156,7 @@ export async function POST(req: NextRequest) {
         newVariant = (await prisma.masterCakeBottomEdge.create({
           data: {
             id: variantId,
-            name_th: name,
+            name: name,
             isActive: isActive,
             imageFileName: imageFile.imageFileName,
             imagePath: imageFile.imagePath,
@@ -175,7 +175,7 @@ export async function POST(req: NextRequest) {
         newVariant = (await prisma.masterCakeDecoration.create({
           data: {
             id: variantId,
-            name_th: name,
+            name: name,
             isActive: isActive,
             imageFileName: imageFile.imageFileName,
             imagePath: imageFile.imagePath,
@@ -193,7 +193,7 @@ export async function POST(req: NextRequest) {
         newVariant = (await prisma.masterCakeSurface.create({
           data: {
             id: variantId,
-            name_th: name,
+            name: name,
             isActive: isActive,
             imageFileName: imageFile.imageFileName,
             imagePath: imageFile.imagePath,

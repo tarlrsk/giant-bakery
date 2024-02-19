@@ -300,7 +300,7 @@ export async function PUT(req: NextRequest, { params }: GetVariantById) {
             isDeleted: false,
           },
           data: {
-            name_th: name,
+            name: name,
             isActive: isActive,
           },
         })) as any;
@@ -313,7 +313,7 @@ export async function PUT(req: NextRequest, { params }: GetVariantById) {
             isDeleted: false,
           },
           data: {
-            name_th: name,
+            name: name,
             isActive: isActive,
           },
         })) as any;
@@ -326,7 +326,7 @@ export async function PUT(req: NextRequest, { params }: GetVariantById) {
             isDeleted: false,
           },
           data: {
-            name_th: name,
+            name: name,
             isActive: isActive,
           },
         })) as any;
@@ -339,7 +339,7 @@ export async function PUT(req: NextRequest, { params }: GetVariantById) {
             isDeleted: false,
           },
           data: {
-            name_th: name,
+            name: name,
             isActive: isActive,
             imageFileName: imageFileName,
             imagePath: imagePath,
@@ -356,7 +356,7 @@ export async function PUT(req: NextRequest, { params }: GetVariantById) {
             isDeleted: false,
           },
           data: {
-            name_th: name,
+            name: name,
             isActive: isActive,
             imageFileName: imageFileName,
             imagePath: imagePath,
@@ -373,7 +373,7 @@ export async function PUT(req: NextRequest, { params }: GetVariantById) {
             isDeleted: false,
           },
           data: {
-            name_th: name,
+            name: name,
             isActive: isActive,
             imageFileName: imageFileName,
             imagePath: imagePath,
@@ -390,7 +390,7 @@ export async function PUT(req: NextRequest, { params }: GetVariantById) {
             isDeleted: false,
           },
           data: {
-            name_th: name,
+            name: name,
             isActive: isActive,
             imageFileName: imageFileName,
             imagePath: imagePath,
@@ -407,7 +407,7 @@ export async function PUT(req: NextRequest, { params }: GetVariantById) {
             isDeleted: false,
           },
           data: {
-            name_th: name,
+            name: name,
             isActive: isActive,
             imageFileName: imageFileName,
             imagePath: imagePath,
