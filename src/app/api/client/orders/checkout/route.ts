@@ -1,54 +1,190 @@
 import Stripe from "stripe";
+import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { getFileUrl } from "@/lib/gcs/getFileUrl";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 
 const stripe: Stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
+type LineItem = {
+  price_data: {
+    currency: string;
+    unit_amount: number;
+    product_data: {
+      images: string[];
+      name: string;
+    };
+  };
+  quantity: number;
+};
+
 export async function POST(req: NextRequest) {
   try {
-    const product = await stripe.products.create({
-      name: "T-shirt",
-      images: [
-        "https://image.makewebeasy.net/makeweb/m_1920x0/Ub8wb5z91/Homemadebakery2022/14_%E0%B9%80%E0%B8%AD%E0%B9%81%E0%B8%84%E0%B8%A5%E0%B8%A3%E0%B9%8C%E0%B8%A7%E0%B8%B2%E0%B8%99%E0%B8%B4%E0%B8%A5%E0%B8%A5%E0%B8%B2%E0%B9%82%E0%B8%AE%E0%B8%A1%E0%B9%80%E0%B8%A1%E0%B8%94.jpg",
-      ],
+    const body = await req.json();
+
+    const { addressId, cartId, userId } = body;
+
+    const cart = await prisma.cart.findUnique({
+      where: {
+        userId: userId,
+      },
+      include: {
+        items: {
+          include: {
+            customerCake: {
+              include: {
+                cake: true,
+                pound: true,
+                base: true,
+                filling: true,
+                cream: true,
+                topEdge: true,
+                bottomEdge: true,
+                surface: true,
+              },
+            },
+            refreshment: true,
+            snackBox: {
+              include: {
+                refreshments: true,
+              },
+            },
+          },
+        },
+      },
     });
-    const price = await stripe.prices.create({
-      product: product.id,
-      unit_amount: 1000,
+
+    if (!cart) {
+      return responseWrapper(
+        404,
+        null,
+        `Cart with cart id: ${cartId} and user id: ${userId} is not found.`,
+      );
+    }
+
+    const lineItems = [] as LineItem[];
+    for (var cartItem of cart?.items) {
+      switch (cartItem.type) {
+        case "CAKE":
+          if (!cartItem.customerCake) {
+            return responseWrapper(409, null, "Cake Type is missing cake.");
+          }
+
+          var image = [];
+          if (cartItem.customerCake.cake.imagePath) {
+            image.push(await getFileUrl(cartItem.customerCake.cake.imagePath));
+          }
+          lineItems.push({
+            price_data: {
+              currency: "thb",
+              unit_amount: cartItem.customerCake.price,
+              product_data: {
+                images: image,
+                name: cartItem.customerCake.name,
+              },
+            },
+            quantity: cartItem.quantity,
+          });
+          break;
+        case "REFRESHMENT":
+          if (!cartItem.refreshment) {
+            return responseWrapper(
+              409,
+              null,
+              "Refreshment is missing refreshment.",
+            );
+          }
+
+          var image = [];
+          if (cartItem.refreshment.imagePath) {
+            image.push(await getFileUrl(cartItem.refreshment.imagePath));
+          }
+          lineItems.push({
+            price_data: {
+              currency: "thb",
+              unit_amount: cartItem.refreshment.price,
+              product_data: {
+                images: image,
+                name: cartItem.refreshment.name,
+              },
+            },
+            quantity: cartItem.quantity,
+          });
+          break;
+        case "SNACK_BOX":
+          console.log(cartItem.type);
+          if (!cartItem.snackBox) {
+            return responseWrapper(409, null, "Snack Box is snackbox.");
+          }
+          var image = [];
+          if (cartItem.snackBox.imagePath) {
+            image.push(await getFileUrl(cartItem.snackBox.imagePath));
+          }
+          lineItems.push({
+            price_data: {
+              currency: "thb",
+              unit_amount: cartItem.snackBox.price,
+              product_data: {
+                images: image,
+                name: cartItem.snackBox.name,
+              },
+            },
+            quantity: cartItem.quantity,
+          });
+          break;
+      }
+    }
+
+    // TODO DISCOUNT
+    const coupon1 = await stripe.coupons.create({
+      amount_off: 2000,
+      duration: "once",
       currency: "thb",
     });
-    // Create Checkout Sessions from body params.
+
     const session = await stripe.checkout.sessions.create({
-      line_items: [
-        {
-          // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-          price: price.id,
-          quantity: 1,
+      line_items: lineItems.map((item) => ({
+        price_data: {
+          currency: "thb",
+          unit_amount: item.price_data.unit_amount * 100, // Stripe expects the amount in smallest currency unit (cents), hence multiplying by 100
+          product_data: {
+            images: item.price_data.product_data.images,
+            name: item.price_data.product_data.name,
+          },
         },
+        quantity: item.quantity,
+      })),
+      discounts: [
         {
-          // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-          price: price.id,
-          quantity: 2,
+          coupon: coupon1.id,
         },
+      ],
+      shipping_options: [
         {
-          // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-          price: price.id,
-          quantity: 1,
-        },
-        {
-          // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-          price: price.id,
-          quantity: 4,
+          shipping_rate_data: {
+            type: "fixed_amount",
+            fixed_amount: {
+              amount: 1500,
+              currency: "thb",
+            },
+            display_name: "Inter Express Logistic",
+          },
         },
       ],
       mode: "payment",
-      success_url: `http://localhost:3000/?success=true`, // TODO CHANGE TO HEAD ORIGIN URL
-      cancel_url: `http://localhost:3000/?canceled=true`,
+      success_url: `http://localhost:3000/?checkout-success=true`, // TODO CHANGE TO HEAD ORIGIN URL
+      cancel_url: `http://localhost:3000/?checkout-canceled=true`,
+      payment_intent_data: {
+        metadata: {
+          userId: userId,
+          addressId: addressId,
+          orderId: "1234567",
+        },
+      },
+      payment_method_types: ["promptpay", "card"],
     });
-    // res.redirect(303, session.url);
-    return responseWrapper(303, session.url, null);
+    return responseWrapper(200, session.url, null);
   } catch (err: any) {
     return responseWrapper(500, null, err.message);
-    //   res.status(err.statusCode || 500).json(err.message);
   }
 }

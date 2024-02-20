@@ -39,6 +39,7 @@ type Shipment = {
 };
 
 type TotalPriceResponse = {
+  items: any[];
   subTotal: number;
   shippingFee: number;
   discounts: Discounts[];
@@ -75,10 +76,12 @@ export async function GET(req: NextRequest) {
     const cartRes = await fetch(getCart(userId));
     const cartData = await cartRes.json();
     const response = {
+      items: cartData.response.data.items,
       subTotal: cartData.response.data.subTotal,
+      // TODO DISCOUNTS
       discounts: [
         {
-          name: "BLABLABLA",
+          name: "ลดทั้งหมดแม่ง",
           discount: 10,
         },
       ],
@@ -138,19 +141,6 @@ export async function GET(req: NextRequest) {
           Length: 20,
           Height: 15,
         },
-        // {
-        //   ServiceId: 2,
-        //   ServiceControlId: 5,
-        //   TemperatureTypeId: 1,
-        //   TemperatureControlId: 2,
-        //   PackageCount: 1,
-        //   boxSize: "S2",
-        //   boxDesc: "≤ 10 กก. หรือ ≤ 15,000 ลบ.ซม.",
-        //   Weight: 5,
-        //   Width: 24,
-        //   Length: 36,
-        //   Height: 15,
-        // },
       ],
     } as Shipment;
 

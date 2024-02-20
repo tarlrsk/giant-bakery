@@ -183,6 +183,9 @@ export async function GET(req: NextRequest) {
       userId: null as string | null,
       type: null as CartType | null,
       subTotal: 0,
+      discounts: [] as any,
+      totalDiscount: 0,
+      total: 0,
       items: [] as any,
     };
 
@@ -296,6 +299,16 @@ export async function GET(req: NextRequest) {
       responseCart.items.push(responseItem);
       responseCart.subTotal += responseItem.price;
     }
+    // TODO Discounts
+    responseCart.discounts = [
+      {
+        name: "BLABLABLA",
+        discount: 10,
+      },
+    ];
+
+    responseCart.totalDiscount = 10;
+    responseCart.total = responseCart.subTotal - responseCart.totalDiscount;
 
     responseCart.items.sort(
       (
