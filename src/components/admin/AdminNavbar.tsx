@@ -56,7 +56,6 @@ export default function AdminNavbar() {
   const router = useRouter();
   const { onSignOut } = useAuth();
   const activeLink = _.capitalize(pathname.split("/").slice(-1)[0]);
-  console.log("activeLink", activeLink);
   const [currentPage, setCurrentPage] = useState(activeLink.toLowerCase());
 
   const handleChange = (event: React.SyntheticEvent, page: string) => {

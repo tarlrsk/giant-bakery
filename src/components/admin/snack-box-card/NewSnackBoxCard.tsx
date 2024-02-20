@@ -33,7 +33,8 @@ type Props = {
 };
 
 export default function NewSnackBoxCard({ onClose }: Props) {
-  const [itemAmount, setItemAmount] = useState(1);
+  const [itemAmount, setItemAmount] = useState([0]);
+  const [counter, setCounter] = useState(0);
   const methods = useForm({
     defaultValues: {
       snackBoxUpload: null,
@@ -44,7 +45,6 @@ export default function NewSnackBoxCard({ onClose }: Props) {
       length: null,
       height: null,
       weight: null,
-      items: [],
     },
   });
 
@@ -52,6 +52,14 @@ export default function NewSnackBoxCard({ onClose }: Props) {
   const values = watch();
 
   const { isActive } = values;
+
+  const handleDeleteRow = (indexToDelete: number) => {
+    const deletedIndex = itemAmount.findIndex((num) => num === indexToDelete);
+    const firstHalf = itemAmount.slice(0, deletedIndex);
+    const secondHalf = itemAmount.slice(deletedIndex + 1, itemAmount.length);
+    const combined = firstHalf.concat(secondHalf);
+    setItemAmount(combined);
+  };
 
   const onSubmit = handleSubmit(async (data) => {
     try {
@@ -97,7 +105,7 @@ export default function NewSnackBoxCard({ onClose }: Props) {
             </IconButton>
           </Stack>
           <RHFUpload
-            name="cakeUpload"
+            name="snackBoxUpload"
             thumbnail
             onDrop={onDropSingleFile}
             onDelete={() =>
@@ -137,15 +145,18 @@ export default function NewSnackBoxCard({ onClose }: Props) {
             <Typography>สินค้าในชุดเบรก</Typography>
             <Button
               startIcon={<AddIcon />}
-              onClick={() => setItemAmount(itemAmount + 1)}
+              onClick={() => {
+                setItemAmount((prev) => [...prev, counter + 1]);
+                setCounter((prev) => prev + 1);
+              }}
             >
               เพิ่มสินค้า
             </Button>
           </Stack>
 
-          {[...Array(itemAmount)].map((el, i) => (
+          {itemAmount.map((el: number, index) => (
             <Stack
-              key={i}
+              key={el}
               direction="row"
               alignItems="center"
               spacing={1}
@@ -154,11 +165,22 @@ export default function NewSnackBoxCard({ onClose }: Props) {
               <RHFAutocomplete
                 fullWidth
                 size="small"
-                label={`สินค้า ${i + 1}`}
+                label={`สินค้า ${index + 1}`}
                 options={ITEM_OPTIONS}
-                name={`item${i + 1}`}
+                name={`item${el}`}
+                renderOption={(props, option) => (
+                  <li {...props} key={option.value}>
+                    {option.label}
+                  </li>
+                )}
               />
-              <IconButton color="primary" sx={{ width: 0.1 }}>
+              <IconButton
+                color="primary"
+                sx={{ width: 0.1 }}
+                onClick={() => {
+                  handleDeleteRow(el);
+                }}
+              >
                 <DeleteIcon />
               </IconButton>
             </Stack>
