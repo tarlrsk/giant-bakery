@@ -530,68 +530,6 @@ export default function CheckoutPage() {
     </AccordionItem>
   );
 
-  const renderPaymentItem = (
-    <AccordionItem
-      key="4"
-      aria-label="Accordion 3"
-      title="4. วิธีการชำระเงิน"
-      classNames={ACCORDION_ITEM_CLASS_NAMES}
-      hideIndicator={selectedKeys.includes("4")}
-    >
-      <h3>วิธีการชำระเงิน</h3>
-      <RadioGroup
-        defaultValue="qr"
-        className="mt-1 mb-4"
-        classNames={{ wrapper: "md:flex-row" }}
-      >
-        <CustomPaymentRadio value="qr">
-          <div className="flex flex-row items-center gap-4">
-            <QRCodeIcon
-              width={40}
-              height={40}
-              className=" text-disabled group-data-[selected=true]:text-primaryT-main pb-0.5"
-            />
-            ชำระผ่าน QR Code
-          </div>
-        </CustomPaymentRadio>
-        <CustomPaymentRadio value="card">
-          <div className="flex flex-row items-center gap-4">
-            <CreditCardIcon
-              width={40}
-              height={40}
-              className=" text-disabled group-data-[selected=true]:text-primaryT-main  pb-0.5"
-            />
-            ชำระผ่านบัตร
-          </div>
-        </CustomPaymentRadio>
-      </RadioGroup>
-      <h3>ประเภทการชำระเงิน</h3>
-      <Select
-        value={selectedPaymentType}
-        onSelectionChange={(selected) => {
-          setSelectedPaymentType(Array.from(selected) as string[]);
-        }}
-        defaultSelectedKeys={["full"]}
-        size="sm"
-        variant="bordered"
-        radius="md"
-        className="mb-4 mt-1"
-        description="สามารถจ่ายเป็นมัดจำได้เมื่อซื้อสินค้าครบตามจำนวนที่กำหนด"
-      >
-        {PAYMENT_TYPE_OPTIONS.map((option) => (
-          <SelectItem
-            key={option.value}
-            value={option.value}
-            className=" rounded-sm"
-          >
-            {option.label}
-          </SelectItem>
-        ))}
-      </Select>
-      <ConfirmButton onClickButton={() => console.log("submit")} />
-    </AccordionItem>
-  );
-
   return (
     <div className="container px-6 py-20">
       <div className="flex flex-col  h-full w-full justify-start items-center gap-6">
@@ -618,8 +556,6 @@ export default function CheckoutPage() {
                 {renderDeliveryOptionItem}
 
                 {renderCommentItem}
-
-                {renderPaymentItem}
               </Accordion>
             </div>
 
