@@ -7,9 +7,9 @@ import apiPaths from "@/utils/api-path";
 import { fetcher } from "@/utils/axios";
 import useSWRMutation from "swr/mutation";
 import { Refreshment } from "@prisma/client";
-import { useSearchParams } from "next/navigation";
 import getCurrentUser from "@/actions/userActions";
 import ProductDetail from "@/components/ProductDetail";
+import { useRouter, useSearchParams } from "next/navigation";
 
 type BakeryDetailParams = {
   params: {
@@ -35,6 +35,8 @@ async function sendAddRefreshmentRequest(
 }
 
 export default function BakeryDetail({ params }: BakeryDetailParams) {
+  const router = useRouter();
+
   const searchParams = useSearchParams();
 
   const id = searchParams.get("id") as string;
@@ -82,6 +84,7 @@ export default function BakeryDetail({ params }: BakeryDetailParams) {
     try {
       await triggerAddToCart(body);
       toast.success("ใส่ตระก้าสำเร็จ");
+      router.push("/cart");
     } catch (error) {
       console.error(error);
       toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
