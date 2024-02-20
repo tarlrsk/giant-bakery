@@ -23,7 +23,7 @@ export async function GET(_req: NextRequest) {
 
     for (var snackBox of snackBoxes) {
       if (snackBox.imagePath) {
-        (snackBox as any).image = await getFileUrl(snackBox.imagePath);
+        snackBox.image = await getFileUrl(snackBox.imagePath);
       }
 
       for (var snackBoxRefreshment of snackBox.refreshments) {

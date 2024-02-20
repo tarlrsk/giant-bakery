@@ -333,6 +333,7 @@ model SnackBox {
   description   String?
   imageFilename String?
   imagePath     String?
+  image         String?
   weight        Float                 @default(0)
   height        Float                 @default(0)
   length        Float                 @default(0)
