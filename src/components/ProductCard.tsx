@@ -8,14 +8,18 @@ type Props = {
   price: number;
   img: string;
   size?: "sm" | "md";
+  isLoading: boolean | undefined;
   onClick?: () => void;
+  addToCart: (item: any) => void;
 };
 
 export default function ProductCard({
   name,
   price,
   img,
+  isLoading,
   onClick,
+  addToCart,
   size = "md",
 }: Props) {
   let imgSize: { width: number; height: number } = { width: 800, height: 128 };
@@ -79,7 +83,8 @@ export default function ProductCard({
               </p>
               <Button
                 size={size}
-                onClick={onClick}
+                isLoading={isLoading}
+                onClick={addToCart}
                 className={`bg-secondaryT-main items-center text-white text-${size} rounded-sm px-${padding}`}
               >
                 ใส่ตะกร้า

@@ -27,7 +27,7 @@ export async function signUp(body: ISignUpRequest) {
     const cookieId = cookies().get("next-auth.csrf-token")?.value as string;
     const { signUp } = paths();
 
-    const res = await fetch(signUp, {
+    const res = await fetch(signUp(), {
       method: "POST",
       body: JSON.stringify({ ...body, cookieId }),
     }).then((res) => res.json());

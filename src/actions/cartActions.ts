@@ -61,7 +61,7 @@ export async function updateCartItem(
     updatedQuantity = 0;
   }
 
-  const res = await fetch(updateCartItem, {
+  const res = await fetch(updateCartItem(), {
     method: "PUT",
     body: JSON.stringify({ userId, itemId, quantity: updatedQuantity }),
     cache: "no-store",

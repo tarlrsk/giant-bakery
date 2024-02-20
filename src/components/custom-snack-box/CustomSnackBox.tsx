@@ -88,14 +88,13 @@ export default function CustomSnackBox() {
   const [selectedTab, setSelectedTab] = useState<
     "bakeries" | "cakes" | "drinks"
   >("bakeries");
-  const [selectSnackBoxTitle, setSelectSnackBoxTitle] = useState("");
   const [snackBoxQty, setSnackBoxQty] = useState(1);
   const [selectedItems, setSelectedItems] = useState<ICustomSnackBoxItem[]>([]);
 
-  const { addSnackBoxToCart } = apiPaths();
+  const { addCustomSnackBoxToCart } = apiPaths();
 
   const { trigger: triggerAddToCart, isMutating: isMutatingAddToCart } =
-    useSWRMutation(addSnackBoxToCart(), sendAddSnackBoxRequest);
+    useSWRMutation(addCustomSnackBoxToCart(), sendAddSnackBoxRequest);
 
   const { watch, handleSubmit, reset } = methods;
 
@@ -570,11 +569,7 @@ type IAddCustomSnackBoxToCart = {
 
 async function sendAddSnackBoxRequest(
   url: string,
-  {
-    arg,
-  }: {
-    arg: IAddCustomSnackBoxToCart;
-  },
+  { arg }: { arg: IAddCustomSnackBoxToCart },
 ) {
   await fetch(url, {
     method: "POST",

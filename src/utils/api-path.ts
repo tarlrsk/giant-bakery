@@ -16,17 +16,27 @@ const createInterExpressUrl = (endpoint: string) =>
 
 const apiPaths = () => {
   // Auth
-  const signUp = createBaseApiUrl("auth/signup");
+  const signUp = () => createBaseApiUrl("auth/signup");
 
   // Cart
   const getCart = (userId: string) => createClientUrl(`carts?userId=${userId}`);
+
   const deleteCartItem = (userId: string, itemId: string) =>
     createClientUrl(`carts?userId=${userId}&itemId=${itemId}`);
-  const updateCartItem = createClientUrl("carts");
+
+  const updateCartItem = () => createClientUrl("carts");
+
+  const addRefreshmentToCart = () => createClientUrl(`carts/refreshments`);
+
+  const addPresetSnackBoxToCart = () =>
+    createClientUrl(`carts/preset-snack-box`);
+
+  const addCustomSnackBoxToCart = () =>
+    createClientUrl(`carts/custom-snack-box`);
 
   // Bakery
-  const getBakeries = (category: IBakeryCategory) =>
-    createClientUrl(`bakeries?category=${category}`);
+  const getBakeries = (category: IBakeryCategory, amount?: string) =>
+    createClientUrl(`bakeries?category=${category}&amount=${amount}`);
 
   const getBakeryBySlug = (slug: string, id: string) =>
     createClientUrl(`bakeries/${slug}?id=${id}`);
@@ -56,9 +66,7 @@ const apiPaths = () => {
   const deleteCustomerAddress = (userId: string) =>
     createClientUrl(`customers/${userId}/addresses`);
 
-  // Snack Box
-  const addSnackBoxToCart = () => createClientUrl(`carts/snack-box`);
-
+  // Snack Bo
   const getPresetSnackBox = () => createClientUrl(`snack-boxes`);
 
   const getPresetSnackBoxBySlug = (slug: string, id: string) =>
@@ -76,6 +84,9 @@ const apiPaths = () => {
     getCart,
     updateCartItem,
     deleteCartItem,
+    addRefreshmentToCart,
+    addPresetSnackBoxToCart,
+    addCustomSnackBoxToCart,
     getBakeries,
     getBakeryBySlug,
     getBeverages,
@@ -87,7 +98,6 @@ const apiPaths = () => {
     updateCustomerAddress,
     deleteCustomerAddress,
     getInterExpressLocation,
-    addSnackBoxToCart,
     getPresetSnackBox,
     getPresetSnackBoxBySlug,
     getPrice,

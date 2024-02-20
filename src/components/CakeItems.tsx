@@ -1,11 +1,14 @@
 "use client";
 
 import useSWR from "swr";
+import toast from "react-hot-toast";
 import React, { useState } from "react";
 import { fetcher } from "@/utils/axios";
 import apiPaths from "@/utils/api-path";
+import useSWRMutation from "swr/mutation";
 import { useRouter } from "next/navigation";
 import { Refreshment } from "@prisma/client";
+import getCurrentUser from "@/actions/userActions";
 
 import { Pagination } from "@nextui-org/react";
 
@@ -21,6 +24,23 @@ type Props = {
   onClick?: (selected: any) => void;
 };
 
+type IAddRefreshmentToCart = {
+  userId: string;
+  type: "MEMBER" | "GUEST";
+  refreshmentId: string;
+  quantity: number;
+};
+
+async function sendAddSnackBoxRequest(
+  url: string,
+  { arg }: { arg: IAddRefreshmentToCart },
+) {
+  await fetch(url, {
+    method: "POST",
+    body: JSON.stringify(arg),
+  }).then((res) => res.json());
+}
+
 export default function CakeItems({
   size = "md",
   cols,
@@ -30,7 +50,7 @@ export default function CakeItems({
 }: Props) {
   const router = useRouter();
 
-  const { getBakeries, getCakes } = apiPaths();
+  const { getBakeries, getCakes, addRefreshmentToCart } = apiPaths();
 
   const fetchPath =
     type === "PRESET" || type === "CUSTOM"
@@ -40,6 +60,28 @@ export default function CakeItems({
   const { data } = useSWR(fetchPath, fetcher);
 
   const items: Refreshment[] = data?.response?.data || [];
+
+  const { trigger: triggerAddToCart, isMutating: isMutatingAddToCart } =
+    useSWRMutation(addRefreshmentToCart(), sendAddSnackBoxRequest);
+
+  async function handleAddToCart(itemId: string) {
+    const currentUser = await getCurrentUser();
+
+    const body: IAddRefreshmentToCart = {
+      userId: currentUser?.id || "",
+      type: currentUser?.role === "CUSTOMER" ? "MEMBER" : "GUEST",
+      refreshmentId: itemId,
+      quantity: 1,
+    };
+
+    try {
+      await triggerAddToCart(body);
+      toast.success("ใส่ตะกร้าาสำเร็จ");
+    } catch (error) {
+      console.error(error);
+      toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
+    }
+  }
 
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -67,6 +109,7 @@ export default function CakeItems({
             size={size}
             price={item.price}
             img={item.image ? `${item.image as string}` : "/"}
+            isLoading={type === "CAKE" ? isMutatingAddToCart : false}
             onClick={
               onClick
                 ? () => onClick(item)
@@ -76,6 +119,13 @@ export default function CakeItems({
                   : type === "CAKE"
                     ? () => router.push(`/cakes/${item.name}?id=${item.id}`)
                     : () => {}
+            }
+            addToCart={
+              type === "CAKE"
+                ? () => {
+                    handleAddToCart(item.id);
+                  }
+                : () => {}
             }
           />
         ))}
