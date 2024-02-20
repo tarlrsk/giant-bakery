@@ -27,3 +27,14 @@ export interface ICakeRow {
   decoration?: string[];
   surface?: string[];
 }
+
+export interface ISnackBoxRow {
+  isActive?: boolean;
+  snackBoxName: string;
+  description?: string;
+  price?: number;
+  width?: number;
+  length?: number;
+  height?: number;
+  weight?: number;
+}
