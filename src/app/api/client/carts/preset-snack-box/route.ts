@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
               topEdge: true,
               bottomEdge: true,
               decoration: true,
-              surfaces: true,
+              surface: true,
             },
           },
           refreshment: true,
