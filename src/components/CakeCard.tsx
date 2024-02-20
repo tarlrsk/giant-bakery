@@ -78,7 +78,7 @@ export default function CakeCard({ item, onClick, size = "md" }: Props) {
       <div onClick={onClick}>
         <Image
           src={(item?.image as string) ?? "/placeholder-image.jpeg"}
-          alt={item.name}
+          alt={item?.name}
           width={imgSize.width}
           height={imgSize.height}
           className=" object-cover mb-4 rounded-sm"
@@ -91,7 +91,7 @@ export default function CakeCard({ item, onClick, size = "md" }: Props) {
           <p
             className={`text-black truncate text-${fontSize} font-normal max-w-full`}
           >
-            {item.name}
+            {item?.name}
           </p>
 
           {size === "sm" ? (
@@ -99,7 +99,7 @@ export default function CakeCard({ item, onClick, size = "md" }: Props) {
               <p
                 className={`text-secondaryT-main text-${fontSize} font-semibold`}
               >
-                ฿{item.price?.toFixed(2) ?? 0}
+                ฿{item?.price?.toFixed(2) ?? 0}
               </p>
               <Button
                 size={size}
@@ -114,7 +114,7 @@ export default function CakeCard({ item, onClick, size = "md" }: Props) {
               <p
                 className={`text-secondaryT-main text-${fontSize} font-semibold`}
               >
-                ฿{item.price?.toFixed(2) ?? 0}
+                ฿{item?.price?.toFixed(2) ?? 0}
               </p>
               <Button
                 size={size}
