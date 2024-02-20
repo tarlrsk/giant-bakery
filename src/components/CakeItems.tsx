@@ -7,13 +7,13 @@ import { fetcher } from "@/utils/axios";
 import apiPaths from "@/utils/api-path";
 import useSWRMutation from "swr/mutation";
 import { useRouter } from "next/navigation";
-import { Refreshment } from "@prisma/client";
+import { Cake, Refreshment } from "@prisma/client";
 import getCurrentUser from "@/actions/userActions";
 
 import { Pagination } from "@nextui-org/react";
 
-import ProductCard from "./ProductCard";
 import { IBakeryCategory } from "./BakeryItems";
+import RefreshmentCard from "./RefreshmentCard";
 
 export type ICakeType = "PRESET" | "CUSTOM" | "CAKE";
 
@@ -102,14 +102,11 @@ export default function CakeItems({
         } justify-center items-baseline hover:cursor-pointer`}
         {...other}
       >
-        {Object.values(displayItems)?.map((item: Refreshment) => (
-          <ProductCard
+        {Object.values(displayItems)?.map((item: Refreshment | Cake) => (
+          <RefreshmentCard
             key={item.id}
-            name={item.name}
+            item={type === "CAKE" ? (item as Refreshment) : (item as Cake)}
             size={size}
-            price={item.price}
-            img={item.image ? `${item.image as string}` : "/"}
-            isLoading={type === "CAKE" ? isMutatingAddToCart : false}
             onClick={
               onClick
                 ? () => onClick(item)
@@ -119,13 +116,6 @@ export default function CakeItems({
                   : type === "CAKE"
                     ? () => router.push(`/cakes/${item.name}?id=${item.id}`)
                     : () => {}
-            }
-            addToCart={
-              type === "CAKE"
-                ? () => {
-                    handleAddToCart(item.id);
-                  }
-                : () => {}
             }
           />
         ))}
