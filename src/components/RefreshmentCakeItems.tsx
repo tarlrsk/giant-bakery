@@ -1,58 +1,39 @@
 "use client";
 
 import useSWR from "swr";
-import { Cake } from "@prisma/client";
-import React, { useState } from "react";
-import { fetcher } from "@/utils/axios";
+import { useState } from "react";
 import apiPaths from "@/utils/api-path";
+import { fetcher } from "@/utils/axios";
 import { useRouter } from "next/navigation";
+import { Refreshment } from "@prisma/client";
 
 import { Pagination } from "@nextui-org/react";
 
-import CakeCard from "./CakeCard";
+import RefreshmentCard from "./RefreshmentCard";
 
-export type ICakeType = "PRESET" | "CUSTOM" | "CAKE";
+// ----------------------------------------------------------------------
 
 type Props = {
   size?: "sm" | "md";
+  amount?: string;
   cols: number;
-  type?: ICakeType;
   onClick?: (selected: any) => void;
 };
 
-type IAddRefreshmentToCart = {
-  userId: string;
-  type: "MEMBER" | "GUEST";
-  refreshmentId: string;
-  quantity: number;
-};
-
-async function sendAddSnackBoxRequest(
-  url: string,
-  { arg }: { arg: IAddRefreshmentToCart },
-) {
-  await fetch(url, {
-    method: "POST",
-    body: JSON.stringify(arg),
-  }).then((res) => res.json());
-}
-
-export default function CakeItems({
+export default function BakeryItems({
   size = "md",
+  amount,
   cols,
-  type,
   onClick,
   ...other
 }: Props) {
   const router = useRouter();
 
-  const { getCakes } = apiPaths();
+  const { getBakeries } = apiPaths();
 
-  const fetchPath = getCakes(type as string);
+  const { data } = useSWR(`${getBakeries("CAKE", amount)}`, fetcher);
 
-  const { data } = useSWR(fetchPath, fetcher);
-
-  const items: Cake[] = data?.response?.data || [];
+  const items: Refreshment[] = data?.response?.data || [];
 
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -69,12 +50,21 @@ export default function CakeItems({
     <>
       <div
         className={`grid grid-cols-${cols} gap-${
-          size === "sm" ? 4 : 14
+          size === "sm" ? 4 : 10
         } justify-center items-baseline hover:cursor-pointer`}
         {...other}
       >
-        {Object.values(displayItems)?.map((item: Cake) => (
-          <CakeCard key={item.id} item={item} size={size} onClick={() => {}} />
+        {Object.values(displayItems)?.map((item: any) => (
+          <RefreshmentCard
+            key={item.id}
+            item={item}
+            size={size}
+            onClick={
+              onClick
+                ? () => onClick(item)
+                : () => router.push(`/cakes/${item.name}?id=${item.id}`)
+            }
+          />
         ))}
       </div>
       <Pagination

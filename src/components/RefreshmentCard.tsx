@@ -48,10 +48,8 @@ export default function RefreshmentCard({ item, onClick, size = "md" }: Props) {
     };
 
     try {
-      const res = await triggerAddToCart(body);
-      console.log(res);
-      console.log(body);
-      toast.success("ใส่ตะกร้าาสำเร็จ");
+      await triggerAddToCart(body);
+      toast.success("ใส่ตะกร้าสำเร็จ");
     } catch (error) {
       console.error(error);
       toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
@@ -79,7 +77,7 @@ export default function RefreshmentCard({ item, onClick, size = "md" }: Props) {
       <div onClick={onClick}>
         <Image
           src={(item?.image as string) ?? "/placeholder-image.jpeg"}
-          alt={item?.name}
+          alt={item.name}
           width={imgSize.width}
           height={imgSize.height}
           className=" object-cover mb-4 rounded-sm"
@@ -92,7 +90,7 @@ export default function RefreshmentCard({ item, onClick, size = "md" }: Props) {
           <p
             className={`text-black truncate text-${fontSize} font-normal max-w-full`}
           >
-            {item?.name}
+            {item.name}
           </p>
 
           {size === "sm" ? (
@@ -100,7 +98,7 @@ export default function RefreshmentCard({ item, onClick, size = "md" }: Props) {
               <p
                 className={`text-secondaryT-main text-${fontSize} font-semibold`}
               >
-                ฿{item?.price?.toFixed(2)}
+                ฿{item.price?.toFixed(2)}
               </p>
               <Button
                 size={size}
@@ -115,13 +113,13 @@ export default function RefreshmentCard({ item, onClick, size = "md" }: Props) {
               <p
                 className={`text-secondaryT-main text-${fontSize} font-semibold`}
               >
-                ฿{item?.price?.toFixed(2)}
+                ฿{item.price?.toFixed(2)}
               </p>
               <Button
                 size={size}
                 isLoading={isMutatingAddToCart}
                 onClick={() => {
-                  handleAddToCart(item?.id);
+                  handleAddToCart(item.id);
                 }}
                 className={`bg-secondaryT-main items-center text-white text-${size} rounded-sm px-${padding}`}
               >

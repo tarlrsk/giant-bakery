@@ -10,7 +10,13 @@ import RefreshmentCard from "./RefreshmentCard";
 
 // ----------------------------------------------------------------------
 
-export type IBakeryCategory = "BREAD" | "PIE" | "COOKIE" | "SNACK" | "";
+export type IBakeryCategory =
+  | "BREAD"
+  | "PIE"
+  | "COOKIE"
+  | "SNACK"
+  | "CAKE"
+  | "";
 
 type Props = {
   size?: "sm" | "md";

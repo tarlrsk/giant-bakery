@@ -1,60 +1,61 @@
 import React from "react";
 import Image from "next/image";
-import toast from "react-hot-toast";
-import apiPaths from "@/utils/api-path";
-import useSWRMutation from "swr/mutation";
-import { SnackBox } from "@prisma/client";
-import getCurrentUser from "@/actions/userActions";
+// import toast from "react-hot-toast";
+import { Cake } from "@prisma/client";
+// import apiPaths from "@/utils/api-path";
+// import useSWRMutation from "swr/mutation";
+// import getCurrentUser from "@/actions/userActions";
 
 import { Card, Button } from "@nextui-org/react";
 
 type Props = {
-  item: SnackBox;
+  item: Cake;
   size?: "sm" | "md";
   onClick?: () => void;
 };
 
-type IAddSnackBoxToCart = {
-  userId: string;
-  type: "MEMBER" | "GUEST";
-  snackBoxId: string;
-  quantity: number;
-};
+// type IAddSnackBoxToCart = {
+//   userId: string;
+//   type: "MEMBER" | "GUEST";
+//   snackBoxId: string;
+//   quantity: number;
+// };
 
-async function sendAddSnackBoxRequest(
-  url: string,
-  { arg }: { arg: IAddSnackBoxToCart },
-) {
-  await fetch(url, {
-    method: "POST",
-    body: JSON.stringify(arg),
-  }).then((res) => res.json());
-}
+// async function sendAddSnackBoxRequest(
+//   url: string,
+//   { arg }: { arg: IAddSnackBoxToCart },
+// ) {
+//   await fetch(url, {
+//     method: "POST",
+//     body: JSON.stringify(arg),
+//   }).then((res) => res.json());
+// }
 
-export default function SnackBoxCard({ item, onClick, size = "md" }: Props) {
-  const { addPresetSnackBoxToCart } = apiPaths();
+export default function CakeCard({ item, onClick, size = "md" }: Props) {
+  // TODO : ADD CAKE TO CART
+  //   const { addPresetSnackBoxToCart, addCustomSnackBoxToCart } = apiPaths();
 
-  const { trigger: triggerAddToCart, isMutating: isMutatingAddToCart } =
-    useSWRMutation(addPresetSnackBoxToCart(), sendAddSnackBoxRequest);
+  //   const { trigger: triggerAddToCart, isMutating: isMutatingAddToCart } =
+  //     useSWRMutation(addPresetSnackBoxToCart(), sendAddSnackBoxRequest);
 
-  async function handleAddToCart(itemId: string) {
-    const currentUser = await getCurrentUser();
+  //   async function handleAddToCart(itemId: string) {
+  //     const currentUser = await getCurrentUser();
 
-    const body: IAddSnackBoxToCart = {
-      userId: currentUser?.id || "",
-      type: currentUser?.role === "CUSTOMER" ? "MEMBER" : "GUEST",
-      snackBoxId: itemId,
-      quantity: 1,
-    };
+  //     const body: IAddSnackBoxToCart = {
+  //       userId: currentUser?.id || "",
+  //       type: currentUser?.role === "CUSTOMER" ? "MEMBER" : "GUEST",
+  //       snackBoxId: itemId,
+  //       quantity: 1,
+  //     };
 
-    try {
-      await triggerAddToCart(body);
-      toast.success("ใส่ตะกร้าสำเร็จ");
-    } catch (error) {
-      console.error(error);
-      toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
-    }
-  }
+  //     try {
+  //       await triggerAddToCart(body);
+  //       toast.success("ใส่ตะกร้าสำเร็จ");
+  //     } catch (error) {
+  //       console.error(error);
+  //       toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
+  //     }
+  //   }
 
   let imgSize: { width: number; height: number } = { width: 800, height: 128 };
   let padding = 12;
@@ -117,10 +118,7 @@ export default function SnackBoxCard({ item, onClick, size = "md" }: Props) {
               </p>
               <Button
                 size={size}
-                isLoading={isMutatingAddToCart}
-                onClick={() => {
-                  handleAddToCart(item.id);
-                }}
+                onClick={onClick}
                 className={`bg-secondaryT-main items-center text-white text-${size} rounded-sm px-${padding}`}
               >
                 ใส่ตะกร้า
