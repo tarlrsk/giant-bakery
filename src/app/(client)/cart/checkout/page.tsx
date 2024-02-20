@@ -9,9 +9,7 @@ import AddIcon from "@/components/icons/AddIcon";
 import getCurrentUser from "@/actions/userActions";
 import { EditIcon } from "@/components/icons/EditIcon";
 import DeleteIcon from "@/components/icons/DeleteIcon";
-import { QRCodeIcon } from "@/components/icons/QRCodeIcon";
 import React, { useMemo, useState, useEffect } from "react";
-import { CreditCardIcon } from "@/components/icons/CreditCardIcon";
 import CheckoutSummaryTable from "@/components/cart-table/CheckoutSummaryTable";
 
 import {
@@ -20,13 +18,11 @@ import {
   Radio,
   Modal,
   Button,
-  Select,
   Divider,
   Textarea,
   Accordion,
   ModalBody,
   RadioGroup,
-  SelectItem,
   ModalHeader,
   ModalFooter,
   Autocomplete,
