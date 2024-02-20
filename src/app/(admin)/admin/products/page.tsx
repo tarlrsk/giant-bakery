@@ -105,6 +105,7 @@ export default function AdminRefreshment() {
   return (
     <Box>
       <ProductFilterToolbar
+        label="สินค้า"
         methods={filterMethods}
         onClickNewProduct={() => {
           setRowSelectionModel([]);
