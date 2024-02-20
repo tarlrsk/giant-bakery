@@ -54,7 +54,7 @@ export async function GET(_req: NextRequest, { params }: GetSnackBoxByIdProps) {
 
     let snackBoxRes: any = snackBox;
     if (snackBox.imagePath) {
-      snackBoxRes.Image = await getFileUrl(snackBox.imagePath);
+      snackBoxRes.image = await getFileUrl(snackBox.imagePath);
     }
 
     for (var snackBoxRefreshment of snackBoxRes.refreshments) {
