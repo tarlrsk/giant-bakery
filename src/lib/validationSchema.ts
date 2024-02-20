@@ -176,7 +176,7 @@ export const presetSnackBoxesValidateSchema = z.object({
 // Cart ------------------------------------------------------------------
 
 export const cartCustomCakeValidationSchema = z.object({
-  userId: z.string().uuid(),
+  userId: z.string().min(3),
   type: z.enum(["GUEST", "MEMBER"]),
   cakeType: z.enum(["PRESET", "CUSTOM"]),
   cakeId: z.string(),
@@ -184,21 +184,21 @@ export const cartCustomCakeValidationSchema = z.object({
 });
 
 export const cartPresetCakeValidationSchema = z.object({
-  userId: z.string().uuid(),
+  userId: z.string().min(3),
   type: z.enum(["GUEST", "MEMBER"]),
   cakeId: z.string().uuid(),
   quantity: z.number(),
 });
 
 export const cartRefreshmentValidationSchema = z.object({
-  userId: z.string().uuid(),
+  userId: z.string().min(3),
   type: z.enum(["GUEST", "MEMBER"]),
   refreshmentId: z.string(),
   quantity: z.number(),
 });
 
 export const cartCustomSnackBoxValidationSchema = z.object({
-  userId: z.string().uuid(),
+  userId: z.string().min(3),
   type: z.enum(["GUEST", "MEMBER"]),
   beverage: z.enum(["INCLUDE", "EXCLUDE", "NONE"]),
   packageType: z.enum(["PAPER_BAG", "SNACK_BOX_S", "SNACK_BOX_M"]),
@@ -207,14 +207,14 @@ export const cartCustomSnackBoxValidationSchema = z.object({
 });
 
 export const cartPresetSnackBoxValidationSchema = z.object({
-  userId: z.string().uuid(),
+  userId: z.string().min(3),
   type: z.enum(["GUEST", "MEMBER"]),
   snackBoxId: z.string().uuid(),
   quantity: z.number(),
 });
 
 export const updateQtyCartValidateSchema = z.object({
-  userId: z.string().uuid(),
+  userId: z.string().min(3),
   itemId: z.string(),
   quantity: z.number(),
 });
