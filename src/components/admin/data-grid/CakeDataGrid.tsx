@@ -9,27 +9,27 @@ import {
   GridRowSelectionModel,
 } from "@mui/x-data-grid";
 
-import { IProductRow } from "../types";
+import { ICakeRow } from "../types";
 
 // ----------------------------------------------------------------------
 
 type Props = {
-  rows: IProductRow[];
+  rows: ICakeRow[];
   rowSelectionModel: GridRowSelectionModel;
   setRowSelectionModel: Dispatch<SetStateAction<GridRowSelectionModel>>;
 };
 
 // ----------------------------------------------------------------------
 
-export default function ProductDataGrid({
+export default function CakeDataGrid({
   rows,
   rowSelectionModel,
   setRowSelectionModel,
 }: Props) {
   const columns: GridColDef[] = [
     {
-      field: "category",
-      headerName: "หมวดหมู่",
+      field: "cakeType",
+      headerName: "ชนิดเค้ก",
       flex: 1,
       renderCell: (params: GridRenderCellParams<any>) => {
         return (
@@ -52,34 +52,23 @@ export default function ProductDataGrid({
         );
       },
     },
-    { field: "product", headerName: "ชื่อสินค้า", flex: 1 },
+    { field: "cakeName", headerName: "ชื่อเค้ก", flex: 1 },
     {
-      field: "status",
+      field: "isActive",
       headerName: "สถานะ",
       flex: 1,
       renderCell: (params: GridRenderCellParams<any>) => {
         let text;
         let bgColor;
         let textColor;
-        switch (params.value) {
-          case "inStock":
-            text = "In Stock";
-            textColor = "#007B55";
-            bgColor = alpha("#00AB55", 0.16);
-            break;
-          case "outStock":
-            text = "Out of Stock";
-            textColor = "#B71D18";
-            bgColor = alpha("#FF5630", 0.16);
-            break;
-          case "low":
-            text = "Low";
-            textColor = "#B76E00";
-            bgColor = alpha("#FFAB00", 0.16);
-
-            break;
-          default:
-            text = "None";
+        if (params.value) {
+          text = "Active";
+          bgColor = alpha("#00AB55", 0.16);
+          textColor = "#007B55";
+        } else {
+          text = "Inactive";
+          textColor = "#B71D18";
+          bgColor = alpha("#FF5630", 0.16);
         }
         return (
           <Box sx={{ bgcolor: bgColor, borderRadius: 1.6, px: 1.25, py: 0.5 }}>
