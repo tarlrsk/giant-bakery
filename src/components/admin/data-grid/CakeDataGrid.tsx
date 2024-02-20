@@ -10,6 +10,7 @@ import {
 } from "@mui/x-data-grid";
 
 import { ICakeRow } from "../types";
+import { CustomNoRowsOverlay } from "./CustomNoRowsOverlay";
 
 // ----------------------------------------------------------------------
 
@@ -109,7 +110,7 @@ export default function CakeDataGrid({
 
   return (
     <Card sx={{ boxShadow: 0 }}>
-      <div>
+      <div style={{ height: 660 }}>
         <DataGrid
           rows={rows}
           columns={columns}
@@ -119,6 +120,13 @@ export default function CakeDataGrid({
           }}
           rowSelectionModel={rowSelectionModel}
           columnHeaderHeight={45}
+          initialState={{
+            pagination: { paginationModel: { pageSize: 10 } },
+          }}
+          pageSizeOptions={[10, 20, 30]}
+          slots={{
+            noRowsOverlay: CustomNoRowsOverlay,
+          }}
           // hideFooter
           sx={{ "& .MuiDataGrid-row": { cursor: "pointer" } }}
         />
