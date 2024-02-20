@@ -3,7 +3,10 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { getFileUrl } from "@/lib/gcs/getFileUrl";
 import { responseWrapper } from "@/utils/api-response-wrapper";
+import { checkoutCartValidateSchema } from "@/lib/validationSchema";
+import { OrderCustomerCake } from "@prisma/client";
 
+const origin = process.env.NEXT_PUBLIC_URL as string;
 const stripe: Stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 type LineItem = {
@@ -22,7 +25,12 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    const { addressId, cartId, userId } = body;
+    const { addressId, cartId, userId, paymentMethod } = body;
+
+    const validate = checkoutCartValidateSchema.safeParse(body);
+    if (!validate.success) {
+      return responseWrapper(400, null, validate.error.message);
+    }
 
     const cart = await prisma.cart.findUnique({
       where: {
@@ -40,6 +48,7 @@ export async function POST(req: NextRequest) {
                 cream: true,
                 topEdge: true,
                 bottomEdge: true,
+                decoration: true,
                 surface: true,
               },
             },
@@ -62,6 +71,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // MAP LineItems
     const lineItems = [] as LineItem[];
     for (var cartItem of cart?.items) {
       switch (cartItem.type) {
@@ -142,6 +152,7 @@ export async function POST(req: NextRequest) {
       currency: "thb",
     });
 
+    // CREATE STRIPE SESSIONS
     const session = await stripe.checkout.sessions.create({
       line_items: lineItems.map((item) => ({
         price_data: {
@@ -172,8 +183,8 @@ export async function POST(req: NextRequest) {
         },
       ],
       mode: "payment",
-      success_url: `http://localhost:3000/?checkout-success=true`, // TODO CHANGE TO HEAD ORIGIN URL
-      cancel_url: `http://localhost:3000/?checkout-canceled=true`,
+      success_url: `${origin}/?checkout-success=true`, // TODO CHANGE TO HEAD ORIGIN URL
+      cancel_url: `${origin}/?checkout-canceled=true`,
       payment_intent_data: {
         metadata: {
           userId: userId,
@@ -181,8 +192,61 @@ export async function POST(req: NextRequest) {
           orderId: "1234567",
         },
       },
-      payment_method_types: ["promptpay", "card"],
+      payment_method_types: [paymentMethod.toLowerCase()],
     });
+
+    const orderCustomCake = [] as OrderCustomerCake[];
+
+    // CREATE ORDER ITEMS
+    for (var cartItem of cart?.items) {
+      switch (cartItem.type) {
+        case "CAKE":
+          if (!cartItem.customerCake) {
+            return responseWrapper(
+              409,
+              null,
+              "Cake Item missing Customer Cake",
+            );
+          }
+          orderCustomCake.push({
+            id: "",
+            name: cartItem.customerCake.cake.name,
+            quantity: cartItem.quantity,
+            remark: cartItem.customerCake.cake.remark!,
+            imageFileName: cartItem.customerCake.cake.imageFileName!,
+            imagePath: cartItem.customerCake.cake.imagePath,
+            image: cartItem.customerCake.cake.image,
+            pricePer: cartItem.customerCake.price,
+            price: cartItem.customerCake.price * cartItem.quantity,
+            weight: cartItem.customerCake.cake.weight,
+            height: cartItem.customerCake.cake.height,
+            length: cartItem.customerCake.cake.length,
+            width: cartItem.customerCake.cake.width,
+            orderId: "1234",
+            cakeType: cartItem.customerCake.type,
+            customerCakeId: cartItem.customerCake.id,
+            cakeId: cartItem.customerCake.cakeId,
+            pound: cartItem.customerCake.pound?.name || null,
+            base: cartItem.customerCake.base?.name || null,
+            filling: cartItem.customerCake.filling?.name || null,
+            cream: cartItem.customerCake.cream?.name || null,
+            creamColor: cartItem.customerCake.creamColor,
+            topEdge: cartItem.customerCake.topEdge?.name || null,
+            topEdgeColor: cartItem.customerCake.topEdgeColor,
+            bottomEdge: cartItem.customerCake.bottomEdge?.name || null,
+            bottomEdgeColor: cartItem.customerCake.bottomEdgeColor,
+            decoration: cartItem.customerCake.decoration?.name || null,
+            surface: cartItem.customerCake.surface?.name || null,
+            orderCustomerCake: null,
+          });
+          break;
+        case "REFRESHMENT":
+          break;
+        case "SNACK_BOX":
+          break;
+      }
+    }
+
     return responseWrapper(200, session.url, null);
   } catch (err: any) {
     return responseWrapper(500, null, err.message);

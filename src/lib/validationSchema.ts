@@ -219,6 +219,14 @@ export const updateQtyCartValidateSchema = z.object({
   quantity: z.number(),
 });
 
+// Checkout -------------------------------------------------------------
+
+export const checkoutCartValidateSchema = z.object({
+  userId: z.string().uuid(),
+  addressId: z.string().uuid(),
+  paymentMethod: z.enum(["CARD", "PROMPTPAY"]),
+});
+
 // Discount -------------------------------------------------------------
 
 export const discountValidationSchema = z.object({

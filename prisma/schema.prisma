@@ -54,6 +54,7 @@ model User {
   sessions       Session[]
   orders         Order[]
   addresses      CustomerAddress[]
+  payment        Payment[]
 }
 
 model VerificationToken {
@@ -362,6 +363,7 @@ model Order {
   delivery      DeliveryType
   receivedVia   ReceivedVia
   status        OrderStatus
+  paymentType   PaymentType
   subTotalPrice Float
   discountPrice Float
   shippingFee   Float
@@ -372,7 +374,7 @@ model Order {
   user     User       @relation(fields: [userId], references: [id])
   payment  Payment[]
   discount Discount[]
-  userId   String     @unique
+  userId   String
   remark   String?
 
   // Address
@@ -391,13 +393,13 @@ model Order {
 
 model OrderCustomerCake {
   id            String  @id @default(uuid())
-  qty           Int
   name          String
   remark        String?
   quantity      Int     @default(0)
   imageFileName String?
   imagePath     String?
   image         String?
+  pricePer      Float
   price         Float
   weight        Float
   height        Float
@@ -431,7 +433,6 @@ model OrderCustomerCake {
 
 model OrderRefreshment {
   id            String               @id @default(uuid())
-  qty           Int
   name          String
   description   String?
   remark        String?
@@ -445,6 +446,7 @@ model OrderRefreshment {
   height        Float
   length        Float
   width         Float
+  pricePer      Float
   price         Float
 
   order    Order  @relation(fields: [orderId], references: [id])
@@ -455,7 +457,8 @@ model OrderRefreshment {
 model OrderSnackBox {
   id            String                     @id @default(uuid())
   name          String
-  qty           Int
+  quantity      Int
+  pricePer      Float
   price         Float
   imageFileName String?
   imagePath     String?
@@ -473,7 +476,6 @@ model OrderSnackBoxRefreshment {
   name            String
   description     String?
   remark          String?
-  quantity        Int                  @default(0)
   imageFileName   String?
   imagePath       String?
   image           String?
@@ -492,13 +494,12 @@ model OrderSnackBoxRefreshment {
 model Payment {
   id        String        @id @default(uuid())
   amount    Float
-  provider  String
-  type      PaymentType
-  status    PaymentStatus
+  type      PaymentMethod
   createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
   order     Order         @relation(fields: [orderId], references: [id])
   orderId   String
+  userId    String
+  user      User          @relation(fields: [userId], references: [id])
 }
 
 model Discount {
@@ -576,6 +577,11 @@ enum OrderStatus {
   PENDING_DELIVERY
   COMPLETED
   CANCELLED
+}
+
+enum PaymentMethod {
+  CARD
+  PROMPTPAY
 }
 
 enum PaymentType {

@@ -1,7 +1,7 @@
 import paths from "@/utils/paths";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
-import { CartType } from "@prisma/client";
+import { CartType, SnackBoxType } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { getFileUrl } from "@/lib/gcs/getFileUrl";
 import { responseWrapper } from "@/utils/api-response-wrapper";
@@ -69,12 +69,19 @@ async function deleteItem(cartItem: any, itemId: string) {
           `Something went wrong with snack box item.`,
         );
       }
-      await prisma.snackBox.delete({
-        where: {
-          id: cartItem.snackBoxId,
-        },
-      });
-      break;
+      if (cartItem.type == SnackBoxType.CUSTOM) {
+        await prisma.snackBox.delete({
+          where: {
+            id: cartItem.snackBoxId,
+          },
+        });
+        await prisma.cartItem.delete({
+          where: {
+            id: itemId,
+          },
+        });
+        break;
+      }
   }
 }
 
