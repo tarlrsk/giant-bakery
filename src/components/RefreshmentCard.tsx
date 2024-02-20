@@ -98,7 +98,7 @@ export default function RefreshmentCard({ item, onClick, size = "md" }: Props) {
               <p
                 className={`text-secondaryT-main text-${fontSize} font-semibold`}
               >
-                ฿{item.price?.toFixed(2)}
+                ฿{item.price?.toFixed(2) ?? 0}
               </p>
               <Button
                 size={size}
@@ -113,7 +113,7 @@ export default function RefreshmentCard({ item, onClick, size = "md" }: Props) {
               <p
                 className={`text-secondaryT-main text-${fontSize} font-semibold`}
               >
-                ฿{item.price?.toFixed(2)}
+                ฿{item.price?.toFixed(2) ?? 0}
               </p>
               <Button
                 size={size}
