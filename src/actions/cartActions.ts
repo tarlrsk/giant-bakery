@@ -1,10 +1,11 @@
 "use server";
 
+import paths from "@/utils/paths";
 // import toast from "react-hot-toast";
 import { prisma } from "@/lib/prisma";
 import apiPaths from "@/utils/api-path";
 import { CartType } from "@prisma/client";
-import { revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
 import { getFileUrl } from "@/lib/gcs/getFileUrl";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 
@@ -49,29 +50,32 @@ export async function updateCartItem(
   quantity: number,
   action: "increase" | "decrease" | "remove",
 ) {
-  const { updateCartItem } = apiPaths();
+  try {
+    const { updateCartItem } = apiPaths();
 
-  let updatedQuantity;
+    let updatedQuantity;
 
-  if (action === "increase") {
-    updatedQuantity = quantity + 1;
-  } else if (action === "decrease") {
-    updatedQuantity = quantity - 1;
-  } else {
-    updatedQuantity = 0;
+    if (action === "increase") {
+      updatedQuantity = quantity + 1;
+    } else if (action === "decrease") {
+      updatedQuantity = quantity - 1;
+    } else {
+      updatedQuantity = 0;
+    }
+
+    const res = await fetch(updateCartItem(), {
+      method: "PUT",
+      body: JSON.stringify({ userId, itemId, quantity: updatedQuantity }),
+      cache: "no-store",
+    });
+
+    revalidatePath(paths.cartList());
+    const data = await res.json();
+
+    return data;
+  } catch (err) {
+    console.error(err);
   }
-
-  const res = await fetch(updateCartItem(), {
-    method: "PUT",
-    body: JSON.stringify({ userId, itemId, quantity: updatedQuantity }),
-    cache: "no-store",
-  });
-
-  revalidateTag("cart");
-
-  const data = await res.json();
-
-  return data;
 }
 
 export async function getCartData() {

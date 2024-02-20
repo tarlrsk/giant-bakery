@@ -163,7 +163,7 @@ export default function Navbar({
               animate="rest"
               onClick={onOpen}
             >
-              {currentUser ? (
+              {currentUser.role !== "GUEST" ? (
                 <Dropdown className="rounded-md min-w-40">
                   <DropdownTrigger>
                     <Button

@@ -5,11 +5,10 @@ const interExpressUrl = process.env.NEXT_PUBLIC_INTER_EXPRESS_API as string;
 
 const createBaseApiUrl = (endpoint: string) => `${baseUrl}/api/${endpoint}`;
 
-const createAdminUrl = (endpoint: string) =>
-  `${baseUrl}/api/portal/${endpoint}`;
+const createAdminUrl = (endpoint: string) => `${baseUrl}api/portal/${endpoint}`;
 
 const createClientUrl = (endpoint: string) =>
-  `${baseUrl}/api/client/${endpoint}`;
+  `${baseUrl}api/client/${endpoint}`;
 
 const createInterExpressUrl = (endpoint: string) =>
   `${interExpressUrl}/${endpoint}`;
