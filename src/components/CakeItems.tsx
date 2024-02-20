@@ -5,7 +5,6 @@ import { Cake } from "@prisma/client";
 import React, { useState } from "react";
 import { fetcher } from "@/utils/axios";
 import apiPaths from "@/utils/api-path";
-import { useRouter } from "next/navigation";
 
 import { Pagination } from "@nextui-org/react";
 
@@ -44,8 +43,6 @@ export default function CakeItems({
   onClick,
   ...other
 }: Props) {
-  const router = useRouter();
-
   const { getCakes } = apiPaths();
 
   const fetchPath = getCakes(type as string);
