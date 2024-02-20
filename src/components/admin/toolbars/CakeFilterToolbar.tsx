@@ -18,22 +18,21 @@ import {
 type Props = {
   label: string;
   methods: any;
-  onClickNewProduct: () => void;
+  onClickNewCake: () => void;
 };
 
 const STATUS_OPTIONS = [
   { value: "all", label: "ทั้งหมด" },
-  { value: "inStock", label: "In Stock" },
-  { value: "low", label: "Low" },
-  { value: "outStock", label: "Out of Stock" },
+  { value: "active", label: "Active" },
+  { value: "inActive", label: "Inactive" },
 ];
 
 // ----------------------------------------------------------------------
 
-export default function ProductFilterToolbar({
+export default function CakeFilterToolbar({
   label,
   methods,
-  onClickNewProduct,
+  onClickNewCake,
 }: Props) {
   return (
     <FormProvider methods={methods}>
@@ -86,7 +85,7 @@ export default function ProductFilterToolbar({
           variant="contained"
           color="secondary"
           startIcon={<AddIcon />}
-          onClick={onClickNewProduct}
+          onClick={onClickNewCake}
         >
           {`เพิ่ม${label}ใหม่`}
         </Button>

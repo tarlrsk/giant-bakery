@@ -3,3 +3,27 @@ export interface IProductRow {
   product: string;
   status: string;
 }
+
+export interface ICakeRow {
+  cakeUpload?:
+    | string
+    | {
+        path: string;
+        preview: string;
+      }
+    | null;
+  isActive?: boolean;
+  cakeName?: string;
+  description?: string;
+  cakeType?: string;
+  price?: number;
+  width?: number;
+  length?: number;
+  height?: number;
+  weight?: number;
+  cream?: string[];
+  topEdge?: string[];
+  bottomEdge?: string[];
+  decoration?: string[];
+  surface?: string[];
+}
