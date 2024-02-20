@@ -40,7 +40,7 @@ export async function GET(req: NextRequest, { params }: GetSnackBoxBySlug) {
     }
 
     if (snackBox.imagePath != null && snackBox.imagePath != "") {
-      (snackBox as any).image = await getFileUrl(snackBox.imagePath);
+      snackBox.image = await getFileUrl(snackBox.imagePath);
     }
 
     for (var snackBoxRefreshment of snackBox.refreshments) {
