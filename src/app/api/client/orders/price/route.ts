@@ -81,11 +81,15 @@ export async function GET(req: NextRequest) {
       // TODO DISCOUNTS
       discounts: [
         {
-          name: "ลดทั้งหมดแม่ง",
+          name: "ร้านกำลังอยู่ในช่วงพัฒนา ลดให้เลย 10 บาท",
+          discount: 10,
+        },
+        {
+          name: "พอดีเป็นคนใจดีน่ะ ลดให้เลย 10 บาท",
           discount: 10,
         },
       ],
-      totalDiscount: 10,
+      totalDiscount: 20,
     } as TotalPriceResponse;
 
     // Get Destination Location
