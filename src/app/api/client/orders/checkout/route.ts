@@ -35,8 +35,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    const { addressId, userId, paymentMethod, paymentType, orderType, remark } =
-      body;
+    const { addressId, userId, paymentMethod, paymentType, remark } = body;
 
     const validate = checkoutCartValidateSchema.safeParse(body);
     if (!validate.success) {
@@ -284,7 +283,6 @@ export async function POST(req: NextRequest) {
     // TODO Decrease quantity
     // CREATE ORDER
     order = await prismaOrder().createOrder({
-      type: orderType,
       status: OrderStatus.PENDING_PAYMENT1,
       paymentType: paymentType,
       subTotalPrice: subTotal,
