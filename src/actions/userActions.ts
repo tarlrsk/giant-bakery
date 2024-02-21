@@ -27,7 +27,7 @@ export async function signUp(body: ISignUpRequest) {
     const cookieId = cookies().get("next-auth.csrf-token")?.value as string;
     const { signUp } = paths();
 
-    const res = await fetch(signUp, {
+    const res = await fetch(signUp(), {
       method: "POST",
       body: JSON.stringify({ ...body, cookieId }),
     }).then((res) => res.json());
@@ -45,17 +45,13 @@ export default async function getCurrentUser() {
     const session = await getSession();
 
     if (!session?.user?.email) {
-      return null;
+      const cookieId = cookies().get("next-auth.csrf-token")?.value as string;
+      return { id: cookieId, role: "GUEST" };
     }
 
     const currentUser = await prisma.user.findUnique({
       where: { email: session.user.email as string },
     });
-
-    if (!currentUser) {
-      const cookieId = cookies().get("next-auth.csrf-token")?.value as string;
-      return { id: cookieId, role: "GUEST" };
-    }
 
     return currentUser;
   } catch (error: any) {

@@ -1,16 +1,14 @@
 "use client";
 
 import useSWR from "swr";
+import { Cake } from "@prisma/client";
 import React, { useState } from "react";
 import { fetcher } from "@/utils/axios";
 import apiPaths from "@/utils/api-path";
-import { useRouter } from "next/navigation";
-import { Refreshment } from "@prisma/client";
 
 import { Pagination } from "@nextui-org/react";
 
-import ProductCard from "./ProductCard";
-import { IBakeryCategory } from "./BakeryItems";
+import CakeCard from "./CakeCard";
 
 export type ICakeType = "PRESET" | "CUSTOM" | "CAKE";
 
@@ -21,6 +19,23 @@ type Props = {
   onClick?: (selected: any) => void;
 };
 
+type IAddRefreshmentToCart = {
+  userId: string;
+  type: "MEMBER" | "GUEST";
+  refreshmentId: string;
+  quantity: number;
+};
+
+async function sendAddSnackBoxRequest(
+  url: string,
+  { arg }: { arg: IAddRefreshmentToCart },
+) {
+  await fetch(url, {
+    method: "POST",
+    body: JSON.stringify(arg),
+  }).then((res) => res.json());
+}
+
 export default function CakeItems({
   size = "md",
   cols,
@@ -28,18 +43,13 @@ export default function CakeItems({
   onClick,
   ...other
 }: Props) {
-  const router = useRouter();
+  const { getCakes } = apiPaths();
 
-  const { getBakeries, getCakes } = apiPaths();
-
-  const fetchPath =
-    type === "PRESET" || type === "CUSTOM"
-      ? getCakes(type as string)
-      : getBakeries(type as IBakeryCategory);
+  const fetchPath = getCakes(type as string);
 
   const { data } = useSWR(fetchPath, fetcher);
 
-  const items: Refreshment[] = data?.response?.data || [];
+  const items: Cake[] = data?.response?.data || [];
 
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -60,24 +70,8 @@ export default function CakeItems({
         } justify-center items-baseline hover:cursor-pointer`}
         {...other}
       >
-        {Object.values(displayItems)?.map((item: Refreshment) => (
-          <ProductCard
-            key={item.id}
-            name={item.name}
-            size={size}
-            price={item.price}
-            img={item.image ? `${item.image as string}` : "/"}
-            onClick={
-              onClick
-                ? () => onClick(item)
-                : type === "PRESET"
-                  ? () =>
-                      router.push(`/cakes/preset/${item.name}?id=${item.id}`)
-                  : type === "CAKE"
-                    ? () => router.push(`/cakes/${item.name}?id=${item.id}`)
-                    : () => {}
-            }
-          />
+        {Object.values(displayItems)?.map((item: Cake) => (
+          <CakeCard key={item.id} item={item} size={size} onClick={() => {}} />
         ))}
       </div>
       <Pagination

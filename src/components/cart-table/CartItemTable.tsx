@@ -142,7 +142,7 @@ export default function CartItemTable({
                     "remove",
                   ).then(
                     (res) =>
-                      !res.response.success &&
+                      !res?.response?.success &&
                       toast.error("กรุณาลองใหม่อีกครั้ง"),
                   );
                 }}

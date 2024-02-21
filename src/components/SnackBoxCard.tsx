@@ -1,23 +1,61 @@
 import React from "react";
 import Image from "next/image";
+import toast from "react-hot-toast";
+import apiPaths from "@/utils/api-path";
+import useSWRMutation from "swr/mutation";
+import { SnackBox } from "@prisma/client";
+import getCurrentUser from "@/actions/userActions";
 
 import { Card, Button } from "@nextui-org/react";
 
 type Props = {
-  name: string;
-  price: number;
-  img: string;
+  item: SnackBox;
   size?: "sm" | "md";
   onClick?: () => void;
 };
 
-export default function ProductCard({
-  name,
-  price,
-  img,
-  onClick,
-  size = "md",
-}: Props) {
+type IAddSnackBoxToCart = {
+  userId: string;
+  type: "MEMBER" | "GUEST";
+  snackBoxId: string;
+  quantity: number;
+};
+
+async function sendAddSnackBoxRequest(
+  url: string,
+  { arg }: { arg: IAddSnackBoxToCart },
+) {
+  await fetch(url, {
+    method: "POST",
+    body: JSON.stringify(arg),
+  }).then((res) => res.json());
+}
+
+export default function SnackBoxCard({ item, onClick, size = "md" }: Props) {
+  const { addPresetSnackBoxToCart } = apiPaths();
+
+  const { trigger: triggerAddToCart, isMutating: isMutatingAddToCart } =
+    useSWRMutation(addPresetSnackBoxToCart(), sendAddSnackBoxRequest);
+
+  async function handleAddToCart(itemId: string) {
+    const currentUser = await getCurrentUser();
+
+    const body: IAddSnackBoxToCart = {
+      userId: currentUser?.id || "",
+      type: currentUser?.role === "CUSTOMER" ? "MEMBER" : "GUEST",
+      snackBoxId: itemId,
+      quantity: 1,
+    };
+
+    try {
+      await triggerAddToCart(body);
+      toast.success("ใส่ตะกร้าสำเร็จ");
+    } catch (error) {
+      console.error(error);
+      toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
+    }
+  }
+
   let imgSize: { width: number; height: number } = { width: 800, height: 128 };
   let padding = 12;
   let fontSize = "lg";
@@ -38,8 +76,8 @@ export default function ProductCard({
     >
       <div onClick={onClick}>
         <Image
-          src={img}
-          alt={name}
+          src={(item?.image as string) ?? "/placeholder-image.jpeg"}
+          alt={item?.name}
           width={imgSize.width}
           height={imgSize.height}
           className=" object-cover mb-4 rounded-sm"
@@ -52,7 +90,7 @@ export default function ProductCard({
           <p
             className={`text-black truncate text-${fontSize} font-normal max-w-full`}
           >
-            {name}
+            {item?.name}
           </p>
 
           {size === "sm" ? (
@@ -60,7 +98,7 @@ export default function ProductCard({
               <p
                 className={`text-secondaryT-main text-${fontSize} font-semibold`}
               >
-                ฿{price.toFixed(2)}
+                ฿{item?.price?.toFixed(2) ?? 0}
               </p>
               <Button
                 size={size}
@@ -75,11 +113,14 @@ export default function ProductCard({
               <p
                 className={`text-secondaryT-main text-${fontSize} font-semibold`}
               >
-                ฿{price.toFixed(2)}
+                ฿{item?.price?.toFixed(2) ?? 0}
               </p>
               <Button
                 size={size}
-                onClick={onClick}
+                isLoading={isMutatingAddToCart}
+                onClick={() => {
+                  handleAddToCart(item?.id);
+                }}
                 className={`bg-secondaryT-main items-center text-white text-${size} rounded-sm px-${padding}`}
               >
                 ใส่ตะกร้า

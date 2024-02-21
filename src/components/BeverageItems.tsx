@@ -6,18 +6,37 @@ import { fetcher } from "@/utils/axios";
 import { useRouter } from "next/navigation";
 import { Refreshment } from "@prisma/client";
 
-import ProductCard from "./ProductCard";
+import RefreshmentCard from "./RefreshmentCard";
+
+type Props = {
+  size?: "sm" | "md";
+  cols: number;
+  onClick?: (selected: any) => void;
+};
+
+type IAddRefreshmentToCart = {
+  userId: string;
+  type: "MEMBER" | "GUEST";
+  refreshmentId: string;
+  quantity: number;
+};
+
+async function sendAddSnackBoxRequest(
+  url: string,
+  { arg }: { arg: IAddRefreshmentToCart },
+) {
+  await fetch(url, {
+    method: "POST",
+    body: JSON.stringify(arg),
+  }).then((res) => res.json());
+}
 
 export default function BeverageItems({
   size = "md",
   cols,
   onClick,
   ...other
-}: {
-  size?: "sm" | "md";
-  cols: number;
-  onClick?: (selected: any) => void;
-}) {
+}: Props) {
   const router = useRouter();
 
   const { getBeverages } = apiPaths();
@@ -34,12 +53,10 @@ export default function BeverageItems({
       {...other}
     >
       {Object.values(items)?.map((item: Refreshment) => (
-        <ProductCard
+        <RefreshmentCard
           key={item.id}
-          name={item.name}
+          item={item}
           size={size}
-          price={item.price}
-          img={item.image ? `${item.image as string}` : "/"}
           onClick={
             onClick
               ? () => onClick(item)

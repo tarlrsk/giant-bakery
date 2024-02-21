@@ -75,13 +75,14 @@ async function deleteItem(cartItem: any, itemId: string) {
             id: cartItem.snackBoxId,
           },
         });
-        await prisma.cartItem.delete({
-          where: {
-            id: itemId,
-          },
-        });
         break;
       }
+      await prisma.cartItem.delete({
+        where: {
+          id: itemId,
+        },
+      });
+      break;
   }
 }
 

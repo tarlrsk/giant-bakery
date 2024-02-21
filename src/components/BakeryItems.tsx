@@ -6,14 +6,21 @@ import { fetcher } from "@/utils/axios";
 import { useRouter } from "next/navigation";
 import { Refreshment } from "@prisma/client";
 
-import ProductCard from "./ProductCard";
+import RefreshmentCard from "./RefreshmentCard";
 
 // ----------------------------------------------------------------------
 
-export type IBakeryCategory = "BREAD" | "PIE" | "COOKIE" | "SNACK" | "";
+export type IBakeryCategory =
+  | "BREAD"
+  | "PIE"
+  | "COOKIE"
+  | "SNACK"
+  | "CAKE"
+  | "";
 
 type Props = {
   size?: "sm" | "md";
+  amount?: string;
   cols: number;
   category?: IBakeryCategory;
   onClick?: (selected: any) => void;
@@ -21,6 +28,7 @@ type Props = {
 
 export default function BakeryItems({
   size = "md",
+  amount,
   cols,
   category,
   onClick,
@@ -31,7 +39,7 @@ export default function BakeryItems({
   const { getBakeries } = apiPaths();
 
   const { data } = useSWR(
-    `${getBakeries(category as IBakeryCategory)}`,
+    `${getBakeries(category as IBakeryCategory, amount)}`,
     fetcher,
   );
 
@@ -45,12 +53,10 @@ export default function BakeryItems({
       {...other}
     >
       {Object.values(items)?.map((item: any) => (
-        <ProductCard
+        <RefreshmentCard
           key={item.id}
-          name={item.name}
+          item={item}
           size={size}
-          price={item.price}
-          img={item.image ? `${item.image as string}` : "/"}
           onClick={
             onClick
               ? () => onClick(item)
