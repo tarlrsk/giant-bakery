@@ -310,12 +310,16 @@ export async function GET(req: NextRequest) {
     // TODO Discounts
     responseCart.discounts = [
       {
-        name: "BLABLABLA",
+        name: "ร้านกำลังอยู่ในช่วงพัฒนา ลดให้เลย 10 บาท",
+        discount: 10,
+      },
+      {
+        name: "พอดีเป็นคนใจดีน่ะ ลดให้เลย 10 บาท",
         discount: 10,
       },
     ];
 
-    responseCart.totalDiscount = 10;
+    responseCart.totalDiscount = 20;
     responseCart.total = responseCart.subTotal - responseCart.totalDiscount;
 
     responseCart.items.sort(
