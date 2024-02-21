@@ -159,6 +159,7 @@ export async function POST(req: NextRequest) {
               quantity: quantity,
               snackBox: {
                 create: {
+                  name: "Custom Snack Box",
                   beverage: body.beverage,
                   packageType: body.packageType,
                   price: snackBoxPrice,

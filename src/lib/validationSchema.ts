@@ -224,7 +224,9 @@ export const updateQtyCartValidateSchema = z.object({
 export const checkoutCartValidateSchema = z.object({
   userId: z.string().uuid(),
   addressId: z.string().uuid(),
+  orderType: z.enum(["WHOLESALE", "RETAIL"]),
   paymentMethod: z.enum(["CARD", "PROMPTPAY"]),
+  paymentType: z.enum(["FULL_PAYMENT", "PARTIAL_PAYMENT"]),
 });
 
 // Discount -------------------------------------------------------------

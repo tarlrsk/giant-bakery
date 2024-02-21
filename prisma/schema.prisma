@@ -323,8 +323,10 @@ model Refreshment {
   unitType      String               @default("กล่อง")
   unitRatio     Int?
 
-  CartItem            CartItem?
-  SnackBoxRefreshment SnackBoxRefreshment[]
+  CartItem                 CartItem?
+  SnackBoxRefreshment      SnackBoxRefreshment[]
+  orderRefreshment         OrderRefreshment[]
+  orderSnackBoxRefreshment OrderSnackBoxRefreshment[]
 }
 
 model SnackBox {
@@ -347,6 +349,7 @@ model SnackBox {
   beverage      SnackBoxBeverage      @default(NONE)
   cartItems     CartItem?
   refreshments  SnackBoxRefreshment[]
+  orderSnackBox OrderSnackBox[]
 }
 
 model SnackBoxRefreshment {
@@ -358,18 +361,16 @@ model SnackBoxRefreshment {
 }
 
 model Order {
-  id            String       @id @default(uuid())
+  id            String      @id @default(uuid())
   type          OrderType
-  delivery      DeliveryType
-  receivedVia   ReceivedVia
   status        OrderStatus
   paymentType   PaymentType
   subTotalPrice Float
   discountPrice Float
   shippingFee   Float
   totalPrice    Float
-  orderedAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  orderedAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 
   user     User       @relation(fields: [userId], references: [id])
   payment  Payment[]
@@ -406,29 +407,28 @@ model OrderCustomerCake {
   length        Float
   width         Float
 
-  order   Order  @relation(fields: [orderId], references: [id])
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
   orderId String
 
-  cakeId   String
-  cake     Cake     @relation(fields: [cakeId], references: [id])
+  cakeId   String?
+  cake     Cake?    @relation(fields: [cakeId], references: [id])
   cakeType CakeType
 
-  customerCake   CustomerCake @relation(fields: [customerCakeId], references: [id])
-  customerCakeId String
+  customerCake   CustomerCake? @relation(fields: [customerCakeId], references: [id])
+  customerCakeId String?
 
-  CartItem          CartItem[]
-  pound             String?
-  base              String?
-  filling           String?
-  cream             String?
-  creamColor        String?
-  topEdge           String?
-  topEdgeColor      String?
-  bottomEdge        String?
-  bottomEdgeColor   String?
-  decoration        String?
-  surface           String?
-  orderCustomerCake String?
+  CartItem        CartItem[]
+  pound           String?
+  base            String?
+  filling         String?
+  cream           String?
+  creamColor      String?
+  topEdge         String?
+  topEdgeColor    String?
+  bottomEdge      String?
+  bottomEdgeColor String?
+  decoration      String?
+  surface         String?
 }
 
 model OrderRefreshment {
@@ -448,10 +448,14 @@ model OrderRefreshment {
   width         Float
   pricePer      Float
   price         Float
+  unitType      String               @default("กล่อง")
+  unitRatio     Int?
 
-  order    Order  @relation(fields: [orderId], references: [id])
-  orderId  String
-  unitType String @default("กล่อง")
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId String
+
+  refreshment   Refreshment? @relation(fields: [refreshmentId], references: [id])
+  refreshmentId String?
 }
 
 model OrderSnackBox {
@@ -467,8 +471,11 @@ model OrderSnackBox {
   packageType   SnackBoxPackageType        @default(SNACK_BOX_S)
   beverage      SnackBoxBeverage           @default(NONE)
   refreshments  OrderSnackBoxRefreshment[]
-  order         Order                      @relation(fields: [orderId], references: [id])
+  order         Order                      @relation(fields: [orderId], references: [id], onDelete: Cascade)
   orderId       String
+
+  snackBoxId String?
+  snackBox   SnackBox? @relation(fields: [snackBoxId], references: [id])
 }
 
 model OrderSnackBoxRefreshment {
@@ -486,9 +493,13 @@ model OrderSnackBoxRefreshment {
   length          Float
   width           Float
   price           Float
-  OrderSnackBox   OrderSnackBox?       @relation(fields: [orderSnackBoxId], references: [id])
-  orderSnackBoxId String?
+  OrderSnackBox   OrderSnackBox        @relation(fields: [orderSnackBoxId], references: [id], onDelete: Cascade)
+  orderSnackBoxId String
   unitType        String               @default("กล่อง")
+  unitRatio       Int?
+
+  refreshment   Refreshment? @relation(fields: [refreshmentId], references: [id])
+  refreshmentId String?
 }
 
 model Payment {
@@ -571,9 +582,10 @@ enum DeliveryType {
 }
 
 enum OrderStatus {
+  PENDING_PAYMENT1
   PENDING_ORDER
   ON_PROCESS
-  PENDING_PAYMENT
+  PENDING_PAYMENT2
   PENDING_DELIVERY
   COMPLETED
   CANCELLED

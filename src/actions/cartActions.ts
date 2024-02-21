@@ -1,46 +1,16 @@
 "use server";
 
 // import toast from "react-hot-toast";
-import { prisma } from "@/lib/prisma";
 import apiPaths from "@/utils/api-path";
 import { CartType } from "@prisma/client";
 import { revalidateTag } from "next/cache";
+import { prismaCart } from "@/persistence/cart";
 import { getFileUrl } from "@/lib/gcs/getFileUrl";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 
 import getCurrentUser from "./userActions";
 
 // ----------------------------------------------------------------------
-
-const CartInclude = {
-  items: {
-    include: {
-      customerCake: {
-        include: {
-          cake: true,
-          pound: true,
-          base: true,
-          filling: true,
-          cream: true,
-          topEdge: true,
-          bottomEdge: true,
-          decoration: true,
-          surface: true,
-        },
-      },
-      refreshment: true,
-      snackBox: {
-        include: {
-          refreshments: {
-            include: {
-              refreshment: true,
-            },
-          },
-        },
-      },
-    },
-  },
-};
 
 export async function updateCartItem(
   userId: string,
@@ -83,6 +53,9 @@ export async function getCartData() {
       userId: null as string | null,
       type: null as CartType | null,
       subTotal: 0,
+      discounts: [] as any,
+      totalDiscount: 0,
+      total: 0,
       items: [] as any,
     };
 
@@ -92,12 +65,7 @@ export async function getCartData() {
     }
     responseCart.userId = userId;
 
-    const cart = await prisma.cart.findFirst({
-      where: {
-        userId: userId,
-      },
-      include: CartInclude,
-    });
+    const cart = await prismaCart().getCartByUserId(userId);
     if (!cart) {
       return responseWrapper(200, responseCart, null).json();
     }
@@ -195,6 +163,17 @@ export async function getCartData() {
       responseItem.updatedAt = item.updatedAt;
       responseCart.items.push(responseItem);
       responseCart.subTotal += responseItem.price;
+
+      // TODO Discounts
+      responseCart.discounts = [
+        {
+          name: "BLABLABLA",
+          discount: 10,
+        },
+      ];
+
+      responseCart.totalDiscount = 10;
+      responseCart.total = responseCart.subTotal - responseCart.totalDiscount;
     }
 
     responseCart.items.sort(
