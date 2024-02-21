@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import HomeIcon from "@mui/icons-material/Home";
 import LayersIcon from "@mui/icons-material/Layers";
 import { useRouter, usePathname } from "next/navigation";
+import Inventory2Icon from "@mui/icons-material/Inventory2";
 import { Box, Tab, Tabs, Stack, AppBar, Button } from "@mui/material";
 import BookmarkRoundedIcon from "@mui/icons-material/BookmarkRounded";
 import BakeryDiningRoundedIcon from "@mui/icons-material/BakeryDiningRounded";
@@ -14,15 +15,38 @@ import TakeoutDiningRoundedIcon from "@mui/icons-material/TakeoutDiningRounded";
 // ----------------------------------------------------------------------
 
 const navItems = [
-  { label: "Home", icon: <HomeIcon /> },
-  { label: "Orders", icon: <BookmarkRoundedIcon /> },
+  { value: "admin", label: "หน้าแรก", icon: <HomeIcon />, size: "medium" },
+  {
+    value: "orders",
+    label: "ออเดอร์",
+    icon: <BookmarkRoundedIcon />,
+    size: "medium",
+  },
 
   {
-    label: "Products",
+    value: "products",
+    label: "สินค้า",
     icon: <BakeryDiningRoundedIcon />,
+    size: "medium",
   },
-  { label: "Cakes", icon: <TakeoutDiningRoundedIcon /> },
-  { label: "Variants", icon: <LayersIcon /> },
+  {
+    value: "cakes",
+    label: "เค้ก",
+    icon: <TakeoutDiningRoundedIcon />,
+    size: "medium",
+  },
+  {
+    value: "snack-boxes",
+    label: "ชุดเบรก",
+    icon: <Inventory2Icon />,
+    size: "medium",
+  },
+  {
+    value: "variants",
+    label: "ตัวเลือกเค้ก",
+    icon: <LayersIcon />,
+    size: "medium",
+  },
 ];
 
 // ----------------------------------------------------------------------
@@ -32,13 +56,11 @@ export default function AdminNavbar() {
   const router = useRouter();
   const { onSignOut } = useAuth();
   const activeLink = _.capitalize(pathname.split("/").slice(-1)[0]);
-  const [currentPage, setCurrentPage] = useState(
-    activeLink === "Admin" ? "Home" : activeLink,
-  );
+  const [currentPage, setCurrentPage] = useState(activeLink.toLowerCase());
 
   const handleChange = (event: React.SyntheticEvent, page: string) => {
     setCurrentPage(page);
-    if (page === "Home") return router.push("/admin");
+    if (page === "admin") return router.push("/admin");
     router.push(`/admin/${page.toLocaleLowerCase()}`);
   };
 
@@ -82,7 +104,7 @@ export default function AdminNavbar() {
                   iconPosition="start"
                   icon={item.icon}
                   label={item.label}
-                  value={item.label}
+                  value={item.value}
                   sx={{ py: 0, minHeight: "48px" }}
                 />
               ))}

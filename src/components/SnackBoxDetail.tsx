@@ -51,7 +51,7 @@ export default function SnackBoxDetail({
             </div>
           </div>
           <div className="font-semibold text-4xl leading-normal">
-            ฿{item.price?.toFixed(2)}.-
+            ฿{item.price?.toFixed(2) ?? 0}.-
           </div>
         </div>
 

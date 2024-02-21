@@ -26,8 +26,12 @@ export default function ProductDetail({
   return (
     <div className="relative flex items-center justify-center gap-36">
       <Image
-        src={(item.image as string) ? (item.image as string) : ""}
-        alt={item.name}
+        src={
+          (item?.image as string)
+            ? (item?.image as string)
+            : "/placeholder-image.jpeg"
+        }
+        alt={item?.name}
         width={420}
         height={420}
       />
@@ -36,25 +40,25 @@ export default function ProductDetail({
         <div className="relative flex flex-col gap-4">
           <div className="relative flex flex-col gap-5">
             <h1 className="font-semibold text-4xl leading-normal">
-              {item.name}
+              {item?.name}
             </h1>
-            <p className="font-normal text-xl">{item.description}</p>
+            <p className="font-normal text-xl">{item?.description}</p>
           </div>
           <div className="relative flex gap-6">
             <div className="relative flex gap-2">
               <h2 className="font-semibold text-xl">น้ำหนัก:</h2>
-              <p className="font-normal text-xl">{item.weight}</p>
+              <p className="font-normal text-xl">{item?.weight}</p>
             </div>
             <div className="relative flex gap-2">
               <h2 className="font-semibold text-xl">ปริมาณ:</h2>
               <p className="font-normal text-xl">
-                {item.unitRatio ? item.unitRatio : "-"}{" "}
-                {item.unitType ? item.unitType : ""}
+                {item?.unitRatio ? item?.unitRatio : "-"}{" "}
+                {item?.unitType ? item?.unitType : ""}
               </p>
             </div>
           </div>
           <div className="font-semibold text-4xl leading-normal">
-            ฿{item.price?.toFixed(2)}.-
+            ฿{item?.price?.toFixed(2) ?? 0}.-
           </div>
         </div>
 

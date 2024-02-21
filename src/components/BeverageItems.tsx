@@ -1,15 +1,12 @@
 "use client";
 
 import useSWR from "swr";
-import toast from "react-hot-toast";
 import apiPaths from "@/utils/api-path";
 import { fetcher } from "@/utils/axios";
-import useSWRMutation from "swr/mutation";
 import { useRouter } from "next/navigation";
 import { Refreshment } from "@prisma/client";
-import getCurrentUser from "@/actions/userActions";
 
-import ProductCard from "./ProductCard";
+import RefreshmentCard from "./RefreshmentCard";
 
 type Props = {
   size?: "sm" | "md";
@@ -42,33 +39,11 @@ export default function BeverageItems({
 }: Props) {
   const router = useRouter();
 
-  const { getBeverages, addRefreshmentToCart } = apiPaths();
+  const { getBeverages } = apiPaths();
 
   const { data } = useSWR(getBeverages(), fetcher);
 
   const items: Refreshment[] = data?.response?.data || [];
-
-  const { trigger: triggerAddToCart, isMutating: isMutatingAddToCart } =
-    useSWRMutation(addRefreshmentToCart(), sendAddSnackBoxRequest);
-
-  async function handleAddToCart(itemId: string) {
-    const currentUser = await getCurrentUser();
-
-    const body: IAddRefreshmentToCart = {
-      userId: currentUser?.id || "",
-      type: currentUser?.role === "CUSTOMER" ? "MEMBER" : "GUEST",
-      refreshmentId: itemId,
-      quantity: 1,
-    };
-
-    try {
-      await triggerAddToCart(body);
-      toast.success("ใส่ตะกร้าาสำเร็จ");
-    } catch (error) {
-      console.error(error);
-      toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
-    }
-  }
 
   return (
     <div
@@ -78,21 +53,15 @@ export default function BeverageItems({
       {...other}
     >
       {Object.values(items)?.map((item: Refreshment) => (
-        <ProductCard
+        <RefreshmentCard
           key={item.id}
-          name={item.name}
+          item={item}
           size={size}
-          price={item.price}
-          img={item.image ? `${item.image as string}` : "/"}
-          isLoading={isMutatingAddToCart}
           onClick={
             onClick
               ? () => onClick(item)
               : () => router.push(`/beverages/${item.name}?id=${item.id}`)
           }
-          addToCart={() => {
-            handleAddToCart(item.id);
-          }}
         />
       ))}
     </div>
