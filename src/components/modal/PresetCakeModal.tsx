@@ -76,7 +76,7 @@ export default function PresetCakeModal({ slug, isOpen, onOpenChange }: Props) {
       <ModalContent>
         <ModalBody>
           <div className="flex m-4 gap-20">
-            <div className="w-6/12">
+            <div>
               <h1
                 className={`text-3xl font-medium ${
                   item?.remark ? "pb-6" : "pb-0"
@@ -85,6 +85,18 @@ export default function PresetCakeModal({ slug, isOpen, onOpenChange }: Props) {
                 {item?.name}
               </h1>
               <p className="font-light">{item?.remark}</p>
+              <hr className="h-px my-6 bg-black border-1" />
+              <Image
+                src={item?.image ?? "/placeholder-image.jpeg"}
+                alt={item?.name}
+                width={320}
+                height={64}
+              />
+            </div>
+            <div className="w-6/12">
+              <h2 className="text-3xl font-medium">
+                ฿{item?.price?.toFixed(2)}
+              </h2>
               <hr className="h-px my-6 bg-black border-1" />
               <div className="flex flex-col gap-[30px]">
                 <Select
@@ -123,20 +135,6 @@ export default function PresetCakeModal({ slug, isOpen, onOpenChange }: Props) {
                     <SelectItem key={pound.id}>{pound.name}</SelectItem>
                   ))}
                 </Select>
-              </div>
-              <hr className="h-px my-6 bg-black border-1" />
-              <h2 className="text-3xl font-medium pb-8">
-                ฿{item?.price?.toFixed(2)}
-              </h2>
-            </div>
-            <div>
-              <div className="flex flex-col gap-8 justify-center items-center">
-                <Image
-                  src={item?.image ?? "/placeholder-image.jpeg"}
-                  alt={item?.name}
-                  width={320}
-                  height={64}
-                />
                 <Button
                   className="h-auto bg-secondaryT-main items-center text-white text-2xl font-medium rounded-[8px] px-8 py-3"
                   isLoading={false}
@@ -145,6 +143,8 @@ export default function PresetCakeModal({ slug, isOpen, onOpenChange }: Props) {
                   ใส่ตะกร้า
                 </Button>
               </div>
+              {/* <div className="flex flex-col gap-8 justify-center items-center">
+              </div> */}
             </div>
           </div>
         </ModalBody>
