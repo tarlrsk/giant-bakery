@@ -11,7 +11,7 @@ import { variantValidationSchema } from "@/lib/validationSchema";
 // ----------------------------------------------------------------------
 
 enum VariantType {
-  POUND = "POUND",
+  SIZE = "SIZE",
   BASE = "BASE",
   FILLING = "FILLING",
   CREAM = "CREAM",
@@ -78,8 +78,8 @@ export async function POST(req: NextRequest) {
 
     const variantId = uuidv4();
     switch (type) {
-      case VariantType.POUND:
-        newVariant = (await prisma.masterCakePound.create({
+      case VariantType.SIZE:
+        newVariant = (await prisma.masterCakeSize.create({
           data: {
             name: name,
             isActive: isActive,
@@ -214,7 +214,7 @@ export async function GET(req: NextRequest) {
   try {
     let variants: any = {};
 
-    variants.pounds = (await prisma.masterCakePound.findMany({
+    variants.sizes = (await prisma.masterCakeSize.findMany({
       where: {
         isDeleted: false,
       },
