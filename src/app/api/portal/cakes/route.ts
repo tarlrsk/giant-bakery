@@ -14,7 +14,7 @@ import { responseWrapper } from "@/utils/api-response-wrapper";
 // ----------------------------------------------------------------------
 
 const CakeInclude = {
-  pounds: true,
+  sizes: true,
   bases: true,
   fillings: true,
   creams: true,
@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
     const price = parseFloat(formData.get("price") as string);
     const isActive = parseBoolean(formData.get("isActive") as string);
     const image = formData.get("image") as File | null;
-    const poundIds = formData.getAll("poundIds") as string[];
+    const sizeIds = formData.getAll("sizeIds") as string[];
     const baseIds = formData.getAll("baseIds") as string[];
     const fillingIds = formData.getAll("fillingIds") as string[];
     const creamIds = formData.getAll("creamIds") as string[];
@@ -152,8 +152,8 @@ export async function POST(req: NextRequest) {
         imagePath: imagePath,
         image: imageUrl,
         isActive: isActive,
-        pounds: {
-          connect: poundIds.map((id) => ({ id: id })),
+        sizes: {
+          connect: sizeIds.map((id) => ({ id: id })),
         },
         bases: {
           connect: baseIds.map((id) => ({ id: id })),

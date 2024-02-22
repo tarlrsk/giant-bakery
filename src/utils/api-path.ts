@@ -66,11 +66,14 @@ const apiPaths = () => {
   const deleteCustomerAddress = (userId: string) =>
     createClientUrl(`customers/${userId}/addresses`);
 
-  // Snack Bo
+  // Snack Box
   const getPresetSnackBox = () => createClientUrl(`snack-boxes`);
 
   const getPresetSnackBoxBySlug = (slug: string, id: string) =>
     createClientUrl(`snack-boxes/${slug}?id=${id}`);
+
+  // Checkout
+  const addCheckoutOrder = () => createClientUrl("orders/checkout");
 
   // InterExpress
   const getInterExpressLocation = (zipCode: string) =>
@@ -97,6 +100,7 @@ const apiPaths = () => {
     createCustomerAddress,
     updateCustomerAddress,
     deleteCustomerAddress,
+    addCheckoutOrder,
     getInterExpressLocation,
     getPresetSnackBox,
     getPresetSnackBoxBySlug,

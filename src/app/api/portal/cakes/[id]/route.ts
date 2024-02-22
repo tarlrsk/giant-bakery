@@ -20,7 +20,7 @@ type GetCakeByIdProps = {
 };
 
 const CakeInclude = {
-  pounds: true,
+  sizes: true,
   bases: true,
   fillings: true,
   creams: true,
@@ -110,7 +110,7 @@ export async function PUT(req: NextRequest, { params }: GetCakeByIdProps) {
     const price = parseFloat(formData.get("price") as string);
     const isActive = parseBoolean(formData.get("isActive") as string);
     const image = formData.get("image") as File | null;
-    const poundIds = formData.getAll("poundIds") as string[];
+    const sizeIds = formData.getAll("sizeIds") as string[];
     const baseIds = formData.getAll("baseIds") as string[];
     const fillingIds = formData.getAll("fillingIds") as string[];
     const creamIds = formData.getAll("creamIds") as string[];
@@ -139,7 +139,7 @@ export async function PUT(req: NextRequest, { params }: GetCakeByIdProps) {
         isDeleted: false,
       },
       include: {
-        pounds: true,
+        sizes: true,
         bases: true,
         fillings: true,
         creams: true,
@@ -197,9 +197,9 @@ export async function PUT(req: NextRequest, { params }: GetCakeByIdProps) {
         imagePath: imagePath,
         image: await getFileUrl(imagePath),
         isActive: isActive,
-        pounds: {
+        sizes: {
           deleteMany: {},
-          connect: poundIds.map((id) => ({ id: id })),
+          connect: sizeIds.map((id) => ({ id: id })),
         },
         bases: {
           deleteMany: {},
@@ -256,7 +256,7 @@ export async function DELETE(_req: NextRequest, { params }: GetCakeByIdProps) {
     const cake = await prisma.cake.findUnique({
       where: { id: id, isDeleted: false },
       include: {
-        pounds: true,
+        sizes: true,
         bases: true,
         fillings: true,
         creams: true,
@@ -278,7 +278,7 @@ export async function DELETE(_req: NextRequest, { params }: GetCakeByIdProps) {
         deletedAt: new Date(Date.now()),
       },
       include: {
-        pounds: true,
+        sizes: true,
         bases: true,
         fillings: true,
         creams: true,
