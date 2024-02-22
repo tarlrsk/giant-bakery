@@ -93,7 +93,7 @@ export const customerAddressValidationSchema = z.object({
 export const variantValidationSchema = z.object({
   name: z.string({ required_error: "Name is required." }).min(3).max(255),
   type: z.enum([
-    "POUND",
+    "SIZE",
     "BASE",
     "FILLING",
     "CREAM",
@@ -108,7 +108,7 @@ export const variantValidationSchema = z.object({
 export const variantByTypeValidateSchema = z.object({
   id: z.string().uuid(),
   type: z.enum([
-    "POUND",
+    "SIZE",
     "BASE",
     "FILLING",
     "CREAM",

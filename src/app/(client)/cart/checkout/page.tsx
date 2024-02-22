@@ -1,10 +1,12 @@
 "use client";
+
 import Link from "next/link";
 import toast from "react-hot-toast";
 import paths from "@/utils/api-path";
 import { fetcher } from "@/utils/axios";
 import useSWRMutation from "swr/mutation";
 import useSWR, { useSWRConfig } from "swr";
+import { useRouter } from "next/navigation";
 import AddIcon from "@/components/icons/AddIcon";
 import getCurrentUser from "@/actions/userActions";
 import { EditIcon } from "@/components/icons/EditIcon";
@@ -38,6 +40,14 @@ import {
 
 // ----------------------------------------------------------------------
 
+type ICheckout = {
+  addressId: string;
+  userId: string;
+  paymentMethod: "CARD" | "PROMPTPAY";
+  paymentType: string;
+  remark: string;
+};
+
 const ACCORDION_ITEM_CLASS_NAMES = {
   base: "py-2",
   title: "text-xl text-primaryT-darker",
@@ -47,8 +57,8 @@ const ACCORDION_ITEM_CLASS_NAMES = {
 const ACCORDION_KEYS = ["1", "2", "3", "4"];
 
 const PAYMENT_TYPE_OPTIONS = [
-  { value: "full", label: "เต็มจำนวน" },
-  { value: "deposit", label: "มัดจำ (ชำระส่วนที่เหลือเมื่อออเดอร์เสร็จ)" },
+  { value: "SINGLE", label: "เต็มจำนวน" },
+  { value: "INSTALLMENT", label: "มัดจำ (ชำระส่วนที่เหลือเมื่อออเดอร์เสร็จ)" },
 ];
 
 async function sendCreateCustomerAddressRequest(
@@ -108,9 +118,34 @@ async function sendDeleteCustomerAddressRequest(
   }).then((res) => res.json());
 }
 
+async function sendCheckoutRequest(
+  url: string,
+  {
+    arg,
+  }: {
+    arg: {
+      addressId: string;
+      userId: string;
+      paymentMethod: string;
+      paymentType: string;
+      remark: string;
+    };
+  },
+) {
+  const response = await fetch(url, {
+    method: "POST",
+    body: JSON.stringify(arg),
+  });
+
+  const data = await response.json();
+  return data;
+}
+
 // ----------------------------------------------------------------------
 
 export default function CheckoutPage() {
+  const router = useRouter();
+
   const { mutate } = useSWRConfig();
 
   const [userData, setUserData] = useState<any>(null);
@@ -138,13 +173,19 @@ export default function CheckoutPage() {
   // Comment state
   const [comment, setComment] = useState("");
   // Payment state
-  const [selectedPaymentType, setSelectedPaymentType] = useState(["full"]);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<
+    "CARD" | "PROMPTPAY"
+  >("PROMPTPAY");
+  const [selectedPaymentType, setSelectedPaymentType] = useState<string[]>([
+    "SINGLE",
+  ]);
 
   const {
     getCustomerAddress,
     createCustomerAddress,
     updateCustomerAddress,
     deleteCustomerAddress,
+    addCheckoutOrder,
     getInterExpressLocation,
   } = paths();
 
@@ -190,6 +231,31 @@ export default function CheckoutPage() {
     zipCode.length === 5 ? getInterExpressLocation(zipCode) : null,
     fetcher,
   );
+
+  // Checkout API
+  const {
+    trigger: triggerAddCheckoutOrder,
+    isMutating: isMutatingAddCheckoutOrder,
+  } = useSWRMutation(addCheckoutOrder(), sendCheckoutRequest);
+
+  async function handleCheckout() {
+    const body: ICheckout = {
+      addressId: selectedAddressId,
+      userId: userData?.id,
+      paymentMethod: selectedPaymentMethod,
+      paymentType: selectedPaymentType[0],
+      remark: comment,
+    };
+
+    try {
+      const res = await triggerAddCheckoutOrder(body);
+      const url = res?.response?.data?.stripeUrl;
+      router.replace(url);
+    } catch (error: any) {
+      console.error(error.errorMessage);
+      toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
+    }
+  }
 
   function handleGoNextSection(key: string) {
     const nextKey: string = (Number(key) + 1).toString();
@@ -540,11 +606,14 @@ export default function CheckoutPage() {
     >
       <h3>วิธีการชำระเงิน</h3>
       <RadioGroup
-        defaultValue="qr"
+        defaultValue="PROMPTPAY"
         className="mt-1 mb-4"
         classNames={{ wrapper: "md:flex-row" }}
+        onValueChange={(selected) => {
+          setSelectedPaymentMethod(selected as "PROMPTPAY" | "CARD");
+        }}
       >
-        <CustomPaymentRadio value="qr">
+        <CustomPaymentRadio value="PROMPTPAY">
           <div className="flex flex-row items-center gap-4">
             <QRCodeIcon
               width={40}
@@ -554,7 +623,7 @@ export default function CheckoutPage() {
             ชำระผ่าน QR Code
           </div>
         </CustomPaymentRadio>
-        <CustomPaymentRadio value="card">
+        <CustomPaymentRadio value="CARD">
           <div className="flex flex-row items-center gap-4">
             <CreditCardIcon
               width={40}
@@ -571,7 +640,7 @@ export default function CheckoutPage() {
         onSelectionChange={(selected) => {
           setSelectedPaymentType(Array.from(selected) as string[]);
         }}
-        defaultSelectedKeys={["full"]}
+        defaultSelectedKeys={["SINGLE"]}
         size="sm"
         variant="bordered"
         radius="md"
@@ -588,7 +657,12 @@ export default function CheckoutPage() {
           </SelectItem>
         ))}
       </Select>
-      <ConfirmButton onClickButton={() => console.log("submit")} />
+      <ConfirmButton
+        onClickButton={() => {
+          handleCheckout();
+        }}
+        isLoading={isMutatingAddCheckoutOrder}
+      />
     </AccordionItem>
   );
 
