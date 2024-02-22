@@ -225,7 +225,7 @@ export const checkoutCartValidateSchema = z.object({
   userId: z.string().uuid(),
   addressId: z.string().uuid(),
   paymentMethod: z.enum(["CARD", "PROMPTPAY"]),
-  paymentType: z.enum(["FULL_PAYMENT", "PARTIAL_PAYMENT"]),
+  paymentType: z.enum(["SINGLE", "INSTALLMENT"]),
 });
 
 // Discount -------------------------------------------------------------
