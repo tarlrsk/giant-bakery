@@ -506,7 +506,7 @@ model Payment {
   amount    Float
   type      PaymentMethod
   createdAt DateTime      @default(now())
-  order     Order         @relation(fields: [orderId], references: [id])
+  order     Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
   orderId   String
   userId    String
   user      User          @relation(fields: [userId], references: [id])
