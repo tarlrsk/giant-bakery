@@ -32,7 +32,7 @@ export const createStripeSession = async function (
   });
 
   let origin = req.headers.get("origin");
-  if (origin) {
+  if (!origin) {
     origin = "http://localhost:3000";
   }
 
