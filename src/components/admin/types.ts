@@ -38,3 +38,10 @@ export interface ISnackBoxRow {
   height?: number;
   weight?: number;
 }
+
+export interface IVariantRow {
+  variantType: string;
+  variantName: string;
+  isActive: boolean;
+  lastUpdated: string;
+}
