@@ -48,7 +48,7 @@ export default function AdminOrder() {
     if (search) {
       data = data.filter(
         (row: any) =>
-          row.product.toLowerCase().indexOf(search?.toLowerCase()) > -1,
+          row.customer.toLowerCase().indexOf(search?.toLowerCase()) > -1,
       );
     }
 
