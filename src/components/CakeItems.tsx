@@ -5,10 +5,14 @@ import { Cake } from "@prisma/client";
 import React, { useState } from "react";
 import { fetcher } from "@/utils/axios";
 import apiPaths from "@/utils/api-path";
+import { useRouter } from "next/navigation";
 
-import { Pagination } from "@nextui-org/react";
+import { Pagination, useDisclosure } from "@nextui-org/react";
 
 import CakeCard from "./CakeCard";
+import CakeModal from "./modal/PresetCakeModal";
+import PresetCakeModal from "./modal/PresetCakeModal";
+import CustomCakeModal from "./modal/CustomCakeModal";
 
 export type ICakeType = "PRESET" | "CUSTOM" | "CAKE";
 
@@ -19,23 +23,6 @@ type Props = {
   onClick?: (selected: any) => void;
 };
 
-type IAddRefreshmentToCart = {
-  userId: string;
-  type: "MEMBER" | "GUEST";
-  refreshmentId: string;
-  quantity: number;
-};
-
-async function sendAddSnackBoxRequest(
-  url: string,
-  { arg }: { arg: IAddRefreshmentToCart },
-) {
-  await fetch(url, {
-    method: "POST",
-    body: JSON.stringify(arg),
-  }).then((res) => res.json());
-}
-
 export default function CakeItems({
   size = "md",
   cols,
@@ -43,6 +30,12 @@ export default function CakeItems({
   onClick,
   ...other
 }: Props) {
+  const router = useRouter();
+
+  const [selectedCakeName, setSelectedCakeName] = useState<string>("");
+
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
   const { getCakes } = apiPaths();
 
   const fetchPath = getCakes(type as string);
@@ -57,10 +50,23 @@ export default function CakeItems({
 
   const itemsPerPage = 4;
   const pageSize = Math.ceil(cakeCount / itemsPerPage);
-
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const displayItems = items.slice(startIndex, endIndex);
+
+  const handleCardClick = (id: string, itemName: string, type: string) => {
+    if (type === "PRESET") {
+      router.replace(`/cakes?id=${id}&slug=${itemName}&type=PRESET`, {
+        scroll: false,
+      });
+    } else {
+      router.replace(`/cakes?id=${id}&slug=${itemName}&type=CUSTOM`, {
+        scroll: false,
+      });
+    }
+    setSelectedCakeName(itemName);
+    onOpen();
+  };
 
   return (
     <>
@@ -71,7 +77,14 @@ export default function CakeItems({
         {...other}
       >
         {Object.values(displayItems)?.map((item: Cake) => (
-          <CakeCard key={item.id} item={item} size={size} onClick={() => {}} />
+          <CakeCard
+            key={item.id}
+            item={item}
+            size={size}
+            onClick={() => {
+              handleCardClick(item.id, item.name, item.type);
+            }}
+          />
         ))}
       </div>
       <Pagination
@@ -83,6 +96,26 @@ export default function CakeItems({
         size="lg"
         className="flex items-center justify-center pt-24"
       />
+      {type === "PRESET" && (
+        <PresetCakeModal
+          slug={selectedCakeName}
+          isOpen={isOpen}
+          onOpenChange={() => {
+            router.push(`/cakes`, { scroll: false });
+            onOpenChange();
+          }}
+        />
+      )}
+      {type === "CUSTOM" && (
+        <CustomCakeModal
+          slug={selectedCakeName}
+          isOpen={isOpen}
+          onOpenChange={() => {
+            router.push(`/cakes`, { scroll: false });
+            onOpenChange();
+          }}
+        />
+      )}
     </>
   );
 }
