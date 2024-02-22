@@ -362,7 +362,6 @@ model SnackBoxRefreshment {
 
 model Order {
   id            String      @id @default(uuid())
-  type          OrderType
   status        OrderStatus
   paymentType   PaymentType
   subTotalPrice Float
@@ -564,11 +563,6 @@ enum StockStatus {
   IN_STOCK
   LOW
   OUT_OF_STOCK
-}
-
-enum OrderType {
-  WHOLESALE
-  RETAIL
 }
 
 enum ReceivedVia {
