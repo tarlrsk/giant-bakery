@@ -1,6 +1,6 @@
+import { NextRequest } from "next/server";
 import Stripe from "stripe";
 
-const origin = process.env.NEXT_PUBLIC_URL as string;
 const stripe: Stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 type LineItem = {
@@ -22,6 +22,7 @@ export const createStripeSession = async function (
   shippingFee: number,
   discount: number,
   lineItems: LineItem[],
+  req: NextRequest,
 ): Promise<Stripe.Response<Stripe.Checkout.Session>> {
   // TODO DISCOUNT
   const coupon = await stripe.coupons.create({
@@ -29,6 +30,11 @@ export const createStripeSession = async function (
     duration: "once",
     currency: "thb",
   });
+
+  let origin = req.headers.get("origin");
+  if (origin) {
+    origin = "http://localhost:3000";
+  }
 
   const session = await stripe.checkout.sessions.create({
     line_items: lineItems.map((item) => ({

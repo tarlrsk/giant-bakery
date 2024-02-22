@@ -395,6 +395,7 @@ export async function POST(req: NextRequest) {
       shippingFee,
       totalDiscount,
       lineItems,
+      req,
     );
 
     const data = {

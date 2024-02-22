@@ -86,9 +86,6 @@ export async function POST(req: NextRequest) {
     const price = parseFloat(formData.get("price") as string);
     const isActive = parseBoolean(formData.get("isActive") as string);
     const image = formData.get("image") as File | null;
-    const sizeIds = formData.getAll("sizeIds") as string[];
-    const baseIds = formData.getAll("baseIds") as string[];
-    const fillingIds = formData.getAll("fillingIds") as string[];
     const creamIds = formData.getAll("creamIds") as string[];
     const topEdgeIds = formData.getAll("topEdgeIds") as string[];
     const bottomEdgeIds = formData.getAll("bottomEdgeIds") as string[];
@@ -137,6 +134,10 @@ export async function POST(req: NextRequest) {
       imageUrl = await getFileUrl(imagePath);
     }
 
+    const sizes = await prisma.masterCakeSize.findMany();
+    const bases = await prisma.masterCakeBase.findMany();
+    const fillings = await prisma.masterCakeFilling.findMany();
+
     let newCake = await prisma.cake.create({
       data: {
         id: cakeId,
@@ -153,13 +154,13 @@ export async function POST(req: NextRequest) {
         image: imageUrl,
         isActive: isActive,
         sizes: {
-          connect: sizeIds.map((id) => ({ id: id })),
+          connect: sizes.map((size) => ({ id: size.id })),
         },
         bases: {
-          connect: baseIds.map((id) => ({ id: id })),
+          connect: bases.map((base) => ({ id: base.id })),
         },
         fillings: {
-          connect: fillingIds.map((id) => ({ id: id })),
+          connect: fillings.map((filling) => ({ id: filling.id })),
         },
         creams: {
           connect: creamIds.map((id) => ({ id: id })),
