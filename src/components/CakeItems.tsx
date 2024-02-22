@@ -10,7 +10,6 @@ import { useRouter } from "next/navigation";
 import { Pagination, useDisclosure } from "@nextui-org/react";
 
 import CakeCard from "./CakeCard";
-import CakeModal from "./modal/PresetCakeModal";
 import PresetCakeModal from "./modal/PresetCakeModal";
 import CustomCakeModal from "./modal/CustomCakeModal";
 
