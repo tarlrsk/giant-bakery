@@ -129,7 +129,7 @@ model Cake {
   updatedAt     DateTime  @updatedAt
   deletedAt     DateTime?
 
-  pounds             MasterCakePound[]
+  sizes              MasterCakeSize[]
   bases              MasterCakeBase[]
   fillings           MasterCakeFilling[]
   creams             MasterCakeCream[]
@@ -141,7 +141,7 @@ model Cake {
   OrderCustomerCakes OrderCustomerCake[]
 }
 
-model MasterCakePound {
+model MasterCakeSize {
   id            String         @id @default(uuid())
   name          String
   cakes         Cake[]
@@ -273,7 +273,7 @@ model CustomerCake {
   cake                Cake                  @relation(fields: [cakeId], references: [id])
   orderCakes          OrderCustomerCake[]
   CartItems           CartItem[]
-  pound               MasterCakePound?      @relation(fields: [poundId], references: [id])
+  size                MasterCakeSize?       @relation(fields: [sizeId], references: [id])
   base                MasterCakeBase?       @relation(fields: [baseId], references: [id])
   filling             MasterCakeFilling?    @relation(fields: [fillingId], references: [id])
   cream               MasterCakeCream?      @relation(fields: [creamId], references: [id])
@@ -281,7 +281,7 @@ model CustomerCake {
   bottomEdge          MasterCakeBottomEdge? @relation(fields: [bottomEdgeId], references: [id])
   decoration          MasterCakeDecoration? @relation(fields: [decorationId], references: [id])
   surface             MasterCakeSurface?    @relation(fields: [surfaceId], references: [id])
-  poundId             String?
+  sizeId              String?
   baseId              String?
   fillingId           String?
   creamId             String?
@@ -417,7 +417,7 @@ model OrderCustomerCake {
   customerCakeId String?
 
   CartItem        CartItem[]
-  pound           String?
+  size            String?
   base            String?
   filling         String?
   cream           String?

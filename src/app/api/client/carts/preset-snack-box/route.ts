@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
           customerCake: {
             include: {
               cake: true,
-              pound: true,
+              size: true,
               base: true,
               filling: true,
               cream: true,
@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
             customerCake: {
               include: {
                 cake: true,
-                pound: true,
+                size: true,
                 base: true,
                 filling: true,
                 cream: true,

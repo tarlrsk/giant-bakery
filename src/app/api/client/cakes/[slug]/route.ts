@@ -22,7 +22,7 @@ export async function GET(req: NextRequest, { params }: GetCakeBySlug) {
         isDeleted: false,
       },
       include: {
-        pounds: true,
+        sizes: true,
         bases: true,
         fillings: true,
         creams: true,

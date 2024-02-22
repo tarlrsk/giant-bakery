@@ -8,7 +8,7 @@ type PrismaCart = Prisma.CartGetPayload<{
         customerCake: {
           include: {
             cake: true;
-            pound: true;
+            size: true;
             base: true;
             filling: true;
             cream: true;
@@ -50,7 +50,7 @@ async function getCartByUserId(userId: string): Promise<PrismaCart | null> {
           customerCake: {
             include: {
               cake: true,
-              pound: true,
+              size: true,
               base: true,
               filling: true,
               cream: true,

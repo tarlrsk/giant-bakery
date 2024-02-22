@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
         isDeleted: false,
       },
       include: {
-        pounds: true,
+        sizes: true,
         bases: true,
         fillings: true,
         creams: true,

@@ -9,7 +9,7 @@ import { cartCustomCakeValidationSchema } from "@/lib/validationSchema";
 // ----------------------------------------------------------------------
 
 const CakeInclude = {
-  pounds: true,
+  sizes: true,
   bases: true,
   fillings: true,
   creams: true,
@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
       type,
       userId,
       quantity,
-      poundId,
+      sizeId,
       baseId,
       fillingId,
       creamId,
@@ -73,8 +73,8 @@ export async function POST(req: NextRequest) {
 
     const validateIds = () => {
       const invalidIds = [];
-      if (!isIdInList(cake.pounds, poundId)) {
-        invalidIds.push("poundId");
+      if (!isIdInList(cake.sizes, sizeId)) {
+        invalidIds.push("sizeId");
       }
       if (!isIdInList(cake.bases, baseId)) {
         invalidIds.push("baseId");
@@ -117,7 +117,7 @@ export async function POST(req: NextRequest) {
           customerCake: {
             include: {
               cake: true,
-              pound: true,
+              size: true,
               base: true,
               filling: true,
               cream: true,
@@ -163,8 +163,8 @@ export async function POST(req: NextRequest) {
         item.customerCake?.cakeId === cakeId &&
         (item.customerCake?.baseId === baseId ||
           (item.customerCake?.baseId === null && baseId === "")) &&
-        (item.customerCake?.poundId === poundId ||
-          (item.customerCake?.poundId === null && poundId === "")) &&
+        (item.customerCake?.sizeId === sizeId ||
+          (item.customerCake?.sizeId === null && sizeId === "")) &&
         (item.customerCake?.fillingId === fillingId ||
           (item.customerCake?.fillingId === null && fillingId === "")) &&
         (item.customerCake?.creamId === creamId ||
@@ -191,8 +191,8 @@ export async function POST(req: NextRequest) {
         item.customerCake?.cakeId === cakeId &&
         (item.customerCake?.baseId === baseId ||
           (item.customerCake?.baseId === null && baseId === "")) &&
-        (item.customerCake?.poundId === poundId ||
-          (item.customerCake?.poundId === null && poundId === "")) &&
+        (item.customerCake?.sizeId === sizeId ||
+          (item.customerCake?.sizeId === null && sizeId === "")) &&
         (item.customerCake?.fillingId === fillingId ||
           (item.customerCake?.fillingId === null && fillingId === "")) &&
         (item.customerCake?.creamId === creamId ||
@@ -240,8 +240,8 @@ export async function POST(req: NextRequest) {
                   price: cake.price,
                   isActive: true,
                   type: cake.type,
-                  pound: {
-                    connect: poundId ? { id: poundId } : undefined,
+                  size: {
+                    connect: sizeId ? { id: sizeId } : undefined,
                   },
                   base: {
                     connect: baseId ? { id: baseId } : undefined,

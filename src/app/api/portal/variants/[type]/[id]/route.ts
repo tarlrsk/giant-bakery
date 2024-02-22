@@ -21,7 +21,7 @@ type GetVariantById = {
 };
 
 enum VariantType {
-  POUND = "POUND",
+  SIZE = "SIZE",
   BASE = "BASE",
   FILLING = "FILLING",
   CREAM = "CREAM",
@@ -48,8 +48,8 @@ export async function GET(req: NextRequest, { params }: GetVariantById) {
     let variant: any = null;
 
     switch (type) {
-      case VariantType.POUND:
-        variant = (await prisma.masterCakePound.findFirst({
+      case VariantType.SIZE:
+        variant = (await prisma.masterCakeSize.findFirst({
           where: {
             id: id,
             isDeleted: false,
@@ -174,8 +174,8 @@ export async function PUT(req: NextRequest, { params }: GetVariantById) {
     }
 
     switch (type) {
-      case VariantType.POUND:
-        variant = (await prisma.masterCakePound.findFirst({
+      case VariantType.SIZE:
+        variant = (await prisma.masterCakeSize.findFirst({
           where: {
             id: id,
             isDeleted: false,
@@ -293,8 +293,8 @@ export async function PUT(req: NextRequest, { params }: GetVariantById) {
     }
 
     switch (type) {
-      case VariantType.POUND:
-        variant = (await prisma.masterCakePound.update({
+      case VariantType.SIZE:
+        variant = (await prisma.masterCakeSize.update({
           where: {
             id: id,
             isDeleted: false,
@@ -445,8 +445,8 @@ export async function DELETE(_req: NextRequest, { params }: GetVariantById) {
     let variant: any = null;
 
     switch (type) {
-      case VariantType.POUND:
-        variant = (await prisma.masterCakePound.findFirst({
+      case VariantType.SIZE:
+        variant = (await prisma.masterCakeSize.findFirst({
           where: {
             id: id,
             isDeleted: false,
@@ -461,7 +461,7 @@ export async function DELETE(_req: NextRequest, { params }: GetVariantById) {
           );
         }
 
-        variant = (await prisma.masterCakePound.update({
+        variant = (await prisma.masterCakeSize.update({
           where: {
             id: id,
             isDeleted: false,
