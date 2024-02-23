@@ -10,6 +10,8 @@ import { responseWrapper } from "@/utils/api-response-wrapper";
 // ----------------------------------------------------------------------
 
 export type ISignUpRequest = {
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
   confirmPassword: string;

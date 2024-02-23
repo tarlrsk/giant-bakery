@@ -12,6 +12,7 @@ import {
   OrderSnackBoxRefreshment,
   OrderStatus,
   Prisma,
+  ReceivedVia,
 } from "@prisma/client";
 import { prismaUser } from "@/persistence/user";
 import { prismaCart } from "@/persistence/cart";
@@ -35,7 +36,15 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    const { addressId, userId, paymentMethod, paymentType, remark } = body;
+    const {
+      addressId,
+      userId,
+      paymentMethod,
+      paymentType,
+      remark,
+      receivedVia,
+      email,
+    } = body;
 
     const validate = checkoutCartValidateSchema.safeParse(body);
     if (!validate.success) {
@@ -48,10 +57,6 @@ export async function POST(req: NextRequest) {
     }
 
     const address = await prismaCustomerAddress().getUserAddressById(addressId);
-    if (!address) {
-      return responseWrapper(404, null, `Address not found.`);
-    }
-
     const cart = await prismaCart().getCartByUserId(userId);
 
     if (!cart || cart.items.length == 0) {
@@ -136,8 +141,11 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // TODO Shipping Fee
-    const shippingFee = 130;
+    let shippingFee = 0;
+    if (receivedVia == ReceivedVia.DELIVERY) {
+      // TODO Shipping Fee
+      shippingFee = 130;
+    }
 
     // TODO DISCOUNT
     const totalDiscount = 20;
@@ -285,18 +293,20 @@ export async function POST(req: NextRequest) {
     order = await prismaOrder().createOrder({
       status: OrderStatus.PENDING_PAYMENT1,
       paymentType: paymentType,
+      receivedVia: receivedVia,
+      email: email,
       subTotalPrice: subTotal,
       discountPrice: totalDiscount,
       shippingFee: shippingFee,
       totalPrice: subTotal - totalDiscount + shippingFee,
-      cFirstName: address.cFirstName,
-      cLastName: address.cLastName,
-      address: address.address,
-      district: address.district,
-      subdistrict: address.subdistrict,
-      province: address.province,
-      postcode: address.postcode,
-      phone: address.phone,
+      cFirstName: address ? address.cFirstName : user.firstName,
+      cLastName: address ? address.cLastName : user.lastName,
+      address: address?.address,
+      district: address?.district,
+      subdistrict: address?.subdistrict,
+      province: address?.province,
+      postcode: address?.postcode,
+      phone: address ? address.phone : user.phone,
       remark: remark,
       userId: userId,
       orderCake: {

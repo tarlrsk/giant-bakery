@@ -43,6 +43,8 @@ model Session {
 
 model User {
   id             String            @id @default(uuid())
+  firstName      String            @default("")
+  lastName       String            @default("")
   name           String?
   email          String?           @unique
   emailVerified  DateTime?
@@ -363,7 +365,9 @@ model SnackBoxRefreshment {
 model Order {
   id            String      @id @default(uuid())
   status        OrderStatus
+  receivedVia   ReceivedVia @default(PICK_UP)
   paymentType   PaymentType
+  email         String      @default("default@gmail.com")
   subTotalPrice Float
   discountPrice Float
   shippingFee   Float
@@ -380,12 +384,12 @@ model Order {
   // Address
   cFirstName       String
   cLastName        String
-  address          String
-  district         String
-  subdistrict      String
-  province         String
-  postcode         String
-  phone            String
+  address          String?
+  district         String?
+  subdistrict      String?
+  province         String?
+  postcode         String?
+  phone            String?
   orderCake        OrderCustomerCake[]
   orderRefreshment OrderRefreshment[]
   orderSnackBox    OrderSnackBox[]
@@ -568,11 +572,6 @@ enum StockStatus {
 enum ReceivedVia {
   PICK_UP
   DELIVERY
-}
-
-enum DeliveryType {
-  NORMAL
-  CONTROL // Temprature control.
 }
 
 enum OrderStatus {
