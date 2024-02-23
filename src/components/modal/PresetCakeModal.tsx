@@ -1,9 +1,12 @@
 import useSWR from "swr";
 import Image from "next/image";
+import toast from "react-hot-toast";
 import React, { useState } from "react";
 import apiPaths from "@/utils/api-path";
 import { fetcher } from "@/utils/axios";
+import useSWRMutation from "swr/mutation";
 import { useSearchParams } from "next/navigation";
+import getCurrentUser from "@/actions/userActions";
 import { PersistenceCakeType } from "@/persistence/persistenceType";
 
 import {
@@ -21,38 +24,32 @@ type Props = {
   onOpenChange: () => void;
 };
 
-const mockdata = [
-  {
-    id: 1,
-    name: "pound1",
-  },
-  {
-    id: 2,
-    name: "pound1",
-  },
-  {
-    id: 3,
-    name: "pound1",
-  },
-  {
-    id: 4,
-    name: "pound1",
-  },
-  {
-    id: 5,
-    name: "pound1",
-  },
-  {
-    id: 6,
-    name: "pound1",
-  },
-];
+type IAddCakeToCart = {
+  userId: string;
+  type: "MEMBER" | "GUEST";
+  cakeId: string;
+  cakeType: "PRESET" | "CUSTOM";
+  sizeId: string;
+  baseId: string;
+  fillingId: string;
+  quantity: 1;
+};
+
+async function sendAddCakeRequesst(
+  url: string,
+  { arg }: { arg: IAddCakeToCart },
+) {
+  await fetch(url, {
+    method: "POST",
+    body: JSON.stringify(arg),
+  }).then((res) => res.json());
+}
 
 export default function PresetCakeModal({ slug, isOpen, onOpenChange }: Props) {
   const searchParams = useSearchParams();
 
   const id = searchParams.get("id") as string;
-  const { getCakeBySlug } = apiPaths();
+  const { getCakeBySlug, addCakeToCart } = apiPaths();
 
   const fetchPath = getCakeBySlug(slug, id);
 
@@ -60,11 +57,38 @@ export default function PresetCakeModal({ slug, isOpen, onOpenChange }: Props) {
 
   const item: PersistenceCakeType = data?.response.data || {};
 
-  const [selectedPound, setSelectedPound] = useState<string>("");
+  const [selectedSize, setSelectedSize] = useState<string>("");
   const [selectedBase, setSelectedBase] = useState<string>("");
   const [selectedFilling, setSelectedFilling] = useState<string>("");
 
-  console.log(item);
+  const { trigger: triggerAddToCart, isMutating: isMutatingAddToCart } =
+    useSWRMutation(addCakeToCart(), sendAddCakeRequesst);
+
+  async function handleAddToCart(itemId: string) {
+    const currentUser = await getCurrentUser();
+
+    const body: IAddCakeToCart = {
+      userId: currentUser?.id || "",
+      type: currentUser?.role === "CUSTOMER" ? "MEMBER" : "GUEST",
+      cakeId: itemId,
+      cakeType: "PRESET",
+      sizeId: selectedSize,
+      baseId: selectedBase,
+      fillingId: selectedFilling,
+      quantity: 1,
+    };
+
+    try {
+      await triggerAddToCart(body);
+      if (isOpen == true) {
+        onOpenChange();
+      }
+      toast.success("ใส่ตะกร้าสำเร็จ");
+    } catch (error) {
+      console.error(error);
+      toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
+    }
+  }
 
   return (
     <Modal
@@ -101,44 +125,46 @@ export default function PresetCakeModal({ slug, isOpen, onOpenChange }: Props) {
               <div className="flex flex-col gap-[30px]">
                 <Select
                   size="md"
-                  label="Cake Size"
+                  label="ขนาด (ปอนด์)"
                   variant="bordered"
-                  value={selectedPound}
-                  onChange={(e) => setSelectedPound(e.target.value)}
+                  value={selectedSize}
+                  onChange={(e) => setSelectedSize(e.target.value)}
                   isRequired
                 >
-                  {mockdata.map((pound) => (
-                    <SelectItem key={pound.id}>{pound.name}</SelectItem>
+                  {item?.sizes?.map((size) => (
+                    <SelectItem key={size?.id}>{size?.name}</SelectItem>
                   ))}
                 </Select>
                 <Select
                   size="md"
-                  label="Cake Base"
+                  label="เนื้อเค้ก"
                   variant="bordered"
-                  value={selectedPound}
-                  onChange={(e) => setSelectedPound(e.target.value)}
+                  value={selectedBase}
+                  onChange={(e) => setSelectedBase(e.target.value)}
                   isRequired
                 >
-                  {mockdata.map((pound) => (
-                    <SelectItem key={pound.id}>{pound.name}</SelectItem>
+                  {item?.bases?.map((base) => (
+                    <SelectItem key={base?.id}>{base?.name}</SelectItem>
                   ))}
                 </Select>
                 <Select
                   size="md"
-                  label="Cake Fillings"
+                  label="ไส้เค้ก"
                   variant="bordered"
-                  value={selectedPound}
-                  onChange={(e) => setSelectedPound(e.target.value)}
+                  value={selectedFilling}
+                  onChange={(e) => setSelectedFilling(e.target.value)}
                   isRequired
                 >
-                  {mockdata.map((pound) => (
-                    <SelectItem key={pound.id}>{pound.name}</SelectItem>
+                  {item?.fillings?.map((filling) => (
+                    <SelectItem key={filling?.id}>{filling?.name}</SelectItem>
                   ))}
                 </Select>
                 <Button
                   className="h-auto bg-secondaryT-main items-center text-white text-2xl font-medium rounded-[8px] px-8 py-3"
-                  isLoading={false}
-                  onClick={() => {}}
+                  isLoading={isMutatingAddToCart}
+                  onClick={() => {
+                    handleAddToCart(item?.id);
+                  }}
                 >
                   ใส่ตะกร้า
                 </Button>

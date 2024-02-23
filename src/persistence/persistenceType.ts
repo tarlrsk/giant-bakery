@@ -2,7 +2,7 @@ import { Prisma } from "@prisma/client";
 
 export type PersistenceCakeType = Prisma.CakeGetPayload<{
   include: {
-    pounds: true;
+    sizes: true;
     bases: true;
     fillings: true;
     topEdges: true;
