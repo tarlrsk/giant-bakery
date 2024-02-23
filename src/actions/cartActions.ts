@@ -4,8 +4,8 @@ import paths from "@/utils/paths";
 // import toast from "react-hot-toast";
 import apiPaths from "@/utils/api-path";
 import { CartType } from "@prisma/client";
-import { prismaCart } from "@/persistence/cart";
 import { revalidatePath } from "next/cache";
+import { prismaCart } from "@/persistence/cart";
 import { getFileUrl } from "@/lib/gcs/getFileUrl";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 
