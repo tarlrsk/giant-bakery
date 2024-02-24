@@ -33,9 +33,9 @@ export default function CakeItems({
 
   const [selectedCakeName, setSelectedCakeName] = useState<string>("");
 
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
-
   const { getCakes } = apiPaths();
+
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const fetchPath = getCakes(type as string);
 
