@@ -1,9 +1,9 @@
 import paths from "@/utils/paths";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
-import { CartType, SnackBoxType } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { getFileUrl } from "@/lib/gcs/getFileUrl";
+import { CartType, SnackBoxType } from "@prisma/client";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { updateQtyCartValidateSchema } from "@/lib/validationSchema";
 
