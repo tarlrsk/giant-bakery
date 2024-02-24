@@ -38,6 +38,8 @@ export const customerSignUpValidationSchema = z
       .min(10, "เบอร์โทรศัพท์ต้องมี 10 ตัวเลขเท่านั้น")
       .max(10, "เบอร์โทรศัพท์ต้องมี 10 ตัวเลขเท่านั้น")
       .regex(phoneRegex, "กรุณาใส่เบอร์โทรศัพท์ที่ถูกต้อง"),
+    firstName: z.string({ required_error: "กรุณากรอกชื่อ" }),
+    lastName: z.string({ required_error: "กรุณากรอกนามสกุล" }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "รหัสผ่านไม่ตรงกัน กรุณาใส่รหัสผ่านอีกครั้ง",
@@ -223,7 +225,9 @@ export const updateQtyCartValidateSchema = z.object({
 
 export const checkoutCartValidateSchema = z.object({
   userId: z.string().uuid(),
-  addressId: z.string().uuid(),
+  addressId: z.string().uuid().nullish(),
+  email: z.string().email(),
+  receivedVia: z.enum(["DELIVERY", "PICK_UP"]),
   paymentMethod: z.enum(["CARD", "PROMPTPAY"]),
   paymentType: z.enum(["SINGLE", "INSTALLMENT"]),
 });
