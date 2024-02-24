@@ -11,7 +11,7 @@ const nextConfig = {
     return config;
   },
   experimental: {
-    serverMinification: false,
+    serverMinification: ["@google-cloud/storage"],
   },
   async headers() {
     return [
