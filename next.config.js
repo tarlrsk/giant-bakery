@@ -11,7 +11,7 @@ const nextConfig = {
     return config;
   },
   experimental: {
-    serverMinification: "false",
+    serverMinification: false,
   },
   async headers() {
     return [
