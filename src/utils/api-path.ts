@@ -34,6 +34,8 @@ const apiPaths = () => {
   const addCustomSnackBoxToCart = () =>
     createClientUrl(`carts/custom-snack-box`);
 
+  const addCakeToCart = () => createClientUrl(`carts/cakes`);
+
   // Bakery
   const getBakeries = (category: IBakeryCategory, amount?: string) =>
     createClientUrl(`bakeries?category=${category}&amount=${amount}`);
@@ -90,6 +92,7 @@ const apiPaths = () => {
     addRefreshmentToCart,
     addPresetSnackBoxToCart,
     addCustomSnackBoxToCart,
+    addCakeToCart,
     getBakeries,
     getBakeryBySlug,
     getBeverages,
