@@ -213,6 +213,8 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    revalidatePath(paths.cakeList());
+
     return responseWrapper(201, newCake, null);
   } catch (err: any) {
     return responseWrapper(500, null, err.message);
