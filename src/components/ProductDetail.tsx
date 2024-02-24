@@ -58,7 +58,7 @@ export default function ProductDetail({
             </div>
           </div>
           <div className="font-semibold text-4xl leading-normal">
-            ฿{item?.price?.toFixed(2) ?? 0}.-
+            ฿{item?.price?.toFixed(2) ?? 0}
           </div>
         </div>
 
