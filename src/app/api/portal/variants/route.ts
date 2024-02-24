@@ -75,6 +75,7 @@ export async function POST(req: NextRequest) {
     }
 
     let newVariant: any = {};
+    const variants: any = [];
 
     const variantId = uuidv4();
     switch (type) {
