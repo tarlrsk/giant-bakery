@@ -6,9 +6,12 @@ const allowedOrigins =
     ? ["https://cukedoh.vercel.app/", "https://cukedoh-uat.vercel.app/"]
     : ["https://cukedoh-stg.vercel.app/", "http://localhost:3000"];
 
+export let userId: string | undefined = undefined;
+
 export default withAuth(
   function middleware(req: NextRequestWithAuth) {
     const origin = req.headers.get("origin");
+    userId = req.nextauth.token?.id;
 
     if (origin && !allowedOrigins.includes(origin)) {
       return new NextResponse(null, {

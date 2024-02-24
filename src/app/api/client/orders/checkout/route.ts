@@ -16,6 +16,7 @@ import {
   OrderRefreshment,
   OrderCustomerCake,
   OrderSnackBoxRefreshment,
+  CustomerAddress,
 } from "@prisma/client";
 
 type LineItem = {
@@ -56,7 +57,10 @@ export async function POST(req: NextRequest) {
       return responseWrapper(404, null, `User not found.`);
     }
 
-    const address = await prismaCustomerAddress().getUserAddressById(addressId);
+    var address: undefined | null | CustomerAddress;
+    if (addressId) {
+      address = await prismaCustomerAddress().getUserAddressById(addressId);
+    }
     const cart = await prismaCart().getCartByUserId(userId);
 
     if (!cart || cart.items.length == 0) {
@@ -120,7 +124,7 @@ export async function POST(req: NextRequest) {
           break;
         case "SNACK_BOX":
           if (!cartItem.snackBox) {
-            return responseWrapper(409, null, "Snack Box is snackbox.");
+            return responseWrapper(409, null, "Snack Box is missing snackbox.");
           }
           var image = [];
           if (cartItem.snackBox.imagePath) {
