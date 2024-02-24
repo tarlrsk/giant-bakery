@@ -10,6 +10,9 @@ const nextConfig = {
 
     return config;
   },
+  experimental: {
+    serverMinification: false,
+  },
   async headers() {
     return [
       {
@@ -31,6 +34,5 @@ const nextConfig = {
     ];
   },
 };
-nextConfig.experimental.serverMinification = false;
 
 module.exports = nextConfig;
