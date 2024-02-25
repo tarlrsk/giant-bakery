@@ -9,11 +9,7 @@ import { getFileUrl } from "@/lib/gcs/getFileUrl";
 import { parseBoolean } from "@/lib/parseBoolean";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { refreshmentValidationSchema } from "@/lib/validationSchema";
-import type {
-  StockStatus,
-  RefreshmentType,
-  RefreshmentCategory,
-} from "@prisma/client";
+import type { RefreshmentType, RefreshmentCategory } from "@prisma/client";
 // ----------------------------------------------------------------------
 
 type GetRefreshmentById = {
@@ -86,7 +82,6 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
     const description = formData.get("description") as string;
     const type = formData.get("type") as RefreshmentType;
     const category = formData.get("category") as RefreshmentCategory;
-    const status = formData.get("status") as StockStatus;
     const minQty = parseInt(formData.get("minQty") as string);
     const maxQty = parseInt(formData.get("maxQty") as string);
     const currQty = parseInt(formData.get("currQty") as string);
@@ -168,7 +163,6 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
         imagePath: imagePath,
         type: type,
         category: category,
-        status: status,
         minQty: minQty,
         maxQty: maxQty,
         currQty: currQty,

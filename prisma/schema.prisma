@@ -309,7 +309,7 @@ model Refreshment {
   image         String?
   type          RefreshmentType
   category      RefreshmentCategory?
-  status        StockStatus
+  status        StockStatus          @default(IN_STOCK)
   minQty        Int
   maxQty        Int
   currQty       Int
