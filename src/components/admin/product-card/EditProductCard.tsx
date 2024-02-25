@@ -86,7 +86,8 @@ export default function EditProductCard({ data, isLoading, onClose }: Props) {
   const methods = useForm({
     defaultValues: { ...data, image: data?.image || "" },
   });
-  const { updateProductTrigger, updateProductIsLoading } = useAdmin(data);
+  const { updateProductTrigger, updateProductIsLoading, productsMutate } =
+    useAdmin(data);
 
   const { watch, setValue, handleSubmit } = methods;
   const values = watch();
@@ -118,7 +119,9 @@ export default function EditProductCard({ data, isLoading, onClose }: Props) {
 
       const bodyFormData = new FormData();
       bodyFormData.append("name", name);
-      bodyFormData.append("image", image);
+      if (typeof image !== "string") {
+        bodyFormData.append("image", image);
+      }
       bodyFormData.append("price", price.toString());
       bodyFormData.append("type", type);
       if (description) {
@@ -138,12 +141,11 @@ export default function EditProductCard({ data, isLoading, onClose }: Props) {
       bodyFormData.append("width", width.toString());
       bodyFormData.append("isActive", isActive ? "true" : "false");
       bodyFormData.append("unitType", unitType);
-      bodyFormData.append("status", status);
 
       await updateProductTrigger(bodyFormData);
       enqueueSnackbar("อัพเดทสินค้าสำเร็จ", { variant: "success" });
+      productsMutate();
     } catch (error) {
-      console.log("มันควรขึ้นตรงนี้");
       console.error(error);
       enqueueSnackbar("เกิดข้อผิดพลาด กรุณาลองใหม่", { variant: "error" });
     }

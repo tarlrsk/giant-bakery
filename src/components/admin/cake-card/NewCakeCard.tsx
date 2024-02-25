@@ -1,8 +1,8 @@
 "use client";
 
-import toast from "react-hot-toast";
 import { useCallback } from "react";
 import useAdmin from "@/hooks/useAdmin";
+import { useSnackbar } from "notistack";
 import { LoadingButton } from "@mui/lab";
 import { useForm } from "react-hook-form";
 import CloseIcon from "@mui/icons-material/Close";
@@ -15,23 +15,12 @@ import { ICakeRow } from "../types";
 
 // ----------------------------------------------------------------------
 
-// const CAKE_TYPE_OPTIONS = [
-//   { value: "preset", label: "สำเร็จรูป" },
-//   { value: "custom", label: "กำหนดเอง" },
-// ];
-
-// const CREAM_OPTIONS = [
-//   { value: "chocolate", label: "Chocolate" },
-//   { value: "strawberry", label: "Strawberry" },
-// ];
-
-// ----------------------------------------------------------------------
-
 type Props = {
   onClose: () => void;
 };
 
 export default function NewCakeCard({ onClose }: Props) {
+  const { enqueueSnackbar } = useSnackbar();
   const methods = useForm<ICakeRow>({
     defaultValues: {
       image: "",
@@ -48,10 +37,10 @@ export default function NewCakeCard({ onClose }: Props) {
 
   const { createCakeTrigger, createCakeIsLoading } = useAdmin();
 
-  const { watch, setValue, handleSubmit } = methods;
+  const { watch, setValue, handleSubmit, reset } = methods;
   const values = watch();
 
-  const { type, isActive } = values;
+  const { isActive } = values;
 
   const onSubmit = handleSubmit(async (data) => {
     try {
@@ -80,9 +69,12 @@ export default function NewCakeCard({ onClose }: Props) {
       bodyFormData.append("type", "PRESET");
 
       await createCakeTrigger(bodyFormData);
+      enqueueSnackbar("สร้างเค้กสำเร็จ", { variant: "success" });
+      onClose();
+      reset();
     } catch (error) {
       console.error(error);
-      toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
+      enqueueSnackbar("เกิดข้อผิดพลาด กรุณาลองใหม่", { variant: "error" });
     }
   });
 
@@ -129,68 +121,50 @@ export default function NewCakeCard({ onClose }: Props) {
             <RHFSwitch name="isActive" label={isActive ? "โชว์" : "ซ่อน"} />
           </Stack>
           <Stack direction="row" spacing={1}>
-            <RHFTextField name="name" label="ชื่อเค้ก" />
+            <RHFTextField name="name" label="ชื่อเค้ก" size="small" required />
             <RHFTextField
               type="number"
               name="price"
-              label="ราคา"
+              label="ราคา (บาท)"
               sx={{ width: "50%" }}
+              size="small"
+              required
             />
           </Stack>
 
           <RHFTextField name="description" label="รายละเอียดสินค้า" />
 
-          <Typography>ขนาด (ซม.)</Typography>
+          <Typography>ขนาด</Typography>
           <Stack direction="row" spacing={1}>
-            <RHFTextField type="number" name="width" label="กว้าง" />
-            <RHFTextField type="number" name="length" label="ยาว" />
-            <RHFTextField type="number" name="height" label="สูง" />
-          </Stack>
-          <RHFTextField type="number" name="weight" label="น้ำหนัก (กรัม)" />
-
-          {/* <Stack direction="row" spacing={1}>
-            <RHFRadioGroupMUI
-              row
-              name="cakeType"
-              label="ชนิดเค้ก"
-              options={CAKE_TYPE_OPTIONS}
+            <RHFTextField
+              type="number"
+              name="width"
+              label="กว้าง (ซม.)"
+              size="small"
+              required
+            />
+            <RHFTextField
+              type="number"
+              name="length"
+              label="ยาว (ซม.)"
+              size="small"
+              required
+            />
+            <RHFTextField
+              type="number"
+              name="height"
+              label="สูง (ซม.)"
+              size="small"
+              required
             />
           </Stack>
-
-          {type === "custom" && (
-            <Stack direction="column" spacing={1}>
-              <RHFMultiCheckbox
-                row
-                name="cream"
-                options={CREAM_OPTIONS}
-                label="ครีม"
-              />
-              <RHFMultiCheckbox
-                row
-                name="topEdge"
-                options={CREAM_OPTIONS}
-                label="ขอบบน"
-              />
-              <RHFMultiCheckbox
-                row
-                name="bottomEdge"
-                options={CREAM_OPTIONS}
-                label="ขอบล่าง"
-              />
-              <RHFMultiCheckbox
-                row
-                name="decoration"
-                options={CREAM_OPTIONS}
-                label="ตกแต่ง"
-              />
-              <RHFMultiCheckbox
-                row
-                name="surface"
-                options={CREAM_OPTIONS}
-                label="หน้าเค้ก"
-              />
-            </Stack>
-          )} */}
+          <RHFTextField
+            type="number"
+            name="weight"
+            label="น้ำหนัก (กรัม)"
+            size="small"
+            required
+          />
 
           <LoadingButton
             type="submit"
@@ -199,7 +173,7 @@ export default function NewCakeCard({ onClose }: Props) {
             variant="contained"
             loading={createCakeIsLoading}
           >
-            เพิ่มเค้ก
+            เพิ่มเค้กใหม่
           </LoadingButton>
         </Stack>
       </Paper>

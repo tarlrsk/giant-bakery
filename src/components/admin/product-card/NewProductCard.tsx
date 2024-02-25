@@ -182,7 +182,7 @@ export default function NewProductCard({ onClose }: Props) {
             />
           </Stack>
 
-          <RHFTextField name="description" label="รายละเอียดสินค้า" required />
+          <RHFTextField name="description" label="รายละเอียดสินค้า" />
 
           <Stack direction="row" spacing={1}>
             <RHFSelect name="type" label="หมวดหมู่" size="small" required>
