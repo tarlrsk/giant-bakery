@@ -5,7 +5,11 @@ type PrismaOrder = Prisma.OrderGetPayload<{
   include: {
     orderCake: true;
     orderRefreshment: true;
-    orderSnackBox: true;
+    orderSnackBox: {
+      include: {
+        refreshments: true;
+      };
+    };
     payment: true;
   };
 }>;
@@ -15,6 +19,7 @@ export function prismaOrder() {
     getOrderById,
     createOrder,
     updateOrderStatusById,
+    getAllOrder,
     getAllOrderByUserId,
   };
 }
@@ -46,7 +51,11 @@ async function getOrderById(orderId: string): Promise<PrismaOrder | null> {
     include: {
       orderCake: true,
       orderRefreshment: true,
-      orderSnackBox: true,
+      orderSnackBox: {
+        include: {
+          refreshments: true,
+        },
+      },
       payment: true,
     },
   });
@@ -80,6 +89,17 @@ async function getAllOrderByUserId(userId: string): Promise<Order[]> {
     where: {
       userId: userId,
     },
+    orderBy: [
+      {
+        orderedAt: "desc",
+      },
+    ],
+  });
+  return orders;
+}
+
+async function getAllOrder(): Promise<Order[]> {
+  const orders = await prisma.order.findMany({
     orderBy: [
       {
         orderedAt: "desc",
