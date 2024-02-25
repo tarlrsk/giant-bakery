@@ -42,7 +42,7 @@ export default function AdminCake() {
   const { search, status } = filterValues;
 
   useEffect(() => {
-    let data = cakes;
+    let data = cakes?.data || [];
 
     if (search) {
       data = data.filter(
@@ -59,7 +59,6 @@ export default function AdminCake() {
       }
     }
     setFilteredRows(data);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cakes, search, status]);
 
   useEffect(() => {

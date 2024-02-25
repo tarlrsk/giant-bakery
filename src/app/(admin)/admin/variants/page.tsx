@@ -1,14 +1,16 @@
 "use client";
-import toast from "react-hot-toast";
 import useAdmin from "@/hooks/useAdmin";
+import { useSnackbar } from "notistack";
 import { LoadingButton } from "@mui/lab";
 import { useForm } from "react-hook-form";
 import { Upload } from "@/components/upload";
 import { IVariant } from "@/components/admin/types";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { GridRowSelectionModel } from "@mui/x-data-grid";
 import { RHFUpload } from "@/components/hook-form/rhf-upload";
 import FormProvider from "@/components/hook-form/form-provider";
-import React, { useState, useEffect, useCallback } from "react";
+import DeleteDialog from "@/components/admin/dialog/DeleteDialog";
+import React, { useMemo, useState, useEffect, useCallback } from "react";
 import VariantDataGrid from "@/components/admin/data-grid/VariantDataGird";
 import { RHFSelect, RHFSwitch, RHFTextField } from "@/components/hook-form";
 import VariantFilterToolbar from "@/components/admin/toolbars/VariantFilterToolbar";
@@ -16,6 +18,7 @@ import {
   Box,
   Stack,
   Drawer,
+  Button,
   MenuItem,
   Backdrop,
   Typography,
@@ -34,11 +37,14 @@ const VARIANT_TYPE = [
 // ----------------------------------------------------------------------
 
 export default function AdminVariant() {
+  const { enqueueSnackbar } = useSnackbar();
   const [filteredRows, setFilteredRows] = useState([]);
+  const [selectedRow, setSelectedRow] = useState<IVariant>();
   const [openNewDrawer, setOpenNewDrawer] = useState(false);
   const [openEditDrawer, setOpenEditDrawer] = useState(false);
   const [rowSelectionModel, setRowSelectionModel] =
     useState<GridRowSelectionModel>([]);
+  const [isOpenDelete, setIsOpenDelete] = useState(false);
 
   const {
     variantsData: variants,
@@ -48,6 +54,9 @@ export default function AdminVariant() {
     updateVariantIsLoading,
     createVariantTrigger,
     createVariantIsLoading,
+    variantsMutate,
+    deleteVariantTrigger,
+    deleteVariantIsLoading,
   } = useAdmin(
     filteredRows?.find((row: IVariant) => row.id === rowSelectionModel[0]),
   );
@@ -67,18 +76,9 @@ export default function AdminVariant() {
   });
 
   const editVariantMethods = useForm<IVariant>({
-    defaultValues: {
-      id: "",
-      name: "",
-      imageFileName: "",
-      imagePath: "",
-      image: "",
-      isActive: true,
-      createdAt: "",
-      updatedAt: null,
-      isDeleted: false,
-      deletedAt: null,
-    },
+    defaultValues: useMemo(() => {
+      return selectedRow;
+    }, [selectedRow]),
   });
 
   const toggleNewDrawer = (newOpen: boolean) => () => {
@@ -86,7 +86,10 @@ export default function AdminVariant() {
   };
   const toggleEditDrawer = (editOpen: boolean) => () => {
     setOpenEditDrawer(editOpen);
-    setRowSelectionModel([]);
+    if (!editOpen) {
+      setRowSelectionModel([]);
+      setSelectedRow(undefined);
+    }
   };
 
   const { search, status, variantType } = filterMethods.watch();
@@ -95,6 +98,7 @@ export default function AdminVariant() {
     setValue: setValueNewVariant,
     watch: watchNewVariant,
     handleSubmit: handleSubmitNew,
+    reset: resetNewVariant,
   } = newVariantMethods;
 
   const {
@@ -147,6 +151,21 @@ export default function AdminVariant() {
     [setValueEditVariant],
   );
 
+  const onDeleteVariant = async () => {
+    try {
+      await deleteVariantTrigger();
+      variantsMutate();
+      setOpenEditDrawer(false);
+      setIsOpenDelete(false);
+      enqueueSnackbar(`ตัวเลือกเค้ก ${selectedRow?.name || ""} ถูกลบแล้ว`, {
+        variant: "success",
+      });
+    } catch (err) {
+      console.error(err);
+      enqueueSnackbar("เกิดข้อผิดพลาด กรุณาลองใหม่", { variant: "error" });
+    }
+  };
+
   const onSubmitNew = handleSubmitNew(async (data) => {
     try {
       const { image, name, isActive, type } = data;
@@ -155,10 +174,15 @@ export default function AdminVariant() {
       bodyFormData.append("image", image);
       bodyFormData.append("isActive", isActive ? "true" : "false");
       bodyFormData.append("type", type);
+
       await createVariantTrigger(bodyFormData);
+      variantsMutate();
+      enqueueSnackbar("เพิ่มตัวเลือกเค้กสำเร็จ", { variant: "success" });
+      setOpenNewDrawer(false);
+      resetNewVariant();
     } catch (error) {
       console.error(error);
-      toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
+      enqueueSnackbar("เกิดข้อผิดพลาด กรุณาลองใหม่", { variant: "error" });
     }
   });
 
@@ -167,15 +191,18 @@ export default function AdminVariant() {
       const { image, name, isActive, type } = data;
       const bodyFormData = new FormData();
       bodyFormData.append("name", name);
-      bodyFormData.append("image", image);
+      if (typeof image !== "string") {
+        bodyFormData.append("image", image);
+      }
       bodyFormData.append("isActive", isActive ? "true" : "false");
       bodyFormData.append("type", type);
 
-      console.log("data", data);
       await updateVariantTrigger(bodyFormData);
+      variantsMutate();
+      enqueueSnackbar("อัพเดทตัวเลือกเค้กสำเร็จ", { variant: "success" });
     } catch (error) {
       console.error(error);
-      toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
+      enqueueSnackbar("เกิดข้อผิดพลาด กรุณาลองใหม่", { variant: "error" });
     }
   });
 
@@ -216,14 +243,14 @@ export default function AdminVariant() {
             />
           </Stack>
           <Stack direction="row" alignItems="center" spacing={1}>
-            <RHFTextField name="name" label="ชื่อตัวเลือกเค้ก" />
-            <RHFSelect name="type" label="ประเภทตัวเลือกเค้ก">
+            <RHFSelect name="type" label="ประเภทตัวเลือกเค้ก" required>
               {VARIANT_TYPE.map((option) => (
                 <MenuItem key={option.value} value={option.value}>
                   {option.label}
                 </MenuItem>
               ))}
             </RHFSelect>
+            <RHFTextField name="name" label="ชื่อตัวเลือกเค้ก" required />
           </Stack>
           <LoadingButton
             size="large"
@@ -267,22 +294,32 @@ export default function AdminVariant() {
             }
             disabled
           />
-          <Stack direction="row" alignItems="center" spacing={1}>
-            <Typography>การมองเห็น:</Typography>
-            <RHFSwitch
-              name="isActive"
-              label={isActiveEditVariant ? "แสดง" : "ซ่อน"}
-            />
+          <Stack direction="row" justifyContent="space-between">
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <Typography>การมองเห็น:</Typography>
+              <RHFSwitch
+                name="isActive"
+                label={isActiveEditVariant ? "แสดง" : "ซ่อน"}
+              />
+            </Stack>
+            <Button
+              startIcon={<DeleteIcon />}
+              color="error"
+              variant="outlined"
+              onClick={() => setIsOpenDelete(true)}
+            >
+              ลบสินค้า
+            </Button>
           </Stack>
           <Stack direction="row" alignItems="center" spacing={1}>
-            <RHFTextField name="name" label="ชื่อตัวเลือกเค้ก" />
-            <RHFSelect name="type" label="ประเภทตัวเลือกเค้ก">
+            <RHFTextField name="name" label="ชื่อตัวเลือกเค้ก" required />
+            {/* <RHFSelect name="type" label="ประเภทตัวเลือกเค้ก" required>
               {VARIANT_TYPE.map((option) => (
                 <MenuItem key={option.value} value={option.value}>
                   {option.label}
                 </MenuItem>
               ))}
-            </RHFSelect>
+            </RHFSelect> */}
           </Stack>
           <LoadingButton
             size="large"
@@ -323,14 +360,18 @@ export default function AdminVariant() {
   }, [search, variantType, status, variants?.data]);
 
   useEffect(() => {
-    if (rowSelectionModel.length) {
+    if (rowSelectionModel.length && selectedRow?.id !== rowSelectionModel[0]) {
       const selectedRowData = variants?.data?.find(
         (row: IVariant) => row.id === rowSelectionModel[0],
       );
-      resetEditVariant(selectedRowData);
+      setSelectedRow(selectedRowData);
       setOpenEditDrawer(true);
     }
-  }, [resetEditVariant, rowSelectionModel, variants?.data]);
+  }, [resetEditVariant, rowSelectionModel, selectedRow?.id, variants?.data]);
+
+  useEffect(() => {
+    resetEditVariant(selectedRow);
+  }, [resetEditVariant, selectedRow]);
 
   useEffect(() => {
     setFilteredRows(
@@ -376,6 +417,15 @@ export default function AdminVariant() {
       >
         <CircularProgress color="secondary" />
       </Backdrop>
+      {selectedRow && (
+        <DeleteDialog
+          name={selectedRow.name}
+          open={isOpenDelete}
+          onClose={() => setIsOpenDelete(false)}
+          isLoading={deleteVariantIsLoading}
+          onDelete={onDeleteVariant}
+        />
+      )}
     </Box>
   );
 }

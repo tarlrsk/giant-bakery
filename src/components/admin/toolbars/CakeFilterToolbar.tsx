@@ -23,8 +23,8 @@ type Props = {
 
 const STATUS_OPTIONS = [
   { value: "all", label: "ทั้งหมด" },
-  { value: "active", label: "Active" },
-  { value: "inActive", label: "Inactive" },
+  { value: "active", label: "แสดง" },
+  { value: "inActive", label: "ซ่อน" },
 ];
 
 // ----------------------------------------------------------------------

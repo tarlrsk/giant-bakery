@@ -149,6 +149,20 @@ export default function useAdmin(
   const { trigger: createVariantTrigger, isMutating: createVariantIsLoading } =
     useSWRMutation(createVariantAdmin(), createItem);
 
+  const { trigger: deleteVariantTrigger, isMutating: deleteVariantIsLoading } =
+    useSWRMutation(
+      deleteVariantAdmin(
+        selectedItem?.type as
+          | "CREAM"
+          | "TOP_EDGE"
+          | "BOTTOM_EDGE"
+          | "DECORATION"
+          | "SURFACE",
+        selectedItem?.id || "",
+      ),
+      deleteItem,
+    );
+
   return {
     productsData,
     productsMutate,
@@ -187,5 +201,7 @@ export default function useAdmin(
     deleteProductIsLoading,
     deleteCakeTrigger,
     deleteCakeIsLoading,
+    deleteVariantTrigger,
+    deleteVariantIsLoading,
   };
 }
