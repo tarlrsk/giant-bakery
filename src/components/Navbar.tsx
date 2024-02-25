@@ -182,7 +182,14 @@ export default function Navbar({
                   >
                     <DropdownSection showDivider>
                       <DropdownItem key="new" className=" rounded-sm ">
-                        <p className=" text-base">ออเดอร์</p>
+                        <p
+                          className=" text-base"
+                          onClick={() => {
+                            router.push("/orders");
+                          }}
+                        >
+                          ออเดอร์
+                        </p>
                       </DropdownItem>
                       <DropdownItem key="copy" className=" rounded-sm ">
                         <p className=" text-base">ประวัติการสั่งซื้อ</p>
