@@ -10,6 +10,8 @@ import { RHFUpload } from "@/components/hook-form/rhf-upload";
 import FormProvider from "@/components/hook-form/form-provider";
 import { RHFSelect, RHFSwitch, RHFTextField } from "@/components/hook-form";
 import { Paper, Stack, MenuItem, IconButton, Typography } from "@mui/material";
+import { z } from "zod";
+import { refreshmentValidationSchema } from "@/lib/validationSchema";
 
 // ----------------------------------------------------------------------
 
@@ -32,27 +34,29 @@ type Props = {
   onClose: () => void;
 };
 
+type RefreshmentProps = z.infer<typeof refreshmentValidationSchema>;
+
 // ----------------------------------------------------------------------
 
 export default function NewProductCard({ onClose }: Props) {
-  const methods = useForm({
+  const methods = useForm<RefreshmentProps>({
     defaultValues: {
       image: "",
       name: "",
       description: "",
-      type: "",
-      category: "",
-      unitType: "",
-      minQty: "",
-      price: "",
-      currQty: "",
-      width: "",
-      length: "",
-      height: "",
-      weight: "",
-      quantity: "",
+      type: undefined,
+      category: undefined,
+      unitType: undefined,
+      minQty: undefined,
+      price: undefined,
+      currQty: undefined,
+      width: undefined,
+      length: undefined,
+      height: undefined,
+      weight: undefined,
+      quantity: undefined,
       isActive: true,
-      maxQty: "",
+      maxQty: undefined,
     },
   });
 

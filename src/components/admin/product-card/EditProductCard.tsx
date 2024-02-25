@@ -1,5 +1,6 @@
 "use client";
 
+import { z } from "zod";
 import { useCallback } from "react";
 import { styled } from "@mui/system";
 import useAdmin from "@/hooks/useAdmin";
@@ -7,9 +8,11 @@ import { useSnackbar } from "notistack";
 import { LoadingButton } from "@mui/lab";
 import { useForm } from "react-hook-form";
 import CloseIcon from "@mui/icons-material/Close";
+import { zodResolver } from "@hookform/resolvers/zod";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { RHFUpload } from "@/components/hook-form/rhf-upload";
 import FormProvider from "@/components/hook-form/form-provider";
+import { refreshmentValidationSchema } from "@/lib/validationSchema";
 import { RHFSelect, RHFSwitch, RHFTextField } from "@/components/hook-form";
 import {
   Paper,
@@ -81,10 +84,14 @@ type Props = {
   onClose: () => void;
 };
 
+type RefreshmentProps = z.infer<typeof refreshmentValidationSchema>;
+
+// ----------------------------------------------------------------------
+
 export default function EditProductCard({ data, isLoading, onClose }: Props) {
   const { enqueueSnackbar } = useSnackbar();
-  const methods = useForm({
-    defaultValues: { ...data, image: data?.image || "" },
+  const methods = useForm<RefreshmentProps>({
+    resolver: zodResolver(refreshmentValidationSchema),
   });
   const { updateProductTrigger, updateProductIsLoading, productsMutate } =
     useAdmin(data);
@@ -114,7 +121,6 @@ export default function EditProductCard({ data, isLoading, onClose }: Props) {
         width,
         isActive,
         unitType,
-        status,
       } = data;
 
       const bodyFormData = new FormData();

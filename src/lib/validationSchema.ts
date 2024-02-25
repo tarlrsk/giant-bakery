@@ -10,16 +10,19 @@ const ACCEPTED_IMAGE_TYPES = [
   "image/jpeg",
   "image/jpg",
   "image/png",
-  "image/webp",
+  "image/svg+xml",
 ];
 
 const zodIsImage = z
   .any()
-  .refine((file) => file?.size <= MAX_FILE_SIZE, `Max image size is 50MB.`)
+  .refine((file) => !!file, {
+    message: "โปรดใส่รูปภาพของสินค้า",
+  })
   .refine(
     (file) => ACCEPTED_IMAGE_TYPES.includes(file?.type),
-    "Only .jpg, .jpeg, .png and .webp formats are supported.",
-  );
+    "รองรับเฉพาะไฟล์ jpg, jpeg, png และ svg",
+  )
+  .refine((file) => file?.size <= MAX_FILE_SIZE, `ขนาดรูปภาพเกิน 5MB`);
 
 // Auth ----------------------------------------------------------------------
 
@@ -125,8 +128,10 @@ export const variantByTypeValidateSchema = z.object({
 
 export const refreshmentValidationSchema = z.object({
   name: z.string({ required_error: "Name is required." }).min(3).max(255),
+  image: zodIsImage,
+  description: z.string().min(0).max(255).nullable(),
   type: z.enum(["BAKERY", "BEVERAGE"]),
-  category: z.enum(["BREAD", "PIE", "COOKIE", "SNACK", "CAKE"]).nullable(),
+  category: z.enum(["BREAD", "PIE", "COOKIE", "SNACK", "CAKE"]),
   minQty: z.number({ required_error: "Min quantity is required." }),
   maxQty: z.number({ required_error: "Max quantity is required." }),
   currQty: z.number({ required_error: "Current quantity is required." }),
