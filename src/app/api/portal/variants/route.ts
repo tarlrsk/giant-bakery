@@ -3,23 +3,13 @@ import { prisma } from "@/lib/prisma";
 import { bucket } from "@/lib/gcs/gcs";
 import { NextRequest } from "next/server";
 import { formatDate } from "@/lib/formatDate";
+import { VariantType } from "@/enum/variantType";
 import { getFileUrl } from "@/lib/gcs/getFileUrl";
 import { parseBoolean } from "@/lib/parseBoolean";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { variantValidationSchema } from "@/lib/validationSchema";
 
 // ----------------------------------------------------------------------
-
-enum VariantType {
-  SIZE = "SIZE",
-  BASE = "BASE",
-  FILLING = "FILLING",
-  CREAM = "CREAM",
-  TOP_EDGE = "TOP_EDGE",
-  BOTTOM_EDGE = "BOTTOM_EDGE",
-  DECORATION = "DECORATION",
-  SURFACE = "SURFACE",
-}
 
 type fileImage = {
   imageFileName: string;
