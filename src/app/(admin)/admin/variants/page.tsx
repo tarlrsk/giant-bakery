@@ -38,8 +38,6 @@ export default function AdminVariant() {
     variantsIsLoading: isLoading,
   } = useAdmin();
 
-  console.log("variants", variants);
-
   const [filteredRows, setFilteredRows] = useState([]);
   const [openNewDrawer, setOpenNewDrawer] = useState(false);
   const [openEditDrawer, setOpenEditDrawer] = useState(false);
@@ -102,8 +100,11 @@ export default function AdminVariant() {
   const { isActive: isActiveNewVariant, image: newVariantImage } =
     watchNewVariant();
 
-  const { isActive: isActiveEditVariant, image: editVariantImage } =
-    watchEditVariant();
+  const {
+    name: editVariantName,
+    isActive: isActiveEditVariant,
+    image: editVariantImage,
+  } = watchEditVariant();
 
   const onDropSingleFileNewVariant = useCallback(
     (acceptedFiles: File[]) => {
@@ -211,15 +212,17 @@ export default function AdminVariant() {
     </Box>
   );
 
+  console.log(editVariantImage);
+
   const DrawerEditVariant = (
     <Box
       sx={{ minWidth: 420, p: 4 }}
       role="presentation"
-      onClick={() => toggleNewDrawer(false)}
+      onClick={() => toggleEditDrawer(false)}
     >
       <FormProvider methods={editVariantMethods} onSubmit={onSubmitEdit}>
         <Stack direction="column" spacing={2.5}>
-          <Typography>ตัวเลือกเค้ก</Typography>
+          <Typography>{editVariantName}</Typography>
           <RHFUpload
             name="image"
             thumbnail
@@ -266,7 +269,7 @@ export default function AdminVariant() {
   );
 
   useEffect(() => {
-    let data = variants?.data?.flatMap((item: any) => item) || [];
+    let data = variants?.data || [];
 
     if (search) {
       data = data.filter(
@@ -291,17 +294,17 @@ export default function AdminVariant() {
 
   useEffect(() => {
     if (rowSelectionModel.length) {
-      const selectedRowData = variants?.data
-        ?.flatMap((item: any) => item)
-        .find((row: IVariant) => row.id === rowSelectionModel[0]);
-
+      const selectedRowData = variants?.data?.find(
+        (row: IVariant) => row.id === rowSelectionModel[0],
+      );
+      console.log("selectedRowData", selectedRowData);
       resetEditVariant(selectedRowData);
       setOpenEditDrawer(true);
     }
   }, [resetEditVariant, rowSelectionModel, variants?.data]);
 
   useEffect(() => {
-    setFilteredRows(variants?.data?.flatMap((item: any) => item) || []);
+    setFilteredRows(variants?.data || []);
   }, [variants]);
 
   return (

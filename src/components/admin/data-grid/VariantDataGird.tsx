@@ -9,13 +9,14 @@ import {
   GridRowSelectionModel,
 } from "@mui/x-data-grid";
 
+import { IVariant } from "../types";
 import commonDataGrid from "./CommonDataGrid";
 import { CustomNoRowsOverlay } from "./CustomNoRowsOverlay";
 
 // ----------------------------------------------------------------------
 
 type Props = {
-  rows: any;
+  rows: IVariant[];
   rowSelectionModel: GridRowSelectionModel;
   setRowSelectionModel: Dispatch<SetStateAction<GridRowSelectionModel>>;
 };
@@ -35,19 +36,26 @@ export default function VariantDataGrid({
       flex: 1,
       renderCell: (params: GridRenderCellParams<any>) => {
         let text;
-        switch (params.row.variantType) {
-          case "cream":
+        switch (params.row.type) {
+          case "CREAM":
             text = "ครีม";
             break;
-          case "topBorder":
+          case "TOP_EDGE":
             text = "ขอบบน";
             break;
-          case "bottomBorder":
+          case "BOTTOM_EDGE":
             text = "ขอบล่าง";
-          case "decoration":
+            break;
+
+          case "DECORATION":
             text = "ลายรอบเค้ก";
-          case "surface":
+            break;
+          case "SURFACE":
             text = "หน้าเค้ก";
+            break;
+          default:
+            text = "-";
+            break;
         }
 
         return (
@@ -81,6 +89,7 @@ export default function VariantDataGrid({
         <DataGrid
           rows={rows}
           columns={columns}
+          // getRowId={(row: IVariant) => `${row.id}${row.type}`}
           disableColumnMenu
           onRowSelectionModelChange={(newRowSelectionModel) => {
             setRowSelectionModel(newRowSelectionModel);
