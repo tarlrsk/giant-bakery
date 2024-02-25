@@ -67,9 +67,9 @@ export default function AdminRefreshment() {
     }
   }, [products, rowSelectionModel]);
 
-  useEffect(() => {
-    setFilteredRows(products?.data || []);
-  }, [products]);
+  // useEffect(() => {
+  //   setFilteredRows(products?.data || []);
+  // }, [products]);
 
   return (
     <Box>
@@ -85,7 +85,7 @@ export default function AdminRefreshment() {
       <Grid container direction="row" spacing={2}>
         <Grid item xs={isProductCardOpen ? 8 : 12}>
           <ProductDataGrid
-            rows={filteredRows}
+            rows={filteredRows || []}
             rowSelectionModel={rowSelectionModel}
             setRowSelectionModel={(e) => {
               setRowSelectionModel(e);

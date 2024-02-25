@@ -76,7 +76,9 @@ export default function EditCakeCard({ data, onClose }: Props) {
       if (typeof image !== "string") {
         bodyFormData.append("image", image);
       }
-      bodyFormData.append("description", description || "");
+      if (description) {
+        bodyFormData.append("description", description);
+      }
       bodyFormData.append("price", price ? Number(price).toString() : "0");
       bodyFormData.append("weight", weight ? Number(weight).toString() : "0");
       bodyFormData.append("height", height ? Number(height).toString() : "0");

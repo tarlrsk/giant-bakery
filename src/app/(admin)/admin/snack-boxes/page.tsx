@@ -198,9 +198,9 @@ export default function AdminSnackBox() {
     }
   }, [rowSelectionModel, snackBoxes?.data]);
 
-  useEffect(() => {
-    setFilteredRows(snackBoxes?.data || []);
-  }, [snackBoxes]);
+  // useEffect(() => {
+  //   setFilteredRows(snackBoxes?.data || []);
+  // }, [snackBoxes]);
 
   return (
     <Box>
@@ -216,7 +216,7 @@ export default function AdminSnackBox() {
       <Grid container direction="row" spacing={2}>
         <Grid item xs={isSnackBoxCardOpen ? 8 : 12}>
           <SnackBoxDataGrid
-            rows={filteredRows}
+            rows={filteredRows || []}
             rowSelectionModel={rowSelectionModel}
             setRowSelectionModel={(e) => {
               setRowSelectionModel(e);

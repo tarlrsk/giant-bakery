@@ -2,6 +2,7 @@
 
 import toast from "react-hot-toast";
 import useAdmin from "@/hooks/useAdmin";
+import { useSnackbar } from "notistack";
 import { LoadingButton } from "@mui/lab";
 import { useForm } from "react-hook-form";
 import { useState, useCallback } from "react";
@@ -18,6 +19,7 @@ import {
 } from "@/components/hook-form";
 
 import { ISnackBoxRow } from "../types";
+import DeleteDialog from "../dialog/DeleteDialog";
 
 // ----------------------------------------------------------------------
 
@@ -25,8 +27,6 @@ interface IProductOption {
   value: string | null;
   label: string;
 }
-
-// ----------------------------------------------------------------------
 
 type Props = {
   data: ISnackBoxRow;
@@ -37,15 +37,28 @@ type Props = {
 
 // ----------------------------------------------------------------------
 
-export default function NewSnackBoxCard({
+export default function EditSnackBoxCard({
   data,
   option,
   selectedItems,
   onClose,
 }: Props) {
-  const { updateSnackBoxTrigger, updateSnackBoxIsLoading } = useAdmin(data);
-  const [itemAmount, setItemAmount] = useState([0]);
-  const [counter, setCounter] = useState(0);
+  const { enqueueSnackbar } = useSnackbar();
+  const {
+    updateSnackBoxTrigger,
+    updateSnackBoxIsLoading,
+    snackBoxMutate,
+    deleteSnackBoxTrigger,
+    deleteSnackBoxIsLoading,
+  } = useAdmin(data);
+  const initDataArray = Array.from(
+    { length: data.refreshments.length },
+    (_, index) => index,
+  );
+
+  const [itemAmount, setItemAmount] = useState(initDataArray);
+  const [counter, setCounter] = useState(data.refreshments.length);
+  const [isOpenDelete, setIsOpenDelete] = useState(false);
   const methods = useForm({ defaultValues: { ...data, ...selectedItems } });
 
   const { watch, setValue, handleSubmit } = methods;
@@ -62,20 +75,44 @@ export default function NewSnackBoxCard({
     setItemAmount(combined);
   };
 
+  const onDeleteSnackBox = async () => {
+    try {
+      await deleteSnackBoxTrigger();
+      onClose();
+      snackBoxMutate();
+      enqueueSnackbar(`ชุดเบรก ${data.name} ถูกลบแล้ว`, { variant: "success" });
+    } catch (err) {
+      console.error(err);
+      enqueueSnackbar("เกิดข้อผิดพลาด กรุณาลองใหม่", { variant: "error" });
+    }
+  };
+
   const onSubmit = handleSubmit(async (data) => {
     try {
-      const { name, image, price, weight, height, length, width, isActive } =
-        data;
+      const {
+        name,
+        image,
+        price,
+        weight,
+        height,
+        length,
+        width,
+        isActive,
+        description,
+      } = data;
 
       const mappedRefreshments = Object.entries(data)
         .filter(([key, value]) => key.startsWith("item") && value !== undefined)
         .map(([_, item]) => item as unknown as IProductOption);
 
-      // console.log("mappedItems", mappedRefreshments);
-
       const bodyFormData = new FormData();
       bodyFormData.append("name", name);
-      bodyFormData.append("image", image);
+      if (typeof image !== "string") {
+        bodyFormData.append("image", image);
+      }
+      if (description) {
+        bodyFormData.append("description", description);
+      }
       bodyFormData.append("price", price ? Number(price).toString() : "0");
       bodyFormData.append("weight", weight ? Number(weight).toString() : "0");
       bodyFormData.append("height", height ? Number(height).toString() : "0");
@@ -91,6 +128,8 @@ export default function NewSnackBoxCard({
 
       // console.log("bodyFormData:", bodyFormData);
       await updateSnackBoxTrigger(bodyFormData);
+      enqueueSnackbar("อัพเดทชุดเบรกสำเร็จ", { variant: "success" });
+      snackBoxMutate();
     } catch (error) {
       console.error(error);
       toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
@@ -138,9 +177,19 @@ export default function NewSnackBoxCard({
             onDelete={() => setValue("image", "", { shouldValidate: true })}
           />
 
-          <Stack direction="row" alignItems="center" spacing={1}>
-            <Typography>การมองเห็น:</Typography>
-            <RHFSwitch name="isActive" label={isActive ? "โชว์" : "ซ่อน"} />
+          <Stack direction="row" justifyContent="space-between">
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <Typography>การมองเห็น:</Typography>
+              <RHFSwitch name="isActive" label={isActive ? "โชว์" : "ซ่อน"} />
+            </Stack>
+            <Button
+              startIcon={<DeleteIcon />}
+              color="error"
+              variant="outlined"
+              onClick={() => setIsOpenDelete(true)}
+            >
+              ลบชุดเบรก
+            </Button>
           </Stack>
 
           <Stack direction="row" spacing={1}>
@@ -223,6 +272,13 @@ export default function NewSnackBoxCard({
           </LoadingButton>
         </Stack>
       </Paper>
+      <DeleteDialog
+        name={data.name}
+        open={isOpenDelete}
+        onClose={() => setIsOpenDelete(false)}
+        isLoading={deleteSnackBoxIsLoading}
+        onDelete={onDeleteSnackBox}
+      />
     </FormProvider>
   );
 }

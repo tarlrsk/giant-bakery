@@ -118,6 +118,11 @@ export default function useAdmin(
     isMutating: createSnackBoxIsLoading,
   } = useSWRMutation(createSnackBoxAdmin(), createItem);
 
+  const {
+    trigger: deleteSnackBoxTrigger,
+    isMutating: deleteSnackBoxIsLoading,
+  } = useSWRMutation(deleteSnackBoxAdmin(selectedItem?.id || ""), deleteItem);
+
   // Variants
   const {
     data: variantsData,
@@ -203,5 +208,7 @@ export default function useAdmin(
     deleteCakeIsLoading,
     deleteVariantTrigger,
     deleteVariantIsLoading,
+    deleteSnackBoxTrigger,
+    deleteSnackBoxIsLoading,
   };
 }

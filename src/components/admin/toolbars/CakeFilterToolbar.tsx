@@ -70,7 +70,7 @@ export default function CakeFilterToolbar({
           <RHFSelect
             size="small"
             name="status"
-            label="สถานะ"
+            label="การมองเห็น"
             sx={{ backgroundColor: "white" }}
           >
             {STATUS_OPTIONS.map((option) => (

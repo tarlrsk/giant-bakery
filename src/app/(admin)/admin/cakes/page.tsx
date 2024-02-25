@@ -70,9 +70,9 @@ export default function AdminCake() {
     }
   }, [cakes, rowSelectionModel]);
 
-  useEffect(() => {
-    setFilteredRows(cakes?.data || []);
-  }, [cakes]);
+  // useEffect(() => {
+  //   setFilteredRows(cakes?.data || []);
+  // }, [cakes]);
 
   return (
     <Box>
@@ -88,7 +88,7 @@ export default function AdminCake() {
       <Grid container direction="row" spacing={2}>
         <Grid item xs={isCakeCardOpen ? 8 : 12}>
           <CakeDataGrid
-            rows={filteredRows}
+            rows={filteredRows || []}
             rowSelectionModel={rowSelectionModel}
             setRowSelectionModel={(e) => {
               setRowSelectionModel(e);
