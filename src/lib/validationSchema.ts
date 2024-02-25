@@ -127,7 +127,6 @@ export const refreshmentValidationSchema = z.object({
   name: z.string({ required_error: "Name is required." }).min(3).max(255),
   type: z.enum(["BAKERY", "BEVERAGE"]),
   category: z.enum(["BREAD", "PIE", "COOKIE", "SNACK", "CAKE"]).nullable(),
-  status: z.enum(["IN_STOCK", "LOW", "OUT_OF_STOCK"]),
   minQty: z.number({ required_error: "Min quantity is required." }),
   maxQty: z.number({ required_error: "Max quantity is required." }),
   currQty: z.number({ required_error: "Current quantity is required." }),
