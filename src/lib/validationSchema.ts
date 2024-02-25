@@ -125,7 +125,6 @@ export const variantByTypeValidateSchema = z.object({
 
 export const refreshmentValidationSchema = z.object({
   name: z.string({ required_error: "Name is required." }).min(3).max(255),
-  description: z.string().min(10).max(255).nullable(),
   type: z.enum(["BAKERY", "BEVERAGE"]),
   category: z.enum(["BREAD", "PIE", "COOKIE", "SNACK", "CAKE"]).nullable(),
   status: z.enum(["IN_STOCK", "LOW", "OUT_OF_STOCK"]),

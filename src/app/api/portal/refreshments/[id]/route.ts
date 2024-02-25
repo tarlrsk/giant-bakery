@@ -129,10 +129,15 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
 
     let imageFileName = refreshment.imageFileName as string;
     let imageUrl = refreshment.image as string;
+    let imagePath = refreshment.imagePath as string;
 
     if (image) {
-      const oldImage = bucket.file(refreshment.imageFileName as string);
-      await oldImage.delete();
+      try {
+        const oldImage = bucket.file(refreshment.imagePath as string);
+        await oldImage.delete();
+      } catch (err: any) {
+        console.log(err);
+      }
 
       const buffer = Buffer.from(await image.arrayBuffer());
 
@@ -140,7 +145,8 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
         new Date(Date.now()).toString(),
       )}_${image.name.replace(/\s/g, "_")}`;
 
-      const gcsFile = bucket.file(updatedImageFileName);
+      imagePath = `refreshments/${category}/${refreshment.id}/${imageFileName}`;
+      const gcsFile = bucket.file(imagePath);
 
       await gcsFile.save(buffer, {
         metadata: {
@@ -159,6 +165,7 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
         description: description,
         imageFileName: imageFileName,
         image: imageUrl,
+        imagePath: imagePath,
         type: type,
         category: category,
         status: status,

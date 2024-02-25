@@ -158,8 +158,12 @@ export async function PUT(req: NextRequest, { params }: GetCakeByIdProps) {
     let imagePath = cake.imagePath as string;
 
     if (image) {
-      const oldImage = bucket.file(cake.imagePath as string);
-      await oldImage.delete();
+      try {
+        const oldImage = bucket.file(cake.imagePath as string);
+        await oldImage.delete();
+      } catch (err: any) {
+        console.log(err);
+      }
 
       const buffer = Buffer.from(await image.arrayBuffer());
 
