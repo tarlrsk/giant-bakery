@@ -1,5 +1,6 @@
 "use client";
 
+import { z } from "zod";
 import { useCallback } from "react";
 import useAdmin from "@/hooks/useAdmin";
 import { useSnackbar } from "notistack";
@@ -8,10 +9,9 @@ import { useForm } from "react-hook-form";
 import CloseIcon from "@mui/icons-material/Close";
 import { RHFUpload } from "@/components/hook-form/rhf-upload";
 import FormProvider from "@/components/hook-form/form-provider";
+import { refreshmentValidationSchema } from "@/lib/validationSchema";
 import { RHFSelect, RHFSwitch, RHFTextField } from "@/components/hook-form";
 import { Paper, Stack, MenuItem, IconButton, Typography } from "@mui/material";
-import { z } from "zod";
-import { refreshmentValidationSchema } from "@/lib/validationSchema";
 
 // ----------------------------------------------------------------------
 
@@ -62,7 +62,7 @@ export default function NewProductCard({ onClose }: Props) {
 
   const { createProductTrigger, createProductIsLoading } = useAdmin();
 
-  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+  const { enqueueSnackbar } = useSnackbar();
 
   const { watch, setValue, handleSubmit, reset } = methods;
   const values = watch();

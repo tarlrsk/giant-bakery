@@ -1,13 +1,14 @@
 "use client";
 
 import { z } from "zod";
-import { useCallback } from "react";
 import { styled } from "@mui/system";
 import useAdmin from "@/hooks/useAdmin";
 import { useSnackbar } from "notistack";
 import { LoadingButton } from "@mui/lab";
 import { useForm } from "react-hook-form";
+import { useState, useCallback } from "react";
 import CloseIcon from "@mui/icons-material/Close";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { zodResolver } from "@hookform/resolvers/zod";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { RHFUpload } from "@/components/hook-form/rhf-upload";
@@ -17,6 +18,7 @@ import { RHFSelect, RHFSwitch, RHFTextField } from "@/components/hook-form";
 import {
   Paper,
   Stack,
+  Button,
   Divider,
   MenuItem,
   Accordion,
@@ -27,7 +29,7 @@ import {
   AccordionDetails,
 } from "@mui/material";
 
-import { IProductRow } from "../types";
+import DeleteDialog from "../dialog/DeleteDialog";
 
 // ----------------------------------------------------------------------
 
@@ -79,7 +81,7 @@ const CustomAccordionSummary = ({
 // ----------------------------------------------------------------------
 
 type Props = {
-  data: IProductRow;
+  data: RefreshmentProps;
   isLoading: boolean;
   onClose: () => void;
 };
@@ -92,14 +94,34 @@ export default function EditProductCard({ data, isLoading, onClose }: Props) {
   const { enqueueSnackbar } = useSnackbar();
   const methods = useForm<RefreshmentProps>({
     resolver: zodResolver(refreshmentValidationSchema),
+    defaultValues: { ...data, image: data.image },
   });
-  const { updateProductTrigger, updateProductIsLoading, productsMutate } =
-    useAdmin(data);
+  const {
+    updateProductTrigger,
+    updateProductIsLoading,
+    productsMutate,
+    deleteProductTrigger,
+    deleteProductIsLoading,
+  } = useAdmin(data);
+
+  const [isOpenDelete, setIsOpenDelete] = useState(false);
 
   const { watch, setValue, handleSubmit } = methods;
   const values = watch();
 
   const { type, isActive } = values;
+
+  const onDeleteProduct = async () => {
+    try {
+      await deleteProductTrigger();
+      onClose();
+      productsMutate();
+      enqueueSnackbar(`สินค้า ${data.name} ถูกลบแล้ว`, { variant: "success" });
+    } catch (err) {
+      console.error(err);
+      enqueueSnackbar("เกิดข้อผิดพลาด กรุณาลองใหม่", { variant: "error" });
+    }
+  };
 
   const onSubmit = handleSubmit(async (data) => {
     try {
@@ -196,9 +218,19 @@ export default function EditProductCard({ data, isLoading, onClose }: Props) {
             onDelete={() => setValue("image", "", { shouldValidate: true })}
           />
 
-          <Stack direction="row" alignItems="center" spacing={1}>
-            <Typography>การมองเห็น:</Typography>
-            <RHFSwitch name="isActive" label={isActive ? "โชว์" : "ซ่อน"} />
+          <Stack direction="row" justifyContent="space-between">
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <Typography>การมองเห็น:</Typography>
+              <RHFSwitch name="isActive" label={isActive ? "โชว์" : "ซ่อน"} />
+            </Stack>
+            <Button
+              startIcon={<DeleteIcon />}
+              color="error"
+              variant="outlined"
+              onClick={() => setIsOpenDelete(true)}
+            >
+              ลบสินค้า
+            </Button>
           </Stack>
 
           <Stack spacing={1}>
@@ -339,6 +371,13 @@ export default function EditProductCard({ data, isLoading, onClose }: Props) {
           </LoadingButton>
         </Stack>
       </Paper>
+      <DeleteDialog
+        name={data.name}
+        open={isOpenDelete}
+        onClose={() => setIsOpenDelete(false)}
+        isLoading={deleteProductIsLoading}
+        onDelete={onDeleteProduct}
+      />
     </FormProvider>
   );
 }

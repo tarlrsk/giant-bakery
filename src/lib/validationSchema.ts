@@ -19,10 +19,14 @@ const zodIsImage = z
     message: "โปรดใส่รูปภาพของสินค้า",
   })
   .refine(
-    (file) => ACCEPTED_IMAGE_TYPES.includes(file?.type),
+    (file) =>
+      ACCEPTED_IMAGE_TYPES.includes(file?.type) || typeof file === "string",
     "รองรับเฉพาะไฟล์ jpg, jpeg, png และ svg",
   )
-  .refine((file) => file?.size <= MAX_FILE_SIZE, `ขนาดรูปภาพเกิน 5MB`);
+  .refine(
+    (file) => file?.size <= MAX_FILE_SIZE || typeof file === "string",
+    `ขนาดรูปภาพเกิน 5MB`,
+  );
 
 // Auth ----------------------------------------------------------------------
 
@@ -127,8 +131,9 @@ export const variantByTypeValidateSchema = z.object({
 // Refreshments ---------------------------------------------------------------
 
 export const refreshmentValidationSchema = z.object({
+  id: z.string().nullable(),
   name: z.string({ required_error: "Name is required." }).min(3).max(255),
-  image: zodIsImage,
+  image: zodIsImage.nullable(),
   description: z.string().min(0).max(255).nullable(),
   type: z.enum(["BAKERY", "BEVERAGE"]),
   category: z.enum(["BREAD", "PIE", "COOKIE", "SNACK", "CAKE"]),
@@ -152,6 +157,7 @@ export const cakeValidationSchema = z.object({
   name: z.string({ required_error: "Name is required." }).min(3).max(255),
   remark: z.string().nullable(),
   image: zodIsImage.nullable(),
+  description: z.string().min(0).max(255).nullable(),
   type: z.enum(["PRESET", "CUSTOM"]),
   price: z.number().multipleOf(0.01),
   weight: z.number().multipleOf(0.01),

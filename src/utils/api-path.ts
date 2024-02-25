@@ -146,6 +146,7 @@ const apiPaths = () => {
     getProducts,
     createProduct,
     updateProduct,
+    deleteProduct,
     getCakesAdmin,
     createCakeAdmin,
     updateCakeAdmin,

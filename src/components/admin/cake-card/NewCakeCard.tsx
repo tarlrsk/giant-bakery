@@ -1,17 +1,18 @@
 "use client";
 
+import { z } from "zod";
 import { useCallback } from "react";
 import useAdmin from "@/hooks/useAdmin";
 import { useSnackbar } from "notistack";
 import { LoadingButton } from "@mui/lab";
 import { useForm } from "react-hook-form";
 import CloseIcon from "@mui/icons-material/Close";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { RHFUpload } from "@/components/hook-form/rhf-upload";
+import { cakeValidationSchema } from "@/lib/validationSchema";
 import FormProvider from "@/components/hook-form/form-provider";
 import { RHFSwitch, RHFTextField } from "@/components/hook-form";
 import { Paper, Stack, IconButton, Typography } from "@mui/material";
-
-import { ICakeRow } from "../types";
 
 // ----------------------------------------------------------------------
 
@@ -19,20 +20,21 @@ type Props = {
   onClose: () => void;
 };
 
+type CakeProps = z.infer<typeof cakeValidationSchema>;
+
+// ----------------------------------------------------------------------
+
 export default function NewCakeCard({ onClose }: Props) {
   const { enqueueSnackbar } = useSnackbar();
-  const methods = useForm<ICakeRow>({
-    defaultValues: {
-      image: "",
-      isActive: true,
-      name: "",
-      type: "preset",
-      creams: [],
-      topEdges: [],
-      bottomEdges: [],
-      decorations: [],
-      surfaces: [],
-    },
+  const methods = useForm<CakeProps>({
+    resolver: zodResolver(cakeValidationSchema),
+    // defaultValues: {
+    //   image: "",
+    //   isActive: true,
+    //   name: "",
+    //   type: "PRESET",
+    //   description: "",
+    // },
   });
 
   const { createCakeTrigger, createCakeIsLoading } = useAdmin();
@@ -70,8 +72,8 @@ export default function NewCakeCard({ onClose }: Props) {
 
       await createCakeTrigger(bodyFormData);
       enqueueSnackbar("สร้างเค้กสำเร็จ", { variant: "success" });
-      onClose();
-      reset();
+      // onClose();
+      // reset();
     } catch (error) {
       console.error(error);
       enqueueSnackbar("เกิดข้อผิดพลาด กรุณาลองใหม่", { variant: "error" });
@@ -118,7 +120,7 @@ export default function NewCakeCard({ onClose }: Props) {
 
           <Stack direction="row" alignItems="center" spacing={1}>
             <Typography>การมองเห็น:</Typography>
-            <RHFSwitch name="isActive" label={isActive ? "โชว์" : "ซ่อน"} />
+            <RHFSwitch name="isActive" label={isActive ? "แสดง" : "ซ่อน"} />
           </Stack>
           <Stack direction="row" spacing={1}>
             <RHFTextField name="name" label="ชื่อเค้ก" size="small" required />

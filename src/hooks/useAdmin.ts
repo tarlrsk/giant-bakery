@@ -1,7 +1,9 @@
+import { z } from "zod";
 import useSWR from "swr";
 import apiPaths from "@/utils/api-path";
 import useSWRMutation from "swr/mutation";
 import { adminFetcher } from "@/utils/axios";
+import { refreshmentValidationSchema } from "@/lib/validationSchema";
 import {
   ICakeRow,
   IVariant,
@@ -10,6 +12,8 @@ import {
 } from "@/components/admin/types";
 
 // ----------------------------------------------------------------------
+
+type RefreshmentProps = z.infer<typeof refreshmentValidationSchema>;
 
 async function createItem(url: string, { arg }: { arg: any }) {
   await fetch(url, {
@@ -31,15 +35,31 @@ async function updateItem(url: string, { arg }: { arg: any }) {
   });
 }
 
+async function deleteItem(url: string, { arg }: { arg: any }) {
+  await fetch(url, {
+    method: "DELETE",
+    body: arg,
+  }).then((res) => {
+    if (!res.ok) throw new Error("Something went wrong");
+    return res;
+  });
+}
+
 // ----------------------------------------------------------------------
 
 export default function useAdmin(
-  selectedItem?: IProductRow | ICakeRow | ISnackBoxRow | IVariant,
+  selectedItem?:
+    | IProductRow
+    | ICakeRow
+    | ISnackBoxRow
+    | IVariant
+    | RefreshmentProps,
 ) {
   const {
     getProducts,
     createProduct,
     updateProduct,
+    deleteProduct,
     getCakesAdmin,
     createCakeAdmin,
     updateCakeAdmin,
@@ -66,6 +86,9 @@ export default function useAdmin(
 
   const { trigger: createProductTrigger, isMutating: createProductIsLoading } =
     useSWRMutation(createProduct(), createItem);
+
+  const { trigger: deleteProductTrigger, isMutating: deleteProductIsLoading } =
+    useSWRMutation(deleteProduct(selectedItem?.id || ""), deleteItem);
 
   // Cakes
   const {
@@ -161,5 +184,8 @@ export default function useAdmin(
     updateVariantIsLoading,
     createVariantTrigger,
     createVariantIsLoading,
+
+    deleteProductTrigger,
+    deleteProductIsLoading,
   };
 }

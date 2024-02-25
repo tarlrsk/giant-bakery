@@ -1,15 +1,21 @@
 "use client";
 
+import { z } from "zod";
 import useAdmin from "@/hooks/useAdmin";
 import { useForm } from "react-hook-form";
 import { useState, useEffect } from "react";
 import { IProductRow } from "@/components/admin/types";
 import { GridRowSelectionModel } from "@mui/x-data-grid";
+import { refreshmentValidationSchema } from "@/lib/validationSchema";
 import { Box, Grid, Backdrop, CircularProgress } from "@mui/material";
 import ProductDataGrid from "@/components/admin/data-grid/ProductDataGrid";
 import NewProductCard from "@/components/admin/product-card/NewProductCard";
 import EditProductCard from "@/components/admin/product-card/EditProductCard";
 import ProductFilterToolbar from "@/components/admin/toolbars/ProductFilterToolbar";
+
+// ----------------------------------------------------------------------
+
+type RefreshmentProps = z.infer<typeof refreshmentValidationSchema>;
 
 // ----------------------------------------------------------------------
 
@@ -21,7 +27,7 @@ export default function AdminRefreshment() {
   const [rowSelectionModel, setRowSelectionModel] =
     useState<GridRowSelectionModel>([]);
 
-  const [selectedRow, setSelectedRow] = useState<IProductRow | null>(null);
+  const [selectedRow, setSelectedRow] = useState<RefreshmentProps | null>(null);
 
   const { productsData: products, productsIsLoading: isLoading } = useAdmin();
 
