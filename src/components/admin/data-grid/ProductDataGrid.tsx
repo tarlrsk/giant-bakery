@@ -28,7 +28,7 @@ export default function ProductDataGrid({
   rowSelectionModel,
   setRowSelectionModel,
 }: Props) {
-  const { updatedAtColumn, statusColumn } = commonDataGrid();
+  const { updatedAtColumn, statusColumn, isActiveColumn } = commonDataGrid();
   const columns: GridColDef[] = [
     {
       field: "type",
@@ -106,6 +106,7 @@ export default function ProductDataGrid({
     },
     { field: "name", headerName: "ชื่อสินค้า", flex: 1 },
     statusColumn,
+    { field: "quantity", headerName: "จำนวนสินค้า", flex: 1 },
     updatedAtColumn,
   ];
 

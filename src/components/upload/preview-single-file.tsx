@@ -10,9 +10,10 @@ import { ImageProps } from "./types";
 
 type Props = {
   imgUrl?: string;
+  zIndex?: number;
 };
 
-export default function SingleFilePreview({ imgUrl = "" }: Props) {
+export default function SingleFilePreview({ imgUrl = "", zIndex = 1 }: Props) {
   return (
     <Box
       sx={{
@@ -21,6 +22,7 @@ export default function SingleFilePreview({ imgUrl = "" }: Props) {
         width: 1,
         height: 1,
         position: "absolute",
+        zIndex,
       }}
     >
       <Image
@@ -39,7 +41,7 @@ export default function SingleFilePreview({ imgUrl = "" }: Props) {
 // ----------------------------------------------------------------------
 
 // eslint-disable-next-line react/display-name
-const Image = forwardRef<HTMLSpanElement, ImageProps>(
+export const Image = forwardRef<HTMLSpanElement, ImageProps>(
   (
     {
       ratio,

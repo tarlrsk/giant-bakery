@@ -73,7 +73,7 @@ export interface IVariant {
   name: string;
   imageFileName: string;
   imagePath: string;
-  image: string;
+  image: string | { preview?: string };
   isActive: boolean;
   createdAt: string;
   updatedAt: string | null;

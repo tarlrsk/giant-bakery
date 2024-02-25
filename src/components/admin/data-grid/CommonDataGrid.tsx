@@ -7,20 +7,20 @@ import { Box, alpha, Typography, ListItemText } from "@mui/material";
 export default function commonDataGrid() {
   const isActiveColumn = {
     field: "isActive",
-    headerName: "สถานะ",
+    headerName: "การมองเห็น",
     flex: 1,
     renderCell: (params: GridRenderCellParams<any>) => {
       let text;
       let bgColor;
       let textColor;
       if (params.value) {
-        text = "Active";
+        text = "แสดง";
         bgColor = alpha("#00AB55", 0.16);
         textColor = "#007B55";
       } else {
-        text = "Inactive";
-        textColor = "#B71D18";
-        bgColor = alpha("#FF5630", 0.16);
+        text = "ซ่อน";
+        textColor = "#212B36";
+        bgColor = alpha("#919EAB", 0.16);
       }
       return (
         <Box sx={{ bgcolor: bgColor, borderRadius: 1.6, px: 1.25, py: 0.5 }}>

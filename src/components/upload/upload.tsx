@@ -18,6 +18,7 @@ export default function Upload({
   helperText,
   //
   file,
+  layerFile,
   onDelete,
   //
   files,
@@ -36,6 +37,8 @@ export default function Upload({
     });
 
   const hasFile = !!file;
+
+  const hasLayerFile = !!layerFile;
 
   const hasError = isDragReject || !!error;
 
@@ -69,6 +72,13 @@ export default function Upload({
   const renderSinglePreview = (
     <SingleFilePreview
       imgUrl={typeof file === "string" ? file : file?.preview}
+    />
+  );
+
+  const renderSinglePreviewLayer = (
+    <SingleFilePreview
+      imgUrl={typeof layerFile === "string" ? layerFile : layerFile?.preview}
+      zIndex={9999}
     />
   );
 
@@ -115,7 +125,7 @@ export default function Upload({
             opacity: 0.72,
           }),
           ...(disabled && {
-            opacity: 0.48,
+            // opacity: 0.48,
             pointerEvents: "none",
           }),
           ...(hasError && {
@@ -129,6 +139,8 @@ export default function Upload({
         }}
       >
         <input {...getInputProps()} />
+
+        {hasLayerFile && renderSinglePreviewLayer}
 
         {hasFile ? renderSinglePreview : renderPlaceholder}
       </Box>

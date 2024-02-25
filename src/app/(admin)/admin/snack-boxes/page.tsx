@@ -114,7 +114,18 @@ export default function AdminSnackBox() {
     defaultValues: { search: "", status: "all" },
   });
 
-  const { snackBoxData: snackBoxes, snackBoxIsLoading: isLoading } = useAdmin();
+  const {
+    productsData: products,
+    snackBoxData: snackBoxes,
+    snackBoxIsLoading: isLoading,
+  } = useAdmin();
+
+  const productOptions = products?.data?.map(
+    (product: { id: string; name: string }) => ({
+      value: product.id,
+      label: product.name,
+    }),
+  );
 
   const [filteredRows, setFilteredRows] = useState(snackBoxes?.data || []);
 
@@ -124,6 +135,8 @@ export default function AdminSnackBox() {
   const [isAddCardOpen, setIsAddCardOpen] = useState(false);
 
   const [selectedRow, setSelectedRow] = useState<ISnackBoxRow | null>(null);
+
+  const [selectedItems, setSelectedItems] = useState({});
 
   const isOnlyNewSnackBoxCardOpen = isAddCardOpen && !rowSelectionModel.length;
 
@@ -139,7 +152,7 @@ export default function AdminSnackBox() {
   const { search, status } = filterValues;
 
   useEffect(() => {
-    let data = MOCKUP_DATA;
+    let data = snackBoxes?.data || [];
 
     if (search) {
       data = data.filter(
@@ -156,18 +169,38 @@ export default function AdminSnackBox() {
       }
     }
     setFilteredRows(data);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search, status]);
+  }, [search, snackBoxes?.data, status]);
 
   useEffect(() => {
     if (rowSelectionModel.length) {
-      const selectedRowData = MOCKUP_DATA.find(
-        (row) => row.id === rowSelectionModel[0],
+      const selectedRowData = snackBoxes?.data.find(
+        (row: ISnackBoxRow) => row.id === rowSelectionModel[0],
+      );
+
+      const refreshmentObjects: {
+        [key: string]: { value: string; label: string };
+      } = {};
+      selectedRowData.refreshments.forEach(
+        (
+          refreshment: { refreshment: { id: string; name: string } },
+          index: any,
+        ) => {
+          const key = `item${index}`;
+          refreshmentObjects[key] = {
+            value: refreshment.refreshment.id,
+            label: refreshment.refreshment.name,
+          };
+        },
       );
 
       setSelectedRow(selectedRowData || null);
+      setSelectedItems(refreshmentObjects);
     }
-  }, [rowSelectionModel]);
+  }, [rowSelectionModel, snackBoxes?.data]);
+
+  useEffect(() => {
+    setFilteredRows(snackBoxes?.data || []);
+  }, [snackBoxes]);
 
   return (
     <Box>
@@ -193,18 +226,29 @@ export default function AdminSnackBox() {
         </Grid>
         {isOnlyNewSnackBoxCardOpen && (
           <Grid item xs={4}>
-            <NewSnackBoxCard onClose={() => setIsAddCardOpen(false)} />
-          </Grid>
-        )}
-        {isOnlyEditProductCardOpen && selectedRow && (
-          <Grid item xs={4}>
-            <EditSnackBoxCard
-              data={selectedRow}
-              isLoading={true}
-              onClose={() => setRowSelectionModel([])}
+            <NewSnackBoxCard
+              options={productOptions}
+              onClose={() => setIsAddCardOpen(false)}
             />
           </Grid>
         )}
+        {isOnlyEditProductCardOpen &&
+          selectedRow &&
+          rowSelectionModel[0] === selectedRow.id &&
+          selectedItems && (
+            <Grid item xs={4}>
+              <EditSnackBoxCard
+                data={selectedRow}
+                selectedItems={selectedItems}
+                option={productOptions}
+                onClose={() => {
+                  setRowSelectionModel([]);
+                  setSelectedItems({});
+                  setSelectedRow(null);
+                }}
+              />
+            </Grid>
+          )}
       </Grid>
     </Box>
   );

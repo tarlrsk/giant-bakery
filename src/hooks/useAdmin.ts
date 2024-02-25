@@ -98,6 +98,11 @@ export default function useAdmin(
     isLoading: variantsIsLoading,
   } = useSWR(getVariantAdmin(), adminFetcher);
 
+  const { data: creamBaseData } = useSWR(
+    `${getVariantAdmin()}/CREAM/a2e06756-2a32-4762-9b9d-6f669be3ac83`,
+    adminFetcher,
+  );
+
   const { trigger: updateVariantTrigger, isMutating: updateVariantIsLoading } =
     useSWRMutation(
       updateVariantAdmin(
@@ -143,6 +148,7 @@ export default function useAdmin(
     createSnackBoxIsLoading,
     //
     variantsData,
+    creamBaseData,
     variantsMutate,
     variantsIsLoading,
     updateVariantTrigger,
