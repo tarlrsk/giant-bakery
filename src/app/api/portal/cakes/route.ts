@@ -78,7 +78,6 @@ export async function POST(req: NextRequest) {
     const name = formData.get("name") as string;
     const description = formData.get("description") as string;
     const remark = formData.get("remark") as string;
-    const quantity = formData.get("quantity") as number | null;
     const type = formData.get("type") as CakeType;
     const weight = parseFloat(formData.get("weight") as string);
     const height = parseFloat(formData.get("height") as string);
@@ -104,7 +103,6 @@ export async function POST(req: NextRequest) {
       isActive,
       image,
       remark,
-      quantity,
     });
 
     if (!validation.success) {

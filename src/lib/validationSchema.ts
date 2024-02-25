@@ -145,7 +145,6 @@ export const refreshmentValidationSchema = z.object({
   length: z.number().multipleOf(0.01),
   width: z.number().multipleOf(0.01),
   price: z.number().multipleOf(0.01),
-  quantity: z.number().multipleOf(0.01),
   unitType: z.enum(["กล่อง", "แก้ว", "ขวด", "ชิ้น"]),
   remark: z.string().nullable(),
   isActive: z.boolean(),

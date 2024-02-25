@@ -3,6 +3,7 @@ import { bucket } from "@/lib/gcs/gcs";
 import { NextRequest } from "next/server";
 import { formatDate } from "@/lib/formatDate";
 import { validate as isValidUUID } from "uuid";
+import { VariantType } from "@/enum/variantType";
 import { parseBoolean } from "@/lib/parseBoolean";
 import { getFileUrl } from "@/lib/gcs/getFileUrl";
 import { responseWrapper } from "@/utils/api-response-wrapper";
@@ -10,7 +11,6 @@ import {
   variantValidationSchema,
   variantByTypeValidateSchema,
 } from "@/lib/validationSchema";
-import { VariantType } from "@/enum/variantType";
 
 // ----------------------------------------------------------------------
 

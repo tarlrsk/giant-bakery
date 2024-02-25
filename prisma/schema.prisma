@@ -116,7 +116,6 @@ model Cake {
   name          String
   description   String?
   remark        String?
-  quantity      Int       @default(0)
   imageFileName String?
   imagePath     String?
   image         String?
@@ -303,7 +302,6 @@ model Refreshment {
   name          String
   description   String?
   remark        String?
-  quantity      Int                  @default(0)
   imageFileName String?
   imagePath     String?
   image         String?
