@@ -241,8 +241,6 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    variants.push(topEdge);
-
     const bottomEdge = (await prisma.masterCakeBottomEdge.findMany({
       where: {
         isDeleted: false,
