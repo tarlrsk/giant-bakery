@@ -37,9 +37,9 @@ export default function NewSnackBoxCard({ onClose }: Props) {
   const [counter, setCounter] = useState(0);
   const methods = useForm({
     defaultValues: {
-      snackBoxUpload: null,
+      image: null,
       isActive: true,
-      snackBoxName: "",
+      name: "",
       price: null,
       width: null,
       length: null,
@@ -79,7 +79,7 @@ export default function NewSnackBoxCard({ onClose }: Props) {
       });
 
       if (newFile) {
-        setValue("snackBoxUpload", newFile as any, { shouldValidate: true });
+        setValue("image", newFile as any, { shouldValidate: true });
       }
     },
     [setValue],
@@ -89,7 +89,7 @@ export default function NewSnackBoxCard({ onClose }: Props) {
     <FormProvider methods={methods} onSubmit={onSubmit}>
       <Paper
         variant="outlined"
-        sx={{ boxShadow: 0, p: 3, maxHeight: 660, overflow: "auto" }}
+        sx={{ boxShadow: 0, p: 3, maxHeight: "76vh", overflow: "auto" }}
       >
         <Stack direction="column" spacing={2.5}>
           <Stack
@@ -105,12 +105,10 @@ export default function NewSnackBoxCard({ onClose }: Props) {
             </IconButton>
           </Stack>
           <RHFUpload
-            name="snackBoxUpload"
+            name="image"
             thumbnail
             onDrop={onDropSingleFile}
-            onDelete={() =>
-              setValue("snackBoxUpload", null, { shouldValidate: true })
-            }
+            onDelete={() => setValue("image", null, { shouldValidate: true })}
           />
 
           <Stack direction="row" alignItems="center" spacing={1}>
@@ -118,7 +116,7 @@ export default function NewSnackBoxCard({ onClose }: Props) {
             <RHFSwitch name="isActive" label={isActive ? "โชว์" : "ซ่อน"} />
           </Stack>
           <Stack direction="row" spacing={1}>
-            <RHFTextField name="cakeName" label="ชื่อชุดเบรก" />
+            <RHFTextField name="name" label="ชื่อชุดเบรก" />
             <RHFTextField
               type="number"
               name="price"

@@ -9,13 +9,12 @@ import {
   GridRowSelectionModel,
 } from "@mui/x-data-grid";
 
-import { IVariantRow } from "../types";
 import { CustomNoRowsOverlay } from "./CustomNoRowsOverlay";
 
 // ----------------------------------------------------------------------
 
 type Props = {
-  rows: IVariantRow[];
+  rows: any;
   rowSelectionModel: GridRowSelectionModel;
   setRowSelectionModel: Dispatch<SetStateAction<GridRowSelectionModel>>;
 };
@@ -131,7 +130,7 @@ export default function VariantDataGrid({
 
   return (
     <Card sx={{ boxShadow: 0 }}>
-      <div>
+      <div style={{ height: 780 }}>
         <DataGrid
           rows={rows}
           columns={columns}
@@ -144,7 +143,6 @@ export default function VariantDataGrid({
           slots={{
             noRowsOverlay: CustomNoRowsOverlay,
           }}
-          // hideFooter
           sx={{ "& .MuiDataGrid-row": { cursor: "pointer" } }}
         />
       </div>

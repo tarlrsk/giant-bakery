@@ -108,7 +108,7 @@ export default function OrderDataGrid({ rows, onRowClick }: Props) {
 
   return (
     <Card sx={{ boxShadow: 0 }}>
-      <div style={{ height: 660 }}>
+      <div style={{ height: 780 }}>
         <DataGrid
           rows={rows}
           columns={columns}

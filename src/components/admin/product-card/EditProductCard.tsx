@@ -3,19 +3,19 @@
 import toast from "react-hot-toast";
 import { useCallback } from "react";
 import { styled } from "@mui/system";
+import useAdmin from "@/hooks/useAdmin";
+import { LoadingButton } from "@mui/lab";
 import { useForm } from "react-hook-form";
 import CloseIcon from "@mui/icons-material/Close";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { RHFUpload } from "@/components/hook-form/rhf-upload";
 import FormProvider from "@/components/hook-form/form-provider";
-import { RHFSelect, RHFTextField } from "@/components/hook-form";
+import { RHFSelect, RHFSwitch, RHFTextField } from "@/components/hook-form";
 import {
   Paper,
   Stack,
-  Button,
   Divider,
   MenuItem,
-  Skeleton,
   Accordion,
   IconButton,
   Typography,
@@ -24,19 +24,21 @@ import {
   AccordionDetails,
 } from "@mui/material";
 
+import { IProductRow } from "../types";
+
 // ----------------------------------------------------------------------
 
-const CATEGORY_OPTIONS = [
-  { value: "bakery", label: "Bakery" },
-  { value: "beverage", label: "Beverage" },
+export const TYPE_OPTIONS = [
+  { value: "BAKERY", label: "เบเกอรี่" },
+  { value: "BEVERAGE", label: "เครื่องดื่ม" },
 ];
 
-const SUB_CATEGORY_OPTIONS = [
-  { value: "bread", label: "ขนมปัง" },
-  { value: "pie", label: "พาย" },
-  { value: "cookie", label: "คุกกี้" },
-  { value: "snack", label: "ขนม" },
-  { value: "cake", label: "เค้ก" },
+export const CATEGORY_OPTIONS = [
+  { value: "BREAD", label: "ขนมปัง" },
+  { value: "PIE", label: "พาย" },
+  { value: "COOKIE", label: "คุกกี้" },
+  { value: "SNACK", label: "ขนม" },
+  { value: "CAKE", label: "เค้ก" },
 ];
 
 const CustomAccordion = styled(({ children, ...props }: AccordionProps) => (
@@ -74,41 +76,68 @@ const CustomAccordionSummary = ({
 // ----------------------------------------------------------------------
 
 type Props = {
-  data?: {
-    productUpload:
-      | string
-      | {
-          path: string;
-          preview: string;
-        }
-      | null;
-    productName: string;
-    description: string;
-    category: string;
-    subCategory: string;
-    unitType: string;
-    minQty: number | null;
-    price: number | null;
-    currentQty: number | null;
-    width: number | null;
-    length: number | null;
-    height: number | null;
-  };
+  data: IProductRow;
   isLoading: boolean;
   onClose: () => void;
 };
 
 export default function EditProductCard({ data, isLoading, onClose }: Props) {
-  const methods = useForm({ defaultValues: data });
+  const methods = useForm({
+    defaultValues: { ...data, image: data?.image || "" },
+  });
+  const { updateProductTrigger, updateProductIsLoading } = useAdmin(data);
 
   const { watch, setValue, handleSubmit } = methods;
   const values = watch();
 
-  const { productName, category } = values;
+  const { name, type, isActive } = values;
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      console.log("data", data);
+      const {
+        name,
+        image,
+        price,
+        type,
+        category,
+        description,
+        remark,
+        quantity,
+        minQty,
+        currQty,
+        maxQty,
+        weight,
+        height,
+        length,
+        width,
+        isActive,
+        unitType,
+        status,
+      } = data;
+
+      const bodyFormData = new FormData();
+      bodyFormData.append("name", name);
+      bodyFormData.append("image", image);
+      bodyFormData.append("price", price.toString());
+      bodyFormData.append("type", type);
+      if (description) {
+        bodyFormData.append("description", description);
+      }
+      bodyFormData.append("remark", remark || "");
+      bodyFormData.append("category", category);
+      bodyFormData.append("quantity", quantity?.toString() || "0");
+      bodyFormData.append("minQty", minQty.toString());
+      bodyFormData.append("currQty", currQty.toString());
+      bodyFormData.append("maxQty", maxQty.toString());
+      bodyFormData.append("weight", weight.toString());
+      bodyFormData.append("height", height.toString());
+      bodyFormData.append("length", length.toString());
+      bodyFormData.append("width", width.toString());
+      bodyFormData.append("isActive", isActive ? "true" : "false");
+      bodyFormData.append("unitType", unitType);
+      bodyFormData.append("status", status);
+
+      await updateProductTrigger(bodyFormData);
     } catch (error) {
       console.error(error);
       toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
@@ -124,7 +153,7 @@ export default function EditProductCard({ data, isLoading, onClose }: Props) {
       });
 
       if (newFile) {
-        setValue("productUpload", newFile as any, { shouldValidate: true });
+        setValue("image", newFile as any, { shouldValidate: true });
       }
     },
     [setValue],
@@ -140,135 +169,128 @@ export default function EditProductCard({ data, isLoading, onClose }: Props) {
             alignItems="center"
           >
             <Typography variant="body1" fontWeight={500}>
-              {isLoading ? (
-                <Skeleton
-                  variant="text"
-                  sx={{ minWidth: 160, fontSize: "1rem" }}
-                />
-              ) : (
-                productName
-              )}
+              <Typography>{name}</Typography>
             </Typography>
             <IconButton size="small" onClick={onClose}>
               <CloseIcon />
             </IconButton>
           </Stack>
 
-          {isLoading ? (
-            <Skeleton animation="wave" sx={{ height: 200 }} />
-          ) : (
-            <RHFUpload
-              name="productUpload"
-              thumbnail
-              onDrop={onDropSingleFile}
-              onDelete={() =>
-                setValue("productUpload", null, { shouldValidate: true })
-              }
-            />
-          )}
+          <RHFUpload
+            name="image"
+            thumbnail
+            onDrop={onDropSingleFile}
+            onDelete={() => setValue("image", "", { shouldValidate: true })}
+          />
 
-          {isLoading ? (
-            <Skeleton height={100} />
-          ) : (
-            <Stack spacing={1}>
-              <CustomAccordion disableGutters>
-                <CustomAccordionSummary>
-                  <Typography variant="button" sx={{ mr: 0.5 }}>
-                    ข้อมูลสินค้า
-                  </Typography>
-                </CustomAccordionSummary>
-                <AccordionDetails sx={{ px: 1 }}>
-                  <Stack direction="column" spacing={2}>
-                    <Stack direction="row" spacing={1}>
-                      <RHFTextField name="productName" label="ชื่อสินค้า" />
-                      <RHFTextField
-                        type="number"
-                        name="price"
-                        label="ราคา"
-                        sx={{ width: "50%" }}
-                      />
-                    </Stack>
-                    <RHFTextField name="description" label="รายละเอียดสินค้า" />
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <Typography>การมองเห็น:</Typography>
+            <RHFSwitch name="isActive" label={isActive ? "โชว์" : "ซ่อน"} />
+          </Stack>
 
-                    <Stack direction="row" spacing={1}>
-                      <RHFSelect name="category" label="หมวดหมู่">
+          <Stack spacing={1}>
+            <CustomAccordion disableGutters>
+              <CustomAccordionSummary>
+                <Typography variant="button" sx={{ mr: 0.5 }}>
+                  ข้อมูลสินค้า
+                </Typography>
+              </CustomAccordionSummary>
+              <AccordionDetails sx={{ px: 1 }}>
+                <Stack direction="column" spacing={2}>
+                  <Stack direction="row" spacing={1}>
+                    <RHFTextField name="name" label="ชื่อสินค้า" />
+                    <RHFTextField
+                      type="number"
+                      name="price"
+                      label="ราคา"
+                      sx={{ width: "50%" }}
+                    />
+                  </Stack>
+                  <RHFTextField name="description" label="รายละเอียดสินค้า" />
+
+                  <Stack direction="row" spacing={1}>
+                    <RHFSelect name="type" label="หมวดหมู่">
+                      {TYPE_OPTIONS.map((option) => (
+                        <MenuItem key={option.value} value={option.value}>
+                          {option.label}
+                        </MenuItem>
+                      ))}
+                    </RHFSelect>
+
+                    {type === "BAKERY" && (
+                      <RHFSelect name="category" label="หมวดหมู่ย่อย">
                         {CATEGORY_OPTIONS.map((option) => (
                           <MenuItem key={option.value} value={option.value}>
                             {option.label}
                           </MenuItem>
                         ))}
                       </RHFSelect>
-
-                      {category === "bakery" && (
-                        <RHFSelect name="subCategory" label="หมวดหมู่ย่อย">
-                          {SUB_CATEGORY_OPTIONS.map((option) => (
-                            <MenuItem key={option.value} value={option.value}>
-                              {option.label}
-                            </MenuItem>
-                          ))}
-                        </RHFSelect>
-                      )}
-                    </Stack>
-
-                    <Stack direction="row" spacing={1}>
-                      <RHFTextField
-                        type="number"
-                        name="width"
-                        label="กว้าง (ซม.)"
-                      />
-                      <RHFTextField
-                        type="number"
-                        name="length"
-                        label="ยาว (ซม.)"
-                      />
-                      <RHFTextField
-                        type="number"
-                        name="height"
-                        label="สูง (ซม.)"
-                      />
-                    </Stack>
+                    )}
                   </Stack>
-                </AccordionDetails>
-              </CustomAccordion>
 
-              <Divider />
+                  <Typography>ขนาด</Typography>
 
-              <CustomAccordion defaultExpanded disableGutters>
-                <CustomAccordionSummary>
-                  <Typography variant="button" sx={{ mr: 0.5 }}>
-                    จำนวนสินค้า
-                  </Typography>
-                </CustomAccordionSummary>
-                <AccordionDetails sx={{ px: 1 }}>
                   <Stack direction="row" spacing={1}>
                     <RHFTextField
                       type="number"
-                      name="minQty"
-                      label="จำนวนสินค้าขั้นต่ำ"
+                      name="width"
+                      label="กว้าง (ซม.)"
                     />
                     <RHFTextField
                       type="number"
-                      name="currentQty"
-                      label="จำนวนสินค้าปัจจุบัน"
+                      name="length"
+                      label="ยาว (ซม.)"
+                    />
+                    <RHFTextField
+                      type="number"
+                      name="height"
+                      label="สูง (ซม.)"
                     />
                   </Stack>
-                </AccordionDetails>
-              </CustomAccordion>
-            </Stack>
-          )}
+                  <RHFTextField
+                    type="number"
+                    name="weight"
+                    label="น้ำหนัก (กรัม)"
+                  />
+                </Stack>
+              </AccordionDetails>
+            </CustomAccordion>
 
-          {isLoading ? (
-            <Skeleton height={100} />
-          ) : (
-            <Button
-              type="submit"
-              size="large"
-              color="secondary"
-              variant="contained"
-            >
-              อัพเดทสินค้า
-            </Button>
-          )}
+            <Divider />
+
+            <CustomAccordion defaultExpanded disableGutters>
+              <CustomAccordionSummary>
+                <Typography variant="button" sx={{ mr: 0.5 }}>
+                  จำนวนสินค้า
+                </Typography>
+              </CustomAccordionSummary>
+              <AccordionDetails sx={{ px: 1 }}>
+                <Stack direction="row" spacing={1}>
+                  <RHFTextField
+                    type="number"
+                    name="minQty"
+                    label="จำนวนสินค้าขั้นต่ำ"
+                  />
+                  <RHFTextField
+                    type="number"
+                    name="quantity"
+                    label="จำนวนสินค้าปัจจุบัน"
+                    autoFocus
+                  />
+                </Stack>
+              </AccordionDetails>
+            </CustomAccordion>
+          </Stack>
+
+          <LoadingButton
+            type="submit"
+            size="large"
+            color="secondary"
+            variant="contained"
+            loading={updateProductIsLoading}
+          >
+            อัพเดทสินค้า
+          </LoadingButton>
         </Stack>
       </Paper>
     </FormProvider>

@@ -1,7 +1,7 @@
 "use client";
 
 import { Dispatch, SetStateAction } from "react";
-import { Box, Card, alpha, Typography, ListItemText } from "@mui/material";
+import { Box, Card, Typography } from "@mui/material";
 import {
   DataGrid,
   GridColDef,
@@ -10,6 +10,7 @@ import {
 } from "@mui/x-data-grid";
 
 import { ICakeRow } from "../types";
+import commonDataGrid from "./CommonDataGrid";
 import { CustomNoRowsOverlay } from "./CustomNoRowsOverlay";
 
 // ----------------------------------------------------------------------
@@ -27,12 +28,25 @@ export default function CakeDataGrid({
   rowSelectionModel,
   setRowSelectionModel,
 }: Props) {
+  const { isActiveColumn, updatedAtColumn } = commonDataGrid();
   const columns: GridColDef[] = [
     {
-      field: "cakeType",
+      field: "type",
       headerName: "ชนิดเค้ก",
       flex: 1,
       renderCell: (params: GridRenderCellParams<any>) => {
+        let text;
+        switch (params.value) {
+          case "PRESET":
+            text = "สำเร็จรูป";
+            break;
+          case "CUSTOM":
+            text = "กำหนดเอง";
+            break;
+          default:
+            text = "";
+            break;
+        }
         return (
           <>
             <Box
@@ -47,70 +61,20 @@ export default function CakeDataGrid({
               }}
             />
             <Typography variant="body2" fontFamily="IBM Plex Sans Thai" ml={1}>
-              {params.value}
+              {text}
             </Typography>
           </>
         );
       },
     },
-    { field: "cakeName", headerName: "ชื่อเค้ก", flex: 1 },
-    {
-      field: "isActive",
-      headerName: "สถานะ",
-      flex: 1,
-      renderCell: (params: GridRenderCellParams<any>) => {
-        let text;
-        let bgColor;
-        let textColor;
-        if (params.value) {
-          text = "Active";
-          bgColor = alpha("#00AB55", 0.16);
-          textColor = "#007B55";
-        } else {
-          text = "Inactive";
-          textColor = "#B71D18";
-          bgColor = alpha("#FF5630", 0.16);
-        }
-        return (
-          <Box sx={{ bgcolor: bgColor, borderRadius: 1.6, px: 1.25, py: 0.5 }}>
-            <Typography
-              variant="caption"
-              fontFamily="IBM Plex Sans Thai"
-              fontWeight={600}
-              color={textColor}
-            >
-              {text}
-            </Typography>
-          </Box>
-        );
-      },
-    },
-    {
-      field: "lastUpdated",
-      headerName: "เปลี่ยนแปลงล่าสุด",
-      flex: 1,
-      renderCell: (params) => (
-        <ListItemText
-          primary={<Typography variant="body2">30/08/2023</Typography>}
-          secondary={
-            <>
-              <Typography
-                sx={{ display: "inline" }}
-                component="span"
-                variant="caption"
-              >
-                02:30 น.
-              </Typography>
-            </>
-          }
-        />
-      ),
-    },
+    { field: "name", headerName: "ชื่อเค้ก", flex: 1 },
+    isActiveColumn,
+    updatedAtColumn,
   ];
 
   return (
     <Card sx={{ boxShadow: 0 }}>
-      <div style={{ height: 660 }}>
+      <div style={{ height: 780 }}>
         <DataGrid
           rows={rows}
           columns={columns}
@@ -127,7 +91,6 @@ export default function CakeDataGrid({
           slots={{
             noRowsOverlay: CustomNoRowsOverlay,
           }}
-          // hideFooter
           sx={{ "& .MuiDataGrid-row": { cursor: "pointer" } }}
         />
       </div>

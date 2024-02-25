@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Grid } from "@mui/material";
+import useAdmin from "@/hooks/useAdmin";
 import { useForm } from "react-hook-form";
 import { useState, useEffect } from "react";
 import { ICakeRow } from "@/components/admin/types";
@@ -8,6 +8,7 @@ import { GridRowSelectionModel } from "@mui/x-data-grid";
 import NewCakeCard from "@/components/admin/cake-card/NewCakeCard";
 import EditCakeCard from "@/components/admin/cake-card/EditCakeCard";
 import CakeDataGrid from "@/components/admin/data-grid/CakeDataGrid";
+import { Box, Grid, Backdrop, CircularProgress } from "@mui/material";
 import CakeFilterToolbar from "@/components/admin/toolbars/CakeFilterToolbar";
 
 // ----------------------------------------------------------------------
@@ -17,32 +18,11 @@ export default function AdminCake() {
     defaultValues: { search: "", status: "all" },
   });
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const rows = [
-    {
-      id: 1,
-      cakeType: "Preset",
-      cakeName: "World",
-      isActive: true,
-      lastUpdated: "30/08/2023 ",
-    },
-    {
-      id: 2,
-      cakeType: "Preset",
-      cakeName: "is Awesome",
-      isActive: false,
-      lastUpdated: "30/08/2023 ",
-    },
-    {
-      id: 3,
-      cakeType: "Custom",
-      cakeName: "is Amazing",
-      isActive: true,
-      lastUpdated: "30/08/2023 ",
-    },
-  ];
+  const [selectedRow, setSelectedRow] = useState<ICakeRow | null>(null);
 
-  const [filteredRows, setFilteredRows] = useState(rows);
+  const { cakesData: cakes, cakesIsLoading: isLoading } = useAdmin();
+
+  const [filteredRows, setFilteredRows] = useState(cakes?.data || []);
 
   const [rowSelectionModel, setRowSelectionModel] =
     useState<GridRowSelectionModel>([]);
@@ -62,13 +42,12 @@ export default function AdminCake() {
   const { search, status } = filterValues;
 
   useEffect(() => {
-    let data = rows;
+    let data = cakes;
 
     if (search) {
       data = data.filter(
         (row: ICakeRow) =>
-          row.cakeName &&
-          row.cakeName.toLowerCase().indexOf(search?.toLowerCase()) > -1,
+          row.name.toLowerCase().indexOf(search?.toLowerCase()) > -1,
       );
     }
 
@@ -81,33 +60,20 @@ export default function AdminCake() {
     }
     setFilteredRows(data);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search, status]);
+  }, [cakes, search, status]);
 
-  // useEffect(() => {
-  //   console.log("rowSelectionModel", rowSelectionModel);
-  // }, [rowSelectionModel]);
+  useEffect(() => {
+    if (rowSelectionModel.length) {
+      const selectedRowData = cakes?.data.find(
+        (row: ICakeRow) => row.id === rowSelectionModel[0],
+      );
+      setSelectedRow(selectedRowData || null);
+    }
+  }, [cakes, rowSelectionModel]);
 
-  const presetCake = {
-    cakeUpload: {
-      path: "Screenshot 2567-02-12 at 13.59.45.jpeg",
-      preview:
-        "blob:http://localhost:3000/c50f6b97-d0ec-4e8d-921d-64cfd1b3da40",
-    },
-    isActive: true,
-    cakeName: "เค้กไทย",
-    description: "อร่อยถูกใจเด็กไทยทุกคน",
-    cakeType: "custom",
-    price: 50,
-    width: 20,
-    length: 30,
-    height: 25,
-    weight: 20,
-    cream: ["strawberry"],
-    topEdge: ["chocolate"],
-    bottomEdge: ["strawberry"],
-    decoration: ["strawberry"],
-    surface: ["strawberry"],
-  };
+  useEffect(() => {
+    setFilteredRows(cakes?.data || []);
+  }, [cakes]);
 
   return (
     <Box>
@@ -136,16 +102,26 @@ export default function AdminCake() {
             <NewCakeCard onClose={() => setIsAddCardOpen(false)} />
           </Grid>
         )}
-        {isOnlyEditCakeCardOpen && (
-          <Grid item xs={4}>
-            <EditCakeCard
-              data={presetCake}
-              isLoading={true}
-              onClose={() => setRowSelectionModel([])}
-            />
-          </Grid>
-        )}
+        {isOnlyEditCakeCardOpen &&
+          selectedRow &&
+          rowSelectionModel[0] === selectedRow.id && (
+            <Grid item xs={4}>
+              <EditCakeCard
+                data={selectedRow}
+                onClose={() => {
+                  setRowSelectionModel([]);
+                  setSelectedRow(null);
+                }}
+              />
+            </Grid>
+          )}
       </Grid>
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={isLoading}
+      >
+        <CircularProgress color="primary" variant="determinate" />
+      </Backdrop>
     </Box>
   );
 }

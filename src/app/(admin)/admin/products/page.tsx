@@ -1,10 +1,11 @@
 "use client";
 
-import { Box, Grid } from "@mui/material";
+import useAdmin from "@/hooks/useAdmin";
 import { useForm } from "react-hook-form";
 import { useState, useEffect } from "react";
 import { IProductRow } from "@/components/admin/types";
 import { GridRowSelectionModel } from "@mui/x-data-grid";
+import { Box, Grid, Backdrop, CircularProgress } from "@mui/material";
 import ProductDataGrid from "@/components/admin/data-grid/ProductDataGrid";
 import NewProductCard from "@/components/admin/product-card/NewProductCard";
 import EditProductCard from "@/components/admin/product-card/EditProductCard";
@@ -17,37 +18,22 @@ export default function AdminRefreshment() {
     defaultValues: { search: "", status: "all" },
   });
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const rows = [
-    {
-      id: 1,
-      category: "Hello",
-      product: "World",
-      status: "inStock",
-      lastUpdated: "30/08/2023 ",
-    },
-    {
-      id: 2,
-      category: "DataGridPro",
-      product: "is Awesome",
-      status: "outStock",
-      lastUpdated: "30/08/2023 ",
-    },
-    {
-      id: 3,
-      category: "MUI",
-      product: "is Amazing",
-      status: "low",
-      lastUpdated: "30/08/2023 ",
-    },
-  ];
-
-  const [filteredRows, setFilteredRows] = useState(rows);
-
   const [rowSelectionModel, setRowSelectionModel] =
     useState<GridRowSelectionModel>([]);
 
+  const [selectedRow, setSelectedRow] = useState<IProductRow | null>(null);
+
+  const { productsData: products, productsIsLoading: isLoading } = useAdmin();
+
+  const [filteredRows, setFilteredRows] = useState(products?.data || []);
+
   const [isAddCardOpen, setIsAddCardOpen] = useState(false);
+
+  const { watch } = filterMethods;
+
+  const filterValues = watch();
+
+  const { search, status } = filterValues;
 
   const isOnlyNewProductCardOpen = isAddCardOpen && !rowSelectionModel.length;
 
@@ -56,19 +42,13 @@ export default function AdminRefreshment() {
 
   const isProductCardOpen = rowSelectionModel.length > 0 || isAddCardOpen;
 
-  const { watch } = filterMethods;
-
-  const filterValues = watch();
-
-  const { search, status } = filterValues;
-
   useEffect(() => {
-    let data = rows;
+    let data = products?.data;
 
     if (search) {
       data = data.filter(
         (row: IProductRow) =>
-          row.product.toLowerCase().indexOf(search?.toLowerCase()) > -1,
+          row.name.toLowerCase().indexOf(search?.toLowerCase()) > -1,
       );
     }
 
@@ -76,31 +56,20 @@ export default function AdminRefreshment() {
       data = data.filter((row: IProductRow) => row.status === status);
     }
     setFilteredRows(data);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search, status]);
+  }, [products, search, status]);
 
-  // useEffect(() => {
-  //   console.log("rowSelectionModel", rowSelectionModel);
-  // }, [rowSelectionModel]);
+  useEffect(() => {
+    if (rowSelectionModel.length) {
+      const selectedRowData = products?.data.find(
+        (row: IProductRow) => row.id === rowSelectionModel[0],
+      );
+      setSelectedRow(selectedRowData || null);
+    }
+  }, [products, rowSelectionModel]);
 
-  const data = {
-    productUpload: {
-      path: "Screenshot 2567-02-12 at 13.59.45.jpeg",
-      preview:
-        "blob:http://localhost:3000/c50f6b97-d0ec-4e8d-921d-64cfd1b3da40",
-    },
-    productName: "ปูไทย",
-    description: "อร่อยถูกใจเด็กไทยทุกคน",
-    category: "bakery",
-    subCategory: "bread",
-    unitType: "",
-    minQty: 5,
-    price: 50,
-    currentQty: 30,
-    width: 20,
-    length: 30,
-    height: 25,
-  };
+  useEffect(() => {
+    setFilteredRows(products?.data || []);
+  }, [products]);
 
   return (
     <Box>
@@ -129,16 +98,27 @@ export default function AdminRefreshment() {
             <NewProductCard onClose={() => setIsAddCardOpen(false)} />
           </Grid>
         )}
-        {isOnlyEditProductCardOpen && (
-          <Grid item xs={4}>
-            <EditProductCard
-              data={data}
-              isLoading={true}
-              onClose={() => setRowSelectionModel([])}
-            />
-          </Grid>
-        )}
+        {isOnlyEditProductCardOpen &&
+          selectedRow &&
+          rowSelectionModel[0] === selectedRow.id && (
+            <Grid item xs={4}>
+              <EditProductCard
+                data={selectedRow}
+                isLoading={false}
+                onClose={() => {
+                  setRowSelectionModel([]);
+                  setSelectedRow(null);
+                }}
+              />
+            </Grid>
+          )}
       </Grid>
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={isLoading}
+      >
+        <CircularProgress color="primary" variant="determinate" />
+      </Backdrop>
     </Box>
   );
 }

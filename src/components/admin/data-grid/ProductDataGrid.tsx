@@ -1,7 +1,7 @@
 "use client";
 
 import { Dispatch, SetStateAction } from "react";
-import { Box, Card, alpha, Typography, ListItemText } from "@mui/material";
+import { Box, Card, Typography } from "@mui/material";
 import {
   DataGrid,
   GridColDef,
@@ -10,6 +10,7 @@ import {
 } from "@mui/x-data-grid";
 
 import { IProductRow } from "../types";
+import commonDataGrid from "./CommonDataGrid";
 import { CustomNoRowsOverlay } from "./CustomNoRowsOverlay";
 
 // ----------------------------------------------------------------------
@@ -27,12 +28,25 @@ export default function ProductDataGrid({
   rowSelectionModel,
   setRowSelectionModel,
 }: Props) {
+  const { updatedAtColumn, statusColumn } = commonDataGrid();
   const columns: GridColDef[] = [
     {
-      field: "category",
+      field: "type",
       headerName: "หมวดหมู่",
       flex: 1,
       renderCell: (params: GridRenderCellParams<any>) => {
+        let text;
+        switch (params.value) {
+          case "BAKERY":
+            text = "เบเกอรี่";
+            break;
+          case "BEVERAGE":
+            text = "เครื่องดื่ม";
+            break;
+          default:
+            text = "";
+            break;
+        }
         return (
           <>
             <Box
@@ -47,81 +61,57 @@ export default function ProductDataGrid({
               }}
             />
             <Typography variant="body2" fontFamily="IBM Plex Sans Thai" ml={1}>
-              {params.value}
+              {text}
             </Typography>
           </>
         );
       },
     },
-    { field: "product", headerName: "ชื่อสินค้า", flex: 1 },
     {
-      field: "status",
-      headerName: "สถานะ",
+      field: "category",
+      headerName: "หมวดหมู่ย่อย",
       flex: 1,
       renderCell: (params: GridRenderCellParams<any>) => {
         let text;
-        let bgColor;
-        let textColor;
-        switch (params.value) {
-          case "inStock":
-            text = "In Stock";
-            textColor = "#007B55";
-            bgColor = alpha("#00AB55", 0.16);
-            break;
-          case "outStock":
-            text = "Out of Stock";
-            textColor = "#B71D18";
-            bgColor = alpha("#FF5630", 0.16);
-            break;
-          case "low":
-            text = "Low";
-            textColor = "#B76E00";
-            bgColor = alpha("#FFAB00", 0.16);
 
+        switch (params.value) {
+          case "BREAD":
+            text = "ขนมปัง";
+            break;
+          case "SNACK":
+            text = "ขนม";
+            break;
+          case "PIE":
+            text = "พาย";
+            break;
+          case "COOKIE":
+            text = "คุกกี้";
+            break;
+          case "CAKE":
+            text = "เค้ก";
             break;
           default:
-            text = "None";
+            text = "-";
+            break;
         }
         return (
-          <Box sx={{ bgcolor: bgColor, borderRadius: 1.6, px: 1.25, py: 0.5 }}>
-            <Typography
-              variant="caption"
-              fontFamily="IBM Plex Sans Thai"
-              fontWeight={600}
-              color={textColor}
-            >
+          <>
+            <Box width={6} height={52} />
+            <Typography variant="body2" fontFamily="IBM Plex Sans Thai">
               {text}
             </Typography>
-          </Box>
+          </>
         );
       },
     },
-    {
-      field: "lastUpdated",
-      headerName: "เปลี่ยนแปลงล่าสุด",
-      flex: 1,
-      renderCell: (params) => (
-        <ListItemText
-          primary={<Typography variant="body2">30/08/2023</Typography>}
-          secondary={
-            <>
-              <Typography
-                sx={{ display: "inline" }}
-                component="span"
-                variant="caption"
-              >
-                02:30 น.
-              </Typography>
-            </>
-          }
-        />
-      ),
-    },
+    { field: "name", headerName: "ชื่อสินค้า", flex: 1 },
+    statusColumn,
+    updatedAtColumn,
   ];
 
   return (
     <Card sx={{ boxShadow: 0 }}>
-      <div style={{ height: 660 }}>
+      <div style={{ height: 780 }}>
         <DataGrid
           rows={rows}
           columns={columns}
@@ -132,13 +122,15 @@ export default function ProductDataGrid({
           rowSelectionModel={rowSelectionModel}
           columnHeaderHeight={45}
           initialState={{
+            sorting: {
+              sortModel: [{ field: "type", sort: "asc" }],
+            },
             pagination: { paginationModel: { pageSize: 10 } },
           }}
           pageSizeOptions={[10, 20, 30]}
           slots={{
             noRowsOverlay: CustomNoRowsOverlay,
           }}
-          // hideFooter
           sx={{ "& .MuiDataGrid-row": { cursor: "pointer" } }}
         />
       </div>
