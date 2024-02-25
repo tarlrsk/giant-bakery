@@ -223,10 +223,10 @@ export async function GET(req: NextRequest) {
     for (var variant of creams) {
       if (variant.imagePath) {
         variant.image = await getFileUrl(variant.imagePath);
+        variant.type = VariantType.CREAM;
+        variants.push(variant);
       }
     }
-    creams.type = VariantType.CREAM;
-    variants.push(creams);
 
     const topEdge = (await prisma.masterCakeTopEdge.findMany({
       where: {
@@ -236,10 +236,11 @@ export async function GET(req: NextRequest) {
     for (var variant of topEdge) {
       if (variant.imagePath) {
         variant.image = await getFileUrl(variant.imagePath);
+        variant.type = VariantType.TOP_EDGE;
+        variants.push(variant);
       }
     }
 
-    topEdge.type = VariantType.TOP_EDGE;
     variants.push(topEdge);
 
     const bottomEdge = (await prisma.masterCakeBottomEdge.findMany({
@@ -250,11 +251,10 @@ export async function GET(req: NextRequest) {
     for (var variant of bottomEdge) {
       if (variant.imagePath) {
         variant.image = await getFileUrl(variant.imagePath);
+        variant.type = VariantType.BOTTOM_EDGE;
+        variants.push(variant);
       }
     }
-
-    bottomEdge.type = VariantType.BOTTOM_EDGE;
-    variants.push(bottomEdge);
 
     const decoration = (await prisma.masterCakeDecoration.findMany({
       where: {
@@ -264,11 +264,10 @@ export async function GET(req: NextRequest) {
     for (var variant of decoration) {
       if (variant.imagePath) {
         variant.image = await getFileUrl(variant.imagePath);
+        variant.type = VariantType.DECORATION;
+        variants.push(variant);
       }
     }
-
-    decoration.type = VariantType.DECORATION;
-    variants.push(decoration);
 
     const surface = (await prisma.masterCakeSurface.findMany({
       where: {
@@ -278,11 +277,10 @@ export async function GET(req: NextRequest) {
     for (var variant of surface) {
       if (variant.imagePath) {
         variant.image = await getFileUrl(variant.imagePath);
+        variant.type = VariantType.FILLING;
+        variants.push(variant);
       }
     }
-
-    surface.type = VariantType.FILLING;
-    variants.push(surface);
 
     return responseWrapper(200, variants, null);
   } catch (err: any) {

@@ -15,6 +15,7 @@ export function prismaOrder() {
     getOrderById,
     createOrder,
     updateOrderStatusById,
+    getAllOrderByUserId,
   };
 }
 
@@ -72,4 +73,18 @@ async function updateOrderStatusById(
     },
     data: data,
   });
+}
+
+async function getAllOrderByUserId(userId: string): Promise<Order[]> {
+  const orders = await prisma.order.findMany({
+    where: {
+      userId: userId,
+    },
+    orderBy: [
+      {
+        orderedAt: "desc",
+      },
+    ],
+  });
+  return orders;
 }
