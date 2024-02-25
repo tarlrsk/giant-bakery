@@ -3,6 +3,7 @@ import { bucket } from "@/lib/gcs/gcs";
 import { NextRequest } from "next/server";
 import { formatDate } from "@/lib/formatDate";
 import { validate as isValidUUID } from "uuid";
+import { VariantType } from "@/enum/variantType";
 import { parseBoolean } from "@/lib/parseBoolean";
 import { getFileUrl } from "@/lib/gcs/getFileUrl";
 import { responseWrapper } from "@/utils/api-response-wrapper";
@@ -19,17 +20,6 @@ type GetVariantById = {
     id: string;
   };
 };
-
-enum VariantType {
-  SIZE = "SIZE",
-  BASE = "BASE",
-  FILLING = "FILLING",
-  CREAM = "CREAM",
-  TOP_EDGE = "TOP_EDGE",
-  BOTTOM_EDGE = "BOTTOM_EDGE",
-  DECORATION = "DECORATION",
-  SURFACE = "SURFACE",
-}
 
 export async function GET(req: NextRequest, { params }: GetVariantById) {
   try {

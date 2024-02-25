@@ -8,11 +8,7 @@ import { getFileUrl } from "@/lib/gcs/getFileUrl";
 import { parseBoolean } from "@/lib/parseBoolean";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { refreshmentValidationSchema } from "@/lib/validationSchema";
-import type {
-  StockStatus,
-  RefreshmentType,
-  RefreshmentCategory,
-} from "@prisma/client";
+import type { RefreshmentType, RefreshmentCategory } from "@prisma/client";
 
 // ----------------------------------------------------------------------
 
@@ -42,9 +38,7 @@ export async function POST(req: NextRequest) {
     const description = formData.get("description") as string;
     const type = formData.get("type") as RefreshmentType;
     const category = formData.get("category") as RefreshmentCategory;
-    const status = formData.get("status") as StockStatus;
     const remark = formData.get("remark") as string;
-    const quantity = Number(formData.get("quantity")) as number | null;
     const unitType = formData.get("unitType") as string;
     const minQty = parseInt(formData.get("minQty") as string);
     const maxQty = parseInt(formData.get("maxQty") as string);
@@ -63,7 +57,6 @@ export async function POST(req: NextRequest) {
       description,
       type,
       category,
-      status,
       minQty,
       maxQty,
       currQty,
@@ -74,7 +67,6 @@ export async function POST(req: NextRequest) {
       price,
       isActive,
       image,
-      quantity,
       unitType,
       remark,
     });
@@ -89,7 +81,6 @@ export async function POST(req: NextRequest) {
         description: description,
         type: type,
         category: category,
-        status: status,
         minQty: minQty,
         maxQty: maxQty,
         currQty: currQty,
@@ -101,7 +92,6 @@ export async function POST(req: NextRequest) {
         unitRatio: unitRatio,
         price: price,
         isActive: isActive,
-        quantity: quantity ?? 0,
         remark: remark,
       },
     });

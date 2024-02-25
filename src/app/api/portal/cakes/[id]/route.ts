@@ -101,7 +101,6 @@ export async function PUT(req: NextRequest, { params }: GetCakeByIdProps) {
 
     const name = formData.get("name") as string;
     const remark = formData.get("remark") as string;
-    const quantity = formData.get("quantity") as number | null;
     const type = formData.get("type") as CakeType;
     const weight = parseFloat(formData.get("weight") as string);
     const height = parseFloat(formData.get("height") as string);
@@ -130,7 +129,6 @@ export async function PUT(req: NextRequest, { params }: GetCakeByIdProps) {
       isActive,
       image,
       remark,
-      quantity,
     });
 
     const cake = await prisma.cake.findUnique({
@@ -158,8 +156,12 @@ export async function PUT(req: NextRequest, { params }: GetCakeByIdProps) {
     let imagePath = cake.imagePath as string;
 
     if (image) {
-      const oldImage = bucket.file(cake.imagePath as string);
-      await oldImage.delete();
+      try {
+        const oldImage = bucket.file(cake.imagePath as string);
+        await oldImage.delete();
+      } catch (err: any) {
+        console.log(err);
+      }
 
       const buffer = Buffer.from(await image.arrayBuffer());
 

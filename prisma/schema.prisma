@@ -116,7 +116,6 @@ model Cake {
   name          String
   description   String?
   remark        String?
-  quantity      Int       @default(0)
   imageFileName String?
   imagePath     String?
   image         String?
@@ -303,13 +302,12 @@ model Refreshment {
   name          String
   description   String?
   remark        String?
-  quantity      Int                  @default(0)
   imageFileName String?
   imagePath     String?
   image         String?
   type          RefreshmentType
   category      RefreshmentCategory?
-  status        StockStatus
+  status        StockStatus          @default(IN_STOCK)
   minQty        Int
   maxQty        Int
   currQty       Int

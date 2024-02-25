@@ -13,10 +13,10 @@ import {
   Prisma,
   ReceivedVia,
   OrderStatus,
+  CustomerAddress,
   OrderRefreshment,
   OrderCustomerCake,
   OrderSnackBoxRefreshment,
-  CustomerAddress,
 } from "@prisma/client";
 
 type LineItem = {

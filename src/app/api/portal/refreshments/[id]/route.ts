@@ -9,11 +9,7 @@ import { getFileUrl } from "@/lib/gcs/getFileUrl";
 import { parseBoolean } from "@/lib/parseBoolean";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { refreshmentValidationSchema } from "@/lib/validationSchema";
-import type {
-  StockStatus,
-  RefreshmentType,
-  RefreshmentCategory,
-} from "@prisma/client";
+import type { RefreshmentType, RefreshmentCategory } from "@prisma/client";
 // ----------------------------------------------------------------------
 
 type GetRefreshmentById = {
@@ -86,12 +82,10 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
     const description = formData.get("description") as string;
     const type = formData.get("type") as RefreshmentType;
     const category = formData.get("category") as RefreshmentCategory;
-    const status = formData.get("status") as StockStatus;
     const minQty = parseInt(formData.get("minQty") as string);
     const maxQty = parseInt(formData.get("maxQty") as string);
     const currQty = parseInt(formData.get("currQty") as string);
     const remark = formData.get("remark") as string;
-    const quantity = Number(formData.get("quantity")) as number | null;
     const unitType = formData.get("unitType") as string;
     const unitRatio = Number(formData.get("unitRatio")) as number | null;
     const weight = parseFloat(formData.get("weight") as string);
@@ -106,7 +100,6 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
       description,
       type,
       category,
-      status,
       minQty,
       maxQty,
       currQty,
@@ -116,7 +109,6 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
       width,
       price,
       isActive,
-      quantity,
       unitType,
       remark,
     });
@@ -129,10 +121,15 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
 
     let imageFileName = refreshment.imageFileName as string;
     let imageUrl = refreshment.image as string;
+    let imagePath = refreshment.imagePath as string;
 
     if (image) {
-      const oldImage = bucket.file(refreshment.imageFileName as string);
-      await oldImage.delete();
+      try {
+        const oldImage = bucket.file(refreshment.imagePath as string);
+        await oldImage.delete();
+      } catch (err: any) {
+        console.log(err);
+      }
 
       const buffer = Buffer.from(await image.arrayBuffer());
 
@@ -140,7 +137,8 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
         new Date(Date.now()).toString(),
       )}_${image.name.replace(/\s/g, "_")}`;
 
-      const gcsFile = bucket.file(updatedImageFileName);
+      imagePath = `refreshments/${category}/${refreshment.id}/${imageFileName}`;
+      const gcsFile = bucket.file(imagePath);
 
       await gcsFile.save(buffer, {
         metadata: {
@@ -159,9 +157,9 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
         description: description,
         imageFileName: imageFileName,
         image: imageUrl,
+        imagePath: imagePath,
         type: type,
         category: category,
-        status: status,
         minQty: minQty,
         maxQty: maxQty,
         currQty: currQty,
@@ -171,7 +169,6 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
         width: width,
         price: price,
         isActive: isActive,
-        quantity: quantity!,
         unitType: unitType,
         unitRatio: unitRatio,
         remark: remark,
