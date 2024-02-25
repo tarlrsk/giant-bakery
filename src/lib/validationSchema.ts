@@ -160,8 +160,6 @@ export const cakeValidationSchema = z.object({
 export const presetSnackBoxesValidateSchema = z.object({
   name: z.string({ required_error: "Name is required." }).min(3).max(255),
   image: zodIsImage.nullable(),
-  beverage: z.enum(["INCLUDE", "EXCLUDE", "NONE"]),
-  packageType: z.enum(["PAPER_BAG", "SNACK_BOX_S", "SNACK_BOX_M"]),
   price: z.number().multipleOf(0.01),
   weight: z.number().multipleOf(0.01),
   height: z.number().multipleOf(0.01),

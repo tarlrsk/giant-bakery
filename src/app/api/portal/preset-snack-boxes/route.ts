@@ -57,8 +57,6 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
     const name = formData.get("name") as string;
     const description = formData.get("description") as string;
-    const packageType = formData.get("packageType") as SnackBoxPackageType;
-    const beverage = formData.get("beverage") as SnackBoxBeverage;
     const weight = parseFloat(formData.get("weight") as string);
     const height = parseFloat(formData.get("height") as string);
     const length = parseFloat(formData.get("length") as string);
@@ -70,7 +68,6 @@ export async function POST(req: NextRequest) {
 
     const validation = presetSnackBoxesValidateSchema.safeParse({
       name,
-      packageType,
       weight,
       height,
       length,
@@ -79,7 +76,6 @@ export async function POST(req: NextRequest) {
       isActive,
       image,
       refreshmentIds,
-      beverage,
     });
 
     if (!validation.success) {
@@ -104,8 +100,6 @@ export async function POST(req: NextRequest) {
       data: {
         name: name,
         description: description,
-        packageType: packageType,
-        beverage: beverage,
         price: price,
         weight: weight,
         height: height,
