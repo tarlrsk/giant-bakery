@@ -1,17 +1,19 @@
 "use client";
 
-import { useCallback } from "react";
 import useAdmin from "@/hooks/useAdmin";
 import { useSnackbar } from "notistack";
 import { LoadingButton } from "@mui/lab";
 import { useForm } from "react-hook-form";
+import { useState, useCallback } from "react";
 import CloseIcon from "@mui/icons-material/Close";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { RHFUpload } from "@/components/hook-form/rhf-upload";
 import FormProvider from "@/components/hook-form/form-provider";
 import { RHFSwitch, RHFTextField } from "@/components/hook-form";
-import { Paper, Stack, IconButton, Typography } from "@mui/material";
+import { Paper, Stack, Button, IconButton, Typography } from "@mui/material";
 
 import { ICakeRow } from "../types";
+import DeleteDialog from "../dialog/DeleteDialog";
 
 // ----------------------------------------------------------------------
 
@@ -24,16 +26,36 @@ type Props = {
 
 export default function EditCakeCard({ data, onClose }: Props) {
   const { enqueueSnackbar } = useSnackbar();
-  const methods = useForm({
+  const methods = useForm<ICakeRow>({
     defaultValues: data,
   });
 
-  const { updateCakeTrigger, updateCakeIsLoading } = useAdmin(data);
+  const [isOpenDelete, setIsOpenDelete] = useState(false);
+
+  const {
+    updateCakeTrigger,
+    updateCakeIsLoading,
+    cakesMutate,
+    deleteCakeTrigger,
+    deleteCakeIsLoading,
+  } = useAdmin(data);
 
   const { watch, setValue, handleSubmit } = methods;
   const values = watch();
 
   const { isActive } = values;
+
+  const onDeleteCake = async () => {
+    try {
+      await deleteCakeTrigger();
+      onClose();
+      cakesMutate();
+      enqueueSnackbar(`เค้ก ${data.name} ถูกลบแล้ว`, { variant: "success" });
+    } catch (err) {
+      console.error(err);
+      enqueueSnackbar("เกิดข้อผิดพลาด กรุณาลองใหม่", { variant: "error" });
+    }
+  };
 
   const onSubmit = handleSubmit(async (data) => {
     try {
@@ -51,7 +73,9 @@ export default function EditCakeCard({ data, onClose }: Props) {
 
       const bodyFormData = new FormData();
       bodyFormData.append("name", name);
-      bodyFormData.append("image", image);
+      if (typeof image !== "string") {
+        bodyFormData.append("image", image);
+      }
       bodyFormData.append("description", description || "");
       bodyFormData.append("price", price ? Number(price).toString() : "0");
       bodyFormData.append("weight", weight ? Number(weight).toString() : "0");
@@ -62,6 +86,7 @@ export default function EditCakeCard({ data, onClose }: Props) {
       bodyFormData.append("type", "PRESET");
 
       await updateCakeTrigger(bodyFormData);
+      cakesMutate();
       enqueueSnackbar("อัพเดทเค้กสำเร็จ", { variant: "success" });
     } catch (error) {
       console.error(error);
@@ -107,10 +132,21 @@ export default function EditCakeCard({ data, onClose }: Props) {
             onDelete={() => setValue("image", "", { shouldValidate: true })}
           />
 
-          <Stack direction="row" alignItems="center" spacing={1}>
-            <Typography>การมองเห็น:</Typography>
-            <RHFSwitch name="isActive" label={isActive ? "โชว์" : "ซ่อน"} />
+          <Stack direction="row" justifyContent="space-between">
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <Typography>การมองเห็น:</Typography>
+              <RHFSwitch name="isActive" label={isActive ? "แสดง" : "ซ่อน"} />
+            </Stack>
+            <Button
+              startIcon={<DeleteIcon />}
+              color="error"
+              variant="outlined"
+              onClick={() => setIsOpenDelete(true)}
+            >
+              ลบเค้ก
+            </Button>
           </Stack>
+
           <Stack direction="row" spacing={1}>
             <RHFTextField name="name" label="ชื่อเค้ก" size="small" required />
             <RHFTextField
@@ -168,6 +204,13 @@ export default function EditCakeCard({ data, onClose }: Props) {
           </LoadingButton>
         </Stack>
       </Paper>
+      <DeleteDialog
+        name={data.name}
+        open={isOpenDelete}
+        onClose={() => setIsOpenDelete(false)}
+        isLoading={deleteCakeIsLoading}
+        onDelete={onDeleteCake}
+      />
     </FormProvider>
   );
 }

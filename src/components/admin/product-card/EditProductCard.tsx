@@ -1,6 +1,5 @@
 "use client";
 
-import { z } from "zod";
 import { styled } from "@mui/system";
 import useAdmin from "@/hooks/useAdmin";
 import { useSnackbar } from "notistack";
@@ -9,11 +8,9 @@ import { useForm } from "react-hook-form";
 import { useState, useCallback } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { zodResolver } from "@hookform/resolvers/zod";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { RHFUpload } from "@/components/hook-form/rhf-upload";
 import FormProvider from "@/components/hook-form/form-provider";
-import { refreshmentValidationSchema } from "@/lib/validationSchema";
 import { RHFSelect, RHFSwitch, RHFTextField } from "@/components/hook-form";
 import {
   Paper,
@@ -29,6 +26,7 @@ import {
   AccordionDetails,
 } from "@mui/material";
 
+import { IProductRow } from "../types";
 import DeleteDialog from "../dialog/DeleteDialog";
 
 // ----------------------------------------------------------------------
@@ -81,19 +79,15 @@ const CustomAccordionSummary = ({
 // ----------------------------------------------------------------------
 
 type Props = {
-  data: RefreshmentProps;
+  data: IProductRow;
   isLoading: boolean;
   onClose: () => void;
 };
-
-type RefreshmentProps = z.infer<typeof refreshmentValidationSchema>;
-
 // ----------------------------------------------------------------------
 
 export default function EditProductCard({ data, isLoading, onClose }: Props) {
   const { enqueueSnackbar } = useSnackbar();
-  const methods = useForm<RefreshmentProps>({
-    resolver: zodResolver(refreshmentValidationSchema),
+  const methods = useForm<IProductRow>({
     defaultValues: { ...data, image: data.image },
   });
   const {
@@ -109,7 +103,7 @@ export default function EditProductCard({ data, isLoading, onClose }: Props) {
   const { watch, setValue, handleSubmit } = methods;
   const values = watch();
 
-  const { type, isActive } = values;
+  const { type, isActive, image } = values;
 
   const onDeleteProduct = async () => {
     try {
@@ -131,9 +125,7 @@ export default function EditProductCard({ data, isLoading, onClose }: Props) {
         price,
         type,
         category,
-        description,
         remark,
-        quantity,
         minQty,
         currQty,
         maxQty,
@@ -152,14 +144,13 @@ export default function EditProductCard({ data, isLoading, onClose }: Props) {
       }
       bodyFormData.append("price", price.toString());
       bodyFormData.append("type", type);
-      if (description) {
-        bodyFormData.append("description", description);
-      }
       bodyFormData.append("remark", remark || "");
       if (type === "BAKERY") {
-        bodyFormData.append("category", category);
+        bodyFormData.append(
+          "category",
+          category as "BREAD" | "PIE" | "COOKIE" | "SNACK" | "CAKE",
+        );
       }
-      bodyFormData.append("quantity", quantity?.toString() || "0");
       bodyFormData.append("minQty", minQty.toString());
       bodyFormData.append("currQty", currQty.toString());
       bodyFormData.append("maxQty", maxQty.toString());
@@ -349,7 +340,7 @@ export default function EditProductCard({ data, isLoading, onClose }: Props) {
                   />
                   <RHFTextField
                     type="number"
-                    name="quantity"
+                    name="currQty"
                     label="จำนวนสินค้าปัจจุบัน"
                     size="small"
                     required

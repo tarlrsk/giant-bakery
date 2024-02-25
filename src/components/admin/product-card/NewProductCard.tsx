@@ -1,6 +1,5 @@
 "use client";
 
-import { z } from "zod";
 import { useCallback } from "react";
 import useAdmin from "@/hooks/useAdmin";
 import { useSnackbar } from "notistack";
@@ -9,9 +8,10 @@ import { useForm } from "react-hook-form";
 import CloseIcon from "@mui/icons-material/Close";
 import { RHFUpload } from "@/components/hook-form/rhf-upload";
 import FormProvider from "@/components/hook-form/form-provider";
-import { refreshmentValidationSchema } from "@/lib/validationSchema";
 import { RHFSelect, RHFSwitch, RHFTextField } from "@/components/hook-form";
 import { Paper, Stack, MenuItem, IconButton, Typography } from "@mui/material";
+
+import { IProductRow } from "../types";
 
 // ----------------------------------------------------------------------
 
@@ -34,16 +34,13 @@ type Props = {
   onClose: () => void;
 };
 
-type RefreshmentProps = z.infer<typeof refreshmentValidationSchema>;
-
 // ----------------------------------------------------------------------
 
 export default function NewProductCard({ onClose }: Props) {
-  const methods = useForm<RefreshmentProps>({
+  const methods = useForm<IProductRow>({
     defaultValues: {
-      image: "",
       name: "",
-      description: "",
+      // description: "",
       type: undefined,
       category: undefined,
       unitType: undefined,
@@ -54,7 +51,6 @@ export default function NewProductCard({ onClose }: Props) {
       length: undefined,
       height: undefined,
       weight: undefined,
-      quantity: undefined,
       isActive: true,
       maxQty: undefined,
     },
@@ -78,7 +74,6 @@ export default function NewProductCard({ onClose }: Props) {
         type,
         category,
         description,
-        quantity,
         minQty,
         currQty,
         weight,
@@ -97,12 +92,11 @@ export default function NewProductCard({ onClose }: Props) {
         bodyFormData.append("description", description);
       }
       if (type === "BAKERY") {
-        bodyFormData.append("category", category);
+        bodyFormData.append(
+          "category",
+          category as "BREAD" | "PIE" | "COOKIE" | "SNACK" | "CAKE",
+        );
       }
-      bodyFormData.append(
-        "quantity",
-        quantity ? Number(quantity).toString() : "0",
-      );
       bodyFormData.append("minQty", minQty ? Number(minQty).toString() : "0");
       bodyFormData.append(
         "currQty",
@@ -224,7 +218,7 @@ export default function NewProductCard({ onClose }: Props) {
             <RHFTextField
               size="small"
               type="number"
-              name="quantity"
+              name="currQty"
               label="จำนวนสินค้าปัจจุบัน"
               required
             />

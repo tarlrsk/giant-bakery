@@ -12,16 +12,23 @@ export interface IProductRow extends ICommonRow {
   unitType: string;
 }
 
-export interface ICakeRow extends ICommonRow {
-  type: string;
-  sizes: ICakeVariantRow[];
-  bases: ICakeVariantRow[];
-  fillings: ICakeVariantRow[];
-  creams: ICakeVariantRow[];
-  topEdges: ICakeVariantRow[];
-  bottomEdges: ICakeVariantRow[];
-  decorations: ICakeVariantRow[];
-  surfaces: ICakeVariantRow[];
+export interface ICakeRow {
+  id: string;
+  description: string | null;
+  name: string;
+  remark?: string;
+  image: CustomFile | string;
+  price: number;
+  type: "CREAM" | "TOP_EDGE" | "BOTTOM_EDGE" | "DECORATION" | "SURFACE";
+  isActive: boolean;
+  isDeleted: boolean;
+  createdAt: string;
+  updatedAt: string | string;
+  deletedAt: string | null;
+  weight: number;
+  height: number;
+  length: number;
+  width: number;
 }
 
 export interface ISnackBoxRow extends ICommonRow {

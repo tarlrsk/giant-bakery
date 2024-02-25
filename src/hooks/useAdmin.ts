@@ -48,12 +48,7 @@ async function deleteItem(url: string, { arg }: { arg: any }) {
 // ----------------------------------------------------------------------
 
 export default function useAdmin(
-  selectedItem?:
-    | IProductRow
-    | ICakeRow
-    | ISnackBoxRow
-    | IVariant
-    | RefreshmentProps,
+  selectedItem?: IProductRow | ICakeRow | ISnackBoxRow | IVariant,
 ) {
   const {
     getProducts,
@@ -102,6 +97,9 @@ export default function useAdmin(
 
   const { trigger: createCakeTrigger, isMutating: createCakeIsLoading } =
     useSWRMutation(createCakeAdmin(), createItem);
+
+  const { trigger: deleteCakeTrigger, isMutating: deleteCakeIsLoading } =
+    useSWRMutation(deleteCakeAdmin(selectedItem?.id || ""), deleteItem);
 
   // Snack box
   const {
@@ -187,5 +185,7 @@ export default function useAdmin(
 
     deleteProductTrigger,
     deleteProductIsLoading,
+    deleteCakeTrigger,
+    deleteCakeIsLoading,
   };
 }
