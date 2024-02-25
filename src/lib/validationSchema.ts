@@ -153,7 +153,6 @@ export const cakeValidationSchema = z.object({
   length: z.number().multipleOf(0.01),
   width: z.number().multipleOf(0.01),
   isActive: z.boolean(),
-  quantity: z.number().multipleOf(0.01).nullable(),
 });
 
 // Preset SnackBoxes ------------------------------------------------------------
