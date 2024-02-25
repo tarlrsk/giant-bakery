@@ -10,6 +10,7 @@ import {
   variantValidationSchema,
   variantByTypeValidateSchema,
 } from "@/lib/validationSchema";
+import { VariantType } from "@/enum/variantType";
 
 // ----------------------------------------------------------------------
 
@@ -19,17 +20,6 @@ type GetVariantById = {
     id: string;
   };
 };
-
-enum VariantType {
-  SIZE = "SIZE",
-  BASE = "BASE",
-  FILLING = "FILLING",
-  CREAM = "CREAM",
-  TOP_EDGE = "TOP_EDGE",
-  BOTTOM_EDGE = "BOTTOM_EDGE",
-  DECORATION = "DECORATION",
-  SURFACE = "SURFACE",
-}
 
 export async function GET(req: NextRequest, { params }: GetVariantById) {
   try {
