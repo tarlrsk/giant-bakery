@@ -5,7 +5,11 @@ type PrismaOrder = Prisma.OrderGetPayload<{
   include: {
     orderCake: true;
     orderRefreshment: true;
-    orderSnackBox: true;
+    orderSnackBox: {
+      include: {
+        refreshments: true;
+      };
+    };
     payment: true;
   };
 }>;
@@ -46,7 +50,11 @@ async function getOrderById(orderId: string): Promise<PrismaOrder | null> {
     include: {
       orderCake: true,
       orderRefreshment: true,
-      orderSnackBox: true,
+      orderSnackBox: {
+        include: {
+          refreshments: true,
+        },
+      },
       payment: true,
     },
   });
