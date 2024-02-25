@@ -1,6 +1,10 @@
 "use client";
 
+import useSWR from "swr";
+import { Order } from "@prisma/client";
 import React, { useMemo } from "react";
+import apiPaths from "@/utils/api-path";
+import { fetcher } from "@/utils/axios";
 
 import {
   Table,
@@ -55,13 +59,19 @@ const rows = [
 ];
 
 export default function OrdersPage() {
+  const { getOrderList } = apiPaths();
+
+  const { data } = useSWR(getOrderList, fetcher);
+
+  const items: Order[] = data?.response?.data || [];
+
   const classNames = useMemo(
     () => ({
       wrapper: ["max-h-[382px]", "max-w-3xl"],
       th: [
         "bg-transparent",
         "font-medium",
-        "text-sm md:text-base",
+        "text-sm md:text-xl",
         "border-b",
         "border-divider",
         "px-3 py-4 md:py-4",
@@ -97,11 +107,11 @@ export default function OrdersPage() {
             <TableColumn key={column.key}>{column.label}</TableColumn>
           )}
         </TableHeader>
-        <TableBody emptyContent={"ไม่มีออเดอร์"} items={rows}>
+        <TableBody emptyContent={"ไม่มีออเดอร์"} items={items}>
           {(item) => (
-            <TableRow key={item.key}>
+            <TableRow key={item.id}>
               {(columnKey) => (
-                <TableCell className="text-md py-8">
+                <TableCell className="text-md py-8 hover:cursor-pointer">
                   {getKeyValue(item, columnKey)}
                 </TableCell>
               )}

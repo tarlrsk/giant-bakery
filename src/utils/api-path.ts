@@ -77,6 +77,9 @@ const apiPaths = () => {
   // Checkout
   const addCheckoutOrder = () => createClientUrl("orders/checkout");
 
+  // Order
+  const getOrderList = () => createClientUrl("orders");
+
   // InterExpress
   const getInterExpressLocation = (zipCode: string) =>
     `https://api-intership.interexpress.co.th/v1/operation-areas/post-code/${zipCode}`;
@@ -106,6 +109,7 @@ const apiPaths = () => {
     addCheckoutOrder,
     getInterExpressLocation,
     getPresetSnackBox,
+    getOrderList,
     getPresetSnackBoxBySlug,
     getPrice,
   };
