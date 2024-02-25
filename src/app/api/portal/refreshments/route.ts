@@ -39,7 +39,6 @@ export async function POST(req: NextRequest) {
     const type = formData.get("type") as RefreshmentType;
     const category = formData.get("category") as RefreshmentCategory;
     const remark = formData.get("remark") as string;
-    const quantity = Number(formData.get("quantity")) as number | null;
     const unitType = formData.get("unitType") as string;
     const minQty = parseInt(formData.get("minQty") as string);
     const maxQty = parseInt(formData.get("maxQty") as string);
@@ -68,7 +67,6 @@ export async function POST(req: NextRequest) {
       price,
       isActive,
       image,
-      quantity,
       unitType,
       remark,
     });
@@ -94,7 +92,6 @@ export async function POST(req: NextRequest) {
         unitRatio: unitRatio,
         price: price,
         isActive: isActive,
-        quantity: quantity ?? 0,
         remark: remark,
       },
     });

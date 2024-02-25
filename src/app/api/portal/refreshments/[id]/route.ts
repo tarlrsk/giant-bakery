@@ -86,7 +86,6 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
     const maxQty = parseInt(formData.get("maxQty") as string);
     const currQty = parseInt(formData.get("currQty") as string);
     const remark = formData.get("remark") as string;
-    const quantity = Number(formData.get("quantity")) as number | null;
     const unitType = formData.get("unitType") as string;
     const unitRatio = Number(formData.get("unitRatio")) as number | null;
     const weight = parseFloat(formData.get("weight") as string);
@@ -110,7 +109,6 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
       width,
       price,
       isActive,
-      quantity,
       unitType,
       remark,
     });
@@ -171,7 +169,6 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
         width: width,
         price: price,
         isActive: isActive,
-        quantity: quantity!,
         unitType: unitType,
         unitRatio: unitRatio,
         remark: remark,
