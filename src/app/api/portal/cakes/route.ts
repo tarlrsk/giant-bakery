@@ -31,6 +31,9 @@ export async function GET(_req: NextRequest) {
         isDeleted: false,
       },
       include: CakeInclude,
+      orderBy: {
+        name: "asc",
+      },
     });
 
     for (var cake of cakes) {

@@ -26,6 +26,9 @@ export async function GET(_req: NextRequest) {
           },
         },
       },
+      orderBy: {
+        name: "asc",
+      },
     });
 
     for (var snackBox of snackBoxes) {

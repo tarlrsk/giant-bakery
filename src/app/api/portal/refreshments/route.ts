@@ -16,6 +16,9 @@ export async function GET(req: NextRequest) {
   try {
     let refreshments = await prisma.refreshment.findMany({
       where: { isDeleted: false },
+      orderBy: {
+        name: "asc",
+      },
     });
 
     for (var refreshment of refreshments) {
