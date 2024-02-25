@@ -43,6 +43,8 @@ model Session {
 
 model User {
   id             String            @id @default(uuid())
+  firstName      String            @default("")
+  lastName       String            @default("")
   name           String?
   email          String?           @unique
   emailVerified  DateTime?
@@ -112,6 +114,7 @@ model CustomerAddress {
 model Cake {
   id            String    @id @default(uuid())
   name          String
+  description   String?
   remark        String?
   quantity      Int       @default(0)
   imageFileName String?
@@ -334,7 +337,7 @@ model SnackBox {
   price         Float
   name          String                @default("")
   description   String?
-  imageFilename String?
+  imageFileName String?
   imagePath     String?
   image         String?
   weight        Float                 @default(0)
@@ -344,6 +347,8 @@ model SnackBox {
   isActive      Boolean               @default(true)
   isDeleted     Boolean               @default(false)
   deletedAt     DateTime?
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
   type          SnackBoxType          @default(CUSTOM)
   packageType   SnackBoxPackageType   @default(SNACK_BOX_S)
   beverage      SnackBoxBeverage      @default(NONE)
@@ -355,15 +360,17 @@ model SnackBox {
 model SnackBoxRefreshment {
   id            String      @id @default(uuid())
   refreshmentId String
-  refreshment   Refreshment @relation(fields: [refreshmentId], references: [id])
+  refreshment   Refreshment @relation(fields: [refreshmentId], references: [id], onDelete: Cascade)
   snackBoxId    String
-  snackBox      SnackBox    @relation(fields: [snackBoxId], references: [id])
+  snackBox      SnackBox    @relation(fields: [snackBoxId], references: [id], onDelete: Cascade)
 }
 
 model Order {
   id            String      @id @default(uuid())
   status        OrderStatus
+  receivedVia   ReceivedVia @default(PICK_UP)
   paymentType   PaymentType
+  email         String      @default("default@gmail.com")
   subTotalPrice Float
   discountPrice Float
   shippingFee   Float
@@ -380,12 +387,12 @@ model Order {
   // Address
   cFirstName       String
   cLastName        String
-  address          String
-  district         String
-  subdistrict      String
-  province         String
-  postcode         String
-  phone            String
+  address          String?
+  district         String?
+  subdistrict      String?
+  province         String?
+  postcode         String?
+  phone            String?
   orderCake        OrderCustomerCake[]
   orderRefreshment OrderRefreshment[]
   orderSnackBox    OrderSnackBox[]
@@ -394,6 +401,7 @@ model Order {
 model OrderCustomerCake {
   id            String  @id @default(uuid())
   name          String
+  description   String?
   remark        String?
   quantity      Int     @default(0)
   imageFileName String?
@@ -568,11 +576,6 @@ enum StockStatus {
 enum ReceivedVia {
   PICK_UP
   DELIVERY
-}
-
-enum DeliveryType {
-  NORMAL
-  CONTROL // Temprature control.
 }
 
 enum OrderStatus {

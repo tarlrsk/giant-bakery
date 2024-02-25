@@ -197,7 +197,7 @@ export async function PUT(req: NextRequest, { params }: GetSnackBoxByIdProps) {
       updatedSnackBox = await prisma.snackBox.update({
         where: { id: snackBox.id },
         data: {
-          imageFilename: imageFileName,
+          imageFileName: imageFileName,
           imagePath: imagePath,
         },
         include: {

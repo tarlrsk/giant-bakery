@@ -155,7 +155,7 @@ export async function POST(req: NextRequest) {
       snackBoxResponse = await prisma.snackBox.update({
         where: { id: newSnackBox.id },
         data: {
-          imageFilename: imageFileName,
+          imageFileName: imageFileName,
           imagePath: imagePath,
         },
         include: {

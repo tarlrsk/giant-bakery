@@ -1,3 +1,4 @@
+import { baseUrl } from "@/utils/api-path";
 import { NextRequest } from "next/server";
 import Stripe from "stripe";
 
@@ -33,7 +34,7 @@ export const createStripeSession = async function (
 
   let origin = req.headers.get("origin");
   if (!origin) {
-    origin = "http://localhost:3000";
+    origin = baseUrl;
   }
 
   const session = await stripe.checkout.sessions.create({
