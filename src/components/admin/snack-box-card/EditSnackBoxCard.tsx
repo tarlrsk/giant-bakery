@@ -118,7 +118,7 @@ export default function NewSnackBoxCard({ data, isLoading, onClose }: Props) {
               name="image"
               thumbnail
               onDrop={onDropSingleFile}
-              onDelete={() => setValue("image", null, { shouldValidate: true })}
+              onDelete={() => setValue("image", "", { shouldValidate: true })}
             />
           )}
 

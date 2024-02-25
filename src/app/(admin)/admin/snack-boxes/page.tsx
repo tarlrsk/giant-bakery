@@ -1,5 +1,6 @@
 "use client";
 
+import useAdmin from "@/hooks/useAdmin";
 import { Box, Grid } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { useState, useEffect } from "react";
@@ -9,7 +10,6 @@ import SnackBoxDataGrid from "@/components/admin/data-grid/SnackBoxDataGrid";
 import NewSnackBoxCard from "@/components/admin/snack-box-card/NewSnackBoxCard";
 import EditSnackBoxCard from "@/components/admin/snack-box-card/EditSnackBoxCard";
 import SnackBoxFilterToolbar from "@/components/admin/toolbars/SnackBoxFilterToolbar";
-import useAdmin from "@/hooks/useAdmin";
 
 // ----------------------------------------------------------------------
 

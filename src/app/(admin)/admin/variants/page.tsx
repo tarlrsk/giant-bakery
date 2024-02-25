@@ -226,7 +226,7 @@ export default function AdminVariant() {
     defaultValues: { search: "", variantType: "all", status: "all" },
   });
 
-  const [selectedRow, setSelectedRow] = useState<IVariant>({
+  const [selectedRow, setSelectedRow] = useState({
     id: "",
     name: "",
     imageFileName: "",
