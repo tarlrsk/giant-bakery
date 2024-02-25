@@ -158,11 +158,11 @@ export async function GET(req: NextRequest, { params }: GetOrderById) {
       for (let refreshment of snackBox.refreshments) {
         item.subItem.push(refreshment.name);
       }
-
-      data.items = items;
     }
 
-    return responseWrapper(200, items, null);
+    data.items = items;
+
+    return responseWrapper(200, data, null);
   } catch (err: any) {
     return responseWrapper(500, null, err);
   }
