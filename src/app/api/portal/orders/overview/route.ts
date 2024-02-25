@@ -1,8 +1,7 @@
-import { NextRequest } from "next/server";
-import { prismaOrder } from "@/persistence/order";
-import { responseWrapper } from "@/utils/api-response-wrapper";
 import { prisma } from "@/lib/prisma";
+import { NextRequest } from "next/server";
 import { OrderStatus } from "@prisma/client";
+import { responseWrapper } from "@/utils/api-response-wrapper";
 
 type overview = {
   totalOrder: number;
