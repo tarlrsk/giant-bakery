@@ -1,6 +1,6 @@
 "use client";
 
-import { Toaster } from "react-hot-toast";
+import { SnackbarProvider } from "notistack";
 import { createTheme, ThemeProvider } from "@mui/material";
 
 // ----------------------------------------------------------------------
@@ -70,7 +70,6 @@ const theme = createTheme({
     },
   },
 });
-
 // ----------------------------------------------------------------------
 
 export default function AdminProviders({
@@ -80,8 +79,12 @@ export default function AdminProviders({
 }) {
   return (
     <ThemeProvider theme={theme}>
-      {children}
-      <Toaster />
+      <SnackbarProvider
+        style={{ fontFamily: ["IBM Plex Sans Thai", "Roboto"].join(",") }}
+        autoHideDuration={5000}
+      >
+        {children}
+      </SnackbarProvider>
     </ThemeProvider>
   );
 }

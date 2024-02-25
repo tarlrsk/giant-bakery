@@ -1,6 +1,7 @@
 "use client";
 import toast from "react-hot-toast";
 import useAdmin from "@/hooks/useAdmin";
+import { LoadingButton } from "@mui/lab";
 import { useForm } from "react-hook-form";
 import { Upload } from "@/components/upload";
 import { IVariant } from "@/components/admin/types";
@@ -15,32 +16,41 @@ import {
   Box,
   Stack,
   Drawer,
-  Button,
   MenuItem,
+  Backdrop,
   Typography,
+  CircularProgress,
 } from "@mui/material";
 
 // ----------------------------------------------------------------------
 
 const VARIANT_TYPE = [
-  { value: "topBorder", label: "ขอบบน" },
-  { value: "bottomBorder", label: "ขอบล่าง" },
-  { value: "decoration", label: "ลายรอบเค้ก" },
-  { value: "surface", label: "หน้าเค้ก" },
+  { value: "TOP_EDGE", label: "ขอบบน" },
+  { value: "BOTTOM_EDGE", label: "ขอบล่าง" },
+  { value: "DECORATION", label: "ลายรอบเค้ก" },
+  { value: "SURFACE", label: "หน้าเค้ก" },
 ];
 
 // ----------------------------------------------------------------------
 
 export default function AdminVariant() {
+  const [filteredRows, setFilteredRows] = useState([]);
+  const [openNewDrawer, setOpenNewDrawer] = useState(false);
+  const [openEditDrawer, setOpenEditDrawer] = useState(false);
+  const [rowSelectionModel, setRowSelectionModel] =
+    useState<GridRowSelectionModel>([]);
+
   const {
     variantsData: variants,
     creamBaseData,
     variantsIsLoading: isLoading,
-  } = useAdmin();
-
-  const [filteredRows, setFilteredRows] = useState([]);
-  const [openNewDrawer, setOpenNewDrawer] = useState(false);
-  const [openEditDrawer, setOpenEditDrawer] = useState(false);
+    updateVariantTrigger,
+    updateVariantIsLoading,
+    createVariantTrigger,
+    createVariantIsLoading,
+  } = useAdmin(
+    filteredRows?.find((row: IVariant) => row.id === rowSelectionModel[0]),
+  );
 
   const creamBaseImage = creamBaseData?.data?.image || "";
 
@@ -70,9 +80,6 @@ export default function AdminVariant() {
       deletedAt: null,
     },
   });
-
-  const [rowSelectionModel, setRowSelectionModel] =
-    useState<GridRowSelectionModel>([]);
 
   const toggleNewDrawer = (newOpen: boolean) => () => {
     setOpenNewDrawer(newOpen);
@@ -142,7 +149,13 @@ export default function AdminVariant() {
 
   const onSubmitNew = handleSubmitNew(async (data) => {
     try {
-      console.log("data", data);
+      const { image, name, isActive, type } = data;
+      const bodyFormData = new FormData();
+      bodyFormData.append("name", name);
+      bodyFormData.append("image", image);
+      bodyFormData.append("isActive", isActive ? "true" : "false");
+      bodyFormData.append("type", type);
+      await createVariantTrigger(bodyFormData);
     } catch (error) {
       console.error(error);
       toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
@@ -151,7 +164,15 @@ export default function AdminVariant() {
 
   const onSubmitEdit = handleSubmitEdit(async (data) => {
     try {
+      const { image, name, isActive, type } = data;
+      const bodyFormData = new FormData();
+      bodyFormData.append("name", name);
+      bodyFormData.append("image", image);
+      bodyFormData.append("isActive", isActive ? "true" : "false");
+      bodyFormData.append("type", type);
+
       console.log("data", data);
+      await updateVariantTrigger(bodyFormData);
     } catch (error) {
       console.error(error);
       toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
@@ -204,15 +225,18 @@ export default function AdminVariant() {
               ))}
             </RHFSelect>
           </Stack>
-          <Button size="large" variant="contained" type="submit">
+          <LoadingButton
+            size="large"
+            variant="contained"
+            type="submit"
+            loading={createVariantIsLoading}
+          >
             เพิ่มตัวเลือกเค้กใหม่
-          </Button>
+          </LoadingButton>
         </Stack>
       </FormProvider>
     </Box>
   );
-
-  console.log(editVariantImage);
 
   const DrawerEditVariant = (
     <Box
@@ -260,16 +284,22 @@ export default function AdminVariant() {
               ))}
             </RHFSelect>
           </Stack>
-          <Button size="large" variant="contained" type="submit">
+          <LoadingButton
+            size="large"
+            variant="contained"
+            type="submit"
+            loading={updateVariantIsLoading}
+          >
             อัพเดทตัวเลือกเค้ก
-          </Button>
+          </LoadingButton>
         </Stack>
       </FormProvider>
     </Box>
   );
 
   useEffect(() => {
-    let data = variants?.data || [];
+    let data =
+      variants?.data.filter((row: IVariant) => row.type !== "CREAM") || [];
 
     if (search) {
       data = data.filter(
@@ -297,14 +327,15 @@ export default function AdminVariant() {
       const selectedRowData = variants?.data?.find(
         (row: IVariant) => row.id === rowSelectionModel[0],
       );
-      console.log("selectedRowData", selectedRowData);
       resetEditVariant(selectedRowData);
       setOpenEditDrawer(true);
     }
   }, [resetEditVariant, rowSelectionModel, variants?.data]);
 
   useEffect(() => {
-    setFilteredRows(variants?.data || []);
+    setFilteredRows(
+      variants?.data?.filter((row: IVariant) => row.type !== "CREAM") || [],
+    );
   }, [variants]);
 
   return (
@@ -339,6 +370,12 @@ export default function AdminVariant() {
       >
         {DrawerEditVariant}
       </Drawer>
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={isLoading}
+      >
+        <CircularProgress color="secondary" />
+      </Backdrop>
     </Box>
   );
 }

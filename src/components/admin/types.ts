@@ -1,3 +1,5 @@
+import { CustomFile } from "../upload";
+
 export interface IProductRow extends ICommonRow {
   type: string;
   category: string;
@@ -47,7 +49,7 @@ interface ICommonRow {
   quantity?: number;
   imageFileName: string | null;
   imagePath?: string | null;
-  image: string;
+  image: CustomFile | string;
   price: number;
   isActive: boolean;
   isDeleted: boolean;
@@ -73,7 +75,7 @@ export interface IVariant {
   name: string;
   imageFileName: string;
   imagePath: string;
-  image: string | { preview?: string };
+  image: CustomFile | string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string | null;

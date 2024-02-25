@@ -1,8 +1,8 @@
 "use client";
 
-import toast from "react-hot-toast";
 import { useCallback } from "react";
 import useAdmin from "@/hooks/useAdmin";
+import { useSnackbar } from "notistack";
 import { LoadingButton } from "@mui/lab";
 import { useForm } from "react-hook-form";
 import CloseIcon from "@mui/icons-material/Close";
@@ -32,6 +32,8 @@ type Props = {
   onClose: () => void;
 };
 
+// ----------------------------------------------------------------------
+
 export default function NewProductCard({ onClose }: Props) {
   const methods = useForm({
     defaultValues: {
@@ -41,22 +43,24 @@ export default function NewProductCard({ onClose }: Props) {
       type: "",
       category: "",
       unitType: "",
-      minQty: null,
-      price: null,
-      currQty: null,
-      width: null,
-      length: null,
-      height: null,
-      weight: null,
-      quantity: null,
+      minQty: "",
+      price: "",
+      currQty: "",
+      width: "",
+      length: "",
+      height: "",
+      weight: "",
+      quantity: "",
       isActive: true,
-      maxQty: null,
+      maxQty: "",
     },
   });
 
   const { createProductTrigger, createProductIsLoading } = useAdmin();
 
-  const { watch, setValue, handleSubmit } = methods;
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+
+  const { watch, setValue, handleSubmit, reset } = methods;
   const values = watch();
 
   const { type, isActive } = values;
@@ -88,7 +92,9 @@ export default function NewProductCard({ onClose }: Props) {
       if (description) {
         bodyFormData.append("description", description);
       }
-      bodyFormData.append("category", category);
+      if (type === "BAKERY") {
+        bodyFormData.append("category", category);
+      }
       bodyFormData.append(
         "quantity",
         quantity ? Number(quantity).toString() : "0",
@@ -105,19 +111,14 @@ export default function NewProductCard({ onClose }: Props) {
       bodyFormData.append("width", width ? Number(width).toString() : "0");
       bodyFormData.append("isActive", isActive ? "true" : "false");
       bodyFormData.append("unitType", type === "BAKERY" ? "ชิ้น" : "กล่อง");
-      bodyFormData.append(
-        "status",
-        quantity === 0
-          ? "OUT_OF_STOCK"
-          : Number(quantity) <= Number(minQty)
-            ? "LOW"
-            : "IN_STOCK",
-      );
 
       await createProductTrigger(bodyFormData);
+      enqueueSnackbar("สร้างสินค้าใหม่สำเร็จ", { variant: "success" });
+      onClose();
+      reset();
     } catch (error) {
       console.error(error);
-      toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
+      enqueueSnackbar("เกิดข้อผิดพลาด กรุณาลองใหม่", { variant: "error" });
     }
   });
 
@@ -165,19 +166,26 @@ export default function NewProductCard({ onClose }: Props) {
           </Stack>
 
           <Stack direction="row" spacing={1}>
-            <RHFTextField name="name" label="ชื่อสินค้า" />
             <RHFTextField
+              size="small"
+              name="name"
+              label="ชื่อสินค้า"
+              required
+            />
+            <RHFTextField
+              size="small"
               type="number"
               name="price"
               label="ราคา (บาท)"
               sx={{ width: "50%" }}
+              required
             />
           </Stack>
 
-          <RHFTextField name="description" label="รายละเอียดสินค้า" />
+          <RHFTextField name="description" label="รายละเอียดสินค้า" required />
 
           <Stack direction="row" spacing={1}>
-            <RHFSelect name="type" label="หมวดหมู่">
+            <RHFSelect name="type" label="หมวดหมู่" size="small" required>
               {TYPE_OPTIONS.map((option) => (
                 <MenuItem key={option.value} value={option.value}>
                   {option.label}
@@ -186,7 +194,12 @@ export default function NewProductCard({ onClose }: Props) {
             </RHFSelect>
 
             {type === "BAKERY" && (
-              <RHFSelect name="category" label="หมวดหมู่ย่อย">
+              <RHFSelect
+                size="small"
+                name="category"
+                label="หมวดหมู่ย่อย"
+                required={type === "BAKERY"}
+              >
                 {CATEGORY_OPTIONS.map((option) => (
                   <MenuItem key={option.value} value={option.value}>
                     {option.label}
@@ -198,25 +211,53 @@ export default function NewProductCard({ onClose }: Props) {
 
           <Stack direction="row" spacing={1}>
             <RHFTextField
+              size="small"
               type="number"
               name="minQty"
               label="จำนวนสินค้าขั้นต่ำ"
+              required
             />
             <RHFTextField
+              size="small"
               type="number"
               name="quantity"
               label="จำนวนสินค้าปัจจุบัน"
+              required
             />
           </Stack>
 
           <Typography>ขนาด</Typography>
 
           <Stack direction="row" spacing={1}>
-            <RHFTextField type="number" name="width" label="กว้าง (ซม.)" />
-            <RHFTextField type="number" name="length" label="ยาว (ซม.)" />
-            <RHFTextField type="number" name="height" label="สูง (ซม.)" />
+            <RHFTextField
+              type="number"
+              size="small"
+              name="width"
+              label="กว้าง (ซม.)"
+              required
+            />
+            <RHFTextField
+              type="number"
+              size="small"
+              name="length"
+              label="ยาว (ซม.)"
+              required
+            />
+            <RHFTextField
+              type="number"
+              size="small"
+              name="height"
+              label="สูง (ซม.)"
+              required
+            />
           </Stack>
-          <RHFTextField type="number" name="weight" label="น้ำหนัก (กรัม)" />
+          <RHFTextField
+            type="number"
+            size="small"
+            name="weight"
+            label="น้ำหนัก (กรัม)"
+            required
+          />
 
           <LoadingButton
             type="submit"

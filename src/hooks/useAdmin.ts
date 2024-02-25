@@ -15,6 +15,9 @@ async function createItem(url: string, { arg }: { arg: any }) {
   await fetch(url, {
     method: "POST",
     body: arg,
+  }).then((res) => {
+    if (!res.ok) throw new Error("Something went wrong");
+    return res;
   });
 }
 
@@ -22,6 +25,9 @@ async function updateItem(url: string, { arg }: { arg: any }) {
   await fetch(url, {
     method: "PUT",
     body: arg,
+  }).then((res) => {
+    if (!res.ok) throw new Error("Something went wrong");
+    return res;
   });
 }
 
@@ -99,7 +105,7 @@ export default function useAdmin(
   } = useSWR(getVariantAdmin(), adminFetcher);
 
   const { data: creamBaseData } = useSWR(
-    `${getVariantAdmin()}/CREAM/a2e06756-2a32-4762-9b9d-6f669be3ac83`,
+    `${getVariantAdmin()}/CREAM/30e2bb1c-3dd3-4293-8ef4-0b2b3454cbe9`,
     adminFetcher,
   );
 
@@ -113,7 +119,7 @@ export default function useAdmin(
               | "BOTTOM_EDGE"
               | "DECORATION"
               | "SURFACE")
-          : "CREAM",
+          : "TOP_EDGE",
         selectedItem?.id || "",
       ),
       updateItem,

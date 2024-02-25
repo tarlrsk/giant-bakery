@@ -37,9 +37,6 @@ export default function VariantDataGrid({
       renderCell: (params: GridRenderCellParams<any>) => {
         let text;
         switch (params.row.type) {
-          case "CREAM":
-            text = "ครีม";
-            break;
           case "TOP_EDGE":
             text = "ขอบบน";
             break;
@@ -89,7 +86,6 @@ export default function VariantDataGrid({
         <DataGrid
           rows={rows}
           columns={columns}
-          // getRowId={(row: IVariant) => `${row.id}${row.type}`}
           disableColumnMenu
           onRowSelectionModelChange={(newRowSelectionModel) => {
             setRowSelectionModel(newRowSelectionModel);

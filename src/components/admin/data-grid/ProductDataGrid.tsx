@@ -126,9 +126,9 @@ export default function ProductDataGrid({
             sorting: {
               sortModel: [{ field: "type", sort: "asc" }],
             },
-            pagination: { paginationModel: { pageSize: 10 } },
+            pagination: { paginationModel: { pageSize: 50 } },
           }}
-          pageSizeOptions={[10, 20, 30]}
+          pageSizeOptions={[50, 100, 150]}
           slots={{
             noRowsOverlay: CustomNoRowsOverlay,
           }}

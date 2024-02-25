@@ -117,7 +117,7 @@ export default function AdminRefreshment() {
         sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={isLoading}
       >
-        <CircularProgress color="primary" variant="determinate" />
+        <CircularProgress color="secondary" />
       </Backdrop>
     </Box>
   );

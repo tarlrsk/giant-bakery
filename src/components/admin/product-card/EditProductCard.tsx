@@ -1,9 +1,9 @@
 "use client";
 
-import toast from "react-hot-toast";
 import { useCallback } from "react";
 import { styled } from "@mui/system";
 import useAdmin from "@/hooks/useAdmin";
+import { useSnackbar } from "notistack";
 import { LoadingButton } from "@mui/lab";
 import { useForm } from "react-hook-form";
 import CloseIcon from "@mui/icons-material/Close";
@@ -82,6 +82,7 @@ type Props = {
 };
 
 export default function EditProductCard({ data, isLoading, onClose }: Props) {
+  const { enqueueSnackbar } = useSnackbar();
   const methods = useForm({
     defaultValues: { ...data, image: data?.image || "" },
   });
@@ -90,7 +91,7 @@ export default function EditProductCard({ data, isLoading, onClose }: Props) {
   const { watch, setValue, handleSubmit } = methods;
   const values = watch();
 
-  const { name, type, isActive } = values;
+  const { type, isActive } = values;
 
   const onSubmit = handleSubmit(async (data) => {
     try {
@@ -124,7 +125,9 @@ export default function EditProductCard({ data, isLoading, onClose }: Props) {
         bodyFormData.append("description", description);
       }
       bodyFormData.append("remark", remark || "");
-      bodyFormData.append("category", category);
+      if (type === "BAKERY") {
+        bodyFormData.append("category", category);
+      }
       bodyFormData.append("quantity", quantity?.toString() || "0");
       bodyFormData.append("minQty", minQty.toString());
       bodyFormData.append("currQty", currQty.toString());
@@ -138,9 +141,11 @@ export default function EditProductCard({ data, isLoading, onClose }: Props) {
       bodyFormData.append("status", status);
 
       await updateProductTrigger(bodyFormData);
+      enqueueSnackbar("อัพเดทสินค้าสำเร็จ", { variant: "success" });
     } catch (error) {
+      console.log("มันควรขึ้นตรงนี้");
       console.error(error);
-      toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
+      enqueueSnackbar("เกิดข้อผิดพลาด กรุณาลองใหม่", { variant: "error" });
     }
   });
 
@@ -169,7 +174,7 @@ export default function EditProductCard({ data, isLoading, onClose }: Props) {
             alignItems="center"
           >
             <Typography variant="body1" fontWeight={500}>
-              <Typography>{name}</Typography>
+              <Typography>{data.name}</Typography>
             </Typography>
             <IconButton size="small" onClick={onClose}>
               <CloseIcon />
@@ -198,18 +203,34 @@ export default function EditProductCard({ data, isLoading, onClose }: Props) {
               <AccordionDetails sx={{ px: 1 }}>
                 <Stack direction="column" spacing={2}>
                   <Stack direction="row" spacing={1}>
-                    <RHFTextField name="name" label="ชื่อสินค้า" />
+                    <RHFTextField
+                      name="name"
+                      label="ชื่อสินค้า"
+                      size="small"
+                      required
+                    />
                     <RHFTextField
                       type="number"
                       name="price"
                       label="ราคา"
                       sx={{ width: "50%" }}
+                      size="small"
+                      required
                     />
                   </Stack>
-                  <RHFTextField name="description" label="รายละเอียดสินค้า" />
+                  <RHFTextField
+                    name="description"
+                    label="รายละเอียดสินค้า"
+                    size="small"
+                  />
 
                   <Stack direction="row" spacing={1}>
-                    <RHFSelect name="type" label="หมวดหมู่">
+                    <RHFSelect
+                      name="type"
+                      label="หมวดหมู่"
+                      size="small"
+                      required
+                    >
                       {TYPE_OPTIONS.map((option) => (
                         <MenuItem key={option.value} value={option.value}>
                           {option.label}
@@ -218,7 +239,12 @@ export default function EditProductCard({ data, isLoading, onClose }: Props) {
                     </RHFSelect>
 
                     {type === "BAKERY" && (
-                      <RHFSelect name="category" label="หมวดหมู่ย่อย">
+                      <RHFSelect
+                        name="category"
+                        label="หมวดหมู่ย่อย"
+                        size="small"
+                        required={type === "BAKERY"}
+                      >
                         {CATEGORY_OPTIONS.map((option) => (
                           <MenuItem key={option.value} value={option.value}>
                             {option.label}
@@ -235,22 +261,30 @@ export default function EditProductCard({ data, isLoading, onClose }: Props) {
                       type="number"
                       name="width"
                       label="กว้าง (ซม.)"
+                      size="small"
+                      required
                     />
                     <RHFTextField
                       type="number"
                       name="length"
                       label="ยาว (ซม.)"
+                      size="small"
+                      required
                     />
                     <RHFTextField
                       type="number"
                       name="height"
                       label="สูง (ซม.)"
+                      size="small"
+                      required
                     />
                   </Stack>
                   <RHFTextField
                     type="number"
                     name="weight"
                     label="น้ำหนัก (กรัม)"
+                    size="small"
+                    required
                   />
                 </Stack>
               </AccordionDetails>
@@ -270,11 +304,15 @@ export default function EditProductCard({ data, isLoading, onClose }: Props) {
                     type="number"
                     name="minQty"
                     label="จำนวนสินค้าขั้นต่ำ"
+                    size="small"
+                    required
                   />
                   <RHFTextField
                     type="number"
                     name="quantity"
                     label="จำนวนสินค้าปัจจุบัน"
+                    size="small"
+                    required
                     autoFocus
                   />
                 </Stack>
