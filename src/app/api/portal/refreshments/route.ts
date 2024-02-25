@@ -58,7 +58,6 @@ export async function POST(req: NextRequest) {
       description,
       type,
       category,
-      status,
       minQty,
       maxQty,
       currQty,

@@ -101,7 +101,6 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
       description,
       type,
       category,
-      status,
       minQty,
       maxQty,
       currQty,
