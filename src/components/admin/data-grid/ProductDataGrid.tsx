@@ -123,9 +123,6 @@ export default function ProductDataGrid({
           rowSelectionModel={rowSelectionModel}
           columnHeaderHeight={45}
           initialState={{
-            sorting: {
-              sortModel: [{ field: "type", sort: "asc" }],
-            },
             pagination: { paginationModel: { pageSize: 50 } },
           }}
           pageSizeOptions={[50, 100, 150]}

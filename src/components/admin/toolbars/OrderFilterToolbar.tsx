@@ -15,10 +15,11 @@ type Props = {
 
 const STATUS_OPTIONS = [
   { value: "all", label: "ทั้งหมด" },
-  { value: "complete", label: "เสร็จสิ้น" },
-  { value: "cancelled", label: "ยกเลิก" },
-  { value: "pendingPayment", label: "รอชำระเงิน" },
-  { value: "pendingOrder", label: "รอชำยืนยันออเดอร์" },
+  { value: "COMPLETED", label: "เสร็จสิ้น" },
+  { value: "CANCELLED", label: "ยกเลิก" },
+  { value: "PENDING_PAYMENT2", label: "รอชำระเงิน" },
+  { value: "PENDING_ORDER", label: "รอยืนยันออเดอร์" },
+  { value: "ON_PROCESS", label: "กำลังเตรียมออเดอร์" },
 ];
 
 // ----------------------------------------------------------------------

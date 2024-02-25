@@ -92,6 +92,10 @@ export default function VariantDataGrid({
           }}
           rowSelectionModel={rowSelectionModel}
           columnHeaderHeight={45}
+          initialState={{
+            pagination: { paginationModel: { pageSize: 50 } },
+          }}
+          pageSizeOptions={[50, 100, 150]}
           slots={{
             noRowsOverlay: CustomNoRowsOverlay,
           }}

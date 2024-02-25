@@ -119,6 +119,8 @@ const apiPaths = () => {
 
   // Orders
   const getOrdersOverview = () => createAdminUrl("orders/overview");
+  const getOrders = () => createAdminUrl("orders");
+  const getOrderById = (id: string) => createAdminUrl(`orders/${id}`);
 
   return {
     signUp,
@@ -163,6 +165,8 @@ const apiPaths = () => {
     updateVariantAdmin,
     deleteVariantAdmin,
     getOrdersOverview,
+    getOrders,
+    getOrderById,
   };
 };
 

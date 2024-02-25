@@ -67,6 +67,8 @@ export default function useAdmin(
     createVariantAdmin,
     updateVariantAdmin,
     deleteVariantAdmin,
+    getOrders,
+    getOrderById,
   } = apiPaths();
 
   // Products
@@ -168,6 +170,19 @@ export default function useAdmin(
       deleteItem,
     );
 
+  // Orders
+  const {
+    data: ordersData,
+    mutate: ordersMutate,
+    isLoading: ordersIsLoading,
+  } = useSWR(getOrders(), adminFetcher);
+
+  const {
+    data: orderByIdData,
+    mutate: orderByIdMutate,
+    isLoading: orderByIdIsLoading,
+  } = useSWR(getOrderById(selectedItem?.id || ""), adminFetcher);
+
   return {
     productsData,
     productsMutate,
@@ -210,5 +225,12 @@ export default function useAdmin(
     deleteVariantIsLoading,
     deleteSnackBoxTrigger,
     deleteSnackBoxIsLoading,
+    //
+    ordersData,
+    ordersMutate,
+    ordersIsLoading,
+    orderByIdData,
+    orderByIdMutate,
+    orderByIdIsLoading,
   };
 }

@@ -85,9 +85,9 @@ export default function CakeDataGrid({
           rowSelectionModel={rowSelectionModel}
           columnHeaderHeight={45}
           initialState={{
-            pagination: { paginationModel: { pageSize: 10 } },
+            pagination: { paginationModel: { pageSize: 50 } },
           }}
-          pageSizeOptions={[10, 20, 30]}
+          pageSizeOptions={[50, 100, 150]}
           slots={{
             noRowsOverlay: CustomNoRowsOverlay,
           }}
