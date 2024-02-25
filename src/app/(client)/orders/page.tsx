@@ -26,11 +26,11 @@ const columns = [
     label: "วันที่สั่งซื้อ",
   },
   {
-    key: "subTotalPrice",
+    key: "totalPrice",
     label: "ยอดชำระ",
   },
   {
-    key: "type",
+    key: "paymentType",
     label: "ประเภทการชำระ",
   },
   {
@@ -95,30 +95,35 @@ export default function OrdersPage() {
   );
 
   return (
-    <div className="px-40 py-20">
-      <Table
-        radius="lg"
-        removeWrapper
-        selectionMode="single"
-        classNames={classNames}
-      >
-        <TableHeader columns={columns}>
-          {(column) => (
-            <TableColumn key={column.key}>{column.label}</TableColumn>
-          )}
-        </TableHeader>
-        <TableBody emptyContent={"ไม่มีออเดอร์"} items={items}>
-          {(item) => (
-            <TableRow key={item.id}>
-              {(columnKey) => (
-                <TableCell className="text-md py-8 hover:cursor-pointer">
-                  {getKeyValue(item, columnKey)}
-                </TableCell>
-              )}
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-    </div>
+    <>
+      <div className="px-40 font-semibold text-4xl pt-20 pb-10">
+        ออเดอร์ของฉัน
+      </div>
+      <div className="px-40 pb-20">
+        <Table
+          radius="lg"
+          removeWrapper
+          selectionMode="single"
+          classNames={classNames}
+        >
+          <TableHeader columns={columns}>
+            {(column) => (
+              <TableColumn key={column.key}>{column.label}</TableColumn>
+            )}
+          </TableHeader>
+          <TableBody emptyContent={"ไม่มีออเดอร์"} items={items}>
+            {(item) => (
+              <TableRow key={item.id}>
+                {(columnKey) => (
+                  <TableCell className="text-md py-8 hover:cursor-pointer">
+                    {getKeyValue(item, columnKey)}
+                  </TableCell>
+                )}
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+    </>
   );
 }
