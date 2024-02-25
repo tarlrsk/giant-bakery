@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 import { useState, useCallback } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { zodResolver } from "@hookform/resolvers/zod";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { RHFUpload } from "@/components/hook-form/rhf-upload";
 import FormProvider from "@/components/hook-form/form-provider";
@@ -26,8 +27,8 @@ import {
   AccordionDetails,
 } from "@mui/material";
 
-import { IProductRow } from "../types";
 import DeleteDialog from "../dialog/DeleteDialog";
+import { IProductRow, createUpdateProductSchema } from "../types";
 
 // ----------------------------------------------------------------------
 
@@ -88,6 +89,7 @@ type Props = {
 export default function EditProductCard({ data, isLoading, onClose }: Props) {
   const { enqueueSnackbar } = useSnackbar();
   const methods = useForm<IProductRow>({
+    resolver: zodResolver(createUpdateProductSchema),
     defaultValues: { ...data, image: data.image },
   });
   const {
@@ -103,7 +105,7 @@ export default function EditProductCard({ data, isLoading, onClose }: Props) {
   const { watch, setValue, handleSubmit } = methods;
   const values = watch();
 
-  const { type, isActive, image } = values;
+  const { type, isActive } = values;
 
   const onDeleteProduct = async () => {
     try {
@@ -139,7 +141,7 @@ export default function EditProductCard({ data, isLoading, onClose }: Props) {
 
       const bodyFormData = new FormData();
       bodyFormData.append("name", name);
-      if (typeof image !== "string") {
+      if (typeof image !== "string" && image) {
         bodyFormData.append("image", image);
       }
       bodyFormData.append("price", price.toString());
@@ -206,7 +208,7 @@ export default function EditProductCard({ data, isLoading, onClose }: Props) {
             name="image"
             thumbnail
             onDrop={onDropSingleFile}
-            onDelete={() => setValue("image", "", { shouldValidate: true })}
+            onDelete={() => setValue("image", null, { shouldValidate: true })}
           />
 
           <Stack direction="row" justifyContent="space-between">

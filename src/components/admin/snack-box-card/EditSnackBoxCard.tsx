@@ -1,14 +1,14 @@
 "use client";
 
-import toast from "react-hot-toast";
 import useAdmin from "@/hooks/useAdmin";
 import { useSnackbar } from "notistack";
 import { LoadingButton } from "@mui/lab";
 import { useForm } from "react-hook-form";
-import { useState, useCallback } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMemo, useState, useCallback } from "react";
 import { RHFUpload } from "@/components/hook-form/rhf-upload";
 import FormProvider from "@/components/hook-form/form-provider";
 import { Paper, Stack, Button, IconButton, Typography } from "@mui/material";
@@ -18,8 +18,8 @@ import {
   RHFAutocomplete,
 } from "@/components/hook-form";
 
-import { ISnackBoxRow } from "../types";
 import DeleteDialog from "../dialog/DeleteDialog";
+import { ISnackBoxRow, createUpdateSnackBoxSchema } from "../types";
 
 // ----------------------------------------------------------------------
 
@@ -59,12 +59,21 @@ export default function EditSnackBoxCard({
   const [itemAmount, setItemAmount] = useState(initDataArray);
   const [counter, setCounter] = useState(data.refreshments.length);
   const [isOpenDelete, setIsOpenDelete] = useState(false);
-  const methods = useForm({ defaultValues: { ...data, ...selectedItems } });
+  const methods = useForm({
+    resolver: zodResolver(createUpdateSnackBoxSchema),
+    defaultValues: { ...data, ...selectedItems },
+  });
 
   const { watch, setValue, handleSubmit } = methods;
   const values = watch();
 
   const { name, isActive } = values;
+
+  const memoizedItems = useMemo(() => {
+    return Object.entries(values)
+      .filter(([key, value]) => key.startsWith("item") && value !== undefined)
+      .map(([_, item]) => item as unknown as IProductOption);
+  }, [values]);
 
   const handleDeleteRow = (indexToDelete: number) => {
     const deletedIndex = itemAmount.findIndex((num) => num === indexToDelete);
@@ -101,13 +110,9 @@ export default function EditSnackBoxCard({
         description,
       } = data;
 
-      const mappedRefreshments = Object.entries(data)
-        .filter(([key, value]) => key.startsWith("item") && value !== undefined)
-        .map(([_, item]) => item as unknown as IProductOption);
-
       const bodyFormData = new FormData();
       bodyFormData.append("name", name);
-      if (typeof image !== "string") {
+      if (typeof image !== "string" && image) {
         bodyFormData.append("image", image);
       }
       if (description) {
@@ -120,7 +125,7 @@ export default function EditSnackBoxCard({
       bodyFormData.append("width", width ? Number(width).toString() : "0");
       bodyFormData.append("isActive", isActive ? "true" : "false");
 
-      for (const { value } of mappedRefreshments) {
+      for (const { value } of memoizedItems) {
         if (value !== null) {
           bodyFormData.append("refreshmentIds", value);
         }
@@ -132,7 +137,7 @@ export default function EditSnackBoxCard({
       snackBoxMutate();
     } catch (error) {
       console.error(error);
-      toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
+      enqueueSnackbar("เกิดข้อผิดพลาด กรุณาลองใหม่", { variant: "error" });
     }
   });
 
@@ -180,7 +185,7 @@ export default function EditSnackBoxCard({
           <Stack direction="row" justifyContent="space-between">
             <Stack direction="row" alignItems="center" spacing={1}>
               <Typography>การมองเห็น:</Typography>
-              <RHFSwitch name="isActive" label={isActive ? "โชว์" : "ซ่อน"} />
+              <RHFSwitch name="isActive" label={isActive ? "แสดง" : "ซ่อน"} />
             </Stack>
             <Button
               startIcon={<DeleteIcon />}
@@ -266,6 +271,7 @@ export default function EditSnackBoxCard({
             size="large"
             color="secondary"
             variant="contained"
+            disabled={memoizedItems.length === 0}
             loading={updateSnackBoxIsLoading}
           >
             อัพเดทชุดเบรก

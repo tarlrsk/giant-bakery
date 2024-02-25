@@ -7,13 +7,14 @@ import { useForm } from "react-hook-form";
 import { useState, useCallback } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { RHFUpload } from "@/components/hook-form/rhf-upload";
 import FormProvider from "@/components/hook-form/form-provider";
 import { RHFSwitch, RHFTextField } from "@/components/hook-form";
 import { Paper, Stack, Button, IconButton, Typography } from "@mui/material";
 
-import { ICakeRow } from "../types";
 import DeleteDialog from "../dialog/DeleteDialog";
+import { ICakeRow, createUpdateCakeSchema } from "../types";
 
 // ----------------------------------------------------------------------
 
@@ -27,6 +28,7 @@ type Props = {
 export default function EditCakeCard({ data, onClose }: Props) {
   const { enqueueSnackbar } = useSnackbar();
   const methods = useForm<ICakeRow>({
+    resolver: zodResolver(createUpdateCakeSchema),
     defaultValues: data,
   });
 
@@ -73,7 +75,7 @@ export default function EditCakeCard({ data, onClose }: Props) {
 
       const bodyFormData = new FormData();
       bodyFormData.append("name", name);
-      if (typeof image !== "string") {
+      if (typeof image !== "string" && image) {
         bodyFormData.append("image", image);
       }
       if (description) {
@@ -131,7 +133,7 @@ export default function EditCakeCard({ data, onClose }: Props) {
             name="image"
             thumbnail
             onDrop={onDropSingleFile}
-            onDelete={() => setValue("image", "", { shouldValidate: true })}
+            onDelete={() => setValue("image", null, { shouldValidate: true })}
           />
 
           <Stack direction="row" justifyContent="space-between">

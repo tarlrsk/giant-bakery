@@ -6,12 +6,13 @@ import { useSnackbar } from "notistack";
 import { LoadingButton } from "@mui/lab";
 import { useForm } from "react-hook-form";
 import CloseIcon from "@mui/icons-material/Close";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { RHFUpload } from "@/components/hook-form/rhf-upload";
 import FormProvider from "@/components/hook-form/form-provider";
 import { RHFSelect, RHFSwitch, RHFTextField } from "@/components/hook-form";
 import { Paper, Stack, MenuItem, IconButton, Typography } from "@mui/material";
 
-import { IProductRow } from "../types";
+import { IProductRow, createUpdateProductSchema } from "../types";
 
 // ----------------------------------------------------------------------
 
@@ -38,9 +39,11 @@ type Props = {
 
 export default function NewProductCard({ onClose }: Props) {
   const methods = useForm<IProductRow>({
+    resolver: zodResolver(createUpdateProductSchema),
     defaultValues: {
       name: "",
-      // description: "",
+      image: null,
+      description: "",
       type: undefined,
       category: undefined,
       unitType: undefined,
@@ -85,7 +88,9 @@ export default function NewProductCard({ onClose }: Props) {
       } = data;
       const bodyFormData = new FormData();
       bodyFormData.append("name", name);
-      bodyFormData.append("image", image);
+      if (image) {
+        bodyFormData.append("image", image);
+      }
       bodyFormData.append("price", price ? Number(price).toString() : "0");
       bodyFormData.append("type", type);
       if (description) {
@@ -155,7 +160,7 @@ export default function NewProductCard({ onClose }: Props) {
             name="image"
             thumbnail
             onDrop={onDropSingleFile}
-            onDelete={() => setValue("image", "", { shouldValidate: true })}
+            onDelete={() => setValue("image", null, { shouldValidate: true })}
           />
 
           <Stack direction="row" alignItems="center" spacing={1}>

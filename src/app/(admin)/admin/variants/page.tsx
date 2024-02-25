@@ -4,8 +4,8 @@ import { useSnackbar } from "notistack";
 import { LoadingButton } from "@mui/lab";
 import { useForm } from "react-hook-form";
 import { Upload } from "@/components/upload";
-import { IVariant } from "@/components/admin/types";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { GridRowSelectionModel } from "@mui/x-data-grid";
 import { RHFUpload } from "@/components/hook-form/rhf-upload";
 import FormProvider from "@/components/hook-form/form-provider";
@@ -13,6 +13,7 @@ import DeleteDialog from "@/components/admin/dialog/DeleteDialog";
 import React, { useMemo, useState, useEffect, useCallback } from "react";
 import VariantDataGrid from "@/components/admin/data-grid/VariantDataGird";
 import { RHFSelect, RHFSwitch, RHFTextField } from "@/components/hook-form";
+import { IVariant, createUpdateVariantSchema } from "@/components/admin/types";
 import VariantFilterToolbar from "@/components/admin/toolbars/VariantFilterToolbar";
 import {
   Box,
@@ -68,14 +69,16 @@ export default function AdminVariant() {
   });
 
   const newVariantMethods = useForm<IVariant>({
+    resolver: zodResolver(createUpdateVariantSchema),
     defaultValues: {
       name: "",
-      image: "",
+      image: null,
       isActive: true,
     },
   });
 
   const editVariantMethods = useForm<IVariant>({
+    resolver: zodResolver(createUpdateVariantSchema),
     defaultValues: useMemo(() => {
       return selectedRow;
     }, [selectedRow]),
@@ -171,7 +174,9 @@ export default function AdminVariant() {
       const { image, name, isActive, type } = data;
       const bodyFormData = new FormData();
       bodyFormData.append("name", name);
-      bodyFormData.append("image", image);
+      if (image) {
+        bodyFormData.append("image", image);
+      }
       bodyFormData.append("isActive", isActive ? "true" : "false");
       bodyFormData.append("type", type);
 
@@ -191,7 +196,7 @@ export default function AdminVariant() {
       const { image, name, isActive, type } = data;
       const bodyFormData = new FormData();
       bodyFormData.append("name", name);
-      if (typeof image !== "string") {
+      if (typeof image !== "string" && image) {
         bodyFormData.append("image", image);
       }
       bodyFormData.append("isActive", isActive ? "true" : "false");
@@ -220,7 +225,7 @@ export default function AdminVariant() {
             thumbnail
             onDrop={onDropSingleFileNewVariant}
             onDelete={() =>
-              setValueNewVariant("image", "", {
+              setValueNewVariant("image", null, {
                 shouldValidate: true,
               })
             }
@@ -279,7 +284,7 @@ export default function AdminVariant() {
             thumbnail
             onDrop={onDropSingleFileEditVariant}
             onDelete={() =>
-              setValueEditVariant("image", "", {
+              setValueEditVariant("image", null, {
                 shouldValidate: true,
               })
             }

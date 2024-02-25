@@ -6,25 +6,28 @@ import { useSnackbar } from "notistack";
 import { LoadingButton } from "@mui/lab";
 import { useForm } from "react-hook-form";
 import CloseIcon from "@mui/icons-material/Close";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { RHFUpload } from "@/components/hook-form/rhf-upload";
 import FormProvider from "@/components/hook-form/form-provider";
 import { RHFSwitch, RHFTextField } from "@/components/hook-form";
 import { Paper, Stack, IconButton, Typography } from "@mui/material";
 
-import { ICakeRow } from "../types";
+import { ICakeRow, createUpdateCakeSchema } from "../types";
 
 // ----------------------------------------------------------------------
 
 type Props = {
   onClose: () => void;
 };
+
 // ----------------------------------------------------------------------
 
 export default function NewCakeCard({ onClose }: Props) {
   const { enqueueSnackbar } = useSnackbar();
   const methods = useForm<ICakeRow>({
+    resolver: zodResolver(createUpdateCakeSchema),
     defaultValues: {
-      image: "",
+      image: null,
       isActive: true,
       name: undefined,
       description: undefined,
@@ -39,16 +42,10 @@ export default function NewCakeCard({ onClose }: Props) {
 
   const { createCakeTrigger, createCakeIsLoading } = useAdmin();
 
-  const {
-    watch,
-    setValue,
-    handleSubmit,
-    formState: { errors },
-  } = methods;
+  const { watch, setValue, handleSubmit, reset } = methods;
   const values = watch();
 
   const { isActive } = values;
-  console.log("errors", errors);
 
   const onSubmit = handleSubmit(async (data) => {
     try {
@@ -56,7 +53,7 @@ export default function NewCakeCard({ onClose }: Props) {
         name,
         image,
         price,
-        // description,
+        description,
         weight,
         height,
         length,
@@ -66,8 +63,12 @@ export default function NewCakeCard({ onClose }: Props) {
 
       const bodyFormData = new FormData();
       bodyFormData.append("name", name);
-      bodyFormData.append("image", image);
-      // bodyFormData.append("description", description || "");
+      if (image) {
+        bodyFormData.append("image", image);
+      }
+      if (description) {
+        bodyFormData.append("description", description);
+      }
       bodyFormData.append("price", price ? Number(price).toString() : "0");
       bodyFormData.append("weight", weight ? Number(weight).toString() : "0");
       bodyFormData.append("height", height ? Number(height).toString() : "0");
@@ -76,10 +77,12 @@ export default function NewCakeCard({ onClose }: Props) {
       bodyFormData.append("isActive", isActive ? "true" : "false");
       bodyFormData.append("type", "PRESET");
 
+      console.log("data", data);
+
       await createCakeTrigger(bodyFormData);
       enqueueSnackbar("สร้างเค้กสำเร็จ", { variant: "success" });
-      // onClose();
-      // reset();
+      onClose();
+      reset();
     } catch (error) {
       console.error(error);
       enqueueSnackbar("เกิดข้อผิดพลาด กรุณาลองใหม่", { variant: "error" });
@@ -121,7 +124,7 @@ export default function NewCakeCard({ onClose }: Props) {
             name="image"
             thumbnail
             onDrop={onDropSingleFile}
-            onDelete={() => setValue("image", "", { shouldValidate: true })}
+            onDelete={() => setValue("image", null, { shouldValidate: true })}
           />
 
           <Stack direction="row" alignItems="center" spacing={1}>
