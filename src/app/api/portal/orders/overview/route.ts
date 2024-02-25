@@ -8,7 +8,7 @@ type overview = {
   totalOrder: number;
   todayOrder: number;
   pendingOrder: number;
-  deliveredOrder: number;
+  completedOrder: number;
   cancelledOrder: number;
 };
 
@@ -25,7 +25,7 @@ export async function GET(_req: NextRequest) {
       totalOrder: 0,
       todayOrder: 0,
       pendingOrder: 0,
-      deliveredOrder: 0,
+      completedOrder: 0,
       cancelledOrder: 0,
     };
 
@@ -36,11 +36,11 @@ export async function GET(_req: NextRequest) {
       data.pendingOrder = pendingOrder;
     }
 
-    const delivered = groupByStatusOrder.find(
-      (x) => x.status === OrderStatus.DELIVERED,
+    const completed = groupByStatusOrder.find(
+      (x) => x.status === OrderStatus.COMPLETED,
     )?._count.id;
-    if (delivered) {
-      data.deliveredOrder = delivered;
+    if (completed) {
+      data.completedOrder = completed;
     }
 
     const cancelled = groupByStatusOrder.find(
