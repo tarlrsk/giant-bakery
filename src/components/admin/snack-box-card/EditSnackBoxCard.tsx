@@ -18,46 +18,62 @@ import {
   RHFAutocomplete,
 } from "@/components/hook-form";
 
-import { createUpdateSnackBoxSchema } from "../types";
+import DeleteDialog from "../dialog/DeleteDialog";
+import { ISnackBoxRow, createUpdateSnackBoxSchema } from "../types";
 
 // ----------------------------------------------------------------------
-
-type Props = {
-  options: IProductOption[];
-  onClose: () => void;
-};
 
 interface IProductOption {
   value: string | null;
   label: string;
 }
 
+type Props = {
+  data: ISnackBoxRow;
+  option: IProductOption[];
+  selectedItems: { [key: string]: { value: string; label: string } };
+  onClose: () => void;
+};
+
 // ----------------------------------------------------------------------
 
-export default function NewSnackBoxCard({ options, onClose }: Props) {
+export default function EditSnackBoxCard({
+  data,
+  option,
+  selectedItems,
+  onClose,
+}: Props) {
   const { enqueueSnackbar } = useSnackbar();
-  const { createSnackBoxTrigger, createSnackBoxIsLoading } = useAdmin();
-  const [itemAmount, setItemAmount] = useState([0]);
-  const [counter, setCounter] = useState(0);
+  const {
+    updateSnackBoxTrigger,
+    updateSnackBoxIsLoading,
+    snackBoxMutate,
+    deleteSnackBoxTrigger,
+    deleteSnackBoxIsLoading,
+  } = useAdmin(data);
+  const initDataArray = Array.from(
+    { length: data.refreshments.length },
+    (_, index) => index,
+  );
+
+  const [itemAmount, setItemAmount] = useState(initDataArray);
+  const [counter, setCounter] = useState(data.refreshments.length);
+  const [isOpenDelete, setIsOpenDelete] = useState(false);
   const methods = useForm({
     resolver: zodResolver(createUpdateSnackBoxSchema),
-    defaultValues: {
-      image: null,
-      isActive: true,
-      name: "",
-      description: "",
-      price: null,
-      width: null,
-      length: null,
-      height: null,
-      weight: null,
-    },
+    defaultValues: { ...data, ...selectedItems },
   });
 
-  const { watch, setValue, handleSubmit, reset } = methods;
+  const { watch, setValue, handleSubmit } = methods;
   const values = watch();
 
-  const { isActive } = values;
+  const { name, isActive } = values;
+
+  const memoizedItems = useMemo(() => {
+    return Object.entries(values)
+      .filter(([key, value]) => key.startsWith("item") && value !== undefined)
+      .map(([_, item]) => item as unknown as IProductOption);
+  }, [values]);
 
   const handleDeleteRow = (indexToDelete: number) => {
     const deletedIndex = itemAmount.findIndex((num) => num === indexToDelete);
@@ -68,11 +84,17 @@ export default function NewSnackBoxCard({ options, onClose }: Props) {
     setItemAmount(combined);
   };
 
-  const memoizedItems = useMemo(() => {
-    return Object.entries(values)
-      .filter(([key, value]) => key.startsWith("item") && value !== undefined)
-      .map(([_, item]) => item as unknown as IProductOption);
-  }, [values]);
+  const onDeleteSnackBox = async () => {
+    try {
+      await deleteSnackBoxTrigger();
+      onClose();
+      snackBoxMutate();
+      enqueueSnackbar(`ชุดเบรก ${data.name} ถูกลบแล้ว`, { variant: "success" });
+    } catch (err) {
+      console.error(err);
+      enqueueSnackbar("เกิดข้อผิดพลาด กรุณาลองใหม่", { variant: "error" });
+    }
+  };
 
   const onSubmit = handleSubmit(async (data) => {
     try {
@@ -81,16 +103,16 @@ export default function NewSnackBoxCard({ options, onClose }: Props) {
         image,
         price,
         weight,
-        description,
         height,
         length,
         width,
         isActive,
+        description,
       } = data;
 
       const bodyFormData = new FormData();
       bodyFormData.append("name", name);
-      if (image) {
+      if (typeof image !== "string" && image) {
         bodyFormData.append("image", image);
       }
       if (description) {
@@ -105,16 +127,14 @@ export default function NewSnackBoxCard({ options, onClose }: Props) {
 
       for (const { value } of memoizedItems) {
         if (value !== null) {
-          console.log("value", value);
           bodyFormData.append("refreshmentIds", value);
         }
       }
 
       // console.log("bodyFormData:", bodyFormData);
-      await createSnackBoxTrigger(bodyFormData);
-      enqueueSnackbar("สร้างชุดเบรกสำเร็จ", { variant: "success" });
-      onClose();
-      reset();
+      await updateSnackBoxTrigger(bodyFormData);
+      enqueueSnackbar("อัพเดทชุดเบรกสำเร็จ", { variant: "success" });
+      snackBoxMutate();
     } catch (error) {
       console.error(error);
       enqueueSnackbar("เกิดข้อผิดพลาด กรุณาลองใหม่", { variant: "error" });
@@ -149,7 +169,7 @@ export default function NewSnackBoxCard({ options, onClose }: Props) {
             alignItems="center"
           >
             <Typography variant="body1" fontWeight={500}>
-              ชุดเบรกใหม่
+              <Typography>{name}</Typography>
             </Typography>
             <IconButton size="small" onClick={onClose}>
               <CloseIcon />
@@ -159,63 +179,43 @@ export default function NewSnackBoxCard({ options, onClose }: Props) {
             name="image"
             thumbnail
             onDrop={onDropSingleFile}
-            onDelete={() => setValue("image", null, { shouldValidate: true })}
+            onDelete={() => setValue("image", "", { shouldValidate: true })}
           />
 
-          <Stack direction="row" alignItems="center" spacing={1}>
-            <Typography>การมองเห็น:</Typography>
-            <RHFSwitch name="isActive" label={isActive ? "แสดง" : "ซ่อน"} />
+          <Stack direction="row" justifyContent="space-between">
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <Typography>การมองเห็น:</Typography>
+              <RHFSwitch name="isActive" label={isActive ? "แสดง" : "ซ่อน"} />
+            </Stack>
+            <Button
+              startIcon={<DeleteIcon />}
+              color="error"
+              variant="outlined"
+              onClick={() => setIsOpenDelete(true)}
+            >
+              ลบชุดเบรก
+            </Button>
           </Stack>
+
           <Stack direction="row" spacing={1}>
-            <RHFTextField
-              name="name"
-              label="ชื่อชุดเบรก"
-              size="small"
-              required
-            />
+            <RHFTextField name="name" label="ชื่อชุดเบรก" />
             <RHFTextField
               type="number"
               name="price"
-              label="ราคา (บาท)"
+              label="ราคา"
               sx={{ width: "50%" }}
-              size="small"
-              required
             />
           </Stack>
 
           <RHFTextField name="description" label="รายละเอียดชุดเบรก" />
 
-          <Typography>ขนาด</Typography>
+          <Typography>ขนาด (ซม.)</Typography>
           <Stack direction="row" spacing={1}>
-            <RHFTextField
-              type="number"
-              name="width"
-              label="กว้าง (ซม.)"
-              size="small"
-              required
-            />
-            <RHFTextField
-              type="number"
-              name="length"
-              label="ยาว (ซม.)"
-              size="small"
-              required
-            />
-            <RHFTextField
-              type="number"
-              name="height"
-              label="สูง (ซม.)"
-              size="small"
-              required
-            />
+            <RHFTextField type="number" name="width" label="กว้าง" />
+            <RHFTextField type="number" name="length" label="ยาว" />
+            <RHFTextField type="number" name="height" label="สูง" />
           </Stack>
-          <RHFTextField
-            type="number"
-            name="weight"
-            label="น้ำหนัก (กรัม)"
-            size="small"
-            required
-          />
+          <RHFTextField type="number" name="weight" label="น้ำหนัก (กรัม)" />
 
           <Stack
             direction="row"
@@ -246,7 +246,7 @@ export default function NewSnackBoxCard({ options, onClose }: Props) {
                 fullWidth
                 size="small"
                 label={`สินค้า ${index + 1}`}
-                options={options}
+                options={option}
                 name={`item${el}`}
                 renderOption={(props, option) => (
                   <li {...props} key={option.value}>
@@ -272,12 +272,19 @@ export default function NewSnackBoxCard({ options, onClose }: Props) {
             color="secondary"
             variant="contained"
             disabled={memoizedItems.length === 0}
-            loading={createSnackBoxIsLoading}
+            loading={updateSnackBoxIsLoading}
           >
-            เพิ่มชุดเบรก
+            อัพเดทชุดเบรก
           </LoadingButton>
         </Stack>
       </Paper>
+      <DeleteDialog
+        name={data.name}
+        open={isOpenDelete}
+        onClose={() => setIsOpenDelete(false)}
+        isLoading={deleteSnackBoxIsLoading}
+        onDelete={onDeleteSnackBox}
+      />
     </FormProvider>
   );
 }

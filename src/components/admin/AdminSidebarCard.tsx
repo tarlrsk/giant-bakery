@@ -1,19 +1,28 @@
 "use client";
 
-import React, { useState } from "react";
+import useSWR from "swr";
+import React from "react";
+import apiPaths from "@/utils/api-path";
+import { adminFetcher } from "@/utils/axios";
 import { Box, Card, Stack, Skeleton, Typography } from "@mui/material";
 
 // ----------------------------------------------------------------------
 
 export default function AdminSidebarCard() {
-  const orderData = [
-    { label: "Orders Today", value: 254 },
-    { label: "Pending Orders", value: 9 },
-    { label: "Delivered Orders", value: 125 },
-    { label: "Cancelled Orders", value: 20 },
-  ];
+  const { getOrdersOverview } = apiPaths();
+  const { data: ordersOverviewData, isLoading } = useSWR(
+    getOrdersOverview(),
+    adminFetcher,
+  );
 
-  const [isLoading, setIsLoading] = useState(true);
+  const data = ordersOverviewData?.data || null;
+
+  const orderData = [
+    { label: "Orders Today", value: data?.todayOrder || 0 },
+    { label: "Pending Orders", value: data?.pendingOrder || 0 },
+    { label: "Delivered Orders", value: data?.completedOrder || 0 },
+    { label: "Cancelled Orders", value: data?.cancelledOrder || 0 },
+  ];
 
   return (
     <Card

@@ -8,4 +8,7 @@ axios.defaults.baseURL = baseUrl;
 
 export const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
+export const adminFetcher = (url: string) =>
+  axios.get(url).then((res) => res.data.response);
+
 export default axios;

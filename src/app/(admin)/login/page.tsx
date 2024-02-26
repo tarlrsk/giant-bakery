@@ -44,7 +44,7 @@ export default function AdminLogin() {
         setIsLoading,
         () => {
           toast.success("เข้าสู่ระบบสำเร็จ!");
-          router.push("/admin");
+          router.push("/admin/orders");
         },
         () => {
           setError("อีเมลหรือรหัสผ่านไม่ถูกต้อง");

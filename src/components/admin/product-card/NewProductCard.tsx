@@ -1,34 +1,32 @@
 "use client";
 
-import toast from "react-hot-toast";
 import { useCallback } from "react";
+import useAdmin from "@/hooks/useAdmin";
+import { useSnackbar } from "notistack";
+import { LoadingButton } from "@mui/lab";
 import { useForm } from "react-hook-form";
 import CloseIcon from "@mui/icons-material/Close";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { RHFUpload } from "@/components/hook-form/rhf-upload";
 import FormProvider from "@/components/hook-form/form-provider";
-import { RHFSelect, RHFTextField } from "@/components/hook-form";
-import {
-  Paper,
-  Stack,
-  Button,
-  MenuItem,
-  IconButton,
-  Typography,
-} from "@mui/material";
+import { RHFSelect, RHFSwitch, RHFTextField } from "@/components/hook-form";
+import { Paper, Stack, MenuItem, IconButton, Typography } from "@mui/material";
+
+import { IProductRow, createUpdateProductSchema } from "../types";
 
 // ----------------------------------------------------------------------
 
-const CATEGORY_OPTIONS = [
-  { value: "bakery", label: "Bakery" },
-  { value: "beverage", label: "Beverage" },
+export const TYPE_OPTIONS = [
+  { value: "BAKERY", label: "เบเกอรี่" },
+  { value: "BEVERAGE", label: "เครื่องดื่ม" },
 ];
 
-const SUB_CATEGORY_OPTIONS = [
-  { value: "bread", label: "ขนมปัง" },
-  { value: "pie", label: "พาย" },
-  { value: "cookie", label: "คุกกี้" },
-  { value: "snack", label: "ขนม" },
-  { value: "cake", label: "เค้ก" },
+export const CATEGORY_OPTIONS = [
+  { value: "BREAD", label: "ขนมปัง" },
+  { value: "PIE", label: "พาย" },
+  { value: "COOKIE", label: "คุกกี้" },
+  { value: "SNACK", label: "ขนม" },
+  { value: "CAKE", label: "เค้ก" },
 ];
 
 // ----------------------------------------------------------------------
@@ -37,35 +35,93 @@ type Props = {
   onClose: () => void;
 };
 
+// ----------------------------------------------------------------------
+
 export default function NewProductCard({ onClose }: Props) {
-  const methods = useForm({
+  const methods = useForm<IProductRow>({
+    resolver: zodResolver(createUpdateProductSchema),
     defaultValues: {
-      productUpload: null,
-      productName: "",
+      name: "",
+      image: null,
       description: "",
-      category: "",
-      subCategory: "",
-      unitType: "",
-      minQty: null,
-      price: null,
-      currentQty: null,
-      width: null,
-      length: null,
-      height: null,
+      type: undefined,
+      category: undefined,
+      unitType: undefined,
+      minQty: undefined,
+      price: undefined,
+      currQty: undefined,
+      width: undefined,
+      length: undefined,
+      height: undefined,
+      weight: undefined,
+      isActive: true,
+      maxQty: undefined,
     },
   });
 
-  const { watch, setValue, handleSubmit } = methods;
+  const { createProductTrigger, createProductIsLoading } = useAdmin();
+
+  const { enqueueSnackbar } = useSnackbar();
+
+  const { watch, setValue, handleSubmit, reset } = methods;
   const values = watch();
 
-  const { category } = values;
+  const { type, isActive } = values;
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      console.log("data", data);
+      const {
+        name,
+        image,
+        price,
+        type,
+        category,
+        description,
+        minQty,
+        currQty,
+        weight,
+        height,
+        length,
+        width,
+        isActive,
+        maxQty,
+      } = data;
+      const bodyFormData = new FormData();
+      bodyFormData.append("name", name);
+      if (image) {
+        bodyFormData.append("image", image);
+      }
+      bodyFormData.append("price", price ? Number(price).toString() : "0");
+      bodyFormData.append("type", type);
+      if (description) {
+        bodyFormData.append("description", description);
+      }
+      if (type === "BAKERY") {
+        bodyFormData.append(
+          "category",
+          category as "BREAD" | "PIE" | "COOKIE" | "SNACK" | "CAKE",
+        );
+      }
+      bodyFormData.append("minQty", minQty ? Number(minQty).toString() : "0");
+      bodyFormData.append(
+        "currQty",
+        currQty ? Number(currQty).toString() : "0",
+      );
+      bodyFormData.append("maxQty", maxQty ? Number(maxQty).toString() : "0");
+      bodyFormData.append("weight", weight ? Number(weight).toString() : "0");
+      bodyFormData.append("height", height ? Number(height).toString() : "0");
+      bodyFormData.append("length", length ? Number(length).toString() : "0");
+      bodyFormData.append("width", width ? Number(width).toString() : "0");
+      bodyFormData.append("isActive", isActive ? "true" : "false");
+      bodyFormData.append("unitType", type === "BAKERY" ? "ชิ้น" : "กล่อง");
+
+      await createProductTrigger(bodyFormData);
+      enqueueSnackbar("สร้างสินค้าใหม่สำเร็จ", { variant: "success" });
+      onClose();
+      reset();
     } catch (error) {
       console.error(error);
-      toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
+      enqueueSnackbar("เกิดข้อผิดพลาด กรุณาลองใหม่", { variant: "error" });
     }
   });
 
@@ -78,7 +134,7 @@ export default function NewProductCard({ onClose }: Props) {
       });
 
       if (newFile) {
-        setValue("productUpload", newFile as any, { shouldValidate: true });
+        setValue("image", newFile as any, { shouldValidate: true });
       }
     },
     [setValue],
@@ -101,37 +157,53 @@ export default function NewProductCard({ onClose }: Props) {
             </IconButton>
           </Stack>
           <RHFUpload
-            name="productUpload"
+            name="image"
             thumbnail
             onDrop={onDropSingleFile}
-            onDelete={() =>
-              setValue("productUpload", null, { shouldValidate: true })
-            }
+            onDelete={() => setValue("image", null, { shouldValidate: true })}
           />
+
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <Typography>การมองเห็น:</Typography>
+            <RHFSwitch name="isActive" label={isActive ? "โชว์" : "ซ่อน"} />
+          </Stack>
+
           <Stack direction="row" spacing={1}>
-            <RHFTextField name="productName" label="ชื่อสินค้า" />
             <RHFTextField
+              size="small"
+              name="name"
+              label="ชื่อสินค้า"
+              required
+            />
+            <RHFTextField
+              size="small"
               type="number"
               name="price"
-              label="ราคา"
+              label="ราคา (บาท)"
               sx={{ width: "50%" }}
+              required
             />
           </Stack>
 
           <RHFTextField name="description" label="รายละเอียดสินค้า" />
 
           <Stack direction="row" spacing={1}>
-            <RHFSelect name="category" label="หมวดหมู่">
-              {CATEGORY_OPTIONS.map((option) => (
+            <RHFSelect name="type" label="หมวดหมู่" size="small" required>
+              {TYPE_OPTIONS.map((option) => (
                 <MenuItem key={option.value} value={option.value}>
                   {option.label}
                 </MenuItem>
               ))}
             </RHFSelect>
 
-            {category === "bakery" && (
-              <RHFSelect name="subCategory" label="หมวดหมู่ย่อย">
-                {SUB_CATEGORY_OPTIONS.map((option) => (
+            {type === "BAKERY" && (
+              <RHFSelect
+                size="small"
+                name="category"
+                label="หมวดหมู่ย่อย"
+                required={type === "BAKERY"}
+              >
+                {CATEGORY_OPTIONS.map((option) => (
                   <MenuItem key={option.value} value={option.value}>
                     {option.label}
                   </MenuItem>
@@ -142,31 +214,63 @@ export default function NewProductCard({ onClose }: Props) {
 
           <Stack direction="row" spacing={1}>
             <RHFTextField
+              size="small"
               type="number"
               name="minQty"
               label="จำนวนสินค้าขั้นต่ำ"
+              required
+            />
+            <RHFTextField
+              size="small"
+              type="number"
+              name="currQty"
+              label="จำนวนสินค้าปัจจุบัน"
+              required
+            />
+          </Stack>
+
+          <Typography>ขนาด</Typography>
+
+          <Stack direction="row" spacing={1}>
+            <RHFTextField
+              type="number"
+              size="small"
+              name="width"
+              label="กว้าง (ซม.)"
+              required
             />
             <RHFTextField
               type="number"
-              name="currentQty"
-              label="จำนวนสินค้าปัจจุบัน"
+              size="small"
+              name="length"
+              label="ยาว (ซม.)"
+              required
+            />
+            <RHFTextField
+              type="number"
+              size="small"
+              name="height"
+              label="สูง (ซม.)"
+              required
             />
           </Stack>
+          <RHFTextField
+            type="number"
+            size="small"
+            name="weight"
+            label="น้ำหนัก (กรัม)"
+            required
+          />
 
-          <Stack direction="row" spacing={1}>
-            <RHFTextField type="number" name="width" label="กว้าง (ซม.)" />
-            <RHFTextField type="number" name="length" label="ยาว (ซม.)" />
-            <RHFTextField type="number" name="height" label="สูง (ซม.)" />
-          </Stack>
-
-          <Button
+          <LoadingButton
             type="submit"
             size="large"
             color="secondary"
             variant="contained"
+            loading={createProductIsLoading}
           >
             เพิ่มสินค้า
-          </Button>
+          </LoadingButton>
         </Stack>
       </Paper>
     </FormProvider>

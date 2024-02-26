@@ -1,14 +1,111 @@
 "use client";
 
+import useAdmin from "@/hooks/useAdmin";
 import { Box, Grid } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { useState, useEffect } from "react";
 import { ISnackBoxRow } from "@/components/admin/types";
 import { GridRowSelectionModel } from "@mui/x-data-grid";
 import SnackBoxDataGrid from "@/components/admin/data-grid/SnackBoxDataGrid";
-import EditProductCard from "@/components/admin/product-card/EditProductCard";
 import NewSnackBoxCard from "@/components/admin/snack-box-card/NewSnackBoxCard";
+import EditSnackBoxCard from "@/components/admin/snack-box-card/EditSnackBoxCard";
 import SnackBoxFilterToolbar from "@/components/admin/toolbars/SnackBoxFilterToolbar";
+
+// ----------------------------------------------------------------------
+
+const MOCKUP_DATA: ISnackBoxRow[] = [
+  {
+    id: "602e3fb6-0e63-4d69-be69-a699f5aeda85",
+    price: 12.5,
+    name: "snack 1",
+    description: "This one is nice",
+    imageFileName: null,
+    imagePath: null,
+    image: "",
+    weight: 0.5,
+    height: 1,
+    length: 1,
+    width: 1,
+    isActive: true,
+    isDeleted: false,
+    deletedAt: null,
+    type: "PRESET",
+    packageType: "PAPER_BAG",
+    beverage: "INCLUDE",
+    refreshments: [
+      {
+        id: "7cc5ab3c-3965-4519-8c1c-a2120c4cb51d",
+        refreshmentId: "982d6fa7-5f27-4b57-a40d-f5dfad56ac52",
+        snackBoxId: "602e3fb6-0e63-4d69-be69-a699f5aeda85",
+        refreshment: {
+          id: "982d6fa7-5f27-4b57-a40d-f5dfad56ac52",
+          name: "Cake 2",
+          description: null,
+          remark: null,
+          quantity: 12,
+          imageFileName: "2024_02_17_cute_cat.jpeg",
+          imagePath:
+            "refreshments/CAKE/982d6fa7-5f27-4b57-a40d-f5dfad56ac52/2024_02_17_cute_cat.jpeg",
+          image:
+            "https://storage.googleapis.com/cukedoh-bucket-dev/refreshments/CAKE/982d6fa7-5f27-4b57-a40d-f5dfad56ac52/2024_02_17_cute_cat.jpeg?GoogleAccessId=cukedoh-dev-sa%40cukedoh-stg.iam.gserviceaccount.com&Expires=1709379773&Signature=fTKbib1f5gfcGXVicKe1y5dWc2SSMYur30SmVvsGSt%2FIaIWbS2xE2aawteGeA%2F9%2BSAFTP4pfS2B7Om339ut4dKFnoVjIEVpQZnQHCpIiTb0Bgalawty%2ByR2rsrMiKXZpN7wsll9TG8iKpSpKYEn8aKfzx%2BNxp3enxcjcEiznD3pzEwbnldczhk5u%2B8vPsRvvLCY8NS%2BwoI99tMHhroClEyHBQ%2FZIaiDZFAnW%2FmsQzJSWPkgZtzbYkxrkhl7tvDmT4j3b4N5BMOL661pP5MP9IG0W0iLJGRw8VotvCDP8tBqVlV25NtmAxzNdzjIdXDc4roOwHhI7qMexx7suUrQpOw%3D%3D",
+          type: "BAKERY",
+          category: "CAKE",
+          status: "LOW",
+          minQty: 1,
+          maxQty: 12,
+          currQty: 2,
+          weight: 0.5,
+          height: 1,
+          length: 1,
+          width: 1,
+          price: 12.5,
+          isActive: true,
+          isDeleted: false,
+          createdAt: "2024-02-17T16:48:50.127Z",
+          updatedAt: "2024-02-17T16:48:51.047Z",
+          deletedAt: null,
+          unitType: "กล่อง",
+        },
+      },
+      {
+        id: "336f9fdb-5dce-43a5-a3da-d1dd23314aab",
+        refreshmentId: "6dd5d079-12e9-47c8-81fa-2c22756d1702",
+        snackBoxId: "602e3fb6-0e63-4d69-be69-a699f5aeda85",
+        refreshment: {
+          id: "6dd5d079-12e9-47c8-81fa-2c22756d1702",
+          name: "Cake 1",
+          description: null,
+          remark: null,
+          quantity: 12,
+          imageFileName: "2024_02_17_cute_cat.jpeg",
+          imagePath:
+            "refreshments/CAKE/6dd5d079-12e9-47c8-81fa-2c22756d1702/2024_02_17_cute_cat.jpeg",
+          image:
+            "https://storage.googleapis.com/cukedoh-bucket-dev/refreshments/CAKE/6dd5d079-12e9-47c8-81fa-2c22756d1702/2024_02_17_cute_cat.jpeg?GoogleAccessId=cukedoh-dev-sa%40cukedoh-stg.iam.gserviceaccount.com&Expires=1709379773&Signature=enOYwBtN%2Bs5%2BqtW6vhuuVHlzGQJhWoK5U2r1jRnLHYdcEUj1coJ4sejmhtc9I7In3pTY2KQtDE1HjWTJTr3Hzo0ipQNuiS4cmu%2FTSAP9YxXVr%2FnIThVb4wdReZ0BXxf%2BUAFvTKZVCJdgfkMFGumMY9ZlYTsjP4GOjCLnjQleoGBs7NCJ4zZQYvk4pqrhbhHAWUf1LeMpdLKT8N8P%2FXdYvpVI7hwRYvC6sAmrV45L%2F1mxVRdTGYOOLsqOyKP1puCBxOEi6DIwrJpTG5J3myUCUQVeAGFuRxLHngsHvzupR473eShdHfYJhN%2B8NCDt0cBq8IbVcAddFD5jmPIquvvwkQ%3D%3D",
+          type: "BAKERY",
+          category: "CAKE",
+          status: "LOW",
+          minQty: 1,
+          maxQty: 12,
+          currQty: 2,
+          weight: 0.5,
+          height: 1,
+          length: 1,
+          width: 1,
+          price: 12.5,
+          isActive: true,
+          isDeleted: false,
+          createdAt: "2024-02-17T16:48:45.914Z",
+          updatedAt: "2024-02-17T16:48:47.389Z",
+          deletedAt: null,
+          unitType: "กล่อง",
+        },
+      },
+    ],
+    createdAt: "",
+    updatedAt: "",
+  },
+];
 
 // ----------------------------------------------------------------------
 
@@ -17,34 +114,29 @@ export default function AdminSnackBox() {
     defaultValues: { search: "", status: "all" },
   });
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const rows = [
-    {
-      id: 1,
-      snackBoxName: "World",
-      status: "inStock",
-      lastUpdated: "30/08/2023 ",
-    },
-    {
-      id: 2,
-      snackBoxName: "is Awesome",
-      status: "outStock",
-      lastUpdated: "30/08/2023 ",
-    },
-    {
-      id: 3,
-      snackBoxName: "is Amazing",
-      status: "low",
-      lastUpdated: "30/08/2023 ",
-    },
-  ];
+  const {
+    productsData: products,
+    snackBoxData: snackBoxes,
+    snackBoxIsLoading: isLoading,
+  } = useAdmin();
 
-  const [filteredRows, setFilteredRows] = useState(rows);
+  const productOptions = products?.data?.map(
+    (product: { id: string; name: string }) => ({
+      value: product.id,
+      label: product.name,
+    }),
+  );
+
+  const [filteredRows, setFilteredRows] = useState(snackBoxes?.data || []);
 
   const [rowSelectionModel, setRowSelectionModel] =
     useState<GridRowSelectionModel>([]);
 
   const [isAddCardOpen, setIsAddCardOpen] = useState(false);
+
+  const [selectedRow, setSelectedRow] = useState<ISnackBoxRow | null>(null);
+
+  const [selectedItems, setSelectedItems] = useState({});
 
   const isOnlyNewSnackBoxCardOpen = isAddCardOpen && !rowSelectionModel.length;
 
@@ -60,12 +152,12 @@ export default function AdminSnackBox() {
   const { search, status } = filterValues;
 
   useEffect(() => {
-    let data = rows;
+    let data = snackBoxes?.data || [];
 
     if (search) {
       data = data.filter(
         (row: ISnackBoxRow) =>
-          row.snackBoxName.toLowerCase().indexOf(search?.toLowerCase()) > -1,
+          row.name.toLowerCase().indexOf(search?.toLowerCase()) > -1,
       );
     }
 
@@ -77,31 +169,38 @@ export default function AdminSnackBox() {
       }
     }
     setFilteredRows(data);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search, status]);
+  }, [search, snackBoxes?.data, status]);
+
+  useEffect(() => {
+    if (rowSelectionModel.length) {
+      const selectedRowData = snackBoxes?.data.find(
+        (row: ISnackBoxRow) => row.id === rowSelectionModel[0],
+      );
+
+      const refreshmentObjects: {
+        [key: string]: { value: string; label: string };
+      } = {};
+      selectedRowData.refreshments.forEach(
+        (
+          refreshment: { refreshment: { id: string; name: string } },
+          index: any,
+        ) => {
+          const key = `item${index}`;
+          refreshmentObjects[key] = {
+            value: refreshment.refreshment.id,
+            label: refreshment.refreshment.name,
+          };
+        },
+      );
+
+      setSelectedRow(selectedRowData || null);
+      setSelectedItems(refreshmentObjects);
+    }
+  }, [rowSelectionModel, snackBoxes?.data]);
 
   // useEffect(() => {
-  //   console.log("rowSelectionModel", rowSelectionModel);
-  // }, [rowSelectionModel]);
-
-  const data = {
-    productUpload: {
-      path: "Screenshot 2567-02-12 at 13.59.45.jpeg",
-      preview:
-        "blob:http://localhost:3000/c50f6b97-d0ec-4e8d-921d-64cfd1b3da40",
-    },
-    productName: "ปูไทย",
-    description: "อร่อยถูกใจเด็กไทยทุกคน",
-    category: "bakery",
-    subCategory: "bread",
-    unitType: "",
-    minQty: 5,
-    price: 50,
-    currentQty: 30,
-    width: 20,
-    length: 30,
-    height: 25,
-  };
+  //   setFilteredRows(snackBoxes?.data || []);
+  // }, [snackBoxes]);
 
   return (
     <Box>
@@ -117,7 +216,7 @@ export default function AdminSnackBox() {
       <Grid container direction="row" spacing={2}>
         <Grid item xs={isSnackBoxCardOpen ? 8 : 12}>
           <SnackBoxDataGrid
-            rows={filteredRows}
+            rows={filteredRows || []}
             rowSelectionModel={rowSelectionModel}
             setRowSelectionModel={(e) => {
               setRowSelectionModel(e);
@@ -127,18 +226,29 @@ export default function AdminSnackBox() {
         </Grid>
         {isOnlyNewSnackBoxCardOpen && (
           <Grid item xs={4}>
-            <NewSnackBoxCard onClose={() => setIsAddCardOpen(false)} />
-          </Grid>
-        )}
-        {isOnlyEditProductCardOpen && (
-          <Grid item xs={4}>
-            <EditProductCard
-              data={data}
-              isLoading={true}
-              onClose={() => setRowSelectionModel([])}
+            <NewSnackBoxCard
+              options={productOptions}
+              onClose={() => setIsAddCardOpen(false)}
             />
           </Grid>
         )}
+        {isOnlyEditProductCardOpen &&
+          selectedRow &&
+          rowSelectionModel[0] === selectedRow.id &&
+          selectedItems && (
+            <Grid item xs={4}>
+              <EditSnackBoxCard
+                data={selectedRow}
+                selectedItems={selectedItems}
+                option={productOptions}
+                onClose={() => {
+                  setRowSelectionModel([]);
+                  setSelectedItems({});
+                  setSelectedRow(null);
+                }}
+              />
+            </Grid>
+          )}
       </Grid>
     </Box>
   );
