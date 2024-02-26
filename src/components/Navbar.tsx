@@ -1,12 +1,9 @@
 "use client";
 
-import useSWR from "swr";
 import Image from "next/image";
 import { User } from "@prisma/client";
 import { motion } from "framer-motion";
 import React, { useState } from "react";
-import apiPaths from "@/utils/api-path";
-import { fetcher } from "@/utils/axios";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter, usePathname } from "next/navigation";
 
@@ -47,6 +44,7 @@ const NAV_ITEMS = [
 
 type Props = {
   currentUser: User | any;
+  cart: { quantity: number }[];
   transparent?: boolean;
   hasShadow?: boolean;
 };
@@ -65,6 +63,7 @@ const underlinedMotion = {
 
 export default function Navbar({
   currentUser,
+  cart,
   transparent = false,
   hasShadow = false,
 }: Props) {
@@ -75,16 +74,7 @@ export default function Navbar({
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const { getCart } = apiPaths();
-  const { data: cartData } = useSWR(getCart(currentUser?.id || ""), fetcher);
-
-  const cartItems: { quantity: number }[] =
-    cartData?.response?.data?.items || [];
-
-  const cartItemsAmount = cartItems.reduce(
-    (acc, item) => acc + item.quantity,
-    0,
-  );
+  const cartItemsAmount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
     <NextNavbar

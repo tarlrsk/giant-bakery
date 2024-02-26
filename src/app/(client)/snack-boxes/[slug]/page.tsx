@@ -6,10 +6,11 @@ import React, { useState } from "react";
 import apiPaths from "@/utils/api-path";
 import { fetcher } from "@/utils/axios";
 import { SnackBox } from "@prisma/client";
-import useSWRMutation from "swr/mutation";
-import getCurrentUser from "@/actions/userActions";
+import { addItemToCart } from "@/actions/cartActions";
 import SnackBoxDetail from "@/components/SnackBoxDetail";
 import { useRouter, useSearchParams } from "next/navigation";
+
+// ----------------------------------------------------------------------
 
 type Props = {
   params: {
@@ -17,22 +18,7 @@ type Props = {
   };
 };
 
-type IAddSnackBoxToCart = {
-  userId: string;
-  type: "MEMBER" | "GUEST";
-  snackBoxId: string;
-  quantity: number;
-};
-
-async function sendAddSnackBoxRequest(
-  url: string,
-  { arg }: { arg: IAddSnackBoxToCart },
-) {
-  await fetch(url, {
-    method: "POST",
-    body: JSON.stringify(arg),
-  }).then((res) => res.json());
-}
+// ----------------------------------------------------------------------
 
 export default function SnackBoxDetailPage({ params }: Props) {
   const router = useRouter();
@@ -50,10 +36,9 @@ export default function SnackBoxDetailPage({ params }: Props) {
 
   const item: SnackBox = data?.response?.data || {};
 
-  const { trigger: triggerAddToCart, isMutating: isMutatingAddToCart } =
-    useSWRMutation(addPresetSnackBoxToCart(), sendAddSnackBoxRequest);
-
   const [counter, setCounter] = useState(1);
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleInputChange = (e: any) => {
     let inputValue = e.target.value;
@@ -72,23 +57,16 @@ export default function SnackBoxDetailPage({ params }: Props) {
   };
 
   async function handleAddToCart() {
-    const currentUser = await getCurrentUser();
-
-    const body: IAddSnackBoxToCart = {
-      userId: currentUser?.id || "",
-      type: currentUser?.role === "CUSTOMER" ? "MEMBER" : "GUEST",
-      snackBoxId: item.id,
-      quantity: counter,
-    };
-
+    setIsLoading(true);
     try {
-      await triggerAddToCart(body);
+      await addItemToCart(addPresetSnackBoxToCart(), item.id, counter);
       toast.success("ใส่ตระก้าสำเร็จ");
       router.push("/cart");
     } catch (error) {
       console.error(error);
       toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
     }
+    setIsLoading(true);
   }
 
   return (
@@ -96,7 +74,7 @@ export default function SnackBoxDetailPage({ params }: Props) {
       <SnackBoxDetail
         item={item}
         counter={counter}
-        isLoading={isMutatingAddToCart}
+        isLoading={isLoading}
         onClick={() => {
           handleAddToCart();
         }}

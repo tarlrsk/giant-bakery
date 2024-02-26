@@ -23,11 +23,12 @@ import DeleteIcon from "../icons/DeleteIcon";
 
 type Props = {
   userId: string;
+  userType: "MEMBER" | "GUEST";
   items: ICartItem[];
   onUpdateCartItem: (
     userId: string,
-    type: string,
     itemId: string,
+    type: "MEMBER" | "GUEST",
     quantity: number,
     action: "increase" | "decrease" | "remove",
   ) => Promise<any>;
@@ -37,6 +38,7 @@ type Props = {
 
 export default function CartItemTable({
   userId,
+  userType,
   items,
   onUpdateCartItem,
 }: Props) {
@@ -54,13 +56,13 @@ export default function CartItemTable({
                     ? item.packageType === "PAPER_BAG"
                       ? "/paper-bag.jpeg"
                       : "/snack-box.png"
-                    : item.imageUrl,
+                    : item.image,
               }}
               classNames={{
                 name: "text-sm md:text-lg font-medium",
                 description: "text-xs md:text-base font-normal",
               }}
-              description={item.description}
+              description={item?.description || ""}
               name={item.name}
               className=" gap-6 pl-3"
             >
@@ -82,22 +84,26 @@ export default function CartItemTable({
                 radius="md"
                 className="bg-transparent"
                 onPress={async () => {
-                  await onUpdateCartItem(
-                    userId,
-                    item.itemId,
-                    item.type,
-                    item.quantity,
-                    "decrease",
-                  ).then(
-                    (res) =>
-                      !res.response.success &&
-                      toast.error("กรุณาลองใหม่อีกครั้ง"),
-                  );
+                  try {
+                    await onUpdateCartItem(
+                      userId,
+                      item.itemId,
+                      userType,
+                      item.quantity,
+                      "decrease",
+                    ).then(
+                      (res) =>
+                        !res.response.success &&
+                        toast.error("กรุณาลองใหม่อีกครั้ง"),
+                    );
+                  } catch (err) {
+                    console.error(err);
+                  }
                 }}
               >
                 <MinusIcon />
               </Button>
-              <div className=" border border-gray-300 max-w-12 min-w-12 px-1 text-center overflow-auto text-ellipsis rounded-sm">
+              <div className=" border   max-w-12 min-w-12 px-1 text-center overflow-auto text-ellipsis rounded-sm">
                 {item.quantity}
               </div>
               <Button
@@ -109,7 +115,7 @@ export default function CartItemTable({
                   await onUpdateCartItem(
                     userId,
                     item.itemId,
-                    item.type,
+                    userType,
                     item.quantity,
                     "increase",
                   ).then(
@@ -137,7 +143,7 @@ export default function CartItemTable({
                   await onUpdateCartItem(
                     userId,
                     item.itemId,
-                    item.type,
+                    userType,
                     item.quantity,
                     "remove",
                   ).then(
@@ -155,7 +161,7 @@ export default function CartItemTable({
           return "";
       }
     },
-    [onUpdateCartItem, userId],
+    [onUpdateCartItem, userId, userType],
   );
 
   const classNames = useMemo(
@@ -189,20 +195,30 @@ export default function CartItemTable({
   return (
     <Table radius="sm" removeWrapper classNames={classNames}>
       <TableHeader>
-        <TableColumn key="name">สินค้า</TableColumn>
-        <TableColumn key="price" className="text-center">
+        <TableColumn className="text-primaryT-darker" key="name">
+          สินค้า
+        </TableColumn>
+        <TableColumn key="price" className="text-center text-primaryT-darker">
           ราคา
         </TableColumn>
-        <TableColumn key="amount" align="center" className="text-center">
+        <TableColumn
+          key="amount"
+          align="center"
+          className="text-center text-primaryT-darker"
+        >
           จำนวน
         </TableColumn>
-        <TableColumn key="total" align="end" className=" text-end">
+        <TableColumn
+          key="total"
+          align="end"
+          className=" text-end text-primaryT-darker"
+        >
           ราคารวม
         </TableColumn>
       </TableHeader>
       <TableBody emptyContent={"ไม่พบสินค้าในตะกร้า"} items={items}>
         {(item) => (
-          <TableRow key={item.name}>
+          <TableRow key={item.itemId}>
             {(columnKey) => (
               <TableCell>{renderCell(item, columnKey)}</TableCell>
             )}

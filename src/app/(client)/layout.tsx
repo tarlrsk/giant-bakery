@@ -1,5 +1,6 @@
 import * as React from "react";
 import type { Metadata } from "next";
+import apiPaths from "@/utils/api-path";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import getCurrentUser from "@/actions/userActions";
@@ -27,13 +28,20 @@ export default async function Layout({
 }: {
   children: React.ReactNode;
 }) {
+  const { getCart } = apiPaths();
   const currentUser = await getCurrentUser();
+  const cartData = await fetch(getCart(currentUser?.id || ""), {
+    next: { tags: ["cart"] },
+    cache: "no-store",
+  }).then((res) => res.json());
+
+  const cart = cartData?.response?.data?.items || [];
   return (
     <ClientProviders>
       <div
         className={`${ibm.className} flex flex-col h-screen justify-between`}
       >
-        <Navbar currentUser={currentUser} hasShadow={true} />
+        <Navbar currentUser={currentUser} cart={cart} hasShadow={true} />
         <main>{children}</main>
         <Footer />
       </div>

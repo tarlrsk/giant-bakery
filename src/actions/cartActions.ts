@@ -1,10 +1,9 @@
 "use server";
 
-import paths from "@/utils/paths";
 // import toast from "react-hot-toast";
 import apiPaths from "@/utils/api-path";
 import { CartType } from "@prisma/client";
-import { revalidatePath } from "next/cache";
+import { revalidateTag } from "next/cache";
 import { prismaCart } from "@/persistence/cart";
 import { getFileUrl } from "@/lib/gcs/getFileUrl";
 import { responseWrapper } from "@/utils/api-response-wrapper";
@@ -13,10 +12,122 @@ import getCurrentUser from "./userActions";
 
 // ----------------------------------------------------------------------
 
+type IAddCustomSnackBoxToCart = {
+  packageType: "PAPER_BAG" | "SNACK_BOX_S" | "SNACK_BOX_M";
+  beverage: "INCLUDE" | "EXCLUDE" | "NONE";
+  refreshmentIds: string[];
+  quantity: number;
+};
+
+type IAddCakeToCart = {
+  cakeId: string;
+  cakeType: "PRESET" | "CUSTOM";
+  sizeId: string;
+  baseId: string;
+  fillingId: string;
+  quantity: number;
+};
+
+// ----------------------------------------------------------------------
+
+export async function addPresetCakeToCartAction(
+  url: string,
+  body: IAddCakeToCart,
+) {
+  try {
+    const currentUser = await getCurrentUser();
+
+    const request = {
+      userId: currentUser?.id || "GUEST",
+      type: currentUser?.role || "GUEST",
+      cakeId: body.cakeId,
+      cakeType: body.cakeType,
+      sizeId: body.sizeId,
+      fillingId: body.fillingId,
+      quantity: body.quantity,
+    };
+
+    const res = await fetch(url, {
+      method: "POST",
+      body: JSON.stringify(request),
+      cache: "no-store",
+    });
+
+    revalidateTag("cart");
+    const data = await res.json();
+    console.log("data", data);
+
+    return data;
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+export async function addCustomSnackBoxToCartAction(
+  url: string,
+  body: IAddCustomSnackBoxToCart,
+) {
+  try {
+    const currentUser = await getCurrentUser();
+
+    const request = {
+      userId: currentUser?.id || "GUEST",
+      type: currentUser?.role || "GUEST",
+      packageType: body.packageType,
+      beverage: body.beverage,
+      refreshmentIds: body.refreshmentIds,
+      quantity: body.quantity,
+    };
+
+    const res = await fetch(url, {
+      method: "POST",
+      body: JSON.stringify(request),
+      cache: "no-store",
+    });
+
+    revalidateTag("cart");
+    const data = await res.json();
+
+    return data;
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+export async function addItemToCart(
+  url: string,
+  itemId: string,
+  quantity: number,
+) {
+  try {
+    const currentUser = await getCurrentUser();
+
+    const body = {
+      userId: currentUser?.id || "GUEST",
+      type: currentUser?.role === "CUSTOMER" ? "MEMBER" : "GUEST",
+      refreshmentId: itemId,
+      quantity: quantity,
+    };
+
+    const res = await fetch(url, {
+      method: "POST",
+      body: JSON.stringify(body),
+      cache: "no-store",
+    });
+
+    revalidateTag("cart");
+    const data = await res.json();
+
+    return data;
+  } catch (err) {
+    console.error(err);
+  }
+}
+
 export async function updateCartItem(
   userId: string,
   itemId: string,
-  type: string,
+  type: "MEMBER" | "GUEST",
   quantity: number,
   action: "increase" | "decrease" | "remove",
 ) {
@@ -35,11 +146,11 @@ export async function updateCartItem(
 
     const res = await fetch(updateCartItem(), {
       method: "PUT",
-      body: JSON.stringify({ userId, itemId, quantity: updatedQuantity }),
+      body: JSON.stringify({ userId, itemId, type, quantity: updatedQuantity }),
       cache: "no-store",
     });
 
-    revalidatePath(paths.cartList());
+    revalidateTag("cart");
     const data = await res.json();
 
     return data;

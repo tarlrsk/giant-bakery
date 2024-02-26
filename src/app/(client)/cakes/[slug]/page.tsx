@@ -5,11 +5,12 @@ import toast from "react-hot-toast";
 import React, { useState } from "react";
 import apiPaths from "@/utils/api-path";
 import { fetcher } from "@/utils/axios";
-import useSWRMutation from "swr/mutation";
 import { Refreshment } from "@prisma/client";
 import { useSearchParams } from "next/navigation";
-import getCurrentUser from "@/actions/userActions";
+import { addItemToCart } from "@/actions/cartActions";
 import ProductDetail from "@/components/ProductDetail";
+
+// ----------------------------------------------------------------------
 
 type CakeDetailParams = {
   params: {
@@ -17,22 +18,7 @@ type CakeDetailParams = {
   };
 };
 
-type IAddRefreshmentToCart = {
-  userId: string;
-  type: "MEMBER" | "GUEST";
-  refreshmentId: string;
-  quantity: number;
-};
-
-async function sendAddRefreshmentRequest(
-  url: string,
-  { arg }: { arg: IAddRefreshmentToCart },
-) {
-  await fetch(url, {
-    method: "POST",
-    body: JSON.stringify(arg),
-  }).then((res) => res.json());
-}
+// ----------------------------------------------------------------------
 
 export default function CakeDetail({ params }: CakeDetailParams) {
   const searchParams = useSearchParams();
@@ -48,10 +34,9 @@ export default function CakeDetail({ params }: CakeDetailParams) {
 
   const item: Refreshment = data?.response?.data || {};
 
-  const { trigger: triggerAddToCart, isMutating: isMutatingAddToCart } =
-    useSWRMutation(addRefreshmentToCart(), sendAddRefreshmentRequest);
-
   const [counter, setCounter] = useState(1);
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleInputChange = (e: any) => {
     let inputValue = e.target.value;
@@ -70,22 +55,15 @@ export default function CakeDetail({ params }: CakeDetailParams) {
   };
 
   async function handleAddToCart() {
-    const currentUser = await getCurrentUser();
-
-    const body: IAddRefreshmentToCart = {
-      userId: currentUser?.id || "",
-      type: currentUser?.role === "CUSTOMER" ? "MEMBER" : "GUEST",
-      refreshmentId: item.id,
-      quantity: counter,
-    };
-
+    setIsLoading(true);
     try {
-      await triggerAddToCart(body);
+      await addItemToCart(addRefreshmentToCart(), item.id, counter);
       toast.success("ใส่ตระก้าสำเร็จ");
     } catch (error) {
       console.error(error);
       toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
     }
+    setIsLoading(false);
   }
 
   return (
@@ -93,7 +71,7 @@ export default function CakeDetail({ params }: CakeDetailParams) {
       <ProductDetail
         item={item}
         counter={counter}
-        isLoading={isMutatingAddToCart}
+        isLoading={isLoading}
         onClick={handleAddToCart}
         onChange={handleInputChange}
         onIncrement={increment}
