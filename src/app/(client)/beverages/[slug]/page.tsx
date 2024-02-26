@@ -58,6 +58,13 @@ export default function BeverageDetail({ params }: BeverageDetailParams) {
     let inputValue = e.target.value;
     inputValue =
       isNaN(inputValue) || inputValue === "" ? 1 : parseInt(inputValue, 10);
+
+    if (isNaN(inputValue) || inputValue < 1) {
+      inputValue = 1;
+    } else if (inputValue > item.currQty) {
+      return;
+    }
+
     inputValue = Math.min(Math.max(inputValue, 1), item.currQty);
     setCounter(inputValue);
   };
