@@ -19,7 +19,7 @@ import {
 const MOCKUP_ITEMS: ICartItem[] = [
   {
     name: "เอแคลร์",
-    imageUrl:
+    image:
       "https://image.makewebeasy.net/makeweb/m_1920x0/Ub8wb5z91/Homemadebakery2022/14_%E0%B9%80%E0%B8%AD%E0%B9%81%E0%B8%84%E0%B8%A5%E0%B8%A3%E0%B9%8C%E0%B8%A7%E0%B8%B2%E0%B8%99%E0%B8%B4%E0%B8%A5%E0%B8%A5%E0%B8%B2%E0%B9%82%E0%B8%AE%E0%B8%A1%E0%B9%80%E0%B8%A1%E0%B8%94.jpg",
     description: "ไส้นมฮอกไกโด",
     quantity: 2,
