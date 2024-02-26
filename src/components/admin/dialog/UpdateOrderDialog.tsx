@@ -1,8 +1,9 @@
-import React from "react";
+import React, { Dispatch } from "react";
 import { LoadingButton } from "@mui/lab";
 import {
   Dialog,
   Button,
+  TextField,
   DialogTitle,
   DialogActions,
   DialogContent,
@@ -15,6 +16,8 @@ type Props = {
   text: string;
   open: boolean;
   isLoading: boolean;
+  isTrackingRequired: boolean;
+  setTrackingNo: Dispatch<string>;
   onClose: () => void;
   onUpdate: () => void;
 };
@@ -27,6 +30,8 @@ export default function UpdateOrderDialog({
   isLoading,
   onClose,
   onUpdate,
+  setTrackingNo,
+  isTrackingRequired,
 }: Props) {
   return (
     <Dialog open={open} onClose={onClose}>
@@ -36,6 +41,17 @@ export default function UpdateOrderDialog({
           เมื่อยืนยันสถานะของออเดอร์แล้ว
           สถานะของออเดอร์จะถูกเปลี่ยนเป็นสถานะถัดไปและจะแสดงสถานะออเดอร์ใหม่ให้ลูกค้าเห็น
         </DialogContentText>
+
+        {isTrackingRequired && (
+          <TextField
+            fullWidth
+            size="small"
+            onChange={(e) => setTrackingNo(e.target.value)}
+            label="Tracking Number"
+            sx={{ mt: 2 }}
+            required
+          />
+        )}
       </DialogContent>
       <DialogActions sx={{ p: 2 }}>
         <Button

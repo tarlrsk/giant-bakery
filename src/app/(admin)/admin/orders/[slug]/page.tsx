@@ -114,7 +114,7 @@ async function sendUpdateOrderRequest(
 ) {
   try {
     const res = await fetch(url, {
-      method: "POST",
+      method: "PUT",
       body: JSON.stringify(arg),
     }).then((res) => res.json());
 
@@ -133,7 +133,7 @@ async function sendCancelOrderRequest(
 ) {
   try {
     const res = await fetch(url, {
-      method: "POST",
+      method: "PUT",
       body: JSON.stringify(arg),
     }).then((res) => res.json());
 
@@ -161,24 +161,24 @@ export default function OrderDetail({ params }: { params: { slug: string } }) {
   const { slug } = params;
   const { enqueueSnackbar } = useSnackbar();
 
-  const { getOrderById, updateOrder } = apiPaths();
+  const { getOrderById, updateOrder, cancelOrder } = apiPaths();
 
-  const { data: orderData, isLoading } = useSWR(
-    slug ? getOrderById(slug) : null,
-    adminFetcher,
-  );
+  const {
+    data: orderData,
+    isLoading,
+    mutate: orderDataMutate,
+  } = useSWR(slug ? getOrderById(slug) : null, adminFetcher);
 
   const { trigger: triggerUpdateOrder, isMutating: isMutatingUpdateOrder } =
     useSWRMutation(updateOrder(), sendUpdateOrderRequest);
 
-  // TODO: change api path to cancel order
   const { trigger: triggerCancelOrder, isMutating: isMutatingCancelOrder } =
-    useSWRMutation(updateOrder(), sendCancelOrderRequest);
+    useSWRMutation(cancelOrder(), sendCancelOrderRequest);
 
   const [isTrackingRequired, setIsTrackingRequired] = useState(false);
+  const [trackingNo, setTrackingNo] = useState("");
   const [isOpenUpdate, setIsOpenUpdate] = useState(false);
   const [isOpenCancel, setIsOpenCancel] = useState(false);
-  const [trackingNo, setTrackingNo] = useState("");
 
   const orderDetail: OrderDetail = orderData?.data || {};
 
@@ -190,6 +190,7 @@ export default function OrderDetail({ params }: { params: { slug: string } }) {
         trackingNo,
       });
 
+      orderDataMutate();
       enqueueSnackbar("อัพเดทออเดอร์สำเร็จ", { variant: "success" });
     } catch (error) {
       console.error(error);
@@ -203,6 +204,7 @@ export default function OrderDetail({ params }: { params: { slug: string } }) {
         orderId: slug,
       });
 
+      orderDataMutate();
       enqueueSnackbar("ยกเลิกออเดอร์สำเร็จ", { variant: "success" });
     } catch (error) {
       console.error(error);
@@ -305,15 +307,17 @@ export default function OrderDetail({ params }: { params: { slug: string } }) {
         text={buttonActionText || ""}
         open={isOpenUpdate}
         onClose={() => setIsOpenUpdate(false)}
-        onUpdate={() => handleUpdateOrder}
+        onUpdate={handleUpdateOrder}
         isLoading={isMutatingUpdateOrder}
+        isTrackingRequired={isTrackingRequired}
+        setTrackingNo={setTrackingNo}
       />
 
       <CancelOrderDialog
         open={isOpenCancel}
         onClose={() => setIsOpenCancel(false)}
-        onCancel={() => handleCancelOrder}
-        isLoading={isMutatingUpdateOrder}
+        onCancel={handleCancelOrder}
+        isLoading={isMutatingCancelOrder}
       />
 
       <Backdrop
