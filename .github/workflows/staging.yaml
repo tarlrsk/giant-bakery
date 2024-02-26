@@ -16,12 +16,7 @@ jobs:
     environment:
       name: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/heads/develop') && 'Staging' || github.event_name == 'push' && startsWith(github.ref, 'refs/heads/uat') && 'UAT' || 'Preview' }}
     steps:
-      - name: Set up Node.js 20
-        uses: actions/setup-node@v3
-        with:
-          node-version: "20"
-
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install Vercel CLI
         run: yarn global add vercel@latest
