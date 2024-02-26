@@ -3,8 +3,8 @@
 import Image from "next/image";
 import toast from "react-hot-toast";
 import apiPaths from "@/utils/api-path";
-import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useMemo, useState, useEffect } from "react";
 import { addCustomSnackBoxToCartAction } from "@/actions/cartActions";
 
 import {
@@ -56,13 +56,13 @@ const PACKAGING_OPTIONS = [
   {
     value: "SNACK_BOX_S",
     label: "กล่องขนม (S)",
-    description: "2 ชิ้นต่อถุง",
+    description: "2 ชิ้นต่อกล่อง",
     amount: 2,
   },
   {
     value: "SNACK_BOX_M",
     label: "กล่องขนม (M)",
-    description: "4 ชิ้นต่อถุง",
+    description: "4 ชิ้นต่อกล่อง",
     amount: 4,
   },
 ];
@@ -86,7 +86,7 @@ export default function CustomSnackBox() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [selectedTab, setSelectedTab] = useState<
     "bakeries" | "cakes" | "drinks"
-  >("bakeries");
+  >("drinks");
   const [snackBoxQty, setSnackBoxQty] = useState(1);
   const [selectedItems, setSelectedItems] = useState<ICustomSnackBoxItem[]>([]);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
@@ -237,6 +237,14 @@ export default function CustomSnackBox() {
     setIsAddingToCart(false);
   }
 
+  useEffect(() => {
+    if (selectedDrinkOption === "INCLUDE") {
+      setSelectedTab("drinks");
+    } else {
+      setSelectedTab("bakeries");
+    }
+  }, [selectedDrinkOption]);
+
   const renderPackageHeader = (
     <h2 className=" text-xl font-medium">เลือกบรรจุภัณฑ์</h2>
   );
@@ -248,7 +256,9 @@ export default function CustomSnackBox() {
           src={
             selectedPackaging === "PAPER_BAG"
               ? "/paper-bag.jpeg"
-              : "/snack-box.png"
+              : selectedPackaging === "SNACK_BOX_S"
+                ? "/snack-box-s.png"
+                : "/snack-box-m.png"
           }
           width={250}
           height={250}
@@ -284,7 +294,9 @@ export default function CustomSnackBox() {
               setCurrentPage(2);
             }}
           >
-            เลือกขนมและเครื่องดื่ม
+            {selectedDrinkOption === "INCLUDE"
+              ? "เลือกขนมและเครื่องดื่ม"
+              : "เลือกขนม"}
           </Button>
         </FormProvider>
       </div>
@@ -293,7 +305,11 @@ export default function CustomSnackBox() {
 
   const renderSnackHeader = (
     <>
-      <h2 className=" text-xl font-medium">เลือกเบเกอรี่และเครื่องดื่ม</h2>
+      <h2 className=" text-xl font-medium">
+        {selectedDrinkOption === "INCLUDE"
+          ? "เลือกขนมและเครื่องดื่ม"
+          : "เลือกขนม"}
+      </h2>
 
       <Popover placement="bottom" radius="md">
         <Badge
@@ -348,17 +364,18 @@ export default function CustomSnackBox() {
           setSelectedTab(selected as "bakeries" | "cakes" | "drinks")
         }
       >
-        <Tab key="bakeries" title="เบเกอรี่" />
-        <Tab key="cakes" title="เค้ก" />
         {selectedDrinkOption !== "NONE" && (
           <Tab key="drinks" title="เครื่องดื่ม" />
         )}
+        <Tab key="bakeries" title="เบเกอรี่" />
+        <Tab key="cakes" title="เค้ก" />
       </Tabs>
       <div className="overflow-y-auto max-h-unit-96 mb-4">
         {selectedTab === "bakeries" && (
           <BakeryItems
             cols={4}
             size="sm"
+            category=""
             onClick={(selected) => onAddItem(selected)}
           />
         )}
@@ -367,6 +384,7 @@ export default function CustomSnackBox() {
           <CakeItems
             cols={4}
             size="sm"
+            type="CAKE"
             onClick={(selected) => onAddItem(selected)}
           />
         )}
@@ -380,14 +398,6 @@ export default function CustomSnackBox() {
         )}
       </div>
       <div className=" flex flex-row gap-4">
-        <div
-          className={` flex flex-row gap-2 items-center ${
-            isMatchLimitSnackQty ? "text-green-600" : ""
-          }`}
-        >
-          <Iconify icon="charm:circle-tick" size={24} />
-          <div className=" mt-1">{`โปรดเลือกขนมทั้งหมด ${limitSnackQty} ชิ้น`}</div>
-        </div>
         {!!limitDrinkQty && (
           <div
             className={` flex flex-row gap-2 items-center ${
@@ -398,6 +408,14 @@ export default function CustomSnackBox() {
             <div className=" mt-1">{`โปรดเลือกเครื่องดื่ม ${limitDrinkQty} กล่อง`}</div>
           </div>
         )}
+        <div
+          className={` flex flex-row gap-2 items-center ${
+            isMatchLimitSnackQty ? "text-green-600" : ""
+          }`}
+        >
+          <Iconify icon="charm:circle-tick" size={24} />
+          <div className=" mt-1">{`โปรดเลือกขนมทั้งหมด ${limitSnackQty} ชิ้น`}</div>
+        </div>
       </div>
 
       <div className=" flex flex-row gap-4">
@@ -424,14 +442,16 @@ export default function CustomSnackBox() {
             setCurrentPage(3);
           }}
         >
-          เลือกจำนวนกล่อง
+          {`เลือกจำนวน${selectedPackaging === "PAPER_BAG" ? "ถุง" : "กล่อง"}`}
         </Button>
       </div>
     </>
   );
 
   const renderSnackBoxAmountHeader = (
-    <h2 className=" text-xl font-medium">เลือกจำนวนสแน็คบ็อกส์</h2>
+    <h2 className=" text-xl font-medium">{`เลือกจำนวน${
+      selectedPackaging === "PAPER_BAG" ? "ถุง" : "กล่อง"
+    }`}</h2>
   );
 
   const renderSelectAmountSection = (
@@ -467,15 +487,18 @@ export default function CustomSnackBox() {
               selectedPackaging === "PAPER_BAG" ? "ถุงกระดาษ" : "กล่องขนม"
             }`}
           </h1>
-          <div>
+          <div className=" flex flex-col gap-1">
             <p>
               {selectedDrinkOption === "EXCLUDE"
-                ? "มีเครื่องดื่ม (ใส่ในบรรจุภัณฑ์)"
+                ? "มีเครื่องดื่ม"
                 : "ไม่มีเครื่องดื่ม"}
             </p>
-            <p>{`ประกอบด้วย: ${selectedItems
-              .map((item) => `${item.name} x${item.quantity}`)
-              .join(", ")}`}</p>
+            <p className=" text-base">ประกอบด้วย: </p>
+            <p className=" text-base">
+              {selectedItems
+                .map((item) => `${item.name} x${item.quantity}`)
+                .join(", ")}
+            </p>
           </div>
           <h1 className="font-semibold text-xl leading-normal">162 บาท</h1>
         </div>
