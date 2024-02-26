@@ -44,6 +44,7 @@ type ICustomSnackBoxItem = {
   price: number;
   quantity: number;
   type: string;
+  currQty: number;
 };
 
 const PACKAGING_OPTIONS = [
@@ -117,6 +118,7 @@ export default function CustomSnackBox() {
     image: string;
     price: number;
     type: string;
+    currQty: number;
   }) => {
     const foundItemIndex = selectedItems.findIndex(
       (currentItem: { id: string }) => currentItem.id === item.id,
@@ -129,9 +131,10 @@ export default function CustomSnackBox() {
         price: number;
         quantity: number;
         type: string;
+        currQty: number;
       } = selectedItems[foundItemIndex];
 
-      const { id, name, image, quantity, type } = foundItem;
+      const { id, name, image, quantity, type, currQty } = foundItem;
 
       const newItem = {
         id,
@@ -140,6 +143,7 @@ export default function CustomSnackBox() {
         image,
         quantity: quantity + 1,
         price: item.price * (quantity + 1),
+        currQty,
       };
 
       const newSelectedItems = selectedItems.map((item, index: number) => {
@@ -151,7 +155,7 @@ export default function CustomSnackBox() {
 
       setSelectedItems(newSelectedItems);
     } else {
-      const { id, name, image, price, type } = item;
+      const { id, name, image, price, type, currQty } = item;
       setSelectedItems((prev) => [
         ...prev,
         {
@@ -161,6 +165,7 @@ export default function CustomSnackBox() {
           price,
           type,
           quantity: 1,
+          currQty,
         },
       ]);
     }
@@ -209,8 +214,13 @@ export default function CustomSnackBox() {
 
   const handleInputChange = (e: any) => {
     let inputValue = e.target.value;
+
     inputValue =
       isNaN(inputValue) || inputValue === "" ? 1 : parseInt(inputValue, 10);
+
+    if (isNaN(inputValue) || inputValue < 1) {
+      inputValue = 1;
+    }
     inputValue = Math.min(Math.max(inputValue, 1), 999);
     setSnackBoxQty(inputValue);
   };
@@ -225,11 +235,18 @@ export default function CustomSnackBox() {
     };
 
     try {
-      await addCustomSnackBoxToCartAction(addCustomSnackBoxToCart(), body);
+      const res = await addCustomSnackBoxToCartAction(
+        addCustomSnackBoxToCart(),
+        body,
+      );
+      console.log("res", res);
+      if (!res.success) throw new Error(res.error);
       toast.success("จัดชุดเบรกสำเร็จ");
       setCurrentPage(1);
       reset();
       setSelectedItems([]);
+      setSnackBoxQty(1);
+      setSelectedTab("drinks");
     } catch (error) {
       console.error(error);
       toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
@@ -461,9 +478,11 @@ export default function CustomSnackBox() {
           src={
             selectedPackaging === "PAPER_BAG"
               ? "/paper-bag.jpeg"
-              : "/snack-box.png"
+              : selectedPackaging === "SNACK_BOX_S"
+                ? "/snack-box-s.png"
+                : "/snack-box-m.png"
           }
-          alt="cake"
+          alt="packaging"
           width={280}
           height={280}
         />
@@ -471,7 +490,7 @@ export default function CustomSnackBox() {
           {selectedItems.map((item, index) => (
             <Image
               key={index}
-              src={item.image}
+              src={item?.image || "/placeholder-image.jpeg"}
               alt={item.name}
               width={55}
               height={55}

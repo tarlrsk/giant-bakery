@@ -88,6 +88,8 @@ export async function addCustomSnackBoxToCartAction(
     revalidateTag("cart");
     const data = await res.json();
 
+    console.log("data", data);
+
     return data;
   } catch (err) {
     console.error(err);
