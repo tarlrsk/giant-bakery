@@ -64,6 +64,7 @@ async function ItemCartView() {
         <div className="md:col-span-4 ">
           <CartItemTable
             userId={currentUser?.id || ""}
+            userType={(currentUser?.role as "MEMBER" | "GUEST") || "GUEST"}
             items={items}
             onUpdateCartItem={updateCartItem}
           />

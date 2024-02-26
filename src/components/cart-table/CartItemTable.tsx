@@ -23,11 +23,12 @@ import DeleteIcon from "../icons/DeleteIcon";
 
 type Props = {
   userId: string;
+  userType: "MEMBER" | "GUEST";
   items: ICartItem[];
   onUpdateCartItem: (
     userId: string,
-    type: string,
     itemId: string,
+    type: "MEMBER" | "GUEST",
     quantity: number,
     action: "increase" | "decrease" | "remove",
   ) => Promise<any>;
@@ -37,6 +38,7 @@ type Props = {
 
 export default function CartItemTable({
   userId,
+  userType,
   items,
   onUpdateCartItem,
 }: Props) {
@@ -54,13 +56,13 @@ export default function CartItemTable({
                     ? item.packageType === "PAPER_BAG"
                       ? "/paper-bag.jpeg"
                       : "/snack-box.png"
-                    : item.imageUrl,
+                    : item.image,
               }}
               classNames={{
                 name: "text-sm md:text-lg font-medium",
                 description: "text-xs md:text-base font-normal",
               }}
-              description={item.description}
+              description={item?.description || ""}
               name={item.name}
               className=" gap-6 pl-3"
             >
@@ -85,7 +87,7 @@ export default function CartItemTable({
                   await onUpdateCartItem(
                     userId,
                     item.itemId,
-                    item.type,
+                    userType,
                     item.quantity,
                     "decrease",
                   ).then(
@@ -109,7 +111,7 @@ export default function CartItemTable({
                   await onUpdateCartItem(
                     userId,
                     item.itemId,
-                    item.type,
+                    userType,
                     item.quantity,
                     "increase",
                   ).then(
@@ -137,7 +139,7 @@ export default function CartItemTable({
                   await onUpdateCartItem(
                     userId,
                     item.itemId,
-                    item.type,
+                    userType,
                     item.quantity,
                     "remove",
                   ).then(
@@ -155,7 +157,7 @@ export default function CartItemTable({
           return "";
       }
     },
-    [onUpdateCartItem, userId],
+    [onUpdateCartItem, userId, userType],
   );
 
   const classNames = useMemo(
@@ -186,6 +188,8 @@ export default function CartItemTable({
     [],
   );
 
+  console.log("items server", items);
+
   return (
     <Table radius="sm" removeWrapper classNames={classNames}>
       <TableHeader>
@@ -202,7 +206,7 @@ export default function CartItemTable({
       </TableHeader>
       <TableBody emptyContent={"ไม่พบสินค้าในตะกร้า"} items={items}>
         {(item) => (
-          <TableRow key={item.name}>
+          <TableRow key={item.itemId}>
             {(columnKey) => (
               <TableCell>{renderCell(item, columnKey)}</TableCell>
             )}

@@ -5,8 +5,7 @@ import toast from "react-hot-toast";
 import apiPaths from "@/utils/api-path";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
-import useSWRMutation from "swr/mutation";
-import getCurrentUser from "@/actions/userActions";
+import { addCustomSnackBoxToCartAction } from "@/actions/cartActions";
 
 import {
   Tab,
@@ -69,9 +68,9 @@ const PACKAGING_OPTIONS = [
 ];
 
 const DRINK_OPTIONS = [
-  { value: "INCLUDE", label: "ใส่ในบรรจุภัณฑ์" },
+  { value: "INCLUDE", label: "มีเครื่องดื่ม" },
   // { value: "excluded", label: "ใส่ถุงแยกต่างหาก" },
-  { value: "NONE", label: "ไม่เลือกเครื่องดื่ม" },
+  { value: "NONE", label: "ไม่มีเครื่องดื่ม" },
 ];
 
 // ----------------------------------------------------------------------
@@ -90,11 +89,9 @@ export default function CustomSnackBox() {
   >("bakeries");
   const [snackBoxQty, setSnackBoxQty] = useState(1);
   const [selectedItems, setSelectedItems] = useState<ICustomSnackBoxItem[]>([]);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
 
   const { addCustomSnackBoxToCart } = apiPaths();
-
-  const { trigger: triggerAddToCart, isMutating: isMutatingAddToCart } =
-    useSWRMutation(addCustomSnackBoxToCart(), sendAddSnackBoxRequest);
 
   const { watch, handleSubmit, reset } = methods;
 
@@ -219,11 +216,8 @@ export default function CustomSnackBox() {
   };
 
   async function handleAddToCart() {
-    const currentUser = await getCurrentUser();
-
-    const body: IAddCustomSnackBoxToCart = {
-      userId: currentUser?.id || "",
-      type: currentUser?.role === "CUSTOMER" ? "MEMBER" : "GUEST",
+    setIsAddingToCart(true);
+    const body = {
       packageType: selectedPackaging as IPackaging,
       beverage: selectedDrinkOption as IDrinkOption,
       refreshmentIds: selectedItems.map((item) => item.id),
@@ -231,7 +225,7 @@ export default function CustomSnackBox() {
     };
 
     try {
-      const res = await triggerAddToCart(body);
+      await addCustomSnackBoxToCartAction(addCustomSnackBoxToCart(), body);
       toast.success("จัดชุดเบรกสำเร็จ");
       setCurrentPage(1);
       reset();
@@ -240,6 +234,7 @@ export default function CustomSnackBox() {
       console.error(error);
       toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
     }
+    setIsAddingToCart(false);
   }
 
   const renderPackageHeader = (
@@ -512,7 +507,7 @@ export default function CustomSnackBox() {
             size="lg"
             color="secondary"
             className="items-center w-full text-lg rounded-sm"
-            isLoading={isMutatingAddToCart}
+            isLoading={isAddingToCart}
             onPress={() => {
               handleAddToCart();
             }}
