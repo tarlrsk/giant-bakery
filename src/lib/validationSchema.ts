@@ -242,14 +242,17 @@ export const discountValidationSchema = z.object({
 });
 
 // Order ----------------------------------------------------------------
-export const orderUpdateStatusValidateSchema = z.object({
+export const orderUpdateValidateSchema = z.object({
   orderId: z.string().uuid(),
-  status: z.enum([
-    "PENDING_PAYMENT1",
-    "PENDING_ORDER",
-    "ON_PROCESS",
-    "PENDING_PAYMENT2",
-    "COMPLETED",
-    "CANCELLED",
-  ]),
+  status: z
+    .enum([
+      "PENDING_PAYMENT1",
+      "PENDING_ORDER",
+      "ON_PROCESS",
+      "PENDING_PAYMENT2",
+      "ON_PACKING_PROCESS",
+      "COMPLETED",
+      "CANCELLED",
+    ])
+    .nullish(),
 });
