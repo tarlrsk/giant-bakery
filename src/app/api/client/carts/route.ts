@@ -1,11 +1,11 @@
 import paths from "@/utils/paths";
 import { prisma } from "@/lib/prisma";
-import { NextRequest } from "next/server";
-import { revalidatePath } from "next/cache";
+import { NextRequest, NextResponse } from "next/server";
 import { getFileUrl } from "@/lib/gcs/getFileUrl";
 import { CartType, SnackBoxType } from "@prisma/client";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { updateQtyCartValidateSchema } from "@/lib/validationSchema";
+import { prismaCart } from "@/persistence/cart";
 
 const CartInclude = {
   items: {
@@ -185,6 +185,19 @@ export async function PUT(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
+  const userId = req.nextUrl.searchParams.get("userId") as string;
+  const data = await APIgetCartItems(userId);
+
+  return data;
+}
+
+export async function APIgetCartItems(
+  userId: string | null | undefined,
+): Promise<
+  NextResponse<{
+    response: Response;
+  }>
+> {
   try {
     let responseCart = {
       cartId: null as string | null,
@@ -192,26 +205,19 @@ export async function GET(req: NextRequest) {
       type: null as CartType | null,
       subTotal: 0,
       discounts: [] as any,
-      suggestDiscounts: [] as string[],
       totalDiscount: 0,
       total: 0,
       items: [] as any,
     };
 
-    const userId = req.nextUrl.searchParams.get("userId") as string;
     if (!userId) {
-      return responseWrapper(200, responseCart, null);
+      return responseWrapper(200, responseCart, null).json();
     }
     responseCart.userId = userId;
 
-    const cart = await prisma.cart.findFirst({
-      where: {
-        userId: userId,
-      },
-      include: CartInclude,
-    });
+    const cart = await prismaCart().getCartByUserId(userId);
     if (!cart) {
-      return responseWrapper(200, responseCart, null);
+      return responseWrapper(200, responseCart, null).json();
     }
 
     responseCart.cartId = cart.id;
@@ -307,26 +313,22 @@ export async function GET(req: NextRequest) {
       responseItem.updatedAt = item.updatedAt;
       responseCart.items.push(responseItem);
       responseCart.subTotal += responseItem.price;
+
+      // TODO Discounts
+      responseCart.discounts = [
+        {
+          name: "ร้านกำลังอยู่ในช่วงพัฒนา ลดให้เลย 10 บาท",
+          discount: 10,
+        },
+        {
+          name: "พอดีเป็นคนใจดีน่ะ ลดให้เลย 10 บาท",
+          discount: 10,
+        },
+      ];
+
+      responseCart.totalDiscount = 20;
+      responseCart.total = responseCart.subTotal - responseCart.totalDiscount;
     }
-    // TODO Discounts
-    responseCart.discounts = [
-      {
-        name: "ร้านกำลังอยู่ในช่วงพัฒนา ลดให้เลย 10 บาท",
-        discount: 10,
-      },
-      {
-        name: "พอดีเป็นคนใจดีน่ะ ลดให้เลย 10 บาท",
-        discount: 10,
-      },
-    ];
-
-    responseCart.suggestDiscounts = [
-      "สั่งอีก 50 บาท เพื่อรับส่วนลด 5%",
-      "สั่งชุดเบรกอีก 49 กล่อง เพื่อรับส่วนลด 5%",
-    ];
-
-    responseCart.totalDiscount = 20;
-    responseCart.total = responseCart.subTotal - responseCart.totalDiscount;
 
     responseCart.items.sort(
       (
@@ -337,10 +339,8 @@ export async function GET(req: NextRequest) {
       },
     );
 
-    revalidatePath(paths.cartList());
-
-    return responseWrapper(200, responseCart, null);
+    return responseWrapper(200, responseCart, null).json();
   } catch (err: any) {
-    return responseWrapper(500, null, err.message);
+    return responseWrapper(500, null, err.message).json();
   }
 }
