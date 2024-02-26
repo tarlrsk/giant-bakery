@@ -61,6 +61,8 @@ const PAYMENT_TYPE_OPTIONS = [
   { value: "INSTALLMENT", label: "มัดจำ (ชำระส่วนที่เหลือเมื่อออเดอร์เสร็จ)" },
 ];
 
+// ----------------------------------------------------------------------
+
 async function sendCreateCustomerAddressRequest(
   url: string,
   {
@@ -78,10 +80,18 @@ async function sendCreateCustomerAddressRequest(
     };
   },
 ) {
-  await fetch(url, {
-    method: "POST",
-    body: JSON.stringify(arg),
-  }).then((res) => res.json());
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      body: JSON.stringify(arg),
+    }).then((res) => res.json());
+
+    if (!res.success) throw new Error(res.error);
+
+    return res;
+  } catch (err: any) {
+    throw new Error(err);
+  }
 }
 
 async function sendUpdateCustomerAddressRequest(
@@ -102,20 +112,35 @@ async function sendUpdateCustomerAddressRequest(
     };
   },
 ) {
-  await fetch(url, {
-    method: "PUT",
-    body: JSON.stringify(arg),
-  }).then((res) => res.json());
+  try {
+    const res = await fetch(url, {
+      method: "PUT",
+      body: JSON.stringify(arg),
+    }).then((res) => res.json());
+
+    if (!res.success) throw new Error(res.error);
+
+    return res;
+  } catch (err: any) {
+    throw new Error(err);
+  }
 }
 
 async function sendDeleteCustomerAddressRequest(
   url: string,
   { arg }: { arg: { addressId: string } },
 ) {
-  await fetch(url, {
-    method: "DELETE",
-    body: JSON.stringify(arg),
-  }).then((res) => res.json());
+  try {
+    const res = await fetch(url, {
+      method: "DELETE",
+      body: JSON.stringify(arg),
+    }).then((res) => res.json());
+
+    if (!res.success) throw new Error(res.error);
+    return res;
+  } catch (err: any) {
+    throw new Error(err);
+  }
 }
 
 async function sendCheckoutRequest(
@@ -132,13 +157,18 @@ async function sendCheckoutRequest(
     };
   },
 ) {
-  const response = await fetch(url, {
-    method: "POST",
-    body: JSON.stringify(arg),
-  });
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      body: JSON.stringify(arg),
+    }).then((res) => res.json());
 
-  const data = await response.json();
-  return data;
+    if (!res.success) throw new Error(res.error);
+
+    return res;
+  } catch (err: any) {
+    throw new Error(err);
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -151,7 +181,7 @@ export default function CheckoutPage() {
   const [userData, setUserData] = useState<any>(null);
   const [selectedKeys, setSelectedKeys] = useState(["1"]);
   // Email state
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(userData?.email || "");
   // Delivery state
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [currentAddressAction, setCurrentAddressAction] = useState<
@@ -159,7 +189,7 @@ export default function CheckoutPage() {
   >("add");
   const [selectedAddressId, setSelectedAddressId] = useState("");
   const [selectedDeliveryOption, setSelectedDeliveryOption] =
-    useState("delivery");
+    useState("pickup");
   const [zipCode, setZipCode] = useState("");
   const [province, setProvince] = useState("");
   const [district, setDistrict] = useState("");
@@ -316,6 +346,7 @@ export default function CheckoutPage() {
     async function getUserData() {
       const currentUser = await getCurrentUser();
       setUserData(currentUser);
+      setEmail(currentUser?.email || "");
     }
     getUserData();
   }, []);
@@ -368,11 +399,6 @@ export default function CheckoutPage() {
             color="primary"
             isRequired
           >
-            <CustomDeliveryRadio value="delivery" className="mt-1 max-w-none">
-              <span>จัดส่งถึงบ้าน</span>
-              <span>คิดตามระยะทาง</span>
-            </CustomDeliveryRadio>
-            <Divider className="my-2" />
             <CustomDeliveryRadio
               value="pickup"
               description="อำเภอเมือง จังหวัดระยอง"
@@ -381,13 +407,17 @@ export default function CheckoutPage() {
               <span>สั่งและรับที่ร้าน</span>
               <span className=" absolute right-0">ฟรี</span>
               <Link
-                //TODO: replace this url with the map
-                href="https://www.google.com"
+                href="https://maps.app.goo.gl/u6KezpmEpqzyjUP6A"
                 target="_blank"
                 className=" absolute right-0 top-6 text-sm text-disabled underline z-10"
               >
                 Google Maps
               </Link>
+            </CustomDeliveryRadio>
+            <Divider className="my-2" />
+            <CustomDeliveryRadio value="delivery" className="mt-1 max-w-none">
+              <span>จัดส่งถึงบ้าน</span>
+              <span>คิดตามระยะทาง</span>
             </CustomDeliveryRadio>
           </RadioGroup>
         </div>
@@ -550,7 +580,7 @@ export default function CheckoutPage() {
                       phone: phone,
                     });
                   } else {
-                    await triggerCreateCustomerAddress({
+                    const res = await triggerCreateCustomerAddress({
                       cFirstName: firstName,
                       cLastName: lastName,
                       address: address,
@@ -560,10 +590,13 @@ export default function CheckoutPage() {
                       postcode: zipCode,
                       phone: phone,
                     });
+                    // TODO: set selectedAddressId from response
+                    // setSelectedAddressId(res?.data?.id as string || '')
+                    console.log("res", res);
                   }
                   handleGoNextSection("2");
                 } catch (error) {
-                  toast("เกิดข้อผิดพลาด กรุณาลองใหม่ภายหลัง");
+                  toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่ภายหลัง");
                 }
               }
             } else {
@@ -697,7 +730,7 @@ export default function CheckoutPage() {
               </Accordion>
             </div>
 
-            <CheckoutSummaryTable />
+            <CheckoutSummaryTable addressId={selectedAddressId} />
 
             <CustomAddressModal
               isOpen={isOpen}

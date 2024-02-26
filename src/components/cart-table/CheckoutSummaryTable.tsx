@@ -1,8 +1,12 @@
 "use client";
 
+import useSWR from "swr";
 import Link from "next/link";
-import React, { useMemo } from "react";
+import { fetcher } from "@/utils/axios";
+import apiPaths from "@/utils/api-path";
+import getCurrentUser from "@/actions/userActions";
 import { ICartItem } from "@/app/(client)/cart/types";
+import React, { useMemo, useState, useEffect } from "react";
 
 import {
   User,
@@ -31,10 +35,49 @@ const MOCKUP_ITEMS: ICartItem[] = [
   },
 ];
 
+type Props = {
+  addressId: string;
+};
+
 // ----------------------------------------------------------------------
 
-export default function CheckoutSummaryTable() {
-  const hasDiscount = false;
+export default function CheckoutSummaryTable({ addressId }: Props) {
+  const [currentUser, setCurrentUser] = useState<any>();
+  const { getCart, getCheckoutDetail } = apiPaths();
+
+  const { data: cartData } = useSWR(
+    currentUser?.id ? getCart(currentUser.id) : null,
+    fetcher,
+  );
+
+  const { data: checkoutData } = useSWR(
+    currentUser?.id && addressId
+      ? getCheckoutDetail(addressId, currentUser.id)
+      : null,
+    fetcher,
+  );
+
+  console.log("checkoutData:", checkoutData);
+
+  const checkoutDetail = checkoutData?.data;
+
+  const items = checkoutDetail?.items || [];
+  const total: number = checkoutDetail?.total || 0;
+  const subTotal: number = checkoutDetail?.subTotal || 0;
+  const totalDiscount: number = checkoutDetail?.totalDiscount || 0;
+  const shippingFee: number = checkoutDetail?.shippingFee || 0;
+
+  console.log("total", total);
+
+  useEffect(() => {
+    async function getCurrentUserData() {
+      const currentUser = await getCurrentUser();
+      setCurrentUser(currentUser);
+    }
+    getCurrentUserData();
+  }, []);
+
+  // console.log("cart", cartData);
   const classNames = useMemo(
     () => ({
       wrapper: ["max-h-[382px]", "max-w-lg", "rounded-sm"],
@@ -56,7 +99,7 @@ export default function CheckoutSummaryTable() {
       switch (columnKey) {
         case "name":
           if (item.name === null) return;
-          if (!!item?.imageUrl) {
+          if (!!item?.image) {
             return (
               <User
                 avatarProps={{
@@ -79,7 +122,7 @@ export default function CheckoutSummaryTable() {
             return <div className="text-base md:text-lg">{item.name}</div>;
           }
         case "price":
-          return <div className="text-end">{`฿${item.pricePer}`}</div>;
+          return <div className="text-end">{`฿${item.price}`}</div>;
         default:
           return "";
       }
@@ -88,10 +131,14 @@ export default function CheckoutSummaryTable() {
   );
 
   const summaryData = [
-    { name: "ราคาสินค้ารวม", pricePer: 305 },
-    { name: "ค่าจัดส่ง", pricePer: 49 },
-    hasDiscount ? { name: "ส่วนลด", pricePer: 40 } : null,
-    { name: "ยอดรวม", pricePer: 354 },
+    { itemId: "subTotal", name: "ราคาสินค้ารวม", price: subTotal },
+    shippingFee
+      ? { itemId: "shippingFee", name: "ค่าจัดส่ง", price: shippingFee }
+      : null,
+    totalDiscount
+      ? { itemId: "totalDiscount", name: "ส่วนลด", price: totalDiscount }
+      : null,
+    { itemId: "total", name: "ยอดรวม", price: total },
   ];
 
   return (
@@ -106,11 +153,11 @@ export default function CheckoutSummaryTable() {
       </TableHeader>
       <TableBody
         emptyContent={"ไม่พบสินค้า"}
-        items={[...MOCKUP_ITEMS, ...summaryData]}
+        items={[...items, ...summaryData]}
       >
         {(item) =>
           item ? (
-            <TableRow key={item.name}>
+            <TableRow key={item.itemId}>
               {(columnKey) => (
                 <TableCell className="text-sm md:text-base">
                   {renderItemCell(item, columnKey)}
@@ -121,37 +168,6 @@ export default function CheckoutSummaryTable() {
             <></>
           )
         }
-
-        {/* <TableRow key="productCost">
-          <TableCell className="text-base md:text-lg">ราคาสินค้ารวม</TableCell>
-          <TableCell className="relative flex justify-end text-base md:text-lg">
-            ฿305
-          </TableCell>
-        </TableRow>
-        <TableRow key="deliveryCost">
-          <TableCell className="text-base md:text-lg">ค่าจัดส่ง</TableCell>
-          <TableCell className="relative flex justify-end text-base md:text-lg">
-            ฿49
-          </TableCell>
-        </TableRow>
-        {(hasDiscount as any) && (
-          <TableRow key="discount">
-            <TableCell className="text-base md:text-lg font-medium">
-              ส่วนลด
-            </TableCell>
-            <TableCell className="relative flex justify-end text-base md:text-lg">
-              ฿0{" "}
-            </TableCell>
-          </TableRow>
-        )}
-        <TableRow key="summaryCost">
-          <TableCell className="text-base md:text-lg font-medium">
-            ยอดรวม
-          </TableCell>
-          <TableCell className="relative flex justify-end font-medium text-base md:text-lg">
-            ฿354
-          </TableCell>
-        </TableRow> */}
       </TableBody>
     </Table>
   );

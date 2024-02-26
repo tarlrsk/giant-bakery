@@ -91,6 +91,9 @@ const apiPaths = () => {
   const getPrice = () =>
     `https://api-intership.interexpress.co.th/v1/price/check`;
 
+  const getCheckoutDetail = (addressId: string, userId: string) =>
+    createClientUrl(`orders/price?addressId=${addressId}&userId=${userId}`);
+
   // ----------------------------------------------------------------------
 
   // Products
@@ -153,6 +156,7 @@ const apiPaths = () => {
     getClientOrderById,
     getPresetSnackBoxBySlug,
     getPrice,
+    getCheckoutDetail,
 
     // Admin
     getProducts,

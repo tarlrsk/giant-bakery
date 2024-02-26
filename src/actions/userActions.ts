@@ -48,7 +48,7 @@ export default async function getCurrentUser() {
 
     if (!session?.user?.email) {
       const cookieId = cookies().get("next-auth.csrf-token")?.value as string;
-      return { id: cookieId, role: "GUEST" };
+      return { id: cookieId, role: "GUEST", email: "" };
     }
 
     const currentUser = await prisma.user.findUnique({
