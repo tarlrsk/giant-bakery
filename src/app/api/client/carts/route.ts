@@ -1,11 +1,10 @@
-import paths from "@/utils/paths";
 import { prisma } from "@/lib/prisma";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { prismaCart } from "@/persistence/cart";
 import { getFileUrl } from "@/lib/gcs/getFileUrl";
 import { CartType, SnackBoxType } from "@prisma/client";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { updateQtyCartValidateSchema } from "@/lib/validationSchema";
-import { prismaCart } from "@/persistence/cart";
 
 const CartInclude = {
   items: {
@@ -186,9 +185,8 @@ export async function PUT(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   const userId = req.nextUrl.searchParams.get("userId") as string;
-  const data = await APIgetCartItems(userId);
 
-  return data;
+  return await APIgetCartItems(userId);
 }
 
 export async function APIgetCartItems(userId: string | null | undefined) {

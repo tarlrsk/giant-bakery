@@ -2,14 +2,10 @@
 
 // import toast from "react-hot-toast";
 import apiPaths from "@/utils/api-path";
-import { CartType } from "@prisma/client";
 import { revalidateTag } from "next/cache";
-import { prismaCart } from "@/persistence/cart";
-import { getFileUrl } from "@/lib/gcs/getFileUrl";
-import { responseWrapper } from "@/utils/api-response-wrapper";
+import { APIgetCartItems } from "@/app/api/client/carts/route";
 
 import getCurrentUser from "./userActions";
-import { APIgetCartItems } from "@/app/api/client/carts/route";
 
 // ----------------------------------------------------------------------
 

@@ -1,8 +1,8 @@
 import { NextRequest } from "next/server";
+import { OrderStatus } from "@prisma/client";
 import { prismaOrder } from "@/persistence/order";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { orderUpdateStatusValidateSchema } from "@/lib/validationSchema";
-import { OrderStatus } from "@prisma/client";
 
 export async function GET(_req: NextRequest) {
   try {
