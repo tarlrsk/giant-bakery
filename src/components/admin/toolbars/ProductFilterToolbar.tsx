@@ -23,9 +23,9 @@ type Props = {
 
 const STATUS_OPTIONS = [
   { value: "all", label: "ทั้งหมด" },
-  { value: "inStock", label: "In Stock" },
-  { value: "low", label: "Low" },
-  { value: "outStock", label: "Out of Stock" },
+  { value: "IN_STOCK", label: "In Stock" },
+  { value: "LOW", label: "Low" },
+  { value: "OUT_OF_STOCK", label: "Out of Stock" },
 ];
 
 // ----------------------------------------------------------------------

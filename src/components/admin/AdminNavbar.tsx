@@ -3,7 +3,6 @@
 import _ from "lodash";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import HomeIcon from "@mui/icons-material/Home";
 import LayersIcon from "@mui/icons-material/Layers";
 import { useRouter, usePathname } from "next/navigation";
 import Inventory2Icon from "@mui/icons-material/Inventory2";
@@ -15,7 +14,7 @@ import TakeoutDiningRoundedIcon from "@mui/icons-material/TakeoutDiningRounded";
 // ----------------------------------------------------------------------
 
 const navItems = [
-  { value: "admin", label: "หน้าแรก", icon: <HomeIcon />, size: "medium" },
+  // { value: "admin", label: "หน้าแรก", icon: <HomeIcon />, size: "medium" },
   {
     value: "orders",
     label: "ออเดอร์",
@@ -113,12 +112,12 @@ export default function AdminNavbar() {
         </Stack>
         <Button
           size="small"
-          variant="outlined"
+          variant="contained"
           color="secondary"
-          sx={{ mr: 4, height: "36px" }}
+          sx={{ mr: 4, height: "36px", boxShadow: 0 }}
           onClick={() => onSignOut()}
         >
-          Log out
+          ออกจากระบบ
         </Button>
       </Stack>
     </AppBar>
