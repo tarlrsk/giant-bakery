@@ -86,7 +86,7 @@ async function sendCreateCustomerAddressRequest(
       body: JSON.stringify(arg),
     }).then((res) => res.json());
 
-    if (!res.success) throw new Error(res.error);
+    if (!res.response.success) throw new Error(res.error);
 
     return res;
   } catch (err: any) {
@@ -118,7 +118,7 @@ async function sendUpdateCustomerAddressRequest(
       body: JSON.stringify(arg),
     }).then((res) => res.json());
 
-    if (!res.success) throw new Error(res.error);
+    if (!res.response.success) throw new Error(res.error);
 
     return res;
   } catch (err: any) {
@@ -136,7 +136,8 @@ async function sendDeleteCustomerAddressRequest(
       body: JSON.stringify(arg),
     }).then((res) => res.json());
 
-    if (!res.success) throw new Error(res.error);
+    if (!res.response.success) throw new Error(res.error);
+
     return res;
   } catch (err: any) {
     throw new Error(err);
@@ -163,7 +164,7 @@ async function sendCheckoutRequest(
       body: JSON.stringify(arg),
     }).then((res) => res.json());
 
-    if (!res.success) throw new Error(res.error);
+    if (!res.response.success) throw new Error(res.error);
 
     return res;
   } catch (err: any) {
@@ -402,7 +403,7 @@ export default function CheckoutPage() {
             <CustomDeliveryRadio
               value="pickup"
               description="อำเภอเมือง จังหวัดระยอง"
-              className="max-w-none"
+              className="max-w-none mt-1"
             >
               <span>สั่งและรับที่ร้าน</span>
               <span className=" absolute right-0">ฟรี</span>
@@ -415,7 +416,7 @@ export default function CheckoutPage() {
               </Link>
             </CustomDeliveryRadio>
             <Divider className="my-2" />
-            <CustomDeliveryRadio value="delivery" className="mt-1 max-w-none">
+            <CustomDeliveryRadio value="delivery" className="my-0.5 max-w-none">
               <span>จัดส่งถึงบ้าน</span>
               <span>คิดตามระยะทาง</span>
             </CustomDeliveryRadio>
@@ -590,9 +591,8 @@ export default function CheckoutPage() {
                       postcode: zipCode,
                       phone: phone,
                     });
-                    // TODO: set selectedAddressId from response
-                    // setSelectedAddressId(res?.data?.id as string || '')
-                    console.log("res", res);
+                    const createdAddressId = res?.response?.data?.id || "";
+                    setSelectedAddressId(createdAddressId);
                   }
                   handleGoNextSection("2");
                 } catch (error) {

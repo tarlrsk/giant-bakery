@@ -57,17 +57,15 @@ export default function CheckoutSummaryTable({ addressId }: Props) {
     fetcher,
   );
 
-  console.log("checkoutData:", checkoutData);
+  const checkoutDetail = checkoutData?.response?.data;
 
-  const checkoutDetail = checkoutData?.data;
+  console.log("checkoutDetail:", checkoutDetail);
 
   const items = checkoutDetail?.items || [];
   const total: number = checkoutDetail?.total || 0;
   const subTotal: number = checkoutDetail?.subTotal || 0;
   const totalDiscount: number = checkoutDetail?.totalDiscount || 0;
   const shippingFee: number = checkoutDetail?.shippingFee || 0;
-
-  console.log("total", total);
 
   useEffect(() => {
     async function getCurrentUserData() {
@@ -80,7 +78,7 @@ export default function CheckoutSummaryTable({ addressId }: Props) {
   // console.log("cart", cartData);
   const classNames = useMemo(
     () => ({
-      wrapper: ["max-h-[382px]", "max-w-lg", "rounded-sm"],
+      wrapper: ["max-w-lg", "rounded-sm"],
       th: [
         "bg-transparent",
         "font-normal",
@@ -105,7 +103,7 @@ export default function CheckoutSummaryTable({ addressId }: Props) {
                 avatarProps={{
                   radius: "md",
                   className: "w-10 h-10 md:w-14 md:h-14 md:text-large",
-                  src: item.imageUrl,
+                  src: item.image,
                 }}
                 classNames={{
                   name: "text-sm md:text-base",
@@ -119,10 +117,26 @@ export default function CheckoutSummaryTable({ addressId }: Props) {
               />
             );
           } else {
-            return <div className="text-base md:text-lg">{item.name}</div>;
+            return (
+              <div
+                className={`text-base md:text-lg ${
+                  item.itemId === "total" ? "font-medium" : ""
+                }`}
+              >
+                {item.name}
+              </div>
+            );
           }
         case "price":
-          return <div className="text-end">{`฿${item.price}`}</div>;
+          return (
+            <div
+              className={`text-end ${
+                item.itemId === "total" ? "font-medium" : ""
+              }`}
+            >{`${item.itemId === "totalDiscount" ? "-" : ""}฿${
+              item.price
+            }`}</div>
+          );
         default:
           return "";
       }
