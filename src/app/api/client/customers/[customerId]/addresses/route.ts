@@ -38,7 +38,7 @@ export async function GET(
     if (!customerAddresses || customerAddresses.length === 0) {
       return responseWrapper(
         200,
-        null,
+        [],
         `User with given id ${customerId} does not have any addresses.`,
       );
     }
@@ -119,7 +119,7 @@ export async function PUT(
     const body = await req.json();
 
     const {
-      id,
+      addressId,
       cFirstName,
       cLastName,
       address,
@@ -130,7 +130,7 @@ export async function PUT(
       phone,
     } = body;
 
-    if (!isValidUUID(id)) {
+    if (!isValidUUID(addressId)) {
       return responseWrapper(400, null, "Invalid uuid.");
     }
 
@@ -148,18 +148,20 @@ export async function PUT(
       return responseWrapper(200, null, null);
     }
 
-    const cAddress = customerAddresses.find((address) => address.id === id);
+    const cAddress = customerAddresses.find(
+      (address) => address.id === addressId,
+    );
 
     if (!cAddress) {
       return responseWrapper(
         404,
         null,
-        `Addresss with given id ${id} not found.`,
+        `Addresss with given id ${addressId} not found.`,
       );
     }
 
     const updatedAddress = await prisma.customerAddress.update({
-      where: { id: id },
+      where: { id: addressId },
       data: {
         cFirstName: cFirstName,
         cLastName: cLastName,
@@ -191,9 +193,9 @@ export async function DELETE(
 
     const body = await _req.json();
 
-    const { id } = body;
+    const { addressId } = body;
 
-    if (!isValidUUID(id)) {
+    if (!isValidUUID(addressId)) {
       return responseWrapper(400, null, "Invalid uuidid.");
     }
 
@@ -205,18 +207,20 @@ export async function DELETE(
       return responseWrapper(200, null, null);
     }
 
-    const address = customerAddresses.find((address) => address.id === id);
+    const address = customerAddresses.find(
+      (address) => address.id === addressId,
+    );
 
     if (!address) {
       return responseWrapper(
         404,
         null,
-        `Addresss with given id ${id} not found.`,
+        `Addresss with given id ${addressId} not found.`,
       );
     }
 
     await prisma.customerAddress.delete({
-      where: { id: id },
+      where: { id: addressId },
     });
 
     return responseWrapper(200, null, null);
