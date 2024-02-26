@@ -4,10 +4,10 @@ import { bucket } from "@/lib/gcs/gcs";
 import { CakeType } from "@prisma/client";
 import { NextRequest } from "next/server";
 import { revalidatePath } from "next/cache";
-import { formatDate } from "@/lib/formatDate";
 import { validate as isValidUUID } from "uuid";
 import { getFileUrl } from "@/lib/gcs/getFileUrl";
 import { parseBoolean } from "@/lib/parseBoolean";
+import { formatFileDate } from "@/lib/formatFileDate";
 import { cakeValidationSchema } from "@/lib/validationSchema";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 
@@ -166,7 +166,7 @@ export async function PUT(req: NextRequest, { params }: GetCakeByIdProps) {
 
       const buffer = Buffer.from(await image.arrayBuffer());
 
-      const updatedImageFileName = `${formatDate(
+      const updatedImageFileName = `${formatFileDate(
         new Date(Date.now()).toString(),
       )}_${image.name.replace(/\s/g, "_")}`;
 

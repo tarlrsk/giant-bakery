@@ -5,9 +5,9 @@ import { bucket } from "@/lib/gcs/gcs";
 import { CakeType } from "@prisma/client";
 import { NextRequest } from "next/server";
 import { revalidatePath } from "next/cache";
-import { formatDate } from "@/lib/formatDate";
 import { parseBoolean } from "@/lib/parseBoolean";
 import { getFileUrl } from "@/lib/gcs/getFileUrl";
+import { formatFileDate } from "@/lib/formatFileDate";
 import { cakeValidationSchema } from "@/lib/validationSchema";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 
@@ -117,7 +117,7 @@ export async function POST(req: NextRequest) {
     let imageFileName = null;
     let imagePath = null;
     if (image) {
-      imageFileName = `${formatDate(
+      imageFileName = `${formatFileDate(
         new Date(Date.now()).toString(),
       )}_${image.name.replace(/\s/g, "_")}`;
 

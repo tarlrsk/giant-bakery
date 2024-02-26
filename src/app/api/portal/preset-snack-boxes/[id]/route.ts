@@ -3,11 +3,11 @@ import { prisma } from "@/lib/prisma";
 import { bucket } from "@/lib/gcs/gcs";
 import { NextRequest } from "next/server";
 import { revalidatePath } from "next/cache";
-import { formatDate } from "@/lib/formatDate";
 import { SnackBoxType } from "@prisma/client";
 import { validate as isValidUUID } from "uuid";
 import { parseBoolean } from "@/lib/parseBoolean";
 import { getFileUrl } from "@/lib/gcs/getFileUrl";
+import { formatFileDate } from "@/lib/formatFileDate";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { presetSnackBoxesValidateSchema } from "@/lib/validationSchema";
 
@@ -169,7 +169,7 @@ export async function PUT(req: NextRequest, { params }: GetSnackBoxByIdProps) {
     });
 
     if (image) {
-      const imageFileName = `${formatDate(
+      const imageFileName = `${formatFileDate(
         new Date(Date.now()).toString(),
       )}_${image.name.replace(/\s/g, "_")}`;
 
