@@ -165,5 +165,5 @@ export async function getCartData() {
 
   const data = await APIgetCartItems(currentUser?.id);
 
-  return data;
+  return data.json();
 }

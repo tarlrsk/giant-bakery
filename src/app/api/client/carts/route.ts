@@ -191,13 +191,7 @@ export async function GET(req: NextRequest) {
   return data;
 }
 
-export async function APIgetCartItems(
-  userId: string | null | undefined,
-): Promise<
-  NextResponse<{
-    response: Response;
-  }>
-> {
+export async function APIgetCartItems(userId: string | null | undefined) {
   try {
     let responseCart = {
       cartId: null as string | null,
@@ -211,13 +205,13 @@ export async function APIgetCartItems(
     };
 
     if (!userId) {
-      return responseWrapper(200, responseCart, null).json();
+      return responseWrapper(200, responseCart, null);
     }
     responseCart.userId = userId;
 
     const cart = await prismaCart().getCartByUserId(userId);
     if (!cart) {
-      return responseWrapper(200, responseCart, null).json();
+      return responseWrapper(200, responseCart, null);
     }
 
     responseCart.cartId = cart.id;
@@ -339,8 +333,8 @@ export async function APIgetCartItems(
       },
     );
 
-    return responseWrapper(200, responseCart, null).json();
+    return responseWrapper(200, responseCart, null);
   } catch (err: any) {
-    return responseWrapper(500, null, err.message).json();
+    return responseWrapper(500, null, err.message);
   }
 }
