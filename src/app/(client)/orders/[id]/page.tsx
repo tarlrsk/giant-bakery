@@ -235,7 +235,9 @@ function OrderHeaderCard({ item }: OrderProps) {
       <Stack direction="row" justifyContent="space-between" sx={{ width: 1 }}>
         <Stack direction="column" spacing={0.5}>
           <Typography color="grey.800">เลขออเดอร์</Typography>
-          <Typography fontWeight={500}>{item?.orderId}</Typography>
+          <Typography fontWeight={500}>
+            {item?.orderId?.replace(/-/g, "")}
+          </Typography>
         </Stack>
 
         <Stack direction="column" spacing={0.5}>

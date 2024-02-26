@@ -41,25 +41,6 @@ const columns = [
   },
 ];
 
-const rows = [
-  {
-    key: "1",
-    id: "RT00001",
-    orderedAt: "2024-02-23 03:05:44.962",
-    subTotalPrice: 29.99,
-    type: "SINGLE",
-    status: "DONE",
-  },
-  {
-    key: "2",
-    id: "WH00001",
-    orderedAt: "2024-02-23 03:05:44.962",
-    subTotalPrice: 29.99,
-    type: "INSTALLMENT",
-    status: "PROCESSING",
-  },
-];
-
 export default function OrdersPage() {
   const router = useRouter();
   const { getOrderList } = apiPaths();
