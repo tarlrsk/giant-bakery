@@ -5,6 +5,8 @@ import { Order } from "@prisma/client";
 import React, { useMemo } from "react";
 import apiPaths from "@/utils/api-path";
 import { fetcher } from "@/utils/axios";
+import { useRouter } from "next/navigation";
+import { formatDate } from "@/lib/formatDate";
 
 import {
   Table,
@@ -59,6 +61,7 @@ const rows = [
 ];
 
 export default function OrdersPage() {
+  const router = useRouter();
   const { getOrderList } = apiPaths();
 
   const { data } = useSWR(getOrderList, fetcher);
@@ -115,8 +118,15 @@ export default function OrdersPage() {
             {(item) => (
               <TableRow key={item.id}>
                 {(columnKey) => (
-                  <TableCell className="text-md py-8 hover:cursor-pointer">
-                    {getKeyValue(item, columnKey)}
+                  <TableCell
+                    className="text-md py-8 hover:cursor-pointer"
+                    onClick={() => {
+                      router.push(`orders/${item.id}`);
+                    }}
+                  >
+                    {columnKey === "orderedAt"
+                      ? formatDate(item.orderedAt.toString())
+                      : getKeyValue(item, columnKey)}
                   </TableCell>
                 )}
               </TableRow>

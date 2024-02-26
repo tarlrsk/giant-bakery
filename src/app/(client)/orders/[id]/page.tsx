@@ -1,13 +1,23 @@
 "use client";
 
-import React from "react";
+import useSWR from "swr";
+import apiPaths from "@/utils/api-path";
+import { fetcher } from "@/utils/axios";
+import { formatDate } from "@/lib/formatDate";
+import React, { useState, useEffect } from "react";
+import {
+  OrderStatus,
+  PaymentType,
+  ReceivedVia,
+  CartItemType,
+  PaymentMethod,
+} from "@prisma/client";
 import {
   Box,
   Card,
   Step,
   Paper,
   Stack,
-  Button,
   Divider,
   Stepper,
   StepLabel,
@@ -24,19 +34,67 @@ type RowProps = {
   quantity?: number;
 };
 
-const steps = [
-  "รับออเดอร์",
+type OrderDetail = {
+  orderId: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  orderedAt: Date;
+  paymentMethod: PaymentMethod[];
+  receivedVia: ReceivedVia;
+  totalPrice: number;
+  status: OrderStatus;
+  paymentType: PaymentType;
+  remark: string | null;
+  shippingFee: number;
+  discountPrice: number;
+  paid: number;
+  remaining: number;
+  items: Item[] | any;
+  address: {
+    address: string;
+    district: string;
+    subdistrict: string;
+    province: string;
+    postcode: string;
+  } | null;
+};
+
+type Item = {
+  name: string;
+  quantity: number;
+  type: CartItemType;
+  price: number;
+  pricePer: number;
+  subItem: string[];
+};
+
+type OrderProps = {
+  item: OrderDetail;
+};
+
+const stepsSinglePayment = ["รอชำระเงิน", "กำลังเตรียมออเดอร์", "ส่งมอบสำเร็จ"];
+
+const stepsDepositPayment = [
+  "รอชำระมัดจำ",
   "กำลังเตรียมออเดอร์",
-  "รอชำระเงิน",
-  "จัดส่งสำเร็จ",
+  "รอชำระเงินที่เหลือ",
+  "ส่งมอบสำเร็จ",
 ];
 
 // ----------------------------------------------------------------------
 
 export default function OrderDetail({ params }: { params: { id: string } }) {
   const { id } = params;
+
+  const { getClientOrderById } = apiPaths();
+
+  const { data } = useSWR(getClientOrderById(id), fetcher);
+
+  const item: OrderDetail = data?.response?.data || {};
+
   return (
-    <div className="px-40 py-20">
+    <div className="relative px-40 py-20">
       <Box>
         <Stack
           direction="row"
@@ -50,19 +108,11 @@ export default function OrderDetail({ params }: { params: { id: string } }) {
         </Stack>
 
         <Stack direction="column" spacing={2}>
-          <OrderHeaderCard />
+          <OrderHeaderCard item={item} />
 
-          <OrderDetailCard />
-        </Stack>
+          <AddressCard item={item} />
 
-        <Stack direction="row" justifyContent="end" sx={{ mt: 2 }}>
-          <Button
-            size="large"
-            color="secondary"
-            onClick={() => console.log("next step")}
-          >
-            เตรียมออเดอร์เสร็จสิ้น
-          </Button>
+          <OrderDetailCard item={item} />
         </Stack>
       </Box>
     </div>
@@ -71,8 +121,33 @@ export default function OrderDetail({ params }: { params: { id: string } }) {
 
 // ----------------------------------------------------------------------
 
-function OrderDetailCard() {
-  const [activeStep, setActiveStep] = React.useState(1);
+function OrderDetailCard({ item }: OrderProps) {
+  const [activeStep, setActiveStep] = useState(0);
+  const [steps, setSteps] = useState<string[]>([]);
+
+  useEffect(() => {
+    let stepsArray = [];
+    if (item?.paymentType === "SINGLE") {
+      stepsArray = [...stepsSinglePayment];
+    } else {
+      stepsArray = [...stepsDepositPayment];
+    }
+
+    if (item?.receivedVia === "DELIVERY") {
+      stepsArray.pop();
+      stepsArray.push("จัดส่งไปยัง InterExpress แล้ว");
+    }
+
+    const status = getStatus(item);
+    const activeStepIndex = stepsArray.indexOf(status);
+    setActiveStep(activeStepIndex !== -1 ? activeStepIndex : 0);
+
+    setSteps(stepsArray);
+  }, [item, item?.paymentType, item?.receivedVia]);
+
+  const totalProductPrice = item?.items?.reduce((total: any, product: any) => {
+    return total + product.price * product.quantity;
+  }, 0);
 
   return (
     <Card>
@@ -83,7 +158,7 @@ function OrderDetailCard() {
       </Box>
       <CardContent>
         <Stepper
-          color="secondary"
+          color="success"
           activeStep={activeStep}
           alternativeLabel
           sx={{ px: 20, pt: 2.5, pb: 2 }}
@@ -95,25 +170,33 @@ function OrderDetailCard() {
           ))}
         </Stepper>
       </CardContent>
+      <CardContent sx={{ px: 6 }}>
+        <Stack spacing={1} direction="row" justifyContent="space-between">
+          <Stack direction="column">Remark</Stack>
+          <Stack direction="column" justifyContent="end">
+            <Typography>{item?.remark ? item?.remark : "-"}</Typography>
+          </Stack>
+        </Stack>
+      </CardContent>
       <Divider />
       <CardContent sx={{ px: 6 }}>
         <Typography fontWeight={500} sx={{ mt: 1, mb: 2 }}>
           รายการสินค้า
         </Typography>
         <Stack direction="column" spacing={2} divider={<Divider />}>
-          <ProductRow name="เอแคล์" price={147} quantity={3} />
-          <ProductRow name="น้ำส้มกล่อง" price={49} quantity={1} />
-          <ProductRow
-            name="สแน็กบอกส์ 1"
-            description="เอแคลร์, พายไส้ไก่, คุกกี้ตอนเฟล็กส์, น้ำส้มกล่อง"
-            price={158}
-            quantity={2}
-          />
+          {item?.items?.map((product: any, index: any) => (
+            <ProductRow
+              key={index}
+              name={product.name}
+              price={product.price}
+              quantity={product.quantity}
+            />
+          ))}
           <Stack spacing={1}>
-            <ProductRow name="ราคาสินค้า" price={305} />
-            <ProductRow name="ค่าจัดส่ง" price={40} />
+            <ProductRow name="ราคาสินค้า" price={totalProductPrice} />
+            <ProductRow name="ค่าจัดส่ง" price={item?.shippingFee} />
           </Stack>
-          <ProductRow name="ยอดการสั่งซื้อรวม" price={345} />
+          <ProductRow name="ยอดการสั่งซื้อรวม" price={item?.totalPrice} />
         </Stack>
       </CardContent>
     </Card>
@@ -138,7 +221,9 @@ function ProductRow({ name, description, price, quantity }: RowProps) {
   );
 }
 
-function OrderHeaderCard() {
+function OrderHeaderCard({ item }: OrderProps) {
+  const status = getStatus(item);
+
   return (
     <Paper
       elevation={1}
@@ -150,34 +235,203 @@ function OrderHeaderCard() {
       <Stack direction="row" justifyContent="space-between" sx={{ width: 1 }}>
         <Stack direction="column" spacing={0.5}>
           <Typography color="grey.800">เลขออเดอร์</Typography>
-          <Typography fontWeight={500}>100004</Typography>
+          <Typography fontWeight={500}>{item?.orderId}</Typography>
         </Stack>
 
         <Stack direction="column" spacing={0.5}>
           <Typography color="grey.800">วันที่สั่งออเดอร์</Typography>
-          <Typography fontWeight={500}>13/11/2566</Typography>
+          <Typography fontWeight={500}>
+            {formatDate(item?.orderedAt?.toString())}
+          </Typography>
         </Stack>
 
         <Stack direction="column" spacing={0.5}>
           <Typography color="grey.800">สถานะออเดอร์</Typography>
-          <Typography fontWeight={500}>กำลังเตรียมออเดอร์</Typography>
-        </Stack>
-
-        <Stack direction="column" spacing={0.5}>
-          <Typography color="grey.800">ประเภทการชำระ</Typography>
-          <Typography fontWeight={500}>จ่ายมัดจำ</Typography>
+          <Typography fontWeight={500}>{status}</Typography>
         </Stack>
 
         <Stack direction="column" spacing={0.5}>
           <Typography color="grey.800">ตัวเลือกการชำระเงิน</Typography>
-          <Typography fontWeight={500}>เครดิตการ์ด</Typography>
+          <Typography fontWeight={500}>
+            {item?.paymentType === "SINGLE" ? "ชำระจำนวนเต็ม" : "ชำระมัดจำ"}
+          </Typography>
         </Stack>
 
         <Stack direction="column" spacing={0.5}>
           <Typography color="grey.800">เป็นจำนวนเงิน</Typography>
-          <Typography fontWeight={500}>฿ 1,846</Typography>
+          <Typography fontWeight={500}>฿{item?.totalPrice}</Typography>
         </Stack>
       </Stack>
     </Paper>
   );
+}
+
+function AddressCard({ item }: OrderProps) {
+  return (
+    <Paper
+      elevation={1}
+      sx={{
+        py: 4,
+        px: 6,
+      }}
+    >
+      <Stack direction="row" justifyContent="space-between" sx={{ width: 1 }}>
+        <Stack direction="column" spacing={0.5}>
+          <Typography color="grey.800">ชื่อผู้สั่ง</Typography>
+          <Typography fontWeight={500}>
+            {`${item?.firstName} ${item?.lastName}` ?? "-"}
+          </Typography>
+        </Stack>
+
+        <Stack direction="column" spacing={0.5}>
+          <Typography color="grey.800">เบอร์โทรศัพท์</Typography>
+          <Typography fontWeight={500}>{item?.phone ?? "-"}</Typography>
+        </Stack>
+
+        <Stack direction="column" spacing={0.5}>
+          <Typography color="grey.800">ที่อยู่</Typography>
+          <Typography fontWeight={500}>
+            {item?.address?.address ?? "-"}
+          </Typography>
+        </Stack>
+
+        <Stack direction="column" spacing={0.5}>
+          <Typography color="grey.800">อำเภอ</Typography>
+          <Typography fontWeight={500}>
+            {item?.address?.district ?? "-"}
+          </Typography>
+        </Stack>
+
+        <Stack direction="column" spacing={0.5}>
+          <Typography color="grey.800">ตำบล</Typography>
+          <Typography fontWeight={500}>
+            {item?.address?.subdistrict ?? "-"}
+          </Typography>
+        </Stack>
+
+        <Stack direction="column" spacing={0.5}>
+          <Typography color="grey.800">จังหวัด</Typography>
+          <Typography fontWeight={500}>
+            {item?.address?.province ?? "-"}
+          </Typography>
+        </Stack>
+
+        <Stack direction="column" spacing={0.5}>
+          <Typography color="grey.800">รหัสไปรษณีย์</Typography>
+          <Typography fontWeight={500}>
+            {item?.address?.postcode ?? "-"}
+          </Typography>
+        </Stack>
+      </Stack>
+    </Paper>
+  );
+}
+
+function getStatus(item: OrderDetail): string {
+  let status = "";
+  switch (item?.receivedVia) {
+    case "PICK_UP":
+      switch (item?.paymentType) {
+        case "SINGLE":
+          switch (item?.status) {
+            case "PENDING_PAYMENT1":
+              status = "รอชำระเงิน";
+              break;
+
+            case "PENDING_ORDER":
+              status = "กำลังเตรียมออเดอร์";
+              break;
+
+            case "ON_PROCESS":
+              status = "กำลังเตรียมออเดอร์";
+              break;
+
+            case "COMPLETED":
+              status = "ส่งมอบสำเร็จ";
+              break;
+
+            case "CANCELLED":
+              status = "ยกเลิก";
+              break;
+          }
+        case "INSTALLMENT":
+          switch (item?.status) {
+            case "PENDING_PAYMENT1":
+              status = "รอชำระมัดจำ";
+              break;
+
+            case "PENDING_ORDER":
+              status = "กำลังเตรียมออเดอร์";
+              break;
+
+            case "ON_PROCESS":
+              status = "กำลังเตรียมออเดอร์";
+              break;
+
+            case "PENDING_PAYMENT2":
+              status = "รอชำระเงินที่เหลือ";
+
+            case "COMPLETED":
+              status = "ส่งมอบสำเร็จ";
+              break;
+
+            case "CANCELLED":
+              status = "ยกเลิก";
+              break;
+          }
+      }
+
+    case "DELIVERY":
+      switch (item?.paymentType) {
+        case "SINGLE":
+          switch (item?.status) {
+            case "PENDING_PAYMENT1":
+              status = "รอชำระเงิน";
+              break;
+
+            case "PENDING_ORDER":
+              status = "กำลังเตรียมออเดอร์";
+              break;
+
+            case "ON_PROCESS":
+              status = "กำลังเตรียมออเดอร์";
+              break;
+
+            case "COMPLETED":
+              status = "จัดส่งไปยัง InterExpress แล้ว";
+              break;
+
+            case "CANCELLED":
+              status = "ยกเลิก";
+              break;
+          }
+        case "INSTALLMENT":
+          switch (item?.status) {
+            case "PENDING_PAYMENT1":
+              status = "รอชำระมัดจำ";
+              break;
+
+            case "PENDING_ORDER":
+              status = "กำลังเตรียมออเดอร์";
+              break;
+
+            case "ON_PROCESS":
+              status = "กำลังเตรียมออเดอร์";
+              break;
+
+            case "PENDING_PAYMENT2":
+              status = "รอชำระเงินที่เหลือ";
+
+            case "COMPLETED":
+              status = "จัดส่งไปยัง InterExpress แล้ว";
+              break;
+
+            case "CANCELLED":
+              status = "ยกเลิก";
+              break;
+          }
+      }
+  }
+
+  return status;
 }
