@@ -322,7 +322,7 @@ export async function GET(req: NextRequest) {
 
     responseCart.suggestDiscounts = [
       "สั่งอีก 50 บาท เพื่อรับส่วนลด 5%",
-      "สั่งชุดเบรกอีก 49 เพื่อรับส่วนลด 5%",
+      "สั่งชุดเบรกอีก 49 กล่อง เพื่อรับส่วนลด 5%",
     ];
 
     responseCart.totalDiscount = 20;
