@@ -52,9 +52,9 @@ export default function ProductDetail({
             <div className="relative flex gap-2">
               <h2 className="font-semibold text-xl">ปริมาณ:</h2>
               <p className="font-normal text-xl">
-                1 กล่อง
-                {/* {item?.unitRatio ? item?.unitRatio : "-"}{" "}
-                {item?.unitType ? item?.unitType : ""} */}
+                1
+                {/* {item?.unitRatio ? item?.unitRatio : "-"}{" "}*/}
+                {item?.unitType ? item?.unitType : ""}
               </p>
             </div>
           </div>
