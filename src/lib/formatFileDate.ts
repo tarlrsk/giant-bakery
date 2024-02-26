@@ -1,4 +1,4 @@
-export const formatDate = function getCurrentDateFormatted(
+export const formatFileDate = function getCurrentDateFormatted(
   dateString: string,
 ): string {
   const parsedDate = new Date(dateString);

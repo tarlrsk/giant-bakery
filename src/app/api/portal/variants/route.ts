@@ -2,10 +2,10 @@ import { v4 as uuidv4 } from "uuid";
 import { prisma } from "@/lib/prisma";
 import { bucket } from "@/lib/gcs/gcs";
 import { NextRequest } from "next/server";
-import { formatDate } from "@/lib/formatDate";
 import { VariantType } from "@/enum/variantType";
 import { getFileUrl } from "@/lib/gcs/getFileUrl";
 import { parseBoolean } from "@/lib/parseBoolean";
+import { formatFileDate } from "@/lib/formatFileDate";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { variantValidationSchema } from "@/lib/validationSchema";
 
@@ -21,7 +21,7 @@ async function uploadVariantFile(
   type: VariantType,
   variantId: string,
 ): Promise<fileImage> {
-  const imageFileName = `${formatDate(
+  const imageFileName = `${formatFileDate(
     new Date(Date.now()).toString(),
   )}_${image.name.replace(/\s/g, "_")}`;
   const buffer = Buffer.from(await image.arrayBuffer());
