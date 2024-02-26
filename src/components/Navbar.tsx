@@ -123,7 +123,7 @@ export default function Navbar({
         {NAV_ITEMS.map((item, index) => (
           <NavbarItem
             key={index}
-            isActive={pathname === item.link}
+            isActive={pathname !== "/" && item.link.startsWith(pathname)}
             className="relative"
           >
             <motion.div
