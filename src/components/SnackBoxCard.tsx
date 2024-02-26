@@ -1,12 +1,13 @@
-import React from "react";
 import Image from "next/image";
 import toast from "react-hot-toast";
+import React, { useState } from "react";
 import apiPaths from "@/utils/api-path";
-import useSWRMutation from "swr/mutation";
 import { SnackBox } from "@prisma/client";
-import getCurrentUser from "@/actions/userActions";
+import { addItemToCart } from "@/actions/cartActions";
 
 import { Card, Button } from "@nextui-org/react";
+
+// ----------------------------------------------------------------------
 
 type Props = {
   item: SnackBox;
@@ -14,46 +15,23 @@ type Props = {
   onClick?: () => void;
 };
 
-type IAddSnackBoxToCart = {
-  userId: string;
-  type: "MEMBER" | "GUEST";
-  snackBoxId: string;
-  quantity: number;
-};
-
-async function sendAddSnackBoxRequest(
-  url: string,
-  { arg }: { arg: IAddSnackBoxToCart },
-) {
-  await fetch(url, {
-    method: "POST",
-    body: JSON.stringify(arg),
-  }).then((res) => res.json());
-}
+// ----------------------------------------------------------------------
 
 export default function SnackBoxCard({ item, onClick, size = "md" }: Props) {
   const { addPresetSnackBoxToCart } = apiPaths();
 
-  const { trigger: triggerAddToCart, isMutating: isMutatingAddToCart } =
-    useSWRMutation(addPresetSnackBoxToCart(), sendAddSnackBoxRequest);
+  const [isLoading, setIsLoading] = useState(false);
 
   async function handleAddToCart(itemId: string) {
-    const currentUser = await getCurrentUser();
-
-    const body: IAddSnackBoxToCart = {
-      userId: currentUser?.id || "",
-      type: currentUser?.role === "CUSTOMER" ? "MEMBER" : "GUEST",
-      snackBoxId: itemId,
-      quantity: 1,
-    };
-
+    setIsLoading(true);
     try {
-      await triggerAddToCart(body);
+      await addItemToCart(addPresetSnackBoxToCart(), itemId, 1);
       toast.success("ใส่ตะกร้าสำเร็จ");
     } catch (error) {
       console.error(error);
       toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
     }
+    setIsLoading(false);
   }
 
   let imgSize: { width: number; height: number } = { width: 800, height: 128 };
@@ -117,7 +95,7 @@ export default function SnackBoxCard({ item, onClick, size = "md" }: Props) {
               </p>
               <Button
                 size={size}
-                isLoading={isMutatingAddToCart}
+                isLoading={isLoading}
                 onClick={() => {
                   handleAddToCart(item?.id);
                 }}

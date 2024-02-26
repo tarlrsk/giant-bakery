@@ -1,5 +1,4 @@
 import Link from "next/link";
-import InfoIcon from "@/components/icons/InfoIcon";
 import getCurrentUser from "@/actions/userActions";
 import BasketIcon from "@/components/icons/BasketIcon";
 import CartItemTable from "@/components/cart-table/CartItemTable";
@@ -17,8 +16,15 @@ interface ICartResponse {
     data: {
       cartId: string | null;
       userId: string | null;
-      type: string;
-      totalPrice: number;
+      type: "MEMBER" | "GUEST";
+      subTotal: number;
+      discounts: {
+        name: string;
+        discount: number;
+      }[];
+      suggestDiscounts: string[];
+      totalDiscount: number;
+      total: number;
       items: ICartItem[];
     };
   };
@@ -41,11 +47,10 @@ export default function CartPage() {
 async function ItemCartView() {
   const currentUser = await getCurrentUser();
   const res: ICartResponse = await getCartData();
+  const cartData = res?.response?.data;
+  const suggestDiscounts = cartData?.suggestDiscounts || [];
 
-  const items = res?.response?.data?.items;
-
-  const discount: string =
-    "สั่งเบเกอรี่หรือเค้กเพิ่มอีก 695 บาทเพื่อรับส่วนลด 5%";
+  const items = cartData?.items;
 
   if (items?.length < 1) {
     return <EmptyCartView />;
@@ -56,20 +61,31 @@ async function ItemCartView() {
       <h1 className="text-2xl md:text-3xl font-medium text-left mb-4">
         ตะกร้าของฉัน
       </h1>
-      <div className="flex flex-row w-full items-center px-2 py-4 bg-secondaryT-lighter text-secondaryT-dark rounded-sm mb-6 gap-2 mt-2">
-        <InfoIcon width={24} height={24} className=" fill-secondaryT-dark" />
-        <p className="text-sm md:text-base mt-0.5">{discount}</p>
-      </div>
+      {suggestDiscounts.length > 0 && (
+        <div className=" text-gray-500 mb-3 mt-5">
+          {suggestDiscounts.map((el: string, index: number) => (
+            <p key={index} className=" text-sm font-normal ">
+              {el}
+            </p>
+          ))}
+        </div>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-6 gap-6">
         <div className="md:col-span-4 ">
           <CartItemTable
             userId={currentUser?.id || ""}
+            userType={(currentUser?.role as "MEMBER" | "GUEST") || "GUEST"}
             items={items}
             onUpdateCartItem={updateCartItem}
           />
         </div>
         <div className="md:col-span-2">
-          <CartSummaryTable />
+          <CartSummaryTable
+            subTotal={cartData.subTotal}
+            discounts={cartData.discounts}
+            totalDiscount={cartData.totalDiscount}
+            total={cartData.total}
+          />
           <Button
             href="/cart/checkout"
             as={Link}

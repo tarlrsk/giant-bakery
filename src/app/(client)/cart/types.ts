@@ -43,7 +43,7 @@ export interface ICartItem {
   type: string;
   itemId: string;
   quantity: number;
-  imageUrl: string;
+  image: string;
   pricePer: number;
   price: number;
   createdAt: string;

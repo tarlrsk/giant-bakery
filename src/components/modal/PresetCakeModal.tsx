@@ -4,9 +4,8 @@ import toast from "react-hot-toast";
 import React, { useState } from "react";
 import apiPaths from "@/utils/api-path";
 import { fetcher } from "@/utils/axios";
-import useSWRMutation from "swr/mutation";
 import { useSearchParams } from "next/navigation";
-import getCurrentUser from "@/actions/userActions";
+import { addPresetCakeToCartAction } from "@/actions/cartActions";
 import { PersistenceCakeType } from "@/persistence/persistenceType";
 
 import {
@@ -18,6 +17,8 @@ import {
   ModalContent,
 } from "@nextui-org/react";
 
+// ----------------------------------------------------------------------
+
 type Props = {
   slug: string;
   isOpen: boolean;
@@ -25,25 +26,15 @@ type Props = {
 };
 
 type IAddCakeToCart = {
-  userId: string;
-  type: "MEMBER" | "GUEST";
   cakeId: string;
   cakeType: "PRESET" | "CUSTOM";
   sizeId: string;
   baseId: string;
   fillingId: string;
-  quantity: 1;
+  quantity: number;
 };
 
-async function sendAddCakeRequesst(
-  url: string,
-  { arg }: { arg: IAddCakeToCart },
-) {
-  await fetch(url, {
-    method: "POST",
-    body: JSON.stringify(arg),
-  }).then((res) => res.json());
-}
+// ----------------------------------------------------------------------
 
 export default function PresetCakeModal({ slug, isOpen, onOpenChange }: Props) {
   const searchParams = useSearchParams();
@@ -57,19 +48,14 @@ export default function PresetCakeModal({ slug, isOpen, onOpenChange }: Props) {
 
   const item: PersistenceCakeType = data?.response.data || {};
 
+  const [isLoading, setIsLoading] = useState(false);
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [selectedBase, setSelectedBase] = useState<string>("");
   const [selectedFilling, setSelectedFilling] = useState<string>("");
 
-  const { trigger: triggerAddToCart, isMutating: isMutatingAddToCart } =
-    useSWRMutation(addCakeToCart(), sendAddCakeRequesst);
-
   async function handleAddToCart(itemId: string) {
-    const currentUser = await getCurrentUser();
-
+    setIsLoading(true);
     const body: IAddCakeToCart = {
-      userId: currentUser?.id || "",
-      type: currentUser?.role === "CUSTOMER" ? "MEMBER" : "GUEST",
       cakeId: itemId,
       cakeType: "PRESET",
       sizeId: selectedSize,
@@ -79,7 +65,7 @@ export default function PresetCakeModal({ slug, isOpen, onOpenChange }: Props) {
     };
 
     try {
-      await triggerAddToCart(body);
+      await addPresetCakeToCartAction(addCakeToCart(), body);
       if (isOpen == true) {
         onOpenChange();
       }
@@ -88,6 +74,7 @@ export default function PresetCakeModal({ slug, isOpen, onOpenChange }: Props) {
       console.error(error);
       toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
     }
+    setIsLoading(false);
   }
 
   return (
@@ -122,53 +109,61 @@ export default function PresetCakeModal({ slug, isOpen, onOpenChange }: Props) {
                 ฿{item?.price?.toFixed(2)}
               </h2>
               <hr className="h-px my-6 bg-black border-1" />
-              <div className="flex flex-col gap-[30px]">
-                <Select
-                  size="md"
-                  label="ขนาด (ปอนด์)"
-                  variant="bordered"
-                  value={selectedSize}
-                  onChange={(e) => setSelectedSize(e.target.value)}
-                  isRequired
-                >
-                  {item?.sizes?.map((size) => (
-                    <SelectItem key={size?.id}>{size?.name}</SelectItem>
-                  ))}
-                </Select>
-                <Select
-                  size="md"
-                  label="เนื้อเค้ก"
-                  variant="bordered"
-                  value={selectedBase}
-                  onChange={(e) => setSelectedBase(e.target.value)}
-                  isRequired
-                >
-                  {item?.bases?.map((base) => (
-                    <SelectItem key={base?.id}>{base?.name}</SelectItem>
-                  ))}
-                </Select>
-                <Select
-                  size="md"
-                  label="ไส้เค้ก"
-                  variant="bordered"
-                  value={selectedFilling}
-                  onChange={(e) => setSelectedFilling(e.target.value)}
-                  isRequired
-                >
-                  {item?.fillings?.map((filling) => (
-                    <SelectItem key={filling?.id}>{filling?.name}</SelectItem>
-                  ))}
-                </Select>
-                <Button
-                  className="h-auto bg-secondaryT-main items-center text-white text-2xl font-medium rounded-[8px] px-8 py-3"
-                  isLoading={isMutatingAddToCart}
-                  onClick={() => {
-                    handleAddToCart(item?.id);
-                  }}
-                >
-                  ใส่ตะกร้า
-                </Button>
-              </div>
+              <form
+                onSubmit={(e) => {
+                  handleAddToCart(item?.id);
+                  e.preventDefault();
+                }}
+              >
+                <div className="flex flex-col gap-[30px]">
+                  <Select
+                    size="md"
+                    label="ขนาด (ปอนด์)"
+                    variant="bordered"
+                    value={selectedSize}
+                    onChange={(e) => setSelectedSize(e.target.value)}
+                    isRequired
+                    required
+                  >
+                    {item?.sizes?.map((size) => (
+                      <SelectItem key={size?.id}>{size?.name}</SelectItem>
+                    ))}
+                  </Select>
+                  <Select
+                    size="md"
+                    label="เนื้อเค้ก"
+                    variant="bordered"
+                    value={selectedBase}
+                    onChange={(e) => setSelectedBase(e.target.value)}
+                    isRequired
+                    required
+                  >
+                    {item?.bases?.map((base) => (
+                      <SelectItem key={base?.id}>{base?.name}</SelectItem>
+                    ))}
+                  </Select>
+                  <Select
+                    size="md"
+                    label="ไส้เค้ก"
+                    variant="bordered"
+                    value={selectedFilling}
+                    onChange={(e) => setSelectedFilling(e.target.value)}
+                    isRequired
+                    required
+                  >
+                    {item?.fillings?.map((filling) => (
+                      <SelectItem key={filling?.id}>{filling?.name}</SelectItem>
+                    ))}
+                  </Select>
+                  <Button
+                    className="h-auto bg-secondaryT-main items-center text-white text-2xl font-medium rounded-[8px] px-8 py-3"
+                    isLoading={isLoading}
+                    type="submit"
+                  >
+                    ใส่ตะกร้า
+                  </Button>
+                </div>
+              </form>
               {/* <div className="flex flex-col gap-8 justify-center items-center">
               </div> */}
             </div>

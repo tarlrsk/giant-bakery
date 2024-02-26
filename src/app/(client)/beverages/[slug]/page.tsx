@@ -5,9 +5,8 @@ import toast from "react-hot-toast";
 import React, { useState } from "react";
 import apiPaths from "@/utils/api-path";
 import { fetcher } from "@/utils/axios";
-import useSWRMutation from "swr/mutation";
 import { Refreshment } from "@prisma/client";
-import getCurrentUser from "@/actions/userActions";
+import { addItemToCart } from "@/actions/cartActions";
 import ProductDetail from "@/components/ProductDetail";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -39,7 +38,10 @@ export default function BeverageDetail({ params }: BeverageDetailParams) {
 
   const searchParams = useSearchParams();
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const id = searchParams.get("id") as string;
+
   const { slug } = params;
 
   const decodedSlug = decodeURIComponent(slug) as string;
@@ -49,9 +51,6 @@ export default function BeverageDetail({ params }: BeverageDetailParams) {
   const { data } = useSWR(`${getBeverageBySlug(decodedSlug, id)}`, fetcher);
 
   const item: Refreshment = data?.response?.data || {};
-
-  const { trigger: triggerAddToCart, isMutating: isMutatingAddToCart } =
-    useSWRMutation(addRefreshmentToCart(), sendAddRefreshmentRequest);
 
   const [counter, setCounter] = useState(1);
 
@@ -72,23 +71,16 @@ export default function BeverageDetail({ params }: BeverageDetailParams) {
   };
 
   async function handleAddToCart() {
-    const currentUser = await getCurrentUser();
-
-    const body: IAddRefreshmentToCart = {
-      userId: currentUser?.id || "",
-      type: currentUser?.role === "CUSTOMER" ? "MEMBER" : "GUEST",
-      refreshmentId: item.id,
-      quantity: counter,
-    };
-
+    setIsLoading(true);
     try {
-      await triggerAddToCart(body);
+      await addItemToCart(addRefreshmentToCart(), item.id, counter);
       toast.success("ใส่ตระก้าสำเร็จ");
       router.push("/cart");
     } catch (error) {
       console.error(error);
       toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
     }
+    setIsLoading(false);
   }
 
   return (
@@ -96,7 +88,7 @@ export default function BeverageDetail({ params }: BeverageDetailParams) {
       <ProductDetail
         item={item}
         counter={counter}
-        isLoading={isMutatingAddToCart}
+        isLoading={isLoading}
         onClick={handleAddToCart}
         onChange={handleInputChange}
         onIncrement={increment}
