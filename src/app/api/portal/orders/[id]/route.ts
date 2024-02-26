@@ -2,9 +2,9 @@ import { NextRequest } from "next/server";
 import { prismaOrder } from "@/persistence/order";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import {
-  OrderStatus,
-  ReceivedVia,
   PaymentType,
+  ReceivedVia,
+  OrderStatus,
   CartItemType,
   PaymentMethod,
 } from "@prisma/client";

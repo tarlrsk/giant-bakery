@@ -14,6 +14,8 @@ const createClientUrl = (endpoint: string) =>
 const createInterExpressUrl = (endpoint: string) =>
   `${interExpressUrl}/${endpoint}`;
 
+// ----------------------------------------------------------------------
+
 const apiPaths = () => {
   // Auth
   const signUp = () => createBaseApiUrl("auth/signup");
@@ -87,6 +89,42 @@ const apiPaths = () => {
   const getPrice = () =>
     `https://api-intership.interexpress.co.th/v1/price/check`;
 
+  // ----------------------------------------------------------------------
+
+  // Products
+  const getProducts = () => createAdminUrl("refreshments");
+  const createProduct = () => createAdminUrl("refreshments");
+  const updateProduct = (id: string) => createAdminUrl(`refreshments/${id}`);
+  const deleteProduct = (id: string) => createAdminUrl(`refreshments/${id}`);
+  // Cake
+  const getCakesAdmin = () => createAdminUrl("cakes");
+  const createCakeAdmin = () => createAdminUrl("cakes");
+  const updateCakeAdmin = (id: string) => createAdminUrl(`cakes/${id}`);
+  const deleteCakeAdmin = (id: string) => createAdminUrl(`cakes/${id}`);
+  // Snack box
+  const getSnackBoxAdmin = () => createAdminUrl("preset-snack-boxes");
+  const createSnackBoxAdmin = () => createAdminUrl("preset-snack-boxes");
+  const updateSnackBoxAdmin = (id: string) =>
+    createAdminUrl(`preset-snack-boxes/${id}`);
+  const deleteSnackBoxAdmin = (id: string) =>
+    createAdminUrl(`preset-snack-boxes/${id}`);
+  // Variants
+  const getVariantAdmin = () => createAdminUrl("variants");
+  const createVariantAdmin = () => createAdminUrl("variants");
+  const updateVariantAdmin = (
+    type: "CREAM" | "TOP_EDGE" | "BOTTOM_EDGE" | "DECORATION" | "SURFACE",
+    string: string,
+  ) => createAdminUrl(`variants/${type}/${string}`);
+  const deleteVariantAdmin = (
+    type: "CREAM" | "TOP_EDGE" | "BOTTOM_EDGE" | "DECORATION" | "SURFACE",
+    string: string,
+  ) => createAdminUrl(`variants/${type}/${string}`);
+
+  // Orders
+  const getOrdersOverview = () => createAdminUrl("orders/overview");
+  const getOrders = () => createAdminUrl("orders");
+  const getOrderById = (id: string) => createAdminUrl(`orders/${id}`);
+
   return {
     signUp,
     getCart,
@@ -112,6 +150,27 @@ const apiPaths = () => {
     getOrderList,
     getPresetSnackBoxBySlug,
     getPrice,
+
+    // Admin
+    getProducts,
+    createProduct,
+    updateProduct,
+    deleteProduct,
+    getCakesAdmin,
+    createCakeAdmin,
+    updateCakeAdmin,
+    deleteCakeAdmin,
+    getSnackBoxAdmin,
+    createSnackBoxAdmin,
+    updateSnackBoxAdmin,
+    deleteSnackBoxAdmin,
+    getVariantAdmin,
+    createVariantAdmin,
+    updateVariantAdmin,
+    deleteVariantAdmin,
+    getOrdersOverview,
+    getOrders,
+    getOrderById,
   };
 };
 

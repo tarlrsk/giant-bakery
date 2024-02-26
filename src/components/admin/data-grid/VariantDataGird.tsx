@@ -1,7 +1,7 @@
 "use client";
 
 import { Dispatch, SetStateAction } from "react";
-import { Box, Card, alpha, Typography, ListItemText } from "@mui/material";
+import { Box, Card, Typography } from "@mui/material";
 import {
   DataGrid,
   GridColDef,
@@ -9,13 +9,14 @@ import {
   GridRowSelectionModel,
 } from "@mui/x-data-grid";
 
-import { IVariantRow } from "../types";
+import { IVariant } from "../types";
+import commonDataGrid from "./CommonDataGrid";
 import { CustomNoRowsOverlay } from "./CustomNoRowsOverlay";
 
 // ----------------------------------------------------------------------
 
 type Props = {
-  rows: IVariantRow[];
+  rows: IVariant[];
   rowSelectionModel: GridRowSelectionModel;
   setRowSelectionModel: Dispatch<SetStateAction<GridRowSelectionModel>>;
 };
@@ -27,26 +28,31 @@ export default function VariantDataGrid({
   rowSelectionModel,
   setRowSelectionModel,
 }: Props) {
+  const { isActiveColumn, updatedAtColumn } = commonDataGrid();
   const columns: GridColDef[] = [
     {
-      field: "variantType",
+      field: "type",
       headerName: "ประเภทตัวเลือก",
       flex: 1,
       renderCell: (params: GridRenderCellParams<any>) => {
         let text;
-        switch (params.row.variantType) {
-          case "cream":
-            text = "ครีม";
-            break;
-          case "topBorder":
+        switch (params.row.type) {
+          case "TOP_EDGE":
             text = "ขอบบน";
             break;
-          case "bottomBorder":
+          case "BOTTOM_EDGE":
             text = "ขอบล่าง";
-          case "decoration":
+            break;
+
+          case "DECORATION":
             text = "ลายรอบเค้ก";
-          case "surface":
+            break;
+          case "SURFACE":
             text = "หน้าเค้ก";
+            break;
+          default:
+            text = "-";
+            break;
         }
 
         return (
@@ -69,69 +75,14 @@ export default function VariantDataGrid({
         );
       },
     },
-    { field: "variantName", headerName: "ชื่อตัวเลือก", flex: 1 },
-    {
-      field: "isActive",
-      headerName: "สถานะ",
-      flex: 1,
-      renderCell: (params: GridRenderCellParams<any>) => {
-        let text;
-        let bgColor;
-        let textColor;
-        switch (params.value) {
-          case true:
-            text = "Active";
-            textColor = "#007B55";
-            bgColor = alpha("#00AB55", 0.16);
-            break;
-          case false:
-            text = "Inactive";
-            textColor = "#B71D18";
-            bgColor = alpha("#FF5630", 0.16);
-            break;
-          default:
-            text = "None";
-        }
-        return (
-          <Box sx={{ bgcolor: bgColor, borderRadius: 1.6, px: 1.25, py: 0.5 }}>
-            <Typography
-              variant="caption"
-              fontFamily="IBM Plex Sans Thai"
-              fontWeight={600}
-              color={textColor}
-            >
-              {text}
-            </Typography>
-          </Box>
-        );
-      },
-    },
-    {
-      field: "lastUpdated",
-      headerName: "เปลี่ยนแปลงล่าสุด",
-      flex: 1,
-      renderCell: (params) => (
-        <ListItemText
-          primary={<Typography variant="body2">30/08/2023</Typography>}
-          secondary={
-            <>
-              <Typography
-                sx={{ display: "inline" }}
-                component="span"
-                variant="caption"
-              >
-                02:30 น.
-              </Typography>
-            </>
-          }
-        />
-      ),
-    },
+    { field: "name", headerName: "ชื่อตัวเลือก", flex: 1 },
+    isActiveColumn,
+    updatedAtColumn,
   ];
 
   return (
     <Card sx={{ boxShadow: 0 }}>
-      <div>
+      <div style={{ height: 780 }}>
         <DataGrid
           rows={rows}
           columns={columns}
@@ -141,10 +92,13 @@ export default function VariantDataGrid({
           }}
           rowSelectionModel={rowSelectionModel}
           columnHeaderHeight={45}
+          initialState={{
+            pagination: { paginationModel: { pageSize: 50 } },
+          }}
+          pageSizeOptions={[50, 100, 150]}
           slots={{
             noRowsOverlay: CustomNoRowsOverlay,
           }}
-          // hideFooter
           sx={{ "& .MuiDataGrid-row": { cursor: "pointer" } }}
         />
       </div>
