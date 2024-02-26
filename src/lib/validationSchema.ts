@@ -54,7 +54,7 @@ export const signInValidationSchema = z.object({
 // Customer Address ----------------------------------------------------------
 
 export const customerAddressValidationSchema = z.object({
-  id: z.string().uuid().nullish(),
+  addressId: z.string().uuid().nullish(),
   cFirstName: z
     .string({ required_error: "First name is required." })
     .min(3)
@@ -239,4 +239,17 @@ export const discountValidationSchema = z.object({
     .max(255),
   type: z.enum(["NORMAL", "SNACK_BOX"]),
   isActive: z.boolean(),
+});
+
+// Order ----------------------------------------------------------------
+export const orderUpdateStatusValidateSchema = z.object({
+  orderId: z.string().uuid(),
+  status: z.enum([
+    "PENDING_PAYMENT1",
+    "PENDING_ORDER",
+    "ON_PROCESS",
+    "PENDING_PAYMENT2",
+    "COMPLETED",
+    "CANCELLED",
+  ]),
 });

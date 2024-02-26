@@ -18,7 +18,7 @@ export function prismaOrder() {
   return {
     getOrderById,
     createOrder,
-    updateOrderStatusById,
+    updateOrderById,
     getAllOrder,
     getAllOrderByUserId,
   };
@@ -62,7 +62,7 @@ async function getOrderById(orderId: string): Promise<PrismaOrder | null> {
   return order;
 }
 
-async function updateOrderStatusById(
+async function updateOrderById(
   orderId: string,
   data:
     | (Prisma.Without<
