@@ -23,6 +23,7 @@ type OrderDetail = {
   orderedAt: Date;
   paymentMethod: PaymentMethod[];
   receivedVia: ReceivedVia;
+  trackingNo: string | null;
   totalPrice: number;
   status: OrderStatus;
   paymentType: PaymentType;
@@ -50,7 +51,7 @@ type Item = {
   subItem: string[];
 };
 
-export async function GET(req: NextRequest, { params }: GetOrderById) {
+export async function GET(_req: NextRequest, { params }: GetOrderById) {
   try {
     const { id } = params;
     const order = await prismaOrder().getOrderById(id);
@@ -73,6 +74,7 @@ export async function GET(req: NextRequest, { params }: GetOrderById) {
       orderedAt: order.orderedAt,
       paymentMethod: paymentTypes,
       receivedVia: order.receivedVia,
+      trackingNo: order.trackingNo,
       totalPrice: order.totalPrice,
       status: order.status,
       paymentType: order.paymentType,

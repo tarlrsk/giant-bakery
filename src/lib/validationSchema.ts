@@ -240,3 +240,16 @@ export const discountValidationSchema = z.object({
   type: z.enum(["NORMAL", "SNACK_BOX"]),
   isActive: z.boolean(),
 });
+
+// Order ----------------------------------------------------------------
+export const orderUpdateStatusValidateSchema = z.object({
+  orderId: z.string().uuid(),
+  status: z.enum([
+    "PENDING_PAYMENT1",
+    "PENDING_ORDER",
+    "ON_PROCESS",
+    "PENDING_PAYMENT2",
+    "COMPLETED",
+    "CANCELLED",
+  ]),
+});
