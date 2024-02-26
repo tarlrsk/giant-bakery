@@ -192,6 +192,7 @@ export async function GET(req: NextRequest) {
       type: null as CartType | null,
       subTotal: 0,
       discounts: [] as any,
+      suggestDiscounts: [] as string[],
       totalDiscount: 0,
       total: 0,
       items: [] as any,
@@ -317,6 +318,11 @@ export async function GET(req: NextRequest) {
         name: "พอดีเป็นคนใจดีน่ะ ลดให้เลย 10 บาท",
         discount: 10,
       },
+    ];
+
+    responseCart.suggestDiscounts = [
+      "สั่งอีก 50 บาท เพื่อรับส่วนลด 5%",
+      "สั่งชุดเบรกอีก 49 เพื่อรับส่วนลด 5%",
     ];
 
     responseCart.totalDiscount = 20;
