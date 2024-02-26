@@ -1,12 +1,9 @@
 "use client";
 
-import useSWR from "swr";
 import Link from "next/link";
-import { fetcher } from "@/utils/axios";
 import apiPaths from "@/utils/api-path";
-import getCurrentUser from "@/actions/userActions";
+import React, { useMemo, useState } from "react";
 import { ICartItem } from "@/app/(client)/cart/types";
-import React, { useMemo, useState, useEffect } from "react";
 
 import {
   User,
@@ -36,28 +33,36 @@ const MOCKUP_ITEMS: ICartItem[] = [
 ];
 
 type Props = {
-  addressId: string;
+  checkoutDetail:
+    | {
+        items: {
+          name: string;
+          description: string;
+          image: string;
+          itemId: string;
+          price: number;
+          pricePer: number;
+          quantity: number;
+        }[];
+        subTotal: number;
+        discounts: { name: string; discount: number }[];
+        totalDiscount: number;
+        shippingFee: number;
+        total: number;
+      }
+    | undefined;
 };
 
 // ----------------------------------------------------------------------
 
-export default function CheckoutSummaryTable({ addressId }: Props) {
+export default function CheckoutSummaryTable({ checkoutDetail }: Props) {
   const [currentUser, setCurrentUser] = useState<any>();
   const { getCart, getCheckoutDetail } = apiPaths();
 
-  const { data: cartData } = useSWR(
-    currentUser?.id ? getCart(currentUser.id) : null,
-    fetcher,
-  );
-
-  const { data: checkoutData } = useSWR(
-    currentUser?.id && addressId
-      ? getCheckoutDetail(addressId, currentUser.id)
-      : null,
-    fetcher,
-  );
-
-  const checkoutDetail = checkoutData?.response?.data;
+  // const { data: cartData } = useSWR(
+  //   currentUser?.id ? getCart(currentUser.id) : null,
+  //   fetcher,
+  // );
 
   console.log("checkoutDetail:", checkoutDetail);
 
@@ -67,13 +72,13 @@ export default function CheckoutSummaryTable({ addressId }: Props) {
   const totalDiscount: number = checkoutDetail?.totalDiscount || 0;
   const shippingFee: number = checkoutDetail?.shippingFee || 0;
 
-  useEffect(() => {
-    async function getCurrentUserData() {
-      const currentUser = await getCurrentUser();
-      setCurrentUser(currentUser);
-    }
-    getCurrentUserData();
-  }, []);
+  // useEffect(() => {
+  //   async function getCurrentUserData() {
+  //     const currentUser = await getCurrentUser();
+  //     setCurrentUser(currentUser);
+  //   }
+  //   getCurrentUserData();
+  // }, []);
 
   // console.log("cart", cartData);
   const classNames = useMemo(

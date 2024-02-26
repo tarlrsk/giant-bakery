@@ -41,11 +41,13 @@ import {
 // ----------------------------------------------------------------------
 
 type ICheckout = {
-  addressId: string;
   userId: string;
-  paymentMethod: "CARD" | "PROMPTPAY";
-  paymentType: string;
+  email: string;
   remark: string;
+  paymentType: string;
+  addressId: string;
+  paymentMethod: "CARD" | "PROMPTPAY";
+  receivedVia: "PICK_UP" | "DELIVERY";
 };
 
 const ACCORDION_ITEM_CLASS_NAMES = {
@@ -58,7 +60,10 @@ const ACCORDION_KEYS = ["1", "2", "3", "4"];
 
 const PAYMENT_TYPE_OPTIONS = [
   { value: "SINGLE", label: "เต็มจำนวน" },
-  { value: "INSTALLMENT", label: "มัดจำ (ชำระส่วนที่เหลือเมื่อออเดอร์เสร็จ)" },
+  {
+    value: "INSTALLMENT",
+    label: "มัดจำ 50% (ชำระส่วนที่เหลือเมื่อออเดอร์เสร็จ)",
+  },
 ];
 
 // ----------------------------------------------------------------------
@@ -179,10 +184,10 @@ export default function CheckoutPage() {
 
   const { mutate } = useSWRConfig();
 
-  const [userData, setUserData] = useState<any>(null);
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [selectedKeys, setSelectedKeys] = useState(["1"]);
   // Email state
-  const [email, setEmail] = useState(userData?.email || "");
+  const [email, setEmail] = useState(currentUser?.email || "");
   // Delivery state
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [currentAddressAction, setCurrentAddressAction] = useState<
@@ -218,29 +223,71 @@ export default function CheckoutPage() {
     deleteCustomerAddress,
     addCheckoutOrder,
     getInterExpressLocation,
+    getCheckoutDetail,
   } = paths();
+
+  const [checkoutDetail, setCheckoutDetail] = useState<{
+    items: {
+      name: string;
+      description: string;
+      image: string;
+      itemId: string;
+      price: number;
+      pricePer: number;
+      quantity: number;
+    }[];
+    subTotal: number;
+    discounts: { name: string; discount: number }[];
+    totalDiscount: number;
+    shippingFee: number;
+    total: number;
+  }>();
 
   // User Current Address API
   const { data: userAddressData } = useSWR(
-    userData ? getCustomerAddress(userData.id) : null,
+    currentUser ? getCustomerAddress(currentUser.id) : null,
     fetcher,
   );
+  const { data: checkoutData } = useSWR(
+    currentUser?.id &&
+      (selectedAddressId || selectedDeliveryOption === "pickup")
+      ? getCheckoutDetail(selectedAddressId, currentUser.id)
+      : null,
+    fetcher,
+  );
+
+  useEffect(() => {
+    if (checkoutData?.response?.data) {
+      setCheckoutDetail(checkoutData?.response?.data);
+    }
+  }, [checkoutData]);
+
+  useEffect(() => {
+    if (selectedDeliveryOption === "pickup") {
+      setSelectedAddressId("");
+    }
+  }, [selectedDeliveryOption]);
+
+  // const checkoutDetail = checkoutData?.response?.data;
+
+  // console.log("checkoutDetail", checkoutDetail);
+
   const {
     trigger: triggerCreateCustomerAddress,
     isMutating: isMutatingCreateCustomerAddress,
   } = useSWRMutation(
-    userData ? createCustomerAddress(userData.id) : null,
+    currentUser ? createCustomerAddress(currentUser.id) : null,
     sendCreateCustomerAddressRequest,
   );
   const {
     trigger: triggerUpdateCustomerAddress,
     isMutating: isMutatingUpdateCustomerAddress,
   } = useSWRMutation(
-    userData ? updateCustomerAddress(userData.id) : null,
+    currentUser ? updateCustomerAddress(currentUser.id) : null,
     sendUpdateCustomerAddressRequest,
   );
   const { trigger: triggerDeleteCustomerAddress } = useSWRMutation(
-    userData ? deleteCustomerAddress(userData.id) : null,
+    currentUser ? deleteCustomerAddress(currentUser.id) : null,
     sendDeleteCustomerAddressRequest,
   );
 
@@ -272,9 +319,11 @@ export default function CheckoutPage() {
   async function handleCheckout() {
     const body: ICheckout = {
       addressId: selectedAddressId,
-      userId: userData?.id,
+      userId: currentUser?.id,
       paymentMethod: selectedPaymentMethod,
       paymentType: selectedPaymentType[0],
+      receivedVia: selectedDeliveryOption === "pickup" ? "PICK_UP" : "DELIVERY",
+      email: email,
       remark: comment,
     };
 
@@ -346,7 +395,7 @@ export default function CheckoutPage() {
   useEffect(() => {
     async function getUserData() {
       const currentUser = await getCurrentUser();
-      setUserData(currentUser);
+      setCurrentUser(currentUser);
       setEmail(currentUser?.email || "");
     }
     getUserData();
@@ -416,7 +465,11 @@ export default function CheckoutPage() {
               </Link>
             </CustomDeliveryRadio>
             <Divider className="my-2" />
-            <CustomDeliveryRadio value="delivery" className="my-0.5 max-w-none">
+            <CustomDeliveryRadio
+              value="delivery"
+              description="ขนส่งเย็น InterExpress จะได้รับภายใน 3-5 วัน"
+              className="my-0.5 max-w-none"
+            >
               <span>จัดส่งถึงบ้าน</span>
               <span>คิดตามระยะทาง</span>
             </CustomDeliveryRadio>
@@ -673,12 +726,18 @@ export default function CheckoutPage() {
         onSelectionChange={(selected) => {
           setSelectedPaymentType(Array.from(selected) as string[]);
         }}
+        disabledKeys={
+          checkoutDetail?.totalDiscount === 0 ? ["INSTALLMENT"] : []
+        }
         defaultSelectedKeys={["SINGLE"]}
         size="sm"
         variant="bordered"
         radius="md"
         className="mb-4 mt-1"
         description="สามารถจ่ายเป็นมัดจำได้เมื่อซื้อสินค้าครบตามจำนวนที่กำหนด"
+        classNames={{
+          value: "text-gray-700",
+        }}
       >
         {PAYMENT_TYPE_OPTIONS.map((option) => (
           <SelectItem
@@ -730,7 +789,7 @@ export default function CheckoutPage() {
               </Accordion>
             </div>
 
-            <CheckoutSummaryTable addressId={selectedAddressId} />
+            <CheckoutSummaryTable checkoutDetail={checkoutDetail} />
 
             <CustomAddressModal
               isOpen={isOpen}
@@ -765,7 +824,7 @@ export default function CheckoutPage() {
               onClickDeleteAddress={async (addressId, onClose) => {
                 try {
                   await triggerDeleteCustomerAddress({ addressId });
-                  mutate(createCustomerAddress(userData.id));
+                  mutate(createCustomerAddress(currentUser.id));
                   onClose();
                   toast.success("ลบที่อยู่สำเร็จ");
                 } catch (error) {
