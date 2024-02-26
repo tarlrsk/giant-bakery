@@ -2,9 +2,13 @@
 
 import useSWR from "swr";
 import apiPaths from "@/utils/api-path";
+import { useSnackbar } from "notistack";
+import useSWRMutation from "swr/mutation";
 import { adminFetcher } from "@/utils/axios";
 import { formatDate } from "@/lib/formatDate";
-import React, { useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect } from "react";
+import UpdateOrderDialog from "@/components/admin/dialog/UpdateOrderDialog";
+import CancelOrderDialog from "@/components/admin/dialog/CancelOrderDialog";
 import {
   OrderStatus,
   PaymentType,
@@ -73,16 +77,19 @@ type Item = {
   subItem: string[];
 };
 
+type IUpdateOrderRequest = {
+  orderId: string;
+  status: OrderStatus;
+  trackingNo: string;
+};
+
+type IDeleteOrderRequest = {
+  orderId: string;
+};
+
 type OrderProps = {
   data: OrderDetail;
 };
-
-const steps = [
-  "รอรับออเดอร์",
-  "กำลังเตรียมออเดอร์",
-  "รอชำระเงิน",
-  "จัดส่งสำเร็จ",
-];
 
 const stepsSinglePayment = [
   "รอชำระเงิน",
@@ -101,28 +108,148 @@ const stepsDepositPayment = [
 
 // ----------------------------------------------------------------------
 
+async function sendUpdateOrderRequest(
+  url: string,
+  { arg }: { arg: IUpdateOrderRequest },
+) {
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      body: JSON.stringify(arg),
+    }).then((res) => res.json());
+
+    if (!res.response.success) throw new Error(res);
+
+    return res;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+}
+
+async function sendCancelOrderRequest(
+  url: string,
+  { arg }: { arg: IDeleteOrderRequest },
+) {
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      body: JSON.stringify(arg),
+    }).then((res) => res.json());
+
+    if (!res.response.success) throw new Error(res);
+
+    return res;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+}
+
+// const orderStatus = [
+//   "PENDING_PAYMENT1",
+//   "PENDING_ORDER",
+//   "ON_PROCESS",
+//   "PENDING_PAYMENT2",
+//   "COMPLETED",
+//   "CANCELLED",
+// ];
+
+// ----------------------------------------------------------------------
+
 export default function OrderDetail({ params }: { params: { slug: string } }) {
   const { slug } = params;
+  const { enqueueSnackbar } = useSnackbar();
 
-  const { getOrderById } = apiPaths();
+  const { getOrderById, updateOrder } = apiPaths();
 
   const { data: orderData, isLoading } = useSWR(
     slug ? getOrderById(slug) : null,
     adminFetcher,
   );
 
-  // const orderStatus = [
-  //   "PENDING_PAYMENT1",
-  //   "PENDING_ORDER",
-  //   "ON_PROCESS",
-  //   "PENDING_PAYMENT2",
-  //   "COMPLETED",
-  //   "CANCELLED",
-  // ];
+  const { trigger: triggerUpdateOrder, isMutating: isMutatingUpdateOrder } =
+    useSWRMutation(updateOrder(), sendUpdateOrderRequest);
 
-  const orderDetail = orderData?.data || {};
+  // TODO: change api path to cancel order
+  const { trigger: triggerCancelOrder, isMutating: isMutatingCancelOrder } =
+    useSWRMutation(updateOrder(), sendCancelOrderRequest);
 
-  console.log("orderDetail", orderDetail);
+  const [isTrackingRequired, setIsTrackingRequired] = useState(false);
+  const [isOpenUpdate, setIsOpenUpdate] = useState(false);
+  const [isOpenCancel, setIsOpenCancel] = useState(false);
+  const [trackingNo, setTrackingNo] = useState("");
+
+  const orderDetail: OrderDetail = orderData?.data || {};
+
+  async function handleUpdateOrder() {
+    try {
+      const res = await triggerUpdateOrder({
+        orderId: slug,
+        status: orderDetail?.status,
+        trackingNo,
+      });
+
+      enqueueSnackbar("อัพเดทออเดอร์สำเร็จ", { variant: "success" });
+    } catch (error) {
+      console.error(error);
+      enqueueSnackbar("เกิดข้อผิดพลาด กรุณาลองใหม่", { variant: "error" });
+    }
+  }
+
+  async function handleCancelOrder() {
+    try {
+      const res = await triggerCancelOrder({
+        orderId: slug,
+      });
+
+      enqueueSnackbar("ยกเลิกออเดอร์สำเร็จ", { variant: "success" });
+    } catch (error) {
+      console.error(error);
+      enqueueSnackbar("เกิดข้อผิดพลาด กรุณาลองใหม่", { variant: "error" });
+    }
+  }
+
+  const buttonActionText = useMemo(() => {
+    let text;
+    switch (orderDetail?.paymentType) {
+      case "SINGLE":
+        switch (orderDetail?.status) {
+          case "PENDING_ORDER":
+            text = "ยืนยันเพื่อรับออเดอร์";
+            break;
+          case "ON_PROCESS":
+            if (orderDetail.receivedVia === "DELIVERY") {
+              setIsTrackingRequired(true);
+              text = "ยืนยันการจัดส่งออเดอร์เสร็จสิ้น";
+            } else {
+              text = "ยืนยันการส่งมอบออเดอร์เสร็จสิ้น";
+            }
+            break;
+        }
+        break;
+      case "INSTALLMENT":
+        switch (orderDetail?.status) {
+          case "PENDING_ORDER":
+            text = "ยืนยันเพื่อรับออเดอร์";
+            break;
+          case "ON_PROCESS":
+            text = "ยืนยันการเตรียมออเดอร์เสร็จสิ้น";
+            break;
+          // TODO: Change below to ON_PACKING_PROCESS
+          case "PENDING_PAYMENT2":
+            if (orderDetail.receivedVia === "DELIVERY") {
+              setIsTrackingRequired(true);
+              text = "ยืนยันจัดส่งออเดอร์เสร็จสิ้น";
+            } else {
+              text = "ยืนยันส่งมอบออเดอร์เสร็จสิ้น";
+            }
+            break;
+        }
+        break;
+    }
+    return text;
+  }, [orderDetail?.paymentType, orderDetail.receivedVia, orderDetail?.status]);
 
   return (
     <Box>
@@ -145,16 +272,49 @@ export default function OrderDetail({ params }: { params: { slug: string } }) {
         <OrderDetailCard data={orderDetail} />
       </Stack>
 
-      <Stack direction="row" justifyContent="end" sx={{ mt: 2, mb: 1 }}>
-        <Button
-          size="large"
-          variant="contained"
-          color="secondary"
-          onClick={() => console.log("next step")}
+      {!!buttonActionText && (
+        <Stack
+          direction="row"
+          justifyContent="end"
+          sx={{ mt: 2, mb: 1 }}
+          spacing={2}
         >
-          เตรียมออเดอร์เสร็จสิ้น
-        </Button>
-      </Stack>
+          {orderDetail.status !== "COMPLETED" &&
+            orderDetail.status !== "CANCELLED" && (
+              <Button
+                size="large"
+                variant="outlined"
+                color="error"
+                onClick={() => setIsOpenCancel(true)}
+              >
+                ยกเลิกออเดอร์
+              </Button>
+            )}
+          <Button
+            size="large"
+            variant="contained"
+            color="secondary"
+            onClick={() => setIsOpenUpdate(true)}
+          >
+            {buttonActionText}
+          </Button>
+        </Stack>
+      )}
+
+      <UpdateOrderDialog
+        text={buttonActionText || ""}
+        open={isOpenUpdate}
+        onClose={() => setIsOpenUpdate(false)}
+        onUpdate={() => handleUpdateOrder}
+        isLoading={isMutatingUpdateOrder}
+      />
+
+      <CancelOrderDialog
+        open={isOpenCancel}
+        onClose={() => setIsOpenCancel(false)}
+        onCancel={() => handleCancelOrder}
+        isLoading={isMutatingUpdateOrder}
+      />
 
       <Backdrop
         sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
@@ -186,7 +346,6 @@ function OrderDetailCard({ data }: OrderProps) {
     }
 
     const status = getStatus(data);
-    console.log("status", status);
     const activeStepIndex = stepsArray.indexOf(status);
     setActiveStep(activeStepIndex !== -1 ? activeStepIndex : 0);
 
@@ -287,7 +446,7 @@ function OrderHeaderCard({ data }: OrderProps) {
         <Stack direction="column" spacing={0.5}>
           <Typography color="grey.800">เลขออเดอร์</Typography>
           <Typography fontWeight={500}>
-            {data?.orderId?.replace(/-/g, "")}
+            {data?.orderId?.replace(/-/g, "") || ""}
           </Typography>
         </Stack>
 
@@ -311,14 +470,14 @@ function OrderHeaderCard({ data }: OrderProps) {
             }
             fontWeight={500}
           >
-            {data?.paymentType === "SINGLE" ? "ชำระจำนวนเต็ม" : "ชำระมัดจำ"}
+            {data?.paymentType === "SINGLE" ? "ชำระเต็มจำนวน" : "ชำระมัดจำ"}
           </Typography>
         </Stack>
 
         <Stack direction="column" spacing={0.5}>
           <Typography color="grey.800">ตัวเลือกการชำระเงิน</Typography>
           <Typography fontWeight={500}>
-            {data?.paymentMethod.join(", ")}
+            {data?.paymentMethod?.join(", ")}
           </Typography>
         </Stack>
 
@@ -412,7 +571,6 @@ function getStatus(item: OrderDetail): string {
   let status = "";
   switch (item?.receivedVia) {
     case "PICK_UP":
-      console.log("PICKUP com", item?.receivedVia);
       switch (item?.paymentType) {
         case "SINGLE":
           switch (item?.status) {
@@ -468,8 +626,6 @@ function getStatus(item: OrderDetail): string {
       break;
 
     case "DELIVERY":
-      console.log("DELIVERY com", item?.receivedVia);
-
       switch (item?.paymentType) {
         case "SINGLE":
           switch (item?.status) {
