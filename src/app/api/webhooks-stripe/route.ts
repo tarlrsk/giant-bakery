@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
 
         console.log(paymentIntent);
 
-        await prismaOrder().updateOrderStatusById(orderId, {
+        await prismaOrder().updateOrderById(orderId, {
           status: OrderStatus.PENDING_ORDER,
           payment: {
             create: {
