@@ -38,8 +38,12 @@ export const customerSignUpValidationSchema = z
       .min(10, "เบอร์โทรศัพท์ต้องมี 10 ตัวเลขเท่านั้น")
       .max(10, "เบอร์โทรศัพท์ต้องมี 10 ตัวเลขเท่านั้น")
       .regex(phoneRegex, "กรุณาใส่เบอร์โทรศัพท์ที่ถูกต้อง"),
-    firstName: z.string({ required_error: "กรุณากรอกชื่อ" }),
-    lastName: z.string({ required_error: "กรุณากรอกนามสกุล" }),
+    firstName: z
+      .string({ required_error: "กรุณากรอกชื่อ" })
+      .min(1, "กรุณากรอกชื่อ"),
+    lastName: z
+      .string({ required_error: "กรุณากรอกนามสกุล" })
+      .min(1, "กรุณากรอกนามสกุล"),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "รหัสผ่านไม่ตรงกัน กรุณาใส่รหัสผ่านอีกครั้ง",
@@ -242,14 +246,17 @@ export const discountValidationSchema = z.object({
 });
 
 // Order ----------------------------------------------------------------
-export const orderUpdateStatusValidateSchema = z.object({
+export const orderUpdateValidateSchema = z.object({
   orderId: z.string().uuid(),
-  status: z.enum([
-    "PENDING_PAYMENT1",
-    "PENDING_ORDER",
-    "ON_PROCESS",
-    "PENDING_PAYMENT2",
-    "COMPLETED",
-    "CANCELLED",
-  ]),
+  status: z
+    .enum([
+      "PENDING_PAYMENT1",
+      "PENDING_ORDER",
+      "ON_PROCESS",
+      "PENDING_PAYMENT2",
+      "ON_PACKING_PROCESS",
+      "COMPLETED",
+      "CANCELLED",
+    ])
+    .nullish(),
 });

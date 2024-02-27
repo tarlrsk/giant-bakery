@@ -123,7 +123,7 @@ export default function Navbar({
         {NAV_ITEMS.map((item, index) => (
           <NavbarItem
             key={index}
-            isActive={pathname === item.link}
+            isActive={pathname !== "/" && item.link.startsWith(pathname)}
             className="relative"
           >
             <motion.div
@@ -151,7 +151,7 @@ export default function Navbar({
               initial="rest"
               whileHover="hover"
               animate="rest"
-              onClick={onOpen}
+              // onClick={onOpen}
             >
               {currentUser?.role !== "GUEST" ? (
                 <Dropdown className="rounded-md min-w-40">
@@ -259,9 +259,9 @@ export default function Navbar({
                 initial="rest"
                 whileHover="hover"
                 animate="rest"
-                onClick={onOpen}
+                // onClick={onOpen}
               >
-                {currentUser ? (
+                {currentUser?.role !== "GUEST" ? (
                   <Dropdown className="rounded-md min-w-full">
                     <DropdownTrigger>
                       <Button

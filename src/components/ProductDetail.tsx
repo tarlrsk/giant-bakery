@@ -47,12 +47,13 @@ export default function ProductDetail({
           <div className="relative flex gap-6">
             <div className="relative flex gap-2">
               <h2 className="font-semibold text-xl">น้ำหนัก:</h2>
-              <p className="font-normal text-xl">{item?.weight}</p>
+              <p className="font-normal text-xl">{item?.weight} กรัม</p>
             </div>
             <div className="relative flex gap-2">
               <h2 className="font-semibold text-xl">ปริมาณ:</h2>
               <p className="font-normal text-xl">
-                {item?.unitRatio ? item?.unitRatio : "-"}{" "}
+                1
+                {/* {item?.unitRatio ? item?.unitRatio : "-"}{" "}*/}
                 {item?.unitType ? item?.unitType : ""}
               </p>
             </div>
