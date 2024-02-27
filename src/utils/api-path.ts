@@ -129,7 +129,7 @@ const apiPaths = () => {
   const getOrdersOverview = () => createAdminUrl("orders/overview");
   const getOrders = () => createAdminUrl("orders");
   const getOrderById = (id: string) => createAdminUrl(`orders/${id}`);
-  const updateOrder = () => createAdminUrl("orders");
+  const updateOrder = () => createAdminUrl("orders/status/plus-one");
   const cancelOrder = () => createAdminUrl("orders/status/cancel");
 
   return {
