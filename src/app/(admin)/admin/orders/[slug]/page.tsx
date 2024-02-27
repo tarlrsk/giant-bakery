@@ -191,6 +191,7 @@ export default function OrderDetail({ params }: { params: { slug: string } }) {
       });
 
       orderDataMutate();
+      setIsOpenUpdate(false);
       enqueueSnackbar("อัพเดทออเดอร์สำเร็จ", { variant: "success" });
     } catch (error) {
       console.error(error);
@@ -205,6 +206,7 @@ export default function OrderDetail({ params }: { params: { slug: string } }) {
       });
 
       orderDataMutate();
+      setIsOpenCancel(false);
       enqueueSnackbar("ยกเลิกออเดอร์สำเร็จ", { variant: "success" });
     } catch (error) {
       console.error(error);
