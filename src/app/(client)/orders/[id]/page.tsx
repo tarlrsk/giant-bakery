@@ -180,7 +180,7 @@ function OrderDetailCard({ item }: OrderProps) {
       </CardContent>
       <Divider />
       <CardContent sx={{ px: 6 }}>
-        <Typography fontWeight={500} sx={{ mt: 1, mb: 2 }}>
+        <Typography fontWeight={500} variant="body1" sx={{ mt: 1, mb: 2 }}>
           รายการสินค้า
         </Typography>
         <Stack direction="column" spacing={2} divider={<Divider />}>
@@ -236,7 +236,7 @@ function OrderHeaderCard({ item }: OrderProps) {
         <Stack direction="column" spacing={0.5}>
           <Typography color="grey.800">เลขออเดอร์</Typography>
           <Typography fontWeight={500}>
-            {item?.orderId?.replace(/-/g, "")}
+            {item?.orderId?.replace(/-/g, "") || ""}
           </Typography>
         </Stack>
 
@@ -270,62 +270,76 @@ function OrderHeaderCard({ item }: OrderProps) {
 
 function AddressCard({ item }: OrderProps) {
   return (
-    <Paper
-      elevation={1}
-      sx={{
-        py: 4,
-        px: 6,
-      }}
-    >
-      <Stack direction="row" justifyContent="space-between" sx={{ width: 1 }}>
-        <Stack direction="column" spacing={0.5}>
-          <Typography color="grey.800">ชื่อผู้สั่ง</Typography>
-          <Typography fontWeight={500}>
-            {`${item?.firstName} ${item?.lastName}` ?? "-"}
-          </Typography>
-        </Stack>
+    <Card elevation={1}>
+      <Box sx={{ width: 1, backgroundColor: "secondary.main", px: 2, py: 2 }}>
+        <Typography color="white" fontWeight={500}>
+          {`ข้อมูลการ${
+            item?.receivedVia === "DELIVERY" ? "การจัดส่ง" : "การส่งมอบ"
+          }`}
+        </Typography>
+      </Box>
+      <CardContent sx={{ px: 6 }}>
+        <Stack
+          direction="row"
+          justifyContent={
+            item?.receivedVia === "DELIVERY" ? "space-between" : "start"
+          }
+          spacing={item?.receivedVia === "DELIVERY" ? 0 : 8}
+          sx={{ width: 1 }}
+        >
+          <Stack direction="column" spacing={0.5}>
+            <Typography color="grey.800">ชื่อผู้รับ</Typography>
+            <Typography fontWeight={500}>
+              {`${item?.firstName} ${item?.lastName}` ?? "-"}
+            </Typography>
+          </Stack>
 
-        <Stack direction="column" spacing={0.5}>
-          <Typography color="grey.800">เบอร์โทรศัพท์</Typography>
-          <Typography fontWeight={500}>{item?.phone ?? "-"}</Typography>
-        </Stack>
+          <Stack direction="column" spacing={0.5}>
+            <Typography color="grey.800">เบอร์โทรศัพท์</Typography>
+            <Typography fontWeight={500}>{item?.phone ?? "-"}</Typography>
+          </Stack>
 
-        <Stack direction="column" spacing={0.5}>
-          <Typography color="grey.800">ที่อยู่</Typography>
-          <Typography fontWeight={500}>
-            {item?.address?.address ?? "-"}
-          </Typography>
-        </Stack>
+          {item?.receivedVia === "DELIVERY" && (
+            <>
+              <Stack direction="column" spacing={0.5}>
+                <Typography color="grey.800">ที่อยู่</Typography>
+                <Typography fontWeight={500}>
+                  {item?.address?.address ?? "-"}
+                </Typography>
+              </Stack>
 
-        <Stack direction="column" spacing={0.5}>
-          <Typography color="grey.800">อำเภอ</Typography>
-          <Typography fontWeight={500}>
-            {item?.address?.district ?? "-"}
-          </Typography>
-        </Stack>
+              <Stack direction="column" spacing={0.5}>
+                <Typography color="grey.800">อำเภอ</Typography>
+                <Typography fontWeight={500}>
+                  {item?.address?.district ?? "-"}
+                </Typography>
+              </Stack>
 
-        <Stack direction="column" spacing={0.5}>
-          <Typography color="grey.800">ตำบล</Typography>
-          <Typography fontWeight={500}>
-            {item?.address?.subdistrict ?? "-"}
-          </Typography>
-        </Stack>
+              <Stack direction="column" spacing={0.5}>
+                <Typography color="grey.800">ตำบล</Typography>
+                <Typography fontWeight={500}>
+                  {item?.address?.subdistrict ?? "-"}
+                </Typography>
+              </Stack>
 
-        <Stack direction="column" spacing={0.5}>
-          <Typography color="grey.800">จังหวัด</Typography>
-          <Typography fontWeight={500}>
-            {item?.address?.province ?? "-"}
-          </Typography>
-        </Stack>
+              <Stack direction="column" spacing={0.5}>
+                <Typography color="grey.800">จังหวัด</Typography>
+                <Typography fontWeight={500}>
+                  {item?.address?.province ?? "-"}
+                </Typography>
+              </Stack>
 
-        <Stack direction="column" spacing={0.5}>
-          <Typography color="grey.800">รหัสไปรษณีย์</Typography>
-          <Typography fontWeight={500}>
-            {item?.address?.postcode ?? "-"}
-          </Typography>
+              <Stack direction="column" spacing={0.5}>
+                <Typography color="grey.800">รหัสไปรษณีย์</Typography>
+                <Typography fontWeight={500}>
+                  {item?.address?.postcode ?? "-"}
+                </Typography>
+              </Stack>
+            </>
+          )}
         </Stack>
-      </Stack>
-    </Paper>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -372,6 +386,7 @@ function getStatus(item: OrderDetail): string {
 
             case "PENDING_PAYMENT2":
               status = "รอชำระเงินที่เหลือ";
+              break;
 
             case "COMPLETED":
               status = "ส่งมอบสำเร็จ";
@@ -382,6 +397,7 @@ function getStatus(item: OrderDetail): string {
               break;
           }
       }
+      break;
 
     case "DELIVERY":
       switch (item?.paymentType) {
@@ -423,6 +439,7 @@ function getStatus(item: OrderDetail): string {
 
             case "PENDING_PAYMENT2":
               status = "รอชำระเงินที่เหลือ";
+              break;
 
             case "COMPLETED":
               status = "จัดส่งไปยัง InterExpress แล้ว";
