@@ -187,11 +187,11 @@ function SignUpForm({ setSelected, onSuccess }: AuthProps) {
             errors.email?.message ||
             (error === ERRORS_SET.alreadyHasUser && error)
           }
+          autoFocus
         />
         <div className=" flex flex-row gap-2">
           <Input
             {...register("firstName")}
-            autoFocus
             label="ชื่อ"
             size="sm"
             variant="bordered"
