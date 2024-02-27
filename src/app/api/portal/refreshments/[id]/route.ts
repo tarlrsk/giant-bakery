@@ -46,23 +46,23 @@ export async function GET(_req: NextRequest, { params }: GetRefreshmentById) {
 
     const newFileUrl = await getFileUrl(imagePath);
 
-    refreshment = await prisma.refreshment.update({
-      where: { id: id },
-      data: {
-        image: newFileUrl,
-        imagePath: imagePath,
-      },
-    });
-
+    const status: StockStatus = StockStatus.OUT_OF_STOCK;
     if (refreshment.currQty > 0) {
       if (refreshment.currQty <= refreshment.minQty) {
         refreshment.status = StockStatus.LOW;
       } else {
         refreshment.status = StockStatus.IN_STOCK;
       }
-    } else {
-      refreshment.status = StockStatus.OUT_OF_STOCK;
     }
+
+    refreshment = await prisma.refreshment.update({
+      where: { id: id },
+      data: {
+        image: newFileUrl,
+        imagePath: imagePath,
+        status: status,
+      },
+    });
 
     return responseWrapper(200, refreshment, null);
   } catch (err: any) {
