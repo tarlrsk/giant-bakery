@@ -16,6 +16,7 @@ export function useAuth() {
       if (!res.response.success) {
         throw Object(res);
       } else {
+        await signIn("credentials", { ...body, redirect: false });
         return res.response;
       }
     } catch (error: any) {
