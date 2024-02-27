@@ -67,7 +67,7 @@ export const createStripeSession = async function (
       },
     ],
     mode: "payment",
-    success_url: `${origin}/orders/${orderId}?checkout-success=true`, // TODO CHANGE TO HEAD ORIGIN URL
+    success_url: `${origin}/orders/${orderId}?checkout-success=true`,
     cancel_url: `${origin}/orders/${orderId}?checkout-success=false`,
     payment_intent_data: {
       metadata: {
