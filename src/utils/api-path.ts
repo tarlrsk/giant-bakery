@@ -91,6 +91,9 @@ const apiPaths = () => {
   const getPrice = () =>
     `https://api-intership.interexpress.co.th/v1/price/check`;
 
+  const getCheckoutDetail = (addressId: string, userId: string) =>
+    createClientUrl(`orders/price?addressId=${addressId}&userId=${userId}`);
+
   // ----------------------------------------------------------------------
 
   // Products
@@ -126,7 +129,7 @@ const apiPaths = () => {
   const getOrdersOverview = () => createAdminUrl("orders/overview");
   const getOrders = () => createAdminUrl("orders");
   const getOrderById = (id: string) => createAdminUrl(`orders/${id}`);
-  const updateOrder = () => createAdminUrl("orders");
+  const updateOrder = () => createAdminUrl("orders/status/plus-one");
   const cancelOrder = () => createAdminUrl("orders/status/cancel");
 
   return {
@@ -155,6 +158,7 @@ const apiPaths = () => {
     getClientOrderById,
     getPresetSnackBoxBySlug,
     getPrice,
+    getCheckoutDetail,
 
     // Admin
     getProducts,
