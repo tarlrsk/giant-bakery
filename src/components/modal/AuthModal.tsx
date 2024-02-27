@@ -179,23 +179,39 @@ function SignUpForm({ setSelected, onSuccess }: AuthProps) {
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
         <Input
           {...register("email", { required: true })}
-          autoFocus
           label="อีเมล"
-          placeholder="อีเมล"
-          labelPlacement="outside"
+          size="sm"
           variant="bordered"
           isInvalid={!!errors?.email || error === ERRORS_SET.alreadyHasUser}
           errorMessage={
             errors.email?.message ||
             (error === ERRORS_SET.alreadyHasUser && error)
           }
+          autoFocus
         />
+        <div className=" flex flex-row gap-2">
+          <Input
+            {...register("firstName")}
+            label="ชื่อ"
+            size="sm"
+            variant="bordered"
+            isInvalid={!!errors?.firstName}
+            errorMessage={errors.firstName?.message}
+          />
+          <Input
+            {...register("lastName")}
+            label="นามสกุล"
+            size="sm"
+            variant="bordered"
+            isInvalid={!!errors?.lastName}
+            errorMessage={errors.lastName?.message}
+          />
+        </div>
 
         <Input
           {...register("password")}
           label="พาสเวิร์ด"
-          placeholder="พาสเวิร์ด"
-          labelPlacement="outside"
+          size="sm"
           variant="bordered"
           endContent={
             <PasswordToggleButton
@@ -211,8 +227,7 @@ function SignUpForm({ setSelected, onSuccess }: AuthProps) {
         <Input
           {...register("confirmPassword")}
           label="ยืนยันพาสเวิร์ด"
-          placeholder="ยืนยันพาสเวิร์ด"
-          labelPlacement="outside"
+          size="sm"
           variant="bordered"
           endContent={
             <PasswordToggleButton
@@ -228,8 +243,7 @@ function SignUpForm({ setSelected, onSuccess }: AuthProps) {
         <Input
           {...register("phone")}
           label="หมายเลขโทรศัพท์"
-          placeholder="หมายเลขโทรศัพท์"
-          labelPlacement="outside"
+          size="sm"
           variant="bordered"
           type="tel"
           isInvalid={!!errors?.phone}

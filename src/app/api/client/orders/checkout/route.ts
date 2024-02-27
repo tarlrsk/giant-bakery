@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
     }
 
     var address: undefined | null | CustomerAddress;
-    if (addressId) {
+    if (addressId && addressId != "") {
       address = await prismaCustomerAddress().getUserAddressById(addressId);
     }
     const cart = await prismaCart().getCartByUserId(userId);

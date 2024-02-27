@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import React, { useMemo } from "react";
+import apiPaths from "@/utils/api-path";
+import React, { useMemo, useState } from "react";
 import { ICartItem } from "@/app/(client)/cart/types";
 
 import {
@@ -31,13 +32,58 @@ const MOCKUP_ITEMS: ICartItem[] = [
   },
 ];
 
+type Props = {
+  checkoutDetail:
+    | {
+        items: {
+          name: string;
+          description: string;
+          image: string;
+          itemId: string;
+          price: number;
+          pricePer: number;
+          quantity: number;
+        }[];
+        subTotal: number;
+        discounts: { name: string; discount: number }[];
+        totalDiscount: number;
+        shippingFee: number;
+        total: number;
+      }
+    | undefined;
+};
+
 // ----------------------------------------------------------------------
 
-export default function CheckoutSummaryTable() {
-  const hasDiscount = false;
+export default function CheckoutSummaryTable({ checkoutDetail }: Props) {
+  const [currentUser, setCurrentUser] = useState<any>();
+  const { getCart, getCheckoutDetail } = apiPaths();
+
+  // const { data: cartData } = useSWR(
+  //   currentUser?.id ? getCart(currentUser.id) : null,
+  //   fetcher,
+  // );
+
+  console.log("checkoutDetail:", checkoutDetail);
+
+  const items = checkoutDetail?.items || [];
+  const total: number = checkoutDetail?.total || 0;
+  const subTotal: number = checkoutDetail?.subTotal || 0;
+  const totalDiscount: number = checkoutDetail?.totalDiscount || 0;
+  const shippingFee: number = checkoutDetail?.shippingFee || 0;
+
+  // useEffect(() => {
+  //   async function getCurrentUserData() {
+  //     const currentUser = await getCurrentUser();
+  //     setCurrentUser(currentUser);
+  //   }
+  //   getCurrentUserData();
+  // }, []);
+
+  // console.log("cart", cartData);
   const classNames = useMemo(
     () => ({
-      wrapper: ["max-h-[382px]", "max-w-lg", "rounded-sm"],
+      wrapper: ["max-w-lg", "rounded-sm"],
       th: [
         "bg-transparent",
         "font-normal",
@@ -56,13 +102,13 @@ export default function CheckoutSummaryTable() {
       switch (columnKey) {
         case "name":
           if (item.name === null) return;
-          if (!!item?.imageUrl) {
+          if (!!item?.image) {
             return (
               <User
                 avatarProps={{
                   radius: "md",
                   className: "w-10 h-10 md:w-14 md:h-14 md:text-large",
-                  src: item.imageUrl,
+                  src: item.image,
                 }}
                 classNames={{
                   name: "text-sm md:text-base",
@@ -76,10 +122,26 @@ export default function CheckoutSummaryTable() {
               />
             );
           } else {
-            return <div className="text-base md:text-lg">{item.name}</div>;
+            return (
+              <div
+                className={`text-base md:text-lg ${
+                  item.itemId === "total" ? "font-medium" : ""
+                }`}
+              >
+                {item.name}
+              </div>
+            );
           }
         case "price":
-          return <div className="text-end">{`฿${item.pricePer}`}</div>;
+          return (
+            <div
+              className={`text-end ${
+                item.itemId === "total" ? "font-medium" : ""
+              }`}
+            >{`${item.itemId === "totalDiscount" ? "-" : ""}฿${
+              item.price
+            }`}</div>
+          );
         default:
           return "";
       }
@@ -88,10 +150,14 @@ export default function CheckoutSummaryTable() {
   );
 
   const summaryData = [
-    { name: "ราคาสินค้ารวม", pricePer: 305 },
-    { name: "ค่าจัดส่ง", pricePer: 49 },
-    hasDiscount ? { name: "ส่วนลด", pricePer: 40 } : null,
-    { name: "ยอดรวม", pricePer: 354 },
+    { itemId: "subTotal", name: "ราคาสินค้ารวม", price: subTotal },
+    shippingFee
+      ? { itemId: "shippingFee", name: "ค่าจัดส่ง", price: shippingFee }
+      : null,
+    totalDiscount
+      ? { itemId: "totalDiscount", name: "ส่วนลด", price: totalDiscount }
+      : null,
+    { itemId: "total", name: "ยอดรวม", price: total },
   ];
 
   return (
@@ -106,11 +172,11 @@ export default function CheckoutSummaryTable() {
       </TableHeader>
       <TableBody
         emptyContent={"ไม่พบสินค้า"}
-        items={[...MOCKUP_ITEMS, ...summaryData]}
+        items={[...items, ...summaryData]}
       >
         {(item) =>
           item ? (
-            <TableRow key={item.name}>
+            <TableRow key={item.itemId}>
               {(columnKey) => (
                 <TableCell className="text-sm md:text-base">
                   {renderItemCell(item, columnKey)}
@@ -121,37 +187,6 @@ export default function CheckoutSummaryTable() {
             <></>
           )
         }
-
-        {/* <TableRow key="productCost">
-          <TableCell className="text-base md:text-lg">ราคาสินค้ารวม</TableCell>
-          <TableCell className="relative flex justify-end text-base md:text-lg">
-            ฿305
-          </TableCell>
-        </TableRow>
-        <TableRow key="deliveryCost">
-          <TableCell className="text-base md:text-lg">ค่าจัดส่ง</TableCell>
-          <TableCell className="relative flex justify-end text-base md:text-lg">
-            ฿49
-          </TableCell>
-        </TableRow>
-        {(hasDiscount as any) && (
-          <TableRow key="discount">
-            <TableCell className="text-base md:text-lg font-medium">
-              ส่วนลด
-            </TableCell>
-            <TableCell className="relative flex justify-end text-base md:text-lg">
-              ฿0{" "}
-            </TableCell>
-          </TableRow>
-        )}
-        <TableRow key="summaryCost">
-          <TableCell className="text-base md:text-lg font-medium">
-            ยอดรวม
-          </TableCell>
-          <TableCell className="relative flex justify-end font-medium text-base md:text-lg">
-            ฿354
-          </TableCell>
-        </TableRow> */}
       </TableBody>
     </Table>
   );

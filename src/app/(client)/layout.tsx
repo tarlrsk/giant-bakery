@@ -33,7 +33,11 @@ export default async function Layout({
   const cartData = await fetch(getCart(currentUser?.id || ""), {
     next: { tags: ["cart"] },
     cache: "no-store",
-  }).then((res) => res.json());
+  }).then(async (res) => {
+    const data = await res.json();
+    if (!data?.response?.success) return null;
+    return data;
+  });
 
   const cart = cartData?.response?.data?.items || [];
   return (
