@@ -45,7 +45,7 @@ type ICheckout = {
   email: string;
   remark: string;
   paymentType: string;
-  addressId: string;
+  addressId: string | null;
   paymentMethod: "CARD" | "PROMPTPAY";
   receivedVia: "PICK_UP" | "DELIVERY";
 };
@@ -155,7 +155,7 @@ async function sendCheckoutRequest(
     arg,
   }: {
     arg: {
-      addressId: string;
+      addressId: string | null;
       userId: string;
       paymentMethod: string;
       paymentType: string;
@@ -318,7 +318,7 @@ export default function CheckoutPage() {
 
   async function handleCheckout() {
     const body: ICheckout = {
-      addressId: selectedAddressId,
+      addressId: selectedAddressId === "" ? null : selectedAddressId,
       userId: currentUser?.id,
       paymentMethod: selectedPaymentMethod,
       paymentType: selectedPaymentType[0],
