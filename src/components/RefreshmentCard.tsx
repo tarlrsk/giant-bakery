@@ -47,7 +47,7 @@ export default function RefreshmentCard({ item, onClick, size = "md" }: Props) {
   return (
     <Card
       className={` bg-white pb-${
-        size === "sm" ? "4" : "6"
+        size === "sm" ? "4 w-15" : "6 w-unit-80"
       } rounded-md shadow-md`}
     >
       <div onClick={onClick}>
@@ -57,6 +57,12 @@ export default function RefreshmentCard({ item, onClick, size = "md" }: Props) {
           width={imgSize.width}
           height={imgSize.height}
           className=" object-cover mb-4 rounded-sm"
+          // TODO: test if this works properly (Responsive approach)
+          sizes="100vw"
+          style={{
+            width: "100%",
+            height: "auto",
+          }}
         />
         <article
           className={`flex flex-col flex-wrap text-pretty p-6 gap-${

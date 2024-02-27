@@ -1,10 +1,10 @@
 "use client";
-import { Box } from "@mui/material";
 import useAdmin from "@/hooks/useAdmin";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { GridEventListener } from "@mui/x-data-grid";
 import React, { useMemo, useState, useEffect } from "react";
+import { Box, Backdrop, CircularProgress } from "@mui/material";
 import OrderDataGrid from "@/components/admin/data-grid/OrderDataGrid";
 import OrderFilterToolbar from "@/components/admin/toolbars/OrderFilterToolbar";
 
@@ -124,6 +124,13 @@ export default function AdminOrder() {
       <OrderFilterToolbar label="ออเดอร์" methods={filterMethods} />
 
       <OrderDataGrid rows={filteredRows} onRowClick={onRowClick} />
+
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={isLoading}
+      >
+        <CircularProgress color="secondary" />
+      </Backdrop>
     </Box>
   );
 }
