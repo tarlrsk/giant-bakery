@@ -1,7 +1,11 @@
+"use client";
 import React, { Suspense } from "react";
 import TitleSection from "@/components/TitleSection";
+import CustomCakeContainer from "@/components/CustomCakeContainer";
 import CakePaginationContainer from "@/components/CakePaginationContainer";
 import RefreshmentCakePaginationContainer from "@/components/RefreshmentCakePaginationContainer";
+
+// ----------------------------------------------------------------------
 
 export default function CakePage() {
   return (
@@ -15,7 +19,7 @@ export default function CakePage() {
           <CakePaginationContainer type="PRESET" />
         </div>
         <div className="pb-20">
-          <CakePaginationContainer type="CUSTOM" />
+          <CustomCakeContainer />
         </div>
       </Suspense>
     </section>
