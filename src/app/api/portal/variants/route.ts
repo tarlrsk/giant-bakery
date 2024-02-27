@@ -213,8 +213,8 @@ export async function GET(req: NextRequest) {
     for (var variant of creams) {
       if (variant.imagePath) {
         variant.image = await getFileUrl(variant.imagePath);
-        variant.type = VariantType.CREAM;
       }
+      variant.type = VariantType.CREAM;
     }
     variants.push(variant);
 
@@ -226,8 +226,8 @@ export async function GET(req: NextRequest) {
     for (var variant of topEdge) {
       if (variant.imagePath) {
         variant.image = await getFileUrl(variant.imagePath);
-        variant.type = VariantType.TOP_EDGE;
       }
+      variant.type = VariantType.TOP_EDGE;
     }
     variants.push(variant);
 
@@ -239,8 +239,8 @@ export async function GET(req: NextRequest) {
     for (var variant of bottomEdge) {
       if (variant.imagePath) {
         variant.image = await getFileUrl(variant.imagePath);
-        variant.type = VariantType.BOTTOM_EDGE;
       }
+      variant.type = VariantType.BOTTOM_EDGE;
     }
     variants.push(variant);
 
@@ -252,8 +252,8 @@ export async function GET(req: NextRequest) {
     for (var variant of decoration) {
       if (variant.imagePath) {
         variant.image = await getFileUrl(variant.imagePath);
-        variant.type = VariantType.DECORATION;
       }
+      variant.type = VariantType.DECORATION;
     }
     variants.push(variant);
 
@@ -265,8 +265,8 @@ export async function GET(req: NextRequest) {
     for (var variant of surface) {
       if (variant.imagePath) {
         variant.image = await getFileUrl(variant.imagePath);
-        variant.type = VariantType.FILLING;
       }
+      variant.type = VariantType.FILLING;
     }
     variants.push(variant);
 
