@@ -18,9 +18,6 @@ export default function CakePage() {
         <div className="pb-20">
           <CakePaginationContainer type="PRESET" />
         </div>
-        <div className="pb-20">
-          <CustomCakeContainer />
-        </div>
       </Suspense>
     </section>
   );

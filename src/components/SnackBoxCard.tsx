@@ -50,7 +50,7 @@ export default function SnackBoxCard({ item, onClick, size = "md" }: Props) {
     <Card
       className={` bg-white pb-${
         size === "sm" ? "4" : "6"
-      } rounded-md shadow-md`}
+      } rounded-md shadow-md hover:cursor-pointer`}
     >
       <div onClick={onClick}>
         <Image

@@ -1,0 +1,37 @@
+[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* IMAGE STYLES */
+[type="radio"] + img {
+  cursor: pointer;
+  border-radius: 100%;
+  border: 1px solid #cfcfcf;
+  width: 4rem;
+  height: 4rem;
+}
+
+/* CHECKED STYLES */
+[type="radio"]:checked + img {
+  margin-top: 16px;
+  border: 0px;
+  outline: 4px solid #de8f2c;
+}
+
+/* NOT SELECTED */
+[type="radio"][value="none"] + img {
+  cursor: pointer;
+  border-radius: 100%;
+  border: 1px solid #cfcfcf;
+  width: 4rem;
+  height: 4rem;
+}
+
+[type="radio"]:checked[value="none"] + img {
+  margin-top: 16px;
+  border: 0px;
+  outline: 4px solid #de8f2c;
+}

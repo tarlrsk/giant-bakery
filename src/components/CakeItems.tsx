@@ -39,7 +39,7 @@ export default function CakeItems({
 
   const fetchPath = getCakes(type as string);
 
-  const { data } = useSWR(fetchPath, fetcher);
+  const { data } = useSWR(fetchPath, fetcher, { revalidateOnFocus: false });
 
   const items: Cake[] = data?.response?.data || [];
 
@@ -72,7 +72,7 @@ export default function CakeItems({
       <div
         className={`grid grid-cols-${cols} gap-${
           size === "sm" ? 4 : 14
-        } justify-center items-baseline hover:cursor-pointer`}
+        } justify-center items-baseline`}
         {...other}
       >
         {Object.values(displayItems)?.map((item: Cake) => (
