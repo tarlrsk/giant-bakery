@@ -215,8 +215,8 @@ export async function GET(req: NextRequest) {
         variant.image = await getFileUrl(variant.imagePath);
       }
       variant.type = VariantType.CREAM;
+      variants.push(variant);
     }
-    variants.push(variant);
 
     const topEdge = (await prisma.masterCakeTopEdge.findMany({
       where: {
@@ -228,8 +228,8 @@ export async function GET(req: NextRequest) {
         variant.image = await getFileUrl(variant.imagePath);
       }
       variant.type = VariantType.TOP_EDGE;
+      variants.push(variant);
     }
-    variants.push(variant);
 
     const bottomEdge = (await prisma.masterCakeBottomEdge.findMany({
       where: {
@@ -241,8 +241,8 @@ export async function GET(req: NextRequest) {
         variant.image = await getFileUrl(variant.imagePath);
       }
       variant.type = VariantType.BOTTOM_EDGE;
+      variants.push(variant);
     }
-    variants.push(variant);
 
     const decoration = (await prisma.masterCakeDecoration.findMany({
       where: {
@@ -254,8 +254,8 @@ export async function GET(req: NextRequest) {
         variant.image = await getFileUrl(variant.imagePath);
       }
       variant.type = VariantType.DECORATION;
+      variants.push(variant);
     }
-    variants.push(variant);
 
     const surface = (await prisma.masterCakeSurface.findMany({
       where: {
@@ -267,8 +267,8 @@ export async function GET(req: NextRequest) {
         variant.image = await getFileUrl(variant.imagePath);
       }
       variant.type = VariantType.FILLING;
+      variants.push(variant);
     }
-    variants.push(variant);
 
     return responseWrapper(200, variants, null);
   } catch (err: any) {
