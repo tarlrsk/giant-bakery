@@ -48,7 +48,7 @@ export default function BeverageItems({
   return (
     <div
       className={`grid grid-cols-${cols} gap-${
-        size === "sm" ? 4 : 14
+        size === "sm" ? "4 pb-2" : "14"
       } justify-center items-baseline hover:cursor-pointer`}
       {...other}
     >
