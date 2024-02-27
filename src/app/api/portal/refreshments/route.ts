@@ -8,7 +8,11 @@ import { parseBoolean } from "@/lib/parseBoolean";
 import { formatFileDate } from "@/lib/formatFileDate";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { refreshmentValidationSchema } from "@/lib/validationSchema";
-import type { RefreshmentType, RefreshmentCategory } from "@prisma/client";
+import {
+  StockStatus,
+  type RefreshmentType,
+  type RefreshmentCategory,
+} from "@prisma/client";
 
 // ----------------------------------------------------------------------
 
@@ -24,6 +28,15 @@ export async function GET(req: NextRequest) {
     for (var refreshment of refreshments) {
       if (refreshment.imagePath) {
         refreshment.image = await getFileUrl(refreshment.imagePath);
+      }
+      if (refreshment.currQty > 0) {
+        if (refreshment.currQty <= refreshment.minQty) {
+          refreshment.status = StockStatus.LOW;
+        } else {
+          refreshment.status = StockStatus.IN_STOCK;
+        }
+      } else {
+        refreshment.status = StockStatus.OUT_OF_STOCK;
       }
     }
 
