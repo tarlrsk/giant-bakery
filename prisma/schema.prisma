@@ -43,6 +43,8 @@ model Session {
 
 model User {
   id             String            @id @default(uuid())
+  firstName      String            @default("")
+  lastName       String            @default("")
   name           String?
   email          String?           @unique
   emailVerified  DateTime?
@@ -54,6 +56,7 @@ model User {
   sessions       Session[]
   orders         Order[]
   addresses      CustomerAddress[]
+  payment        Payment[]
 }
 
 model VerificationToken {
@@ -76,21 +79,21 @@ model Cart {
 }
 
 model CartItem {
-  id            String       @id @default(uuid())
-  quantity      Int
-  type          CartItemType
-  presetCakesId String?
-  presetCake    Cake?        @relation(fields: [presetCakesId], references: [id], onDelete: Cascade)
-  customCakeId  String?      @unique
-  customCake    CustomCake?  @relation(fields: [customCakeId], references: [id], onDelete: Cascade)
-  refreshmentId String?      @unique
-  refreshment   Refreshment? @relation(fields: [refreshmentId], references: [id], onDelete: Cascade)
-  snackBoxId    String?      @unique
-  snackBox      SnackBox?    @relation(fields: [snackBoxId], references: [id], onDelete: Cascade)
-  cartId        String
-  cart          Cart         @relation(fields: [cartId], references: [id], onDelete: Cascade)
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime?    @updatedAt
+  id                  String             @id @default(uuid())
+  quantity            Int
+  type                CartItemType
+  customerCakeId      String?            @unique
+  customerCake        CustomerCake?      @relation(fields: [customerCakeId], references: [id], onDelete: Cascade)
+  refreshmentId       String?            @unique
+  refreshment         Refreshment?       @relation(fields: [refreshmentId], references: [id], onDelete: Cascade)
+  snackBoxId          String?            @unique
+  snackBox            SnackBox?          @relation(fields: [snackBoxId], references: [id], onDelete: Cascade)
+  cartId              String
+  cart                Cart               @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime?          @updatedAt
+  OrderCustomerCake   OrderCustomerCake? @relation(fields: [orderCustomerCakeId], references: [id])
+  orderCustomerCakeId String?
 }
 
 model CustomerAddress {
@@ -105,14 +108,16 @@ model CustomerAddress {
   phone       String
 
   user   User   @relation(fields: [userId], references: [id])
-  userId String @unique
+  userId String
 }
 
 model Cake {
   id            String    @id @default(uuid())
   name          String
   description   String?
+  remark        String?
   imageFileName String?
+  imagePath     String?
   image         String?
   type          CakeType
   price         Float
@@ -126,53 +131,183 @@ model Cake {
   updatedAt     DateTime  @updatedAt
   deletedAt     DateTime?
 
-  variants   Variant[]
-  orderItems OrderItem[]
-  cartItems  CartItem[]
-  CustomCake CustomCake[]
+  sizes              MasterCakeSize[]
+  bases              MasterCakeBase[]
+  fillings           MasterCakeFilling[]
+  creams             MasterCakeCream[]
+  topEdges           MasterCakeTopEdge[]
+  bottomEdges        MasterCakeBottomEdge[]
+  decorations        MasterCakeDecoration[]
+  surfaces           MasterCakeSurface[]
+  customerCakes      CustomerCake[]
+  OrderCustomerCakes OrderCustomerCake[]
 }
 
-model CustomCake {
+model MasterCakeSize {
+  id            String         @id @default(uuid())
+  name          String
+  cakes         Cake[]
+  customerCakes CustomerCake[]
+
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+}
+
+model MasterCakeBase {
+  id            String         @id @default(uuid())
+  name          String
+  cakes         Cake[]
+  customerCakes CustomerCake[]
+
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+}
+
+model MasterCakeFilling {
+  id            String         @id @default(uuid())
+  name          String
+  cakes         Cake[]
+  customerCakes CustomerCake[]
+
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+}
+
+model MasterCakeCream {
+  id            String         @id @default(uuid())
+  name          String
+  cakes         Cake[]
+  customerCakes CustomerCake[]
+  imageFileName String?
+  imagePath     String?
+  image         String?
+
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+}
+
+model MasterCakeTopEdge {
+  id            String         @id @default(uuid())
+  name          String
+  cakes         Cake[]
+  customerCakes CustomerCake[]
+  imageFileName String?
+  imagePath     String?
+  image         String?
+
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+}
+
+model MasterCakeBottomEdge {
+  id            String         @id @default(uuid())
+  name          String
+  cakes         Cake[]
+  customerCakes CustomerCake[]
+  imageFileName String?
+  imagePath     String?
+  image         String?
+
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+}
+
+model MasterCakeDecoration {
+  id            String         @id @default(uuid())
+  name          String
+  cakes         Cake[]
+  customerCakes CustomerCake[]
+  imageFileName String?
+  imagePath     String?
+  image         String?
+
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+}
+
+model MasterCakeSurface {
+  id            String         @id @default(uuid())
+  name          String
+  cakes         Cake[]
+  customerCakes CustomerCake[]
+  imageFileName String?
+  imagePath     String?
+  image         String?
+
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+}
+
+model CustomerCake {
   id        String   @id @default(uuid())
   name      String
   price     Float
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  type      CakeType
 
-  cakeId     String
-  cake       Cake        @relation(fields: [cakeId], references: [id])
-  variants   Variant[]
-  orderItems OrderItem[]
-  CartItems  CartItem?
-}
-
-model Variant {
-  id            String      @id @default(uuid())
-  name          String
-  imageFileName String?
-  image         String?
-  type          VariantType
-  isActive      Boolean
-  isVisualized  Boolean
-  isDeleted     Boolean     @default(false)
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  deletedAt     DateTime?
-
-  cakes       Cake[]
-  customCakes CustomCake[]
+  cakeId              String
+  cake                Cake                  @relation(fields: [cakeId], references: [id])
+  orderCakes          OrderCustomerCake[]
+  CartItems           CartItem[]
+  size                MasterCakeSize?       @relation(fields: [sizeId], references: [id])
+  base                MasterCakeBase?       @relation(fields: [baseId], references: [id])
+  filling             MasterCakeFilling?    @relation(fields: [fillingId], references: [id])
+  cream               MasterCakeCream?      @relation(fields: [creamId], references: [id])
+  topEdge             MasterCakeTopEdge?    @relation(fields: [topEdgeId], references: [id])
+  bottomEdge          MasterCakeBottomEdge? @relation(fields: [bottomEdgeId], references: [id])
+  decoration          MasterCakeDecoration? @relation(fields: [decorationId], references: [id])
+  surface             MasterCakeSurface?    @relation(fields: [surfaceId], references: [id])
+  sizeId              String?
+  baseId              String?
+  fillingId           String?
+  creamId             String?
+  creamColor          String?
+  topEdgeId           String?
+  topEdgeColor        String?
+  bottomEdgeId        String?
+  bottomEdgeColor     String?
+  decorationId        String?
+  surfaceId           String?
+  orderCustomerCakeId String?
 }
 
 model Refreshment {
   id            String               @id @default(uuid())
   name          String
   description   String?
+  remark        String?
   imageFileName String?
+  imagePath     String?
   image         String?
   type          RefreshmentType
   category      RefreshmentCategory?
-  status        StockStatus
+  status        StockStatus          @default(IN_STOCK)
   minQty        Int
   maxQty        Int
   currQty       Int
@@ -186,70 +321,202 @@ model Refreshment {
   createdAt     DateTime             @default(now())
   updatedAt     DateTime             @updatedAt
   deletedAt     DateTime?
+  unitType      String               @default("กล่อง")
+  unitRatio     Int?
 
-  snackBox   SnackBox?   @relation(fields: [snackBoxId], references: [id])
-  snackBoxId String?
-  orderItems OrderItem[]
-  CartItems  CartItem[]
+  CartItem                 CartItem?
+  SnackBoxRefreshment      SnackBoxRefreshment[]
+  orderRefreshment         OrderRefreshment[]
+  orderSnackBoxRefreshment OrderSnackBoxRefreshment[]
 }
 
 model SnackBox {
-  id           String        @id @default(uuid()) @map("_id")
-  price        Float
-  refreshments Refreshment[]
-  orderItems   OrderItem[]
-  CartItems    CartItem?
+  id            String                @id @default(uuid())
+  price         Float
+  name          String                @default("")
+  description   String?
+  imageFileName String?
+  imagePath     String?
+  image         String?
+  weight        Float                 @default(0)
+  height        Float                 @default(0)
+  length        Float                 @default(0)
+  width         Float                 @default(0)
+  isActive      Boolean               @default(true)
+  isDeleted     Boolean               @default(false)
+  deletedAt     DateTime?
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+  type          SnackBoxType          @default(CUSTOM)
+  packageType   SnackBoxPackageType   @default(SNACK_BOX_S)
+  beverage      SnackBoxBeverage      @default(NONE)
+  cartItems     CartItem?
+  refreshments  SnackBoxRefreshment[]
+  orderSnackBox OrderSnackBox[]
+}
+
+model SnackBoxRefreshment {
+  id            String      @id @default(uuid())
+  refreshmentId String
+  refreshment   Refreshment @relation(fields: [refreshmentId], references: [id], onDelete: Cascade)
+  snackBoxId    String
+  snackBox      SnackBox    @relation(fields: [snackBoxId], references: [id], onDelete: Cascade)
 }
 
 model Order {
-  id          String       @id @default(uuid())
-  weight      Float
-  width       Float
-  length      Float
-  height      Float
-  price       Float
-  type        OrderType
-  delivery    DeliveryType
-  receivedVia ReceivedVia
-  status      OrderStatus
-  orderedAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  id            String      @id @default(uuid())
+  status        OrderStatus
+  receivedVia   ReceivedVia @default(PICK_UP)
+  paymentType   PaymentType
+  email         String      @default("default@gmail.com")
+  subTotalPrice Float
+  discountPrice Float
+  shippingFee   Float
+  totalPrice    Float
+  orderedAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 
-  user       User        @relation(fields: [userId], references: [id])
-  payment    Payment     @relation(fields: [paymentId], references: [id])
-  discount   Discount    @relation(fields: [discountId], references: [id])
-  userId     String      @unique
-  paymentId  String
-  discountId String
-  orderItems OrderItem[]
+  user       User       @relation(fields: [userId], references: [id])
+  payment    Payment[]
+  discount   Discount[]
+  userId     String
+  remark     String?
+  trackingNo String?
+
+  // Address
+  cFirstName       String
+  cLastName        String
+  address          String?
+  district         String?
+  subdistrict      String?
+  province         String?
+  postcode         String?
+  phone            String?
+  orderCake        OrderCustomerCake[]
+  orderRefreshment OrderRefreshment[]
+  orderSnackBox    OrderSnackBox[]
 }
 
-model OrderItem {
-  id    String @id @default(uuid())
-  qty   Int
-  price Float
+model OrderCustomerCake {
+  id            String  @id @default(uuid())
+  name          String
+  description   String?
+  remark        String?
+  quantity      Int     @default(0)
+  imageFileName String?
+  imagePath     String?
+  image         String?
+  pricePer      Float
+  price         Float
+  weight        Float
+  height        Float
+  length        Float
+  width         Float
 
-  cake         Cake        @relation(fields: [cakeId], references: [id])
-  customCake   CustomCake  @relation(fields: [customCakeId], references: [id])
-  refreshment  Refreshment @relation(fields: [snackId], references: [id])
-  snackBox     SnackBox    @relation(fields: [snackBoxId], references: [id])
-  order        Order?      @relation(fields: [orderId], references: [id])
-  cakeId       String
-  snackId      String
-  customCakeId String
-  snackBoxId   String
-  orderId      String?
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId String
+
+  cakeId   String?
+  cake     Cake?    @relation(fields: [cakeId], references: [id])
+  cakeType CakeType
+
+  customerCake   CustomerCake? @relation(fields: [customerCakeId], references: [id])
+  customerCakeId String?
+
+  CartItem        CartItem[]
+  size            String?
+  base            String?
+  filling         String?
+  cream           String?
+  creamColor      String?
+  topEdge         String?
+  topEdgeColor    String?
+  bottomEdge      String?
+  bottomEdgeColor String?
+  decoration      String?
+  surface         String?
+}
+
+model OrderRefreshment {
+  id            String               @id @default(uuid())
+  name          String
+  description   String?
+  remark        String?
+  quantity      Int                  @default(0)
+  imageFileName String?
+  imagePath     String?
+  image         String?
+  type          RefreshmentType
+  category      RefreshmentCategory?
+  weight        Float
+  height        Float
+  length        Float
+  width         Float
+  pricePer      Float
+  price         Float
+  unitType      String               @default("กล่อง")
+  unitRatio     Int?
+
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId String
+
+  refreshment   Refreshment? @relation(fields: [refreshmentId], references: [id])
+  refreshmentId String?
+}
+
+model OrderSnackBox {
+  id            String                     @id @default(uuid())
+  name          String
+  quantity      Int
+  pricePer      Float
+  price         Float
+  imageFileName String?
+  imagePath     String?
+  image         String?
+  type          SnackBoxType
+  packageType   SnackBoxPackageType        @default(SNACK_BOX_S)
+  beverage      SnackBoxBeverage           @default(NONE)
+  refreshments  OrderSnackBoxRefreshment[]
+  order         Order                      @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId       String
+
+  snackBoxId String?
+  snackBox   SnackBox? @relation(fields: [snackBoxId], references: [id])
+}
+
+model OrderSnackBoxRefreshment {
+  id              String               @id @default(uuid())
+  name            String
+  description     String?
+  remark          String?
+  imageFileName   String?
+  imagePath       String?
+  image           String?
+  type            RefreshmentType
+  category        RefreshmentCategory?
+  weight          Float
+  height          Float
+  length          Float
+  width           Float
+  price           Float
+  OrderSnackBox   OrderSnackBox        @relation(fields: [orderSnackBoxId], references: [id], onDelete: Cascade)
+  orderSnackBoxId String
+  unitType        String               @default("กล่อง")
+  unitRatio       Int?
+
+  refreshment   Refreshment? @relation(fields: [refreshmentId], references: [id])
+  refreshmentId String?
 }
 
 model Payment {
   id        String        @id @default(uuid())
   amount    Float
-  provider  String
-  type      PaymentType
-  status    PaymentStatus
+  type      PaymentMethod
   createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-  order     Order[]
+  order     Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId   String
+  userId    String
+  user      User          @relation(fields: [userId], references: [id])
 }
 
 model Discount {
@@ -280,6 +547,7 @@ enum RefreshmentCategory {
   PIE
   COOKIE
   SNACK
+  CAKE
 }
 
 enum CakeType {
@@ -288,8 +556,7 @@ enum CakeType {
 }
 
 enum CartItemType {
-  PRESET_CAKE
-  CUSTOM_CAKE
+  CAKE
   REFRESHMENT
   SNACK_BOX
 }
@@ -299,22 +566,10 @@ enum CartType {
   GUEST
 }
 
-enum VariantType {
-  BASE
-  FILLINGS
-  FROSTINGS
-  CREAM
-}
-
 enum StockStatus {
   IN_STOCK
   LOW
   OUT_OF_STOCK
-}
-
-enum OrderType {
-  WHOLESALE
-  RETAIL
 }
 
 enum ReceivedVia {
@@ -322,23 +577,24 @@ enum ReceivedVia {
   DELIVERY
 }
 
-enum DeliveryType {
-  NORMAL
-  CONTROL // Temprature control.
-}
-
 enum OrderStatus {
+  PENDING_PAYMENT1
   PENDING_ORDER
   ON_PROCESS
-  PENDING_PAYMENT
-  PENDING_DELIVERY
+  PENDING_PAYMENT2
+  ON_PACKING_PROCESS
   COMPLETED
   CANCELLED
 }
 
+enum PaymentMethod {
+  CARD
+  PROMPTPAY
+}
+
 enum PaymentType {
-  FULL_PAYMENT
-  PARTIAL_PAYMENT
+  SINGLE
+  INSTALLMENT
 }
 
 enum PaymentStatus {
@@ -349,4 +605,21 @@ enum PaymentStatus {
 enum DiscountType {
   NORMAL
   SNACK_BOX
+}
+
+enum SnackBoxPackageType {
+  PAPER_BAG
+  SNACK_BOX_S
+  SNACK_BOX_M
+}
+
+enum SnackBoxBeverage {
+  INCLUDE
+  EXCLUDE
+  NONE
+}
+
+enum SnackBoxType {
+  PRESET
+  CUSTOM
 }

@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, SubmitHandler } from "react-hook-form";
 import {
-  customerSignInValidationSchema,
+  signInValidationSchema,
   customerSignUpValidationSchema,
 } from "@/lib/validationSchema";
 
@@ -35,7 +35,7 @@ type AuthProps = {
   onSuccess: () => void;
 };
 
-type SignInProps = z.infer<typeof customerSignInValidationSchema>;
+type SignInProps = z.infer<typeof signInValidationSchema>;
 
 type SignUpProps = z.infer<typeof customerSignUpValidationSchema>;
 
@@ -272,7 +272,7 @@ function SignInForm({ setSelected, onSuccess }: AuthProps) {
     handleSubmit,
     formState: { errors },
   } = useForm<SignInProps>({
-    resolver: zodResolver(customerSignInValidationSchema),
+    resolver: zodResolver(signInValidationSchema),
   });
 
   const { onSignIn } = useAuth();

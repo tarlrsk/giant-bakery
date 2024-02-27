@@ -26,7 +26,7 @@ function MapContainer() {
   });
 
   return isLoaded ? (
-    <div className="relative flex-1 self-stretch grow rounded-[8px]">
+    <div className="relative flex-1 self-stretch grow rounded-sm">
       <GoogleMap mapContainerStyle={containerStyle} center={position} zoom={18}>
         <Marker position={position} />
       </GoogleMap>

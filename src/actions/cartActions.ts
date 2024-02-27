@@ -1,61 +1,165 @@
 "use server";
 
 // import toast from "react-hot-toast";
-import { cookies } from "next/headers";
 import apiPaths from "@/utils/api-path";
 import { revalidateTag } from "next/cache";
+import { APIgetCartItems } from "@/app/api/client/carts/route";
 
 import getCurrentUser from "./userActions";
 
 // ----------------------------------------------------------------------
 
+type IAddCustomSnackBoxToCart = {
+  packageType: "PAPER_BAG" | "SNACK_BOX_S" | "SNACK_BOX_M";
+  beverage: "INCLUDE" | "EXCLUDE" | "NONE";
+  refreshmentIds: string[];
+  quantity: number;
+};
+
+type IAddCakeToCart = {
+  cakeId: string;
+  cakeType: "PRESET" | "CUSTOM";
+  sizeId: string;
+  baseId: string;
+  fillingId: string;
+  quantity: number;
+};
+
+// ----------------------------------------------------------------------
+
+export async function addPresetCakeToCartAction(
+  url: string,
+  body: IAddCakeToCart,
+) {
+  try {
+    const currentUser = await getCurrentUser();
+
+    const request = {
+      userId: currentUser?.id || "GUEST",
+      type: currentUser?.role || "GUEST",
+      cakeId: body.cakeId,
+      cakeType: body.cakeType,
+      sizeId: body.sizeId,
+      fillingId: body.fillingId,
+      quantity: body.quantity,
+    };
+
+    const res = await fetch(url, {
+      method: "POST",
+      body: JSON.stringify(request),
+      cache: "no-store",
+    });
+
+    revalidateTag("cart");
+    const data = await res.json();
+    console.log("data", data);
+
+    return data;
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+export async function addCustomSnackBoxToCartAction(
+  url: string,
+  body: IAddCustomSnackBoxToCart,
+) {
+  try {
+    const currentUser = await getCurrentUser();
+
+    const request = {
+      userId: currentUser?.id || "GUEST",
+      type: currentUser?.role || "GUEST",
+      packageType: body.packageType,
+      beverage: body.beverage,
+      refreshmentIds: body.refreshmentIds,
+      quantity: body.quantity,
+    };
+
+    const res = await fetch(url, {
+      method: "POST",
+      body: JSON.stringify(request),
+      cache: "no-store",
+    });
+
+    revalidateTag("cart");
+    const data = await res.json();
+
+    return data;
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+export async function addItemToCart(
+  url: string,
+  itemId: string,
+  quantity: number,
+) {
+  try {
+    const currentUser = await getCurrentUser();
+
+    const body = {
+      userId: currentUser?.id || "GUEST",
+      type: currentUser?.role === "CUSTOMER" ? "MEMBER" : "GUEST",
+      refreshmentId: itemId,
+      quantity: quantity,
+    };
+
+    const res = await fetch(url, {
+      method: "POST",
+      body: JSON.stringify(body),
+      cache: "no-store",
+    });
+
+    revalidateTag("cart");
+    const data = await res.json();
+
+    return data;
+  } catch (err) {
+    console.error(err);
+  }
+}
+
 export async function updateCartItem(
   userId: string,
-  type: string,
   itemId: string,
+  type: "MEMBER" | "GUEST",
   quantity: number,
   action: "increase" | "decrease" | "remove",
 ) {
-  const { updateCartItem, deleteCartItem } = apiPaths();
+  try {
+    const { updateCartItem } = apiPaths();
 
-  const updatedQuantity = action === "increase" ? quantity + 1 : quantity - 1;
-  const isDeleted = action === "remove" || updatedQuantity === 0;
+    let updatedQuantity;
 
-  const res = await fetch(
-    isDeleted ? deleteCartItem(userId, itemId) : updateCartItem,
-    {
-      method: isDeleted ? "DELETE" : "PUT",
-      body: JSON.stringify({ userId, type, itemId, updatedQuantity }),
-    },
-  );
-  const data = await res.json();
-  revalidateTag("cart");
+    if (action === "increase") {
+      updatedQuantity = quantity + 1;
+    } else if (action === "decrease") {
+      updatedQuantity = quantity - 1;
+    } else {
+      updatedQuantity = 0;
+    }
 
-  return data;
+    const res = await fetch(updateCartItem(), {
+      method: "PUT",
+      body: JSON.stringify({ userId, itemId, type, quantity: updatedQuantity }),
+      cache: "no-store",
+    });
+
+    revalidateTag("cart");
+    const data = await res.json();
+
+    return data;
+  } catch (err) {
+    console.error(err);
+  }
 }
 
 export async function getCartData() {
   const currentUser = await getCurrentUser();
-  const userId =
-    currentUser?.id ||
-    `COOKIE_ID_${cookies().get("next-auth.csrf-token")?.value as string}`;
 
-  const { getCart } = apiPaths();
+  const data = await APIgetCartItems(currentUser?.id);
 
-  const res = await fetch(getCart(userId), { next: { tags: ["cart"] } });
-
-  if (!res.ok) {
-    return {
-      response: {
-        data: {
-          totalPrice: 0,
-          items: [],
-        },
-      },
-    };
-  }
-
-  const data = await res.json();
-
-  return data;
+  return data.json();
 }

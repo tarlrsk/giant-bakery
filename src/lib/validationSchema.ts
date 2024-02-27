@@ -10,7 +10,7 @@ const ACCEPTED_IMAGE_TYPES = [
   "image/jpeg",
   "image/jpg",
   "image/png",
-  "image/webp",
+  "image/svg+xml",
 ];
 
 const zodIsImage = z
@@ -18,7 +18,7 @@ const zodIsImage = z
   .refine((file) => file?.size <= MAX_FILE_SIZE, `Max image size is 50MB.`)
   .refine(
     (file) => ACCEPTED_IMAGE_TYPES.includes(file?.type),
-    "Only .jpg, .jpeg, .png and .webp formats are supported.",
+    "Only .jpg, .jpeg, .png and .svg formats are supported.",
   );
 
 // Auth ----------------------------------------------------------------------
@@ -38,23 +38,23 @@ export const customerSignUpValidationSchema = z
       .min(10, "เบอร์โทรศัพท์ต้องมี 10 ตัวเลขเท่านั้น")
       .max(10, "เบอร์โทรศัพท์ต้องมี 10 ตัวเลขเท่านั้น")
       .regex(phoneRegex, "กรุณาใส่เบอร์โทรศัพท์ที่ถูกต้อง"),
+    firstName: z.string({ required_error: "กรุณากรอกชื่อ" }),
+    lastName: z.string({ required_error: "กรุณากรอกนามสกุล" }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "รหัสผ่านไม่ตรงกัน กรุณาใส่รหัสผ่านอีกครั้ง",
     path: ["confirmPassword"],
   });
 
-export const customerSignInValidationSchema = z.object({
-  email: z.string().min(1, "กรุณาใส่อีเมล").email("กรุณาใส่อีเมลที่ถูกต้อง"),
-  password: z
-    .string({ required_error: "Password is required." })
-    .min(8, "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร"),
+export const signInValidationSchema = z.object({
+  email: z.string({ required_error: "กรุณาใส่อีเมล" }),
+  password: z.string({ required_error: "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร" }),
 });
 
 // Customer Address ----------------------------------------------------------
 
 export const customerAddressValidationSchema = z.object({
-  id: z.string().uuid().nullish(),
+  addressId: z.string().uuid().nullish(),
   cFirstName: z
     .string({ required_error: "First name is required." })
     .min(3)
@@ -94,21 +94,39 @@ export const customerAddressValidationSchema = z.object({
 
 export const variantValidationSchema = z.object({
   name: z.string({ required_error: "Name is required." }).min(3).max(255),
-  image: zodIsImage.nullable(),
-  type: z.enum(["BASE", "FILLINGS", "FROSTINGS", "CREAM"]),
+  type: z.enum([
+    "SIZE",
+    "BASE",
+    "FILLING",
+    "CREAM",
+    "TOP_EDGE",
+    "BOTTOM_EDGE",
+    "DECORATION",
+    "SURFACE",
+  ]),
   isActive: z.boolean(),
-  isVisualized: z.boolean(),
+});
+
+export const variantByTypeValidateSchema = z.object({
+  id: z.string().uuid(),
+  type: z.enum([
+    "SIZE",
+    "BASE",
+    "FILLING",
+    "CREAM",
+    "TOP_EDGE",
+    "BOTTOM_EDGE",
+    "DECORATION",
+    "SURFACE",
+  ]),
 });
 
 // Refreshments ---------------------------------------------------------------
 
 export const refreshmentValidationSchema = z.object({
   name: z.string({ required_error: "Name is required." }).min(3).max(255),
-  description: z.string().min(10).max(255).nullable(),
-  image: zodIsImage.nullable(),
   type: z.enum(["BAKERY", "BEVERAGE"]),
-  category: z.enum(["BREAD", "PIE", "COOKIE", "SNACK"]).nullable(),
-  status: z.enum(["IN_STOCK", "LOW", "OUT_OF_STOCK"]),
+  category: z.enum(["BREAD", "PIE", "COOKIE", "SNACK", "CAKE"]).nullable(),
   minQty: z.number({ required_error: "Min quantity is required." }),
   maxQty: z.number({ required_error: "Max quantity is required." }),
   currQty: z.number({ required_error: "Current quantity is required." }),
@@ -117,6 +135,8 @@ export const refreshmentValidationSchema = z.object({
   length: z.number().multipleOf(0.01),
   width: z.number().multipleOf(0.01),
   price: z.number().multipleOf(0.01),
+  unitType: z.enum(["กล่อง", "แก้ว", "ขวด", "ชิ้น"]),
+  remark: z.string().nullable(),
   isActive: z.boolean(),
 });
 
@@ -124,7 +144,7 @@ export const refreshmentValidationSchema = z.object({
 
 export const cakeValidationSchema = z.object({
   name: z.string({ required_error: "Name is required." }).min(3).max(255),
-  description: z.string().min(10).max(255).nullable(),
+  remark: z.string().nullable(),
   image: zodIsImage.nullable(),
   type: z.enum(["PRESET", "CUSTOM"]),
   price: z.number().multipleOf(0.01),
@@ -133,44 +153,77 @@ export const cakeValidationSchema = z.object({
   length: z.number().multipleOf(0.01),
   width: z.number().multipleOf(0.01),
   isActive: z.boolean(),
-  variantIds: z.array(z.string().uuid()),
+});
+
+// Preset SnackBoxes ------------------------------------------------------------
+
+export const presetSnackBoxesValidateSchema = z.object({
+  name: z.string({ required_error: "Name is required." }).min(3).max(255),
+  image: zodIsImage.nullable(),
+  price: z.number().multipleOf(0.01),
+  weight: z.number().multipleOf(0.01),
+  height: z.number().multipleOf(0.01),
+  length: z.number().multipleOf(0.01),
+  width: z.number().multipleOf(0.01),
+  isActive: z.boolean(),
+  refreshmentIds: z.array(z.string().uuid()),
 });
 
 // Cart ------------------------------------------------------------------
 
 export const cartCustomCakeValidationSchema = z.object({
-  userId: z.string().uuid(),
+  userId: z.string().min(3),
   type: z.enum(["GUEST", "MEMBER"]),
+  cakeType: z.enum(["PRESET", "CUSTOM"]),
   cakeId: z.string(),
-  variantIds: z.array(z.string()),
   quantity: z.number(),
 });
 
 export const cartPresetCakeValidationSchema = z.object({
-  userId: z.string().uuid(),
+  userId: z.string().min(3),
   type: z.enum(["GUEST", "MEMBER"]),
   cakeId: z.string().uuid(),
   quantity: z.number(),
 });
 
 export const cartRefreshmentValidationSchema = z.object({
-  userId: z.string().uuid(),
+  userId: z.string().min(3),
   type: z.enum(["GUEST", "MEMBER"]),
   refreshmentId: z.string(),
   quantity: z.number(),
 });
 
-export const cartSnackBoxValidationSchema = z.object({
-  userId: z.string().uuid(),
+export const cartCustomSnackBoxValidationSchema = z.object({
+  userId: z.string().min(3),
   type: z.enum(["GUEST", "MEMBER"]),
+  beverage: z.enum(["INCLUDE", "EXCLUDE", "NONE"]),
+  packageType: z.enum(["PAPER_BAG", "SNACK_BOX_S", "SNACK_BOX_M"]),
   refreshmentIds: z.array(z.string().uuid()),
   quantity: z.number(),
 });
 
+export const cartPresetSnackBoxValidationSchema = z.object({
+  userId: z.string().min(3),
+  type: z.enum(["GUEST", "MEMBER"]),
+  snackBoxId: z.string().uuid(),
+  quantity: z.number(),
+});
+
 export const updateQtyCartValidateSchema = z.object({
-  userId: z.string().uuid(),
+  userId: z.string().min(3),
   itemId: z.string(),
   quantity: z.number(),
+});
+
+// Checkout -------------------------------------------------------------
+
+export const checkoutCartValidateSchema = z.object({
+  userId: z.string().uuid(),
+  addressId: z.string().uuid().nullish(),
+  email: z.string().email(),
+  receivedVia: z.enum(["DELIVERY", "PICK_UP"]),
+  paymentMethod: z.enum(["CARD", "PROMPTPAY"]),
+  paymentType: z.enum(["SINGLE", "INSTALLMENT"]),
 });
 
 // Discount -------------------------------------------------------------
@@ -186,4 +239,20 @@ export const discountValidationSchema = z.object({
     .max(255),
   type: z.enum(["NORMAL", "SNACK_BOX"]),
   isActive: z.boolean(),
+});
+
+// Order ----------------------------------------------------------------
+export const orderUpdateValidateSchema = z.object({
+  orderId: z.string().uuid(),
+  status: z
+    .enum([
+      "PENDING_PAYMENT1",
+      "PENDING_ORDER",
+      "ON_PROCESS",
+      "PENDING_PAYMENT2",
+      "ON_PACKING_PROCESS",
+      "COMPLETED",
+      "CANCELLED",
+    ])
+    .nullish(),
 });

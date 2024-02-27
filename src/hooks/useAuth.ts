@@ -1,11 +1,11 @@
 import { z } from "zod";
 import { signUp, ISignUpRequest } from "@/actions/userActions";
 import { signIn, signOut as onSignOut } from "next-auth/react";
-import { customerSignInValidationSchema } from "@/lib/validationSchema";
+import { signInValidationSchema } from "@/lib/validationSchema";
 
 // ----------------------------------------------------------------------
 
-type signInProps = z.infer<typeof customerSignInValidationSchema>;
+type signInProps = z.infer<typeof signInValidationSchema>;
 
 // ----------------------------------------------------------------------
 

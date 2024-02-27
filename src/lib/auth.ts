@@ -34,9 +34,9 @@ export const authOptions: NextAuthOptions = {
     maxAge: 30 * 24 * 60 * 60,
   },
   // TODO create page
-  // pages: {
-  //   signIn: "/",
-  // },
+  pages: {
+    signIn: "/login",
+  },
   providers: [
     Credentials({
       name: "credentials",
@@ -79,7 +79,7 @@ export const authOptions: NextAuthOptions = {
       if (session && user) {
         session.user.id = user.id;
       }
-      session.user.role = token.role;
+      session.user = token;
       return session;
     },
     async jwt({ token, user }) {

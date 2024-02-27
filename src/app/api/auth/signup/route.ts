@@ -7,8 +7,15 @@ import { customerSignUpValidationSchema } from "@/lib/validationSchema";
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password, confirmPassword, phone, cookieId } =
-      await req.json();
+    const {
+      email,
+      password,
+      confirmPassword,
+      phone,
+      cookieId,
+      firstName,
+      lastName,
+    } = await req.json();
 
     if (!email?.trim()) {
       return responseWrapper(400, null, "กรุณาใส่อีเมล");
@@ -23,6 +30,8 @@ export async function POST(req: NextRequest) {
       password,
       confirmPassword,
       phone,
+      firstName,
+      lastName,
     });
 
     if (!validation.success) {
@@ -52,6 +61,8 @@ export async function POST(req: NextRequest) {
 
     const newUser = await prisma.user.create({
       data: {
+        firstName: firstName,
+        lastName: lastName,
         email: email,
         hashedPassword: hashedPassword,
         phone: phone,

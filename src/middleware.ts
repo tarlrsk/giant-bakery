@@ -6,9 +6,12 @@ const allowedOrigins =
     ? ["https://cukedoh.vercel.app/", "https://cukedoh-uat.vercel.app/"]
     : ["https://cukedoh-stg.vercel.app/", "http://localhost:3000"];
 
+export let userId: string | undefined = undefined;
+
 export default withAuth(
   function middleware(req: NextRequestWithAuth) {
     const origin = req.headers.get("origin");
+    userId = req.nextauth.token?.id;
 
     if (origin && !allowedOrigins.includes(origin)) {
       return new NextResponse(null, {
@@ -19,11 +22,11 @@ export default withAuth(
     }
 
     if (
-      (req.nextUrl.pathname.startsWith("/api/admin") ||
+      (req.nextUrl.pathname.startsWith("/api/portal") ||
         req.nextUrl.pathname.startsWith("/admin")) &&
       req.nextauth.token?.role !== "ADMIN"
     )
-      return NextResponse.rewrite(new URL("/denied", req.url));
+      return NextResponse.redirect(req.nextUrl.origin);
 
     console.log(req.method);
     console.log(req.url);
@@ -36,5 +39,5 @@ export default withAuth(
 );
 
 export const config = {
-  matcher: ["/api/admin/:path*", "/admin/:path*"],
+  matcher: ["/api/portal/:path*", "/admin/:path*"],
 };

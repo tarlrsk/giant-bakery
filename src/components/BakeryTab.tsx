@@ -1,39 +1,30 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { Refreshment } from "@prisma/client";
-import React, { useState, useEffect } from "react";
-import { getBakeryByCategory } from "@/actions/bakeryActions";
+import React from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { Tab, Tabs } from "@nextui-org/react";
 
-import ProductCard from "./ProductCard";
+import BakeryItems, { IBakeryCategory } from "./BakeryItems";
 
 const TAB_ITEMS = [
-  { key: "", title: "All" },
-  { key: "BREAD", title: "Bread" },
-  { key: "PIE", title: "Pie" },
-  { key: "COOKIE", title: "Cookie" },
-  { key: "SNACK", title: "Snack" },
+  { key: "", title: "ทั้งหมด" },
+  { key: "BREAD", title: "ขนมปัง" },
+  { key: "COOKIE", title: "คุ้กกี้" },
+  { key: "PIE", title: "พาย" },
+  { key: "SNACK", title: "ขนมทานเล่น" },
 ];
 
 export default function BakeryTab() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const bakeryCategory = searchParams.get("category") as IBakeryCategory;
 
-  const [selectedCategory, setSelectedCategory] = useState<any>("");
-  const [bakeryData, setBakeryData] = useState<Refreshment[]>([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await getBakeryByCategory(selectedCategory);
-        setBakeryData(res?.response.data ?? []);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-    fetchData();
-  }, [selectedCategory]);
+  const handleTabSelectionChange = (selectedCategory: IBakeryCategory) => {
+    router.push(`/bakeries?category=${selectedCategory}`, {
+      scroll: false,
+    });
+  };
 
   return (
     <div className="flex flex-col justify-center items-center gap-20">
@@ -41,8 +32,10 @@ export default function BakeryTab() {
         variant={"underlined"}
         aria-label="Tabs"
         items={TAB_ITEMS}
-        selectedKey={selectedCategory}
-        onSelectionChange={setSelectedCategory}
+        selectedKey={bakeryCategory}
+        onSelectionChange={(e) =>
+          handleTabSelectionChange(e as IBakeryCategory)
+        }
       >
         {TAB_ITEMS.map((item) => (
           <Tab
@@ -52,16 +45,8 @@ export default function BakeryTab() {
           ></Tab>
         ))}
       </Tabs>
-      <div className="grid grid-cols-5 gap-24 pb-28">
-        {Object.values(bakeryData)?.map((item: Refreshment) => (
-          <ProductCard
-            key={item.id}
-            name={item.name}
-            price={item.price}
-            img={item.image ? `${item.image as string}` : "/"}
-            onClick={() => router.push(`/bakery/${item.name}`)}
-          />
-        ))}
+      <div className="container px-6 pb-40">
+        <BakeryItems cols={4} category={bakeryCategory} />
       </div>
     </div>
   );
