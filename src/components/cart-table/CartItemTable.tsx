@@ -23,12 +23,12 @@ import DeleteIcon from "../icons/DeleteIcon";
 
 type Props = {
   userId: string;
-  userType: "MEMBER" | "GUEST";
+  userType: "CUSTOMER" | "GUEST";
   items: ICartItem[];
   onUpdateCartItem: (
     userId: string,
     itemId: string,
-    type: "MEMBER" | "GUEST",
+    type: "CUSTOMER" | "GUEST",
     quantity: number,
     action: "increase" | "decrease" | "remove",
   ) => Promise<any>;

@@ -16,7 +16,7 @@ interface ICartResponse {
     data: {
       cartId: string | null;
       userId: string | null;
-      type: "MEMBER" | "GUEST";
+      type: "CUSTOMER" | "GUEST";
       subTotal: number;
       discounts: {
         name: string;
@@ -74,7 +74,7 @@ async function ItemCartView() {
         <div className="md:col-span-4 ">
           <CartItemTable
             userId={currentUser?.id || ""}
-            userType={(currentUser?.role as "MEMBER" | "GUEST") || "GUEST"}
+            userType={(currentUser?.role as "CUSTOMER" | "GUEST") || "GUEST"}
             items={items}
             onUpdateCartItem={updateCartItem}
           />
