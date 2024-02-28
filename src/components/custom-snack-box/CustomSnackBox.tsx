@@ -239,8 +239,6 @@ export default function CustomSnackBox() {
         addCustomSnackBoxToCart(),
         body,
       );
-      console.log("res", res);
-      if (!res.success) throw new Error(res.error);
       toast.success("จัดชุดเบรกสำเร็จ");
       setCurrentPage(1);
       reset();

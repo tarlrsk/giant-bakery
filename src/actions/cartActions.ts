@@ -106,6 +106,7 @@ export async function addItemToCart(
       userId: currentUser?.id || "GUEST",
       type: currentUser?.role || "GUEST",
       refreshmentId: itemId,
+      snackBoxId: itemId,
       quantity: quantity,
     };
 

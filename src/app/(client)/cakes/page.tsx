@@ -1,4 +1,3 @@
-"use client";
 import React, { Suspense } from "react";
 import TitleSection from "@/components/TitleSection";
 import CakePaginationContainer from "@/components/CakePaginationContainer";
