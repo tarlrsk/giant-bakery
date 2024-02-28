@@ -23,6 +23,7 @@ import {
 import { Button } from "@nextui-org/react";
 
 import { getStatus, IOrderDetail } from "../types";
+import getCurrentUser from "@/actions/userActions";
 
 // ----------------------------------------------------------------------
 
@@ -54,6 +55,7 @@ async function sendCheckoutRequest(
   }: {
     arg: {
       orderId: string | null;
+      userId: string | null;
     };
   },
 ) {
@@ -87,19 +89,13 @@ export default function OrderDetail({ params }: { params: { id: string } }) {
   const { trigger: triggerCheckoutOrder, isMutating: isMutatingCheckoutOrder } =
     useSWRMutation(checkoutOrder(), sendCheckoutRequest);
 
-  const handlePayRestPayment = async () => {
+  const handlePayPayment = async () => {
     try {
-      // TODO: call api to Stripe here
-      console.log("pay rest payment");
-    } catch (err) {
-      toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
-    }
-  };
+      const currentUser = await getCurrentUser();
 
-  const handlePayFirstPayment = async () => {
-    try {
       const res = await triggerCheckoutOrder({
         orderId: item?.orderId || "",
+        userId: currentUser?.id || "",
       });
       const url = res?.response?.data?.stripeUrl;
       router.replace(url);
@@ -130,42 +126,30 @@ export default function OrderDetail({ params }: { params: { id: string } }) {
           <OrderDetailCard item={item} />
         </Stack>
 
-        {item?.status === "PENDING_PAYMENT2" && !item?.isCancelled && (
-          <Stack
-            direction="row"
-            justifyContent="end"
-            sx={{ mt: 2, mb: 1 }}
-            spacing={2}
-          >
-            <Button
-              size="lg"
-              radius="sm"
-              color="secondary"
-              onClick={handlePayRestPayment}
+        {(item?.status === "PENDING_PAYMENT1" ||
+          item?.status === "PENDING_PAYMENT2") &&
+          !item?.isCancelled && (
+            <Stack
+              direction="row"
+              justifyContent="end"
+              sx={{ mt: 2, mb: 1 }}
+              spacing={2}
             >
-              ชำระเงินที่เหลือ
-            </Button>
-          </Stack>
-        )}
-
-        {item?.status === "PENDING_PAYMENT1" && !item?.isCancelled && (
-          <Stack
-            direction="row"
-            justifyContent="end"
-            sx={{ mt: 2, mb: 1 }}
-            spacing={2}
-          >
-            <Button
-              size="lg"
-              radius="sm"
-              color="secondary"
-              onClick={handlePayFirstPayment}
-              isLoading={isMutatingCheckoutOrder}
-            >
-              {item?.paymentType === "SINGLE" ? "ชำระเงิน" : "ชำระมัดจำ"}
-            </Button>
-          </Stack>
-        )}
+              <Button
+                size="lg"
+                radius="sm"
+                color="secondary"
+                onClick={handlePayPayment}
+                isLoading={isMutatingCheckoutOrder}
+              >
+                {item?.paymentType === "SINGLE"
+                  ? "ชำระเงิน"
+                  : item?.status === "PENDING_PAYMENT1"
+                    ? "ชำระมัดจำ"
+                    : "ชำระเงินที่เหลือ"}
+              </Button>
+            </Stack>
+          )}
       </Box>
     </div>
   );
