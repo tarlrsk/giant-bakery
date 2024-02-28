@@ -8,7 +8,6 @@ type LineItem = {
     currency: string;
     unit_amount: number;
     product_data: {
-      images: string[];
       name: string;
     };
   };
@@ -33,7 +32,60 @@ export async function POST(req: NextRequest) {
 
     if (order.status == OrderStatus.PENDING_PAYMENT1) {
       for (let cake of order.orderCake) {
+        lineItems.push({
+          price_data: {
+            currency: "thb",
+            unit_amount: cake.pricePer,
+            product_data: {
+              name: cake.name,
+            },
+          },
+          quantity: cake.quantity,
+        });
       }
+
+      for (let refreshment of order.orderRefreshment) {
+        lineItems.push({
+          price_data: {
+            currency: "thb",
+            unit_amount: refreshment.pricePer,
+            product_data: {
+              name: refreshment.name,
+            },
+          },
+          quantity: refreshment.quantity,
+        });
+      }
+
+      for (let snackBox of order.orderSnackBox) {
+        lineItems.push({
+          price_data: {
+            currency: "thb",
+            unit_amount: snackBox.pricePer,
+            product_data: {
+              name: snackBox.name,
+            },
+          },
+          quantity: snackBox.quantity,
+        });
+      }
+    } else if (order.status == OrderStatus.PENDING_PAYMENT2) {
+      let remaining = order.totalPrice;
+      for (let payment of order.payment) {
+        remaining = remaining - payment.amount;
+      }
+      order.payment;
+
+      lineItems.push({
+        price_data: {
+          currency: "thb",
+          unit_amount: remaining,
+          product_data: {
+            name: "ยอดค้างชำระ",
+          },
+        },
+        quantity: 1,
+      });
     }
 
     return responseWrapper(200, null, null);
