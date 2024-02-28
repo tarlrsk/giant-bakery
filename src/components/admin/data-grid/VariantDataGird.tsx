@@ -50,6 +50,9 @@ export default function VariantDataGrid({
           case "SURFACE":
             text = "หน้าเค้ก";
             break;
+          case "CREAM":
+            text = "ครีม";
+            break;
           default:
             text = "-";
             break;
