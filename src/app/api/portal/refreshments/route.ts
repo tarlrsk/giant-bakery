@@ -57,7 +57,6 @@ export async function POST(req: NextRequest) {
     const remark = formData.get("remark") as string;
     const unitType = formData.get("unitType") as string;
     const minQty = parseInt(formData.get("minQty") as string);
-    const maxQty = parseInt(formData.get("maxQty") as string);
     const currQty = parseInt(formData.get("currQty") as string);
     const weight = parseFloat(formData.get("weight") as string);
     const height = parseFloat(formData.get("height") as string);
@@ -74,7 +73,6 @@ export async function POST(req: NextRequest) {
       type,
       category,
       minQty,
-      maxQty,
       currQty,
       weight,
       height,
@@ -98,7 +96,6 @@ export async function POST(req: NextRequest) {
         type: type,
         category: category,
         minQty: minQty,
-        maxQty: maxQty,
         currQty: currQty,
         weight: weight,
         height: height,
