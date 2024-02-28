@@ -36,7 +36,7 @@ type RowProps = {
   quantity?: number;
 };
 
-type IOrderDetail = {
+export type IOrderDetail = {
   orderId: string;
   firstName: string;
   lastName: string;
@@ -94,6 +94,8 @@ export default function OrderDetail({ params }: { params: { id: string } }) {
   const { data } = useSWR(getClientOrderById(id), fetcher);
 
   const item: IOrderDetail = data?.response?.data || {};
+
+  console.log("data", data);
 
   const handlePayRestPayment = async () => {
     try {
@@ -178,7 +180,7 @@ function OrderDetailCard({ item }: OrderProps) {
     return total + product.price * product.quantity;
   }, 0);
 
-  const isCancelled = item?.status === "CANCELLED";
+  const isCancelled = false;
 
   return (
     <Card>
@@ -388,7 +390,7 @@ function AddressCard({ item }: OrderProps) {
   );
 }
 
-function getStatus(item: IOrderDetail): string {
+export function getStatus(item: IOrderDetail): string {
   let status = "";
   switch (item?.receivedVia) {
     case "PICK_UP":
@@ -409,10 +411,6 @@ function getStatus(item: IOrderDetail): string {
 
             case "COMPLETED":
               status = "ส่งมอบสำเร็จ";
-              break;
-
-            case "CANCELLED":
-              status = "ยกเลิก";
               break;
           }
         case "INSTALLMENT":
@@ -435,10 +433,6 @@ function getStatus(item: IOrderDetail): string {
 
             case "COMPLETED":
               status = "ส่งมอบสำเร็จ";
-              break;
-
-            case "CANCELLED":
-              status = "ยกเลิก";
               break;
           }
       }
@@ -463,10 +457,6 @@ function getStatus(item: IOrderDetail): string {
             case "COMPLETED":
               status = "จัดส่งไปยัง InterExpress แล้ว";
               break;
-
-            case "CANCELLED":
-              status = "ยกเลิก";
-              break;
           }
         case "INSTALLMENT":
           switch (item?.status) {
@@ -488,10 +478,6 @@ function getStatus(item: IOrderDetail): string {
 
             case "COMPLETED":
               status = "จัดส่งไปยัง InterExpress แล้ว";
-              break;
-
-            case "CANCELLED":
-              status = "ยกเลิก";
               break;
           }
       }
