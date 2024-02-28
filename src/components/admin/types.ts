@@ -153,7 +153,7 @@ export const createUpdateVariantSchema = z.object({
 
 export interface IProductRow extends ICommonRow {
   type: string;
-  category: string;
+  category: string | null;
   status: string;
   minQty: number;
   maxQty: number;
