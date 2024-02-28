@@ -29,18 +29,34 @@ export async function POST(req: NextRequest) {
         const paymentIntent = event.data.object;
         const orderId = paymentIntent.metadata.orderId;
 
-        console.log(paymentIntent);
+        switch (paymentIntent.metadata.orderStatus) {
+          case OrderStatus.PENDING_PAYMENT1:
+            await prismaOrder().updateOrderById(orderId, {
+              status: OrderStatus.PENDING_ORDER,
+              payment: {
+                create: {
+                  amount: paymentIntent.amount_received / 100,
+                  type: paymentIntent.payment_method_types[0].toUpperCase() as PaymentMethod,
+                  userId: paymentIntent.metadata.userId,
+                },
+              },
+            });
+            break;
+          case OrderStatus.PENDING_PAYMENT2:
+            await prismaOrder().updateOrderById(orderId, {
+              status: OrderStatus.ON_PACKING_PROCESS,
+              payment: {
+                create: {
+                  amount: paymentIntent.amount_received / 100,
+                  type: paymentIntent.payment_method_types[0].toUpperCase() as PaymentMethod,
+                  userId: paymentIntent.metadata.userId,
+                },
+              },
+            });
+            break;
+        }
 
-        await prismaOrder().updateOrderById(orderId, {
-          status: OrderStatus.PENDING_ORDER,
-          payment: {
-            create: {
-              amount: paymentIntent.amount_received / 100,
-              type: paymentIntent.payment_method_types[0].toUpperCase() as PaymentMethod,
-              userId: paymentIntent.metadata.userId,
-            },
-          },
-        });
+        console.log(paymentIntent);
 
         break;
       default:

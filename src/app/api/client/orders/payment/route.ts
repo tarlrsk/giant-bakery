@@ -1,4 +1,6 @@
+import { createStripeSessionPayment2 } from "@/lib/stripe";
 import { prismaOrder } from "@/persistence/order";
+import { prismaUser } from "@/persistence/user";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { OrderStatus } from "@prisma/client";
 import { NextRequest } from "next/server";
@@ -8,6 +10,7 @@ type LineItem = {
     currency: string;
     unit_amount: number;
     product_data: {
+      images: string[];
       name: string;
     };
   };
@@ -18,7 +21,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    const { orderId } = body;
+    const { userId, orderId } = body;
     const order = await prismaOrder().getOrderById(orderId);
     if (!order) {
       return responseWrapper(
@@ -26,6 +29,11 @@ export async function POST(req: NextRequest) {
         null,
         `Order with ID ${orderId} is not found.`,
       );
+    }
+
+    const user = await prismaUser().getUserById(userId);
+    if (!user) {
+      return responseWrapper(404, null, `User with ID ${userId} is not found.`);
     }
 
     const lineItems: LineItem[] = [];
@@ -37,6 +45,7 @@ export async function POST(req: NextRequest) {
             currency: "thb",
             unit_amount: cake.pricePer,
             product_data: {
+              images: [],
               name: cake.name,
             },
           },
@@ -50,6 +59,7 @@ export async function POST(req: NextRequest) {
             currency: "thb",
             unit_amount: refreshment.pricePer,
             product_data: {
+              images: [],
               name: refreshment.name,
             },
           },
@@ -63,6 +73,7 @@ export async function POST(req: NextRequest) {
             currency: "thb",
             unit_amount: snackBox.pricePer,
             product_data: {
+              images: [],
               name: snackBox.name,
             },
           },
@@ -81,14 +92,35 @@ export async function POST(req: NextRequest) {
           currency: "thb",
           unit_amount: remaining,
           product_data: {
+            images: [],
             name: "ยอดค้างชำระ",
           },
         },
         quantity: 1,
       });
+    } else {
+      return responseWrapper(
+        409,
+        null,
+        "Order Status is available for payment at this time.",
+      );
     }
 
-    return responseWrapper(200, null, null);
+    console.log(lineItems);
+
+    const session = await createStripeSessionPayment2(
+      userId,
+      order.id,
+      lineItems,
+      req,
+      order.status,
+    );
+
+    const data = {
+      stripeUrl: session.url,
+    };
+
+    return responseWrapper(200, data, null);
   } catch (err: any) {
     return responseWrapper(500, null, err);
   }
