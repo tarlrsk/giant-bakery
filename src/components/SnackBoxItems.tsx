@@ -49,7 +49,7 @@ export default function SnackBoxItems({
       <div
         className={`grid grid-cols-${cols} gap-${
           size === "sm" ? 4 : 10
-        } justify-center items-baseline hover:cursor-pointer`}
+        } justify-center items-baseline`}
         {...other}
       >
         {Object.values(displayItems)?.map((item: any) => (

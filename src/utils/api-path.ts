@@ -84,6 +84,9 @@ const apiPaths = () => {
 
   const getClientOrderById = (id: string) => createClientUrl(`orders/${id}`);
 
+  // Variant
+  const getVariants = () => createClientUrl("variants");
+
   // InterExpress
   const getInterExpressLocation = (zipCode: string) =>
     `https://api-intership.interexpress.co.th/v1/operation-areas/post-code/${zipCode}`;
@@ -159,6 +162,7 @@ const apiPaths = () => {
     getPresetSnackBoxBySlug,
     getPrice,
     getCheckoutDetail,
+    getVariants,
 
     // Admin
     getProducts,

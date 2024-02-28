@@ -49,7 +49,7 @@ export default function BakeryItems({
     <div
       className={`grid grid-cols-${cols} gap-${
         size === "sm" ? "4 pb-2" : "10"
-      } justify-center items-baseline hover:cursor-pointer`}
+      } justify-center items-baseline`}
       {...other}
     >
       {Object.values(items)?.map((item: any) => (
