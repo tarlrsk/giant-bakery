@@ -32,7 +32,7 @@ export async function PUT(req: NextRequest) {
     }
 
     await prismaOrder().updateOrderById(orderId, {
-      status: OrderStatus.CANCELLED,
+      isCancelled: true,
     });
 
     return responseWrapper(200, null, null);

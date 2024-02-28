@@ -266,7 +266,7 @@ export async function GET(req: NextRequest) {
       if (variant.imagePath) {
         variant.image = await getFileUrl(variant.imagePath);
       }
-      variant.type = VariantType.FILLING;
+      variant.type = VariantType.SURFACE;
       variants.push(variant);
     }
 
