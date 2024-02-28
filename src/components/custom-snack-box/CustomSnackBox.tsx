@@ -597,7 +597,7 @@ export default function CustomSnackBox() {
 
 type IAddCustomSnackBoxToCart = {
   userId: string;
-  type: "MEMBER" | "GUEST";
+  type: "CUSTOMER" | "GUEST";
   packageType: "PAPER_BAG" | "SNACK_BOX_S" | "SNACK_BOX_M";
   beverage: "INCLUDE" | "EXCLUDE" | "NONE";
   refreshmentIds: string[];
