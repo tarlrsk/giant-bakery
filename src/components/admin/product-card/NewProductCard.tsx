@@ -1,10 +1,10 @@
 "use client";
 
-import { useCallback } from "react";
 import useAdmin from "@/hooks/useAdmin";
 import { useSnackbar } from "notistack";
 import { LoadingButton } from "@mui/lab";
 import { useForm } from "react-hook-form";
+import { useEffect, useCallback } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RHFUpload } from "@/components/hook-form/rhf-upload";
@@ -45,7 +45,7 @@ export default function NewProductCard({ onClose }: Props) {
       image: null,
       description: "",
       type: undefined,
-      category: undefined,
+      category: null,
       unitType: undefined,
       minQty: undefined,
       price: undefined,
@@ -63,7 +63,14 @@ export default function NewProductCard({ onClose }: Props) {
 
   const { enqueueSnackbar } = useSnackbar();
 
-  const { watch, setValue, handleSubmit, reset } = methods;
+  const {
+    watch,
+    setValue,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = methods;
+
   const values = watch();
 
   const { type, isActive } = values;
@@ -139,6 +146,12 @@ export default function NewProductCard({ onClose }: Props) {
     },
     [setValue],
   );
+
+  useEffect(() => {
+    if (type === "BEVERAGE") {
+      setValue("category", null);
+    }
+  }, [setValue, type]);
 
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
