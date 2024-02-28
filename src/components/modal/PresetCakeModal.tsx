@@ -5,6 +5,7 @@ import React, { useState } from "react";
 import apiPaths from "@/utils/api-path";
 import { fetcher } from "@/utils/axios";
 import { useSearchParams } from "next/navigation";
+import { IBM_Plex_Sans_Thai } from "next/font/google";
 import { addPresetCakeToCartAction } from "@/actions/cartActions";
 import { PersistenceCakeType } from "@/persistence/persistenceType";
 
@@ -16,6 +17,8 @@ import {
   SelectItem,
   ModalContent,
 } from "@nextui-org/react";
+
+import { IVariant } from "./types";
 
 // ----------------------------------------------------------------------
 
@@ -34,19 +37,31 @@ type IAddCakeToCart = {
   quantity: number;
 };
 
+// Set font style here because the modal somehow doesn't receive the global font style
+const ibm = IBM_Plex_Sans_Thai({
+  weight: ["100", "200", "300", "400", "500", "600", "700"],
+  subsets: ["latin", "thai"],
+});
+
 // ----------------------------------------------------------------------
 
 export default function PresetCakeModal({ slug, isOpen, onOpenChange }: Props) {
   const searchParams = useSearchParams();
 
   const id = searchParams.get("id") as string;
-  const { getCakeBySlug, addCakeToCart } = apiPaths();
+  const { getCakeBySlug, addCakeToCart, getVariants } = apiPaths();
 
   const fetchPath = getCakeBySlug(slug, id);
 
   const { data } = useSWR(fetchPath, fetcher);
 
+  const { data: variantsData } = useSWR(getVariants(), fetcher, {
+    revalidateOnFocus: false,
+  });
+
   const item: PersistenceCakeType = data?.response.data || {};
+
+  const variants = variantsData?.response?.data || {};
 
   const [isLoading, setIsLoading] = useState(false);
   const [selectedSize, setSelectedSize] = useState<string>("");
@@ -83,6 +98,7 @@ export default function PresetCakeModal({ slug, isOpen, onOpenChange }: Props) {
       isOpen={isOpen}
       onOpenChange={onOpenChange}
       className="bg-background-lightGrey"
+      classNames={{ body: `${ibm.className}` }}
     >
       <ModalContent>
         <ModalBody>
@@ -125,8 +141,10 @@ export default function PresetCakeModal({ slug, isOpen, onOpenChange }: Props) {
                     isRequired
                     required
                   >
-                    {item?.sizes?.map((size) => (
-                      <SelectItem key={size?.id}>{size?.name}</SelectItem>
+                    {variants?.sizes?.map((size: IVariant) => (
+                      <SelectItem
+                        key={size?.id}
+                      >{`${size?.name} ปอนด์`}</SelectItem>
                     ))}
                   </Select>
                   <Select
@@ -138,7 +156,7 @@ export default function PresetCakeModal({ slug, isOpen, onOpenChange }: Props) {
                     isRequired
                     required
                   >
-                    {item?.bases?.map((base) => (
+                    {variants?.bases?.map((base: IVariant) => (
                       <SelectItem key={base?.id}>{base?.name}</SelectItem>
                     ))}
                   </Select>
@@ -151,7 +169,7 @@ export default function PresetCakeModal({ slug, isOpen, onOpenChange }: Props) {
                     isRequired
                     required
                   >
-                    {item?.fillings?.map((filling) => (
+                    {variants?.fillings?.map((filling: IVariant) => (
                       <SelectItem key={filling?.id}>{filling?.name}</SelectItem>
                     ))}
                   </Select>
