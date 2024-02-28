@@ -18,8 +18,6 @@ export default withAuth(
     userId = req.nextauth.token?.id;
 
     if (origin && !allowedOrigins.includes(origin)) {
-      console.log(allowedOrigins);
-      console.log(origin);
       return new NextResponse(null, {
         status: 400,
         statusText: "Bad Request.",
