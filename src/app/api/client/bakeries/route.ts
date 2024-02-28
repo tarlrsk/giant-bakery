@@ -4,6 +4,8 @@ import { getFileUrl } from "@/lib/gcs/getFileUrl";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { RefreshmentType, RefreshmentCategory } from "@prisma/client";
 
+export const revalidate = 0;
+
 export async function GET(req: NextRequest) {
   try {
     const category = req.nextUrl.searchParams.get(

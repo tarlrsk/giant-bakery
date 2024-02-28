@@ -87,6 +87,8 @@ export const createStripeSession = async function (
 export const createStripeSessionPayment2 = async function (
   userId: string,
   orderId: string,
+  discount: number,
+  shippingFee: number,
   lineItems: LineItem[],
   req: NextRequest,
   status: OrderStatus,
@@ -95,6 +97,12 @@ export const createStripeSessionPayment2 = async function (
   if (!origin) {
     origin = baseUrl;
   }
+
+  const coupon = await stripe.coupons.create({
+    amount_off: discount * 100,
+    duration: "once",
+    currency: "thb",
+  });
 
   const session = await stripe.checkout.sessions.create({
     line_items: lineItems.map((item) => ({
@@ -108,6 +116,23 @@ export const createStripeSessionPayment2 = async function (
       },
       quantity: item.quantity,
     })),
+    discounts: [
+      {
+        coupon: coupon.id,
+      },
+    ],
+    shipping_options: [
+      {
+        shipping_rate_data: {
+          type: "fixed_amount",
+          fixed_amount: {
+            amount: shippingFee * 100,
+            currency: "thb",
+          },
+          display_name: "Inter Express Logistic",
+        },
+      },
+    ],
     mode: "payment",
     success_url: `${origin}/orders/${orderId}?checkout-success=true`,
     cancel_url: `${origin}/orders/${orderId}?checkout-success=false`,
