@@ -1,10 +1,11 @@
 "use client";
 
 import { styled } from "@mui/system";
-import useAdmin from "@/hooks/useAdmin";
 import { useSnackbar } from "notistack";
+import apiPaths from "@/utils/api-path";
 import { LoadingButton } from "@mui/lab";
 import { useForm } from "react-hook-form";
+import useSWRMutation from "swr/mutation";
 import { useState, useCallback } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -12,6 +13,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { RHFUpload } from "@/components/hook-form/rhf-upload";
 import FormProvider from "@/components/hook-form/form-provider";
+import useAdmin, { deleteItem, updateItem } from "@/hooks/useAdmin";
 import { RHFSelect, RHFSwitch, RHFTextField } from "@/components/hook-form";
 import {
   Paper,
@@ -92,13 +94,14 @@ export default function EditProductCard({ data, isLoading, onClose }: Props) {
     resolver: zodResolver(createUpdateProductSchema),
     defaultValues: { ...data, image: data.image },
   });
-  const {
-    updateProductTrigger,
-    updateProductIsLoading,
-    productsMutate,
-    deleteProductTrigger,
-    deleteProductIsLoading,
-  } = useAdmin(data);
+  const { productsMutate } = useAdmin(data);
+
+  const { updateProduct, deleteProduct } = apiPaths();
+
+  const { trigger: updateProductTrigger, isMutating: updateProductIsLoading } =
+    useSWRMutation(updateProduct(data?.id || ""), updateItem);
+  const { trigger: deleteProductTrigger, isMutating: deleteProductIsLoading } =
+    useSWRMutation(deleteProduct(data?.id || ""), deleteItem);
 
   const [isOpenDelete, setIsOpenDelete] = useState(false);
 
@@ -155,15 +158,15 @@ export default function EditProductCard({ data, isLoading, onClose }: Props) {
       }
       bodyFormData.append("minQty", minQty.toString());
       bodyFormData.append("currQty", currQty.toString());
-      bodyFormData.append("maxQty", maxQty.toString());
+      bodyFormData.append("maxQty", "0");
       bodyFormData.append("weight", weight.toString());
       bodyFormData.append("height", height.toString());
       bodyFormData.append("length", length.toString());
       bodyFormData.append("width", width.toString());
       bodyFormData.append("isActive", isActive ? "true" : "false");
-      bodyFormData.append("unitType", unitType);
+      bodyFormData.append("unitType", type === "BAKERY" ? "ชิ้น" : "กล่อง");
 
-      await updateProductTrigger(bodyFormData);
+      const res = await updateProductTrigger(bodyFormData);
       enqueueSnackbar("อัพเดทสินค้าสำเร็จ", { variant: "success" });
       productsMutate();
     } catch (error) {
