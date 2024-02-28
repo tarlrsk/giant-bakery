@@ -13,6 +13,8 @@ import {
   MasterCakeBottomEdge,
 } from "@prisma/client";
 
+export const revalidate = 0;
+
 export async function GET(req: NextRequest) {
   try {
     let variants: {
