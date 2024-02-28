@@ -41,7 +41,9 @@ export default function BeverageItems({
 
   const { getBeverages } = apiPaths();
 
-  const { data } = useSWR(getBeverages(), fetcher);
+  const { data } = useSWR(getBeverages(), fetcher, {
+    revalidateOnFocus: false,
+  });
 
   const items: Refreshment[] = data?.response?.data || [];
 
