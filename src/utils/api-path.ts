@@ -78,6 +78,7 @@ const apiPaths = () => {
 
   // Checkout
   const addCheckoutOrder = () => createClientUrl("orders/checkout");
+  const checkoutOrder = () => createClientUrl("orders/payment");
 
   // Order
   const getOrderList = () => createClientUrl("orders");
@@ -155,6 +156,7 @@ const apiPaths = () => {
     updateCustomerAddress,
     deleteCustomerAddress,
     addCheckoutOrder,
+    checkoutOrder,
     getInterExpressLocation,
     getPresetSnackBox,
     getOrderList,
