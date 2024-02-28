@@ -47,6 +47,7 @@ type OrderResponse = {
   province: string;
   postcode: string;
   phone: string;
+  isCancelled: boolean;
 };
 
 const rows = [
@@ -87,6 +88,7 @@ export default function AdminOrder() {
         paymentType: order.paymentType,
         orderDate: order.orderedAt,
         orderStatus: order.status,
+        isCancelled: order.isCancelled,
       })) || []
     );
   }, [orders?.data]);
