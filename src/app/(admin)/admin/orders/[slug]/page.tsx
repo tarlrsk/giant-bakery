@@ -227,14 +227,15 @@ export default function OrderDetail({ params }: { params: { slug: string } }) {
         <OrderDetailCard data={orderDetail} />
       </Stack>
 
-      {!!buttonActionText && (
-        <Stack
-          direction="row"
-          justifyContent="end"
-          sx={{ mt: 2, mb: 1 }}
-          spacing={2}
-        >
-          {orderDetail.status !== "COMPLETED" && (
+      {!!buttonActionText &&
+        orderDetail.status !== "COMPLETED" &&
+        !orderDetail?.isCancelled && (
+          <Stack
+            direction="row"
+            justifyContent="end"
+            sx={{ mt: 2, mb: 1 }}
+            spacing={2}
+          >
             <Button
               size="large"
               variant="outlined"
@@ -243,17 +244,16 @@ export default function OrderDetail({ params }: { params: { slug: string } }) {
             >
               ยกเลิกออเดอร์
             </Button>
-          )}
-          <Button
-            size="large"
-            variant="contained"
-            color="secondary"
-            onClick={() => setIsOpenUpdate(true)}
-          >
-            {buttonActionText}
-          </Button>
-        </Stack>
-      )}
+            <Button
+              size="large"
+              variant="contained"
+              color="secondary"
+              onClick={() => setIsOpenUpdate(true)}
+            >
+              {buttonActionText}
+            </Button>
+          </Stack>
+        )}
 
       <UpdateOrderDialog
         text={buttonActionText || ""}
