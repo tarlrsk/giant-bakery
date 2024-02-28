@@ -1,7 +1,7 @@
 "use client";
 
 import _ from "lodash";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import LayersIcon from "@mui/icons-material/Layers";
 import { useRouter, usePathname } from "next/navigation";
@@ -62,6 +62,10 @@ export default function AdminNavbar() {
     if (page === "admin") return router.push("/admin");
     router.push(`/admin/${page.toLocaleLowerCase()}`);
   };
+
+  useEffect(() => {
+    setCurrentPage(activeLink.toLowerCase());
+  }, [activeLink]);
 
   return (
     <AppBar

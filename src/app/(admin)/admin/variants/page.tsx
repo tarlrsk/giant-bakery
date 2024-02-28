@@ -29,6 +29,7 @@ import {
 // ----------------------------------------------------------------------
 
 const VARIANT_TYPE = [
+  { value: "CREAM", label: "ครีม" },
   { value: "TOP_EDGE", label: "ขอบบน" },
   { value: "BOTTOM_EDGE", label: "ขอบล่าง" },
   { value: "DECORATION", label: "ลายรอบเค้ก" },

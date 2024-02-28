@@ -109,16 +109,37 @@ export default function OrderDataGrid({ rows, onRowClick }: Props) {
         let text;
         let bgColor;
         let textColor;
+
+        if (params.row?.isCancelled) {
+          text = "ถูกยกเลิก";
+          bgColor = alpha("#FF5630", 0.16);
+          textColor = "#B71D18";
+          return (
+            <Box
+              sx={{ bgcolor: bgColor, borderRadius: 1.6, px: 1.25, py: 0.5 }}
+            >
+              <Typography
+                variant="caption"
+                fontFamily="IBM Plex Sans Thai"
+                fontWeight={600}
+                color={textColor}
+              >
+                {text}
+              </Typography>
+            </Box>
+          );
+        }
+
         switch (params.value) {
           case "COMPLETED":
             text = "เสร็จสิ้น";
             textColor = "#007B55";
             bgColor = alpha("#00AB55", 0.16);
             break;
-          case "CANCELLED":
-            text = "ยกเลิก";
-            textColor = "#B71D18";
-            bgColor = alpha("#FF5630", 0.16);
+          case "PENDING_PAYMENT1":
+            text = "รอชำระเงิน";
+            textColor = "#B76E00";
+            bgColor = alpha("#FFAB00", 0.16);
             break;
           case "PENDING_PAYMENT2":
             text = "รอชำระเงิน";
