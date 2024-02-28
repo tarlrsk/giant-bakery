@@ -322,7 +322,7 @@ model Refreshment {
   updatedAt     DateTime             @updatedAt
   deletedAt     DateTime?
   unitType      String               @default("กล่อง")
-  unitRatio     Int?
+  qtyPerUnit    Int                  @default(1)
 
   CartItem                 CartItem?
   SnackBoxRefreshment      SnackBoxRefreshment[]
@@ -503,7 +503,7 @@ model OrderSnackBoxRefreshment {
   OrderSnackBox   OrderSnackBox        @relation(fields: [orderSnackBoxId], references: [id], onDelete: Cascade)
   orderSnackBoxId String
   unitType        String               @default("กล่อง")
-  unitRatio       Int?
+  qtyPerUnit      Int                  @default(1)
 
   refreshment   Refreshment? @relation(fields: [refreshmentId], references: [id])
   refreshmentId String?
