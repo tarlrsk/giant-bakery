@@ -283,17 +283,16 @@ export default function OrderDetail({ params }: { params: { slug: string } }) {
           sx={{ mt: 2, mb: 1 }}
           spacing={2}
         >
-          {orderDetail.status !== "COMPLETED" &&
-            orderDetail.status !== "CANCELLED" && (
-              <Button
-                size="large"
-                variant="outlined"
-                color="error"
-                onClick={() => setIsOpenCancel(true)}
-              >
-                ยกเลิกออเดอร์
-              </Button>
-            )}
+          {orderDetail.status !== "COMPLETED" && (
+            <Button
+              size="large"
+              variant="outlined"
+              color="error"
+              onClick={() => setIsOpenCancel(true)}
+            >
+              ยกเลิกออเดอร์
+            </Button>
+          )}
           <Button
             size="large"
             variant="contained"
@@ -595,10 +594,6 @@ function getStatus(item: OrderDetail): string {
             case "COMPLETED":
               status = "ส่งมอบสำเร็จ";
               break;
-
-            case "CANCELLED":
-              status = "ถูกยกเลิก";
-              break;
           }
           break;
 
@@ -623,10 +618,6 @@ function getStatus(item: OrderDetail): string {
             case "COMPLETED":
               status = "ส่งมอบสำเร็จ";
               break;
-
-            case "CANCELLED":
-              status = "ถูกยกเลิก";
-              break;
           }
       }
       break;
@@ -650,10 +641,6 @@ function getStatus(item: OrderDetail): string {
             case "COMPLETED":
               status = "จัดส่งไปยัง InterExpress แล้ว";
               break;
-
-            case "CANCELLED":
-              status = "ถูกยกเลิก";
-              break;
           }
         case "INSTALLMENT":
           switch (item?.status) {
@@ -675,10 +662,6 @@ function getStatus(item: OrderDetail): string {
 
             case "COMPLETED":
               status = "จัดส่งไปยัง InterExpress แล้ว";
-              break;
-
-            case "CANCELLED":
-              status = "ถูกยกเลิก";
               break;
           }
       }
