@@ -206,9 +206,6 @@ export default function OrderDetail({ params }: { params: { slug: string } }) {
     return text;
   }, [orderDetail]);
 
-  console.log("buttonActionText", buttonActionText);
-  console.log("orderDetail", orderDetail);
-
   return (
     <Box>
       <Stack
