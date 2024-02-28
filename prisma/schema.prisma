@@ -309,7 +309,6 @@ model Refreshment {
   category      RefreshmentCategory?
   status        StockStatus          @default(IN_STOCK)
   minQty        Int
-  maxQty        Int
   currQty       Int
   weight        Float
   height        Float
@@ -585,7 +584,6 @@ enum OrderStatus {
   PENDING_PAYMENT2
   ON_PACKING_PROCESS
   COMPLETED
-  CANCELLED
 }
 
 enum PaymentMethod {

@@ -18,6 +18,10 @@ import {
   getKeyValue,
 } from "@nextui-org/react";
 
+import { getStatus, IOrderDetail } from "./types";
+
+// ----------------------------------------------------------------------
+
 const columns = [
   {
     key: "id",
@@ -40,6 +44,8 @@ const columns = [
     label: "สถานะคำสั่งซื้อ",
   },
 ];
+
+// ----------------------------------------------------------------------
 
 export default function OrdersPage() {
   const router = useRouter();
@@ -78,6 +84,15 @@ export default function OrdersPage() {
     [],
   );
 
+  const formattedItems = items?.map((item) => ({
+    ...item,
+    paymentType:
+      item.paymentType === "SINGLE"
+        ? ("ชำระเต็มจำนวน" as any)
+        : ("จ่ายมัดจำ" as any),
+    status: getStatus(item as unknown as IOrderDetail),
+  }));
+
   return (
     <>
       <div className="px-40 font-semibold text-4xl pt-20 pb-10">
@@ -95,7 +110,7 @@ export default function OrdersPage() {
               <TableColumn key={column.key}>{column.label}</TableColumn>
             )}
           </TableHeader>
-          <TableBody emptyContent={"ไม่มีออเดอร์"} items={items}>
+          <TableBody emptyContent={"ไม่มีออเดอร์"} items={formattedItems}>
             {(item) => (
               <TableRow key={item.id}>
                 {(columnKey) => (

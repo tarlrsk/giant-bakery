@@ -32,6 +32,7 @@ type OrderDetail = {
   paid: number;
   remaining: number;
   items: Item[] | any;
+  isCancelled: boolean;
   address: {
     address: string;
     district: string;
@@ -81,6 +82,7 @@ export async function GET(req: NextRequest, { params }: GetOrderById) {
       discountPrice: order.discountPrice,
       paid: paid,
       remaining: order.totalPrice - paid,
+      isCancelled: order.isCancelled,
       items: [],
       address: null,
     };

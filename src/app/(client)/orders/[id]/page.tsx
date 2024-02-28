@@ -7,13 +7,6 @@ import { fetcher } from "@/utils/axios";
 import { formatDate } from "@/lib/formatDate";
 import React, { useState, useEffect } from "react";
 import {
-  OrderStatus,
-  PaymentType,
-  ReceivedVia,
-  CartItemType,
-  PaymentMethod,
-} from "@prisma/client";
-import {
   Box,
   Card,
   Step,
@@ -27,6 +20,8 @@ import {
 
 import { Button } from "@nextui-org/react";
 
+import { getStatus, IOrderDetail } from "../types";
+
 // ----------------------------------------------------------------------
 
 type RowProps = {
@@ -34,41 +29,6 @@ type RowProps = {
   description?: string;
   price: number;
   quantity?: number;
-};
-
-type IOrderDetail = {
-  orderId: string;
-  firstName: string;
-  lastName: string;
-  phone: string;
-  orderedAt: Date;
-  paymentMethod: PaymentMethod[];
-  receivedVia: ReceivedVia;
-  totalPrice: number;
-  status: OrderStatus;
-  paymentType: PaymentType;
-  remark: string | null;
-  shippingFee: number;
-  discountPrice: number;
-  paid: number;
-  remaining: number;
-  items: Item[] | any;
-  address: {
-    address: string;
-    district: string;
-    subdistrict: string;
-    province: string;
-    postcode: string;
-  } | null;
-};
-
-type Item = {
-  name: string;
-  quantity: number;
-  type: CartItemType;
-  price: number;
-  pricePer: number;
-  subItem: string[];
 };
 
 type OrderProps = {
@@ -94,6 +54,8 @@ export default function OrderDetail({ params }: { params: { id: string } }) {
   const { data } = useSWR(getClientOrderById(id), fetcher);
 
   const item: IOrderDetail = data?.response?.data || {};
+
+  console.log("data", data);
 
   const handlePayRestPayment = async () => {
     try {
@@ -178,7 +140,7 @@ function OrderDetailCard({ item }: OrderProps) {
     return total + product.price * product.quantity;
   }, 0);
 
-  const isCancelled = item?.status === "CANCELLED";
+  const isCancelled = false;
 
   return (
     <Card>
@@ -386,116 +348,4 @@ function AddressCard({ item }: OrderProps) {
       </CardContent>
     </Card>
   );
-}
-
-function getStatus(item: IOrderDetail): string {
-  let status = "";
-  switch (item?.receivedVia) {
-    case "PICK_UP":
-      switch (item?.paymentType) {
-        case "SINGLE":
-          switch (item?.status) {
-            case "PENDING_PAYMENT1":
-              status = "รอชำระเงิน";
-              break;
-
-            case "PENDING_ORDER":
-              status = "กำลังเตรียมออเดอร์";
-              break;
-
-            case "ON_PROCESS":
-              status = "กำลังเตรียมออเดอร์";
-              break;
-
-            case "COMPLETED":
-              status = "ส่งมอบสำเร็จ";
-              break;
-
-            case "CANCELLED":
-              status = "ยกเลิก";
-              break;
-          }
-        case "INSTALLMENT":
-          switch (item?.status) {
-            case "PENDING_PAYMENT1":
-              status = "รอชำระมัดจำ";
-              break;
-
-            case "PENDING_ORDER":
-              status = "กำลังเตรียมออเดอร์";
-              break;
-
-            case "ON_PROCESS":
-              status = "กำลังเตรียมออเดอร์";
-              break;
-
-            case "PENDING_PAYMENT2":
-              status = "รอชำระเงินที่เหลือ";
-              break;
-
-            case "COMPLETED":
-              status = "ส่งมอบสำเร็จ";
-              break;
-
-            case "CANCELLED":
-              status = "ยกเลิก";
-              break;
-          }
-      }
-      break;
-
-    case "DELIVERY":
-      switch (item?.paymentType) {
-        case "SINGLE":
-          switch (item?.status) {
-            case "PENDING_PAYMENT1":
-              status = "รอชำระเงิน";
-              break;
-
-            case "PENDING_ORDER":
-              status = "กำลังเตรียมออเดอร์";
-              break;
-
-            case "ON_PROCESS":
-              status = "กำลังเตรียมออเดอร์";
-              break;
-
-            case "COMPLETED":
-              status = "จัดส่งไปยัง InterExpress แล้ว";
-              break;
-
-            case "CANCELLED":
-              status = "ยกเลิก";
-              break;
-          }
-        case "INSTALLMENT":
-          switch (item?.status) {
-            case "PENDING_PAYMENT1":
-              status = "รอชำระมัดจำ";
-              break;
-
-            case "PENDING_ORDER":
-              status = "กำลังเตรียมออเดอร์";
-              break;
-
-            case "ON_PROCESS":
-              status = "กำลังเตรียมออเดอร์";
-              break;
-
-            case "PENDING_PAYMENT2":
-              status = "รอชำระเงินที่เหลือ";
-              break;
-
-            case "COMPLETED":
-              status = "จัดส่งไปยัง InterExpress แล้ว";
-              break;
-
-            case "CANCELLED":
-              status = "ยกเลิก";
-              break;
-          }
-      }
-  }
-
-  return status;
 }
