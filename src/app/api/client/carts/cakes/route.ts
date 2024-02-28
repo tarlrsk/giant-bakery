@@ -73,15 +73,6 @@ export async function POST(req: NextRequest) {
 
     const validateIds = () => {
       const invalidIds = [];
-      if (!isIdInList(cake.sizes, sizeId)) {
-        invalidIds.push("sizeId");
-      }
-      if (!isIdInList(cake.bases, baseId)) {
-        invalidIds.push("baseId");
-      }
-      if (!isIdInList(cake.fillings, fillingId)) {
-        invalidIds.push("fillingId");
-      }
       if (!isIdInList(cake.creams, creamId)) {
         invalidIds.push("creamId");
       }
