@@ -31,6 +31,7 @@ type RowProps = {
   description?: string;
   price: number;
   quantity?: number;
+  isDiscount?: boolean;
 };
 
 type OrderProps = {
@@ -256,8 +257,9 @@ function OrderDetailCard({ item }: OrderProps) {
             />
           ))}
           <Stack spacing={1}>
-            <ProductRow name="ราคาสินค้า" price={item?.shippingFee} />
+            <ProductRow name="ราคาสินค้า" price={item?.subTotalPrice} />
             <ProductRow name="ค่าจัดส่ง" price={item?.shippingFee} />
+            <ProductRow name="ส่วนลด" price={item?.discountPrice} isDiscount />
           </Stack>
           <ProductRow name="ยอดการสั่งซื้อรวม" price={item?.totalPrice} />
           {item?.paymentType === "INSTALLMENT" && (
@@ -272,7 +274,13 @@ function OrderDetailCard({ item }: OrderProps) {
   );
 }
 
-function ProductRow({ name, description, price, quantity }: RowProps) {
+function ProductRow({
+  name,
+  description,
+  price,
+  quantity,
+  isDiscount = false,
+}: RowProps) {
   return (
     <Stack direction="row" justifyContent="space-between">
       <Stack direction="column">
@@ -284,7 +292,7 @@ function ProductRow({ name, description, price, quantity }: RowProps) {
         )}
       </Stack>
       <Stack direction="column" justifyContent="end">
-        <Typography>{`${price} บาท`}</Typography>
+        <Typography>{`${isDiscount ? "-" : ""}${price} บาท`}</Typography>
       </Stack>
     </Stack>
   );

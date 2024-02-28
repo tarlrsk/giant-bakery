@@ -122,6 +122,7 @@ export type IOrderDetail = {
   remaining: number;
   items: Item[] | any;
   isCancelled: boolean;
+  subTotalPrice: number;
   address: {
     address: string;
     district: string;
