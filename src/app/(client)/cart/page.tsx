@@ -5,7 +5,7 @@ import CartItemTable from "@/components/cart-table/CartItemTable";
 import { getCartData, updateCartItem } from "@/actions/cartActions";
 import CartSummaryTable from "@/components/cart-table/CartSummaryTable";
 
-import { Button, useDisclosure } from "@nextui-org/react";
+import { Button } from "@nextui-org/react";
 
 import { ICartItem } from "./types";
 import AuthModal from "@/components/modal/AuthModal";
