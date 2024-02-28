@@ -61,24 +61,24 @@ export const customerAddressValidationSchema = z.object({
   addressId: z.string().uuid().nullish(),
   cFirstName: z
     .string({ required_error: "First name is required." })
-    .min(3)
+    .min(1)
     .max(255),
   cLastName: z
     .string({ required_error: "Last name is required." })
-    .min(3)
+    .min(1)
     .max(255),
   address: z.string({ required_error: "Address is required." }).min(3).max(255),
   district: z
     .string({ required_error: "District is required." })
-    .min(3)
+    .min(1)
     .max(255),
   subdistrict: z
     .string({ required_error: "Subdistrict is required." })
-    .min(3)
+    .min(1)
     .max(255),
   province: z
     .string({ required_error: "Province is required." })
-    .min(3)
+    .min(1)
     .max(255),
   postcode: z
     .string({ required_error: "Postcode is required." })

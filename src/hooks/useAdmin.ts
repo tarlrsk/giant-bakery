@@ -15,7 +15,7 @@ import {
 
 type RefreshmentProps = z.infer<typeof refreshmentValidationSchema>;
 
-async function createItem(url: string, { arg }: { arg: any }) {
+export async function createItem(url: string, { arg }: { arg: any }) {
   await fetch(url, {
     method: "POST",
     body: arg,
@@ -25,7 +25,7 @@ async function createItem(url: string, { arg }: { arg: any }) {
   });
 }
 
-async function updateItem(url: string, { arg }: { arg: any }) {
+export async function updateItem(url: string, { arg }: { arg: any }) {
   await fetch(url, {
     method: "PUT",
     body: arg,
@@ -35,7 +35,7 @@ async function updateItem(url: string, { arg }: { arg: any }) {
   });
 }
 
-async function deleteItem(url: string, { arg }: { arg: any }) {
+export async function deleteItem(url: string, { arg }: { arg: any }) {
   await fetch(url, {
     method: "DELETE",
     body: arg,
@@ -50,6 +50,8 @@ async function deleteItem(url: string, { arg }: { arg: any }) {
 export default function useAdmin(
   selectedItem?: IProductRow | ICakeRow | ISnackBoxRow | IVariant,
 ) {
+  const options = { revalidateOnFocus: false };
+
   const {
     getProducts,
     createProduct,
@@ -76,23 +78,19 @@ export default function useAdmin(
     data: productsData,
     mutate: productsMutate,
     isLoading: productsIsLoading,
-  } = useSWR(getProducts(), adminFetcher);
+  } = useSWR(getProducts(), adminFetcher, options);
 
-  const { trigger: updateProductTrigger, isMutating: updateProductIsLoading } =
-    useSWRMutation(updateProduct(selectedItem?.id || ""), updateItem);
+  // console.log(updateProduct(selectedItem?.id || ""));
 
   const { trigger: createProductTrigger, isMutating: createProductIsLoading } =
     useSWRMutation(createProduct(), createItem);
-
-  const { trigger: deleteProductTrigger, isMutating: deleteProductIsLoading } =
-    useSWRMutation(deleteProduct(selectedItem?.id || ""), deleteItem);
 
   // Cakes
   const {
     data: cakesData,
     mutate: cakesMutate,
     isLoading: cakesIsLoading,
-  } = useSWR(getCakesAdmin(), adminFetcher);
+  } = useSWR(getCakesAdmin(), adminFetcher, options);
 
   const { trigger: updateCakeTrigger, isMutating: updateCakeIsLoading } =
     useSWRMutation(updateCakeAdmin(selectedItem?.id || ""), updateItem);
@@ -108,7 +106,7 @@ export default function useAdmin(
     data: snackBoxData,
     mutate: snackBoxMutate,
     isLoading: snackBoxIsLoading,
-  } = useSWR(getSnackBoxAdmin(), adminFetcher);
+  } = useSWR(getSnackBoxAdmin(), adminFetcher, options);
 
   const {
     trigger: updateSnackBoxTrigger,
@@ -130,7 +128,7 @@ export default function useAdmin(
     data: variantsData,
     mutate: variantsMutate,
     isLoading: variantsIsLoading,
-  } = useSWR(getVariantAdmin(), adminFetcher);
+  } = useSWR(getVariantAdmin(), adminFetcher, options);
 
   const { data: creamBaseData } = useSWR(
     `${getVariantAdmin()}/CREAM/30e2bb1c-3dd3-4293-8ef4-0b2b3454cbe9`,
@@ -175,7 +173,7 @@ export default function useAdmin(
     data: ordersData,
     mutate: ordersMutate,
     isLoading: ordersIsLoading,
-  } = useSWR(getOrders(), adminFetcher);
+  } = useSWR(getOrders(), adminFetcher, options);
 
   const {
     data: orderByIdData,
@@ -187,8 +185,7 @@ export default function useAdmin(
     productsData,
     productsMutate,
     productsIsLoading,
-    updateProductTrigger,
-    updateProductIsLoading,
+
     createProductTrigger,
     createProductIsLoading,
     //
@@ -217,8 +214,6 @@ export default function useAdmin(
     createVariantTrigger,
     createVariantIsLoading,
 
-    deleteProductTrigger,
-    deleteProductIsLoading,
     deleteCakeTrigger,
     deleteCakeIsLoading,
     deleteVariantTrigger,

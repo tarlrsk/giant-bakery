@@ -42,12 +42,12 @@ export async function GET(_req: NextRequest) {
       data.completedOrder = completed;
     }
 
-    const cancelled = groupByStatusOrder.find(
-      (x) => x.status === OrderStatus.CANCELLED,
-    )?._count.id;
-    if (cancelled) {
-      data.cancelledOrder = cancelled;
-    }
+    // const cancelled = groupByStatusOrder.find(
+    //   (x) => x.status === OrderStatus.CANCELLED,
+    // )?._count.id;
+    // if (cancelled) {
+    //   data.cancelledOrder = cancelled;
+    // }
 
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);

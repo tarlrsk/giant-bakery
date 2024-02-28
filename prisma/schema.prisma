@@ -584,7 +584,6 @@ enum OrderStatus {
   PENDING_PAYMENT2
   ON_PACKING_PROCESS
   COMPLETED
-  CANCELLED
 }
 
 enum PaymentMethod {

@@ -38,6 +38,8 @@ import {
   AutocompleteItem,
 } from "@nextui-org/react";
 
+import { ibm } from "../../providers";
+
 // ----------------------------------------------------------------------
 
 type ICheckout = {
@@ -48,6 +50,9 @@ type ICheckout = {
   addressId: string | null;
   paymentMethod: "CARD" | "PROMPTPAY";
   receivedVia: "PICK_UP" | "DELIVERY";
+  firstName: string;
+  lastName: string;
+  phone: string;
 };
 
 const ACCORDION_ITEM_CLASS_NAMES = {
@@ -194,8 +199,9 @@ export default function CheckoutPage() {
     "add" | "update"
   >("add");
   const [selectedAddressId, setSelectedAddressId] = useState("");
-  const [selectedDeliveryOption, setSelectedDeliveryOption] =
-    useState("pickup");
+  const [selectedDeliveryOption, setSelectedDeliveryOption] = useState<
+    "PICK_UP" | "DELIVERY"
+  >("PICK_UP");
   const [zipCode, setZipCode] = useState("");
   const [province, setProvince] = useState("");
   const [district, setDistrict] = useState("");
@@ -250,7 +256,7 @@ export default function CheckoutPage() {
   );
   const { data: checkoutData } = useSWR(
     currentUser?.id &&
-      (selectedAddressId || selectedDeliveryOption === "pickup")
+      (selectedAddressId || selectedDeliveryOption === "PICK_UP")
       ? getCheckoutDetail(selectedAddressId, currentUser.id)
       : null,
     fetcher,
@@ -261,16 +267,6 @@ export default function CheckoutPage() {
       setCheckoutDetail(checkoutData?.response?.data);
     }
   }, [checkoutData]);
-
-  useEffect(() => {
-    if (selectedDeliveryOption === "pickup") {
-      setSelectedAddressId("");
-    }
-  }, [selectedDeliveryOption]);
-
-  // const checkoutDetail = checkoutData?.response?.data;
-
-  // console.log("checkoutDetail", checkoutDetail);
 
   const {
     trigger: triggerCreateCustomerAddress,
@@ -322,14 +318,18 @@ export default function CheckoutPage() {
       userId: currentUser?.id,
       paymentMethod: selectedPaymentMethod,
       paymentType: selectedPaymentType[0],
-      receivedVia: selectedDeliveryOption === "pickup" ? "PICK_UP" : "DELIVERY",
+      receivedVia: selectedDeliveryOption,
       email: email,
       remark: comment,
+      firstName,
+      lastName,
+      phone,
     };
 
     try {
       const res = await triggerAddCheckoutOrder(body);
       const url = res?.response?.data?.stripeUrl;
+      console.log("url", url);
       router.replace(url);
     } catch (error: any) {
       console.error(error.errorMessage);
@@ -444,13 +444,15 @@ export default function CheckoutPage() {
         <div className=" border p-4 mb-5">
           <RadioGroup
             value={selectedDeliveryOption}
-            onValueChange={setSelectedDeliveryOption}
+            onValueChange={(selected) =>
+              setSelectedDeliveryOption(selected as "PICK_UP" | "DELIVERY")
+            }
             label="ตัวเลือกการจัดส่ง"
             color="primary"
             isRequired
           >
             <CustomDeliveryRadio
-              value="pickup"
+              value="PICK_UP"
               description="อำเภอเมือง จังหวัดระยอง"
               className="max-w-none mt-1"
             >
@@ -466,7 +468,7 @@ export default function CheckoutPage() {
             </CustomDeliveryRadio>
             <Divider className="my-2" />
             <CustomDeliveryRadio
-              value="delivery"
+              value="DELIVERY"
               description="ขนส่งเย็น InterExpress จะได้รับภายใน 3-5 วัน"
               className="my-0.5 max-w-none"
             >
@@ -476,7 +478,44 @@ export default function CheckoutPage() {
           </RadioGroup>
         </div>
 
-        {selectedDeliveryOption === "delivery" && (
+        {selectedDeliveryOption === "PICK_UP" && (
+          <div className="flex flex-col gap-4 mb-4">
+            <div className="flex flex-row justify-between items-center">
+              <h3>ข้อมูลผู้รับสินค้า</h3>
+            </div>
+            <div className=" flex gap-4">
+              <Input
+                value={firstName}
+                onValueChange={setFirstName}
+                label="ชื่อ"
+                variant="bordered"
+                isRequired
+              />
+              <Input
+                value={lastName}
+                onValueChange={setLastName}
+                label="นามสกุล"
+                variant="bordered"
+                isRequired
+              />
+            </div>
+            <Input
+              value={phone}
+              onValueChange={(e: string) => {
+                e.length <= 10 && setPhone(e);
+              }}
+              label="หมายเลขโทรศัพท์"
+              variant="bordered"
+              isInvalid={isInvalidPhoneNumber}
+              errorMessage={
+                isInvalidPhoneNumber && "โปรดใส่หมายเลขโทรศัพท์ที่ถูกต้อง"
+              }
+              isRequired
+            />
+          </div>
+        )}
+
+        {selectedDeliveryOption === "DELIVERY" && (
           <div className="flex flex-col gap-4 mb-4">
             <div className="flex flex-row justify-between items-center">
               <h3>ข้อมูลผู้รับสินค้า</h3>
@@ -520,7 +559,7 @@ export default function CheckoutPage() {
               }
               isRequired
             />
-            <h3>รายการที่อยู่จัดส่ง</h3>
+            <h3>ที่อยู่จัดส่ง</h3>
 
             <Textarea
               value={address}
@@ -611,7 +650,7 @@ export default function CheckoutPage() {
             isMutatingCreateCustomerAddress || isMutatingUpdateCustomerAddress
           }
           onClickButton={async () => {
-            if (selectedDeliveryOption === "delivery") {
+            if (selectedDeliveryOption === "DELIVERY") {
               if (
                 firstName &&
                 lastName &&
@@ -653,7 +692,9 @@ export default function CheckoutPage() {
                 }
               }
             } else {
-              handleGoNextSection("2");
+              if (firstName && lastName && phone) {
+                handleGoNextSection("2");
+              }
             }
           }}
         />
@@ -950,6 +991,9 @@ const CustomAddressModal = ({
       onOpenChange={onOpenChange}
       hideCloseButton
       className="py-2"
+      classNames={{
+        base: `${ibm.className}`,
+      }}
     >
       <ModalContent>
         {(onClose) => (
@@ -985,7 +1029,8 @@ const CustomAddressModal = ({
               <Button
                 color="primary"
                 variant="bordered"
-                size="md"
+                radius="sm"
+                size="lg"
                 onPress={() => {
                   onClickAddAddress();
                   onClose();
@@ -997,7 +1042,8 @@ const CustomAddressModal = ({
               </Button>
               <Button
                 fullWidth
-                size="md"
+                size="lg"
+                radius="sm"
                 color="primary"
                 onPress={() => {
                   onClickEditAddress(selected);
