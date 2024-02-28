@@ -309,7 +309,6 @@ model Refreshment {
   category      RefreshmentCategory?
   status        StockStatus          @default(IN_STOCK)
   minQty        Int
-  maxQty        Int
   currQty       Int
   weight        Float
   height        Float

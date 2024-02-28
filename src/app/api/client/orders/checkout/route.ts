@@ -14,9 +14,11 @@ import {
   Prisma,
   ReceivedVia,
   OrderStatus,
+  CustomerAddress,
   OrderRefreshment,
   OrderCustomerCake,
   OrderSnackBoxRefreshment,
+  PaymentType,
 } from "@prisma/client";
 
 type LineItem = {
@@ -45,6 +47,9 @@ export async function POST(req: NextRequest) {
       remark,
       receivedVia,
       email,
+      firstName,
+      lastName,
+      phone,
     } = body;
 
     const validate = checkoutCartValidateSchema.safeParse(body);
@@ -57,10 +62,26 @@ export async function POST(req: NextRequest) {
       return responseWrapper(404, null, `User not found.`);
     }
 
-    const address = await prismaCustomerAddress().getUserAddressById(addressId);
-    if (!address) {
-      return responseWrapper(404, null, `Address not found.`);
+    let cFirstName = user.firstName;
+    let cLastName = user.lastName;
+    let phoneNo = user.phone;
+    let address: CustomerAddress | null = null;
+    let shippingFee = 0;
+    if (receivedVia == ReceivedVia.DELIVERY) {
+      address = await prismaCustomerAddress().getUserAddressById(addressId);
+      if (!address) {
+        return responseWrapper(404, null, `Address is not found`);
+      }
+      shippingFee = await calculateShippingFee(address);
+      cFirstName = address.cFirstName;
+      cLastName = address.cLastName;
+      phoneNo = address.phone;
+    } else {
+      cFirstName = firstName;
+      cLastName = lastName;
+      phoneNo = phone;
     }
+
     const cart = await prismaCart().getCartByUserId(userId);
 
     if (!cart || cart.items.length == 0) {
@@ -145,13 +166,8 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    let shippingFee = 0;
-    if (receivedVia == ReceivedVia.DELIVERY) {
-      shippingFee = await calculateShippingFee(address);
-    }
-
     // TODO DISCOUNT
-    const totalDiscount = 20;
+    let totalDiscount = 20;
 
     // CREATE ORDER ITEMS
     let subTotal = 0 as number;
@@ -303,14 +319,14 @@ export async function POST(req: NextRequest) {
       discountPrice: totalDiscount,
       shippingFee: shippingFee,
       totalPrice: subTotal - totalDiscount + shippingFee,
-      cFirstName: address ? address.cFirstName : user.firstName,
-      cLastName: address ? address.cLastName : user.lastName,
+      cFirstName: cFirstName,
+      cLastName: cLastName,
       address: address?.address,
       district: address?.district,
       subdistrict: address?.subdistrict,
       province: address?.province,
       postcode: address?.postcode,
-      phone: address ? address.phone : user.phone,
+      phone: phoneNo,
       remark: remark,
       userId: userId,
       orderCake: {
@@ -401,6 +417,10 @@ export async function POST(req: NextRequest) {
         })),
       },
     });
+
+    if (paymentType == PaymentType.INSTALLMENT) {
+      totalDiscount += Math.floor(subTotal / 2);
+    }
 
     const session = await createStripeSession(
       userId,

@@ -132,7 +132,6 @@ export const refreshmentValidationSchema = z.object({
   type: z.enum(["BAKERY", "BEVERAGE"]),
   category: z.enum(["BREAD", "PIE", "COOKIE", "SNACK", "CAKE"]).nullable(),
   minQty: z.number({ required_error: "Min quantity is required." }),
-  maxQty: z.number({ required_error: "Max quantity is required." }),
   currQty: z.number({ required_error: "Current quantity is required." }),
   weight: z.number().multipleOf(0.01),
   height: z.number().multipleOf(0.01),
@@ -223,11 +222,18 @@ export const updateQtyCartValidateSchema = z.object({
 
 export const checkoutCartValidateSchema = z.object({
   userId: z.string().uuid(),
-  addressId: z.string().uuid(),
+  addressId: z.string().uuid().nullish(),
   email: z.string().email(),
   receivedVia: z.enum(["DELIVERY", "PICK_UP"]),
   paymentMethod: z.enum(["CARD", "PROMPTPAY"]),
   paymentType: z.enum(["SINGLE", "INSTALLMENT"]),
+  phone: z
+    .string({ required_error: "กรุณาใส่เบอร์โทรศัพท์" })
+    .min(10, "เบอร์โทรศัพท์ต้องมี 10 ตัวเลขเท่านั้น")
+    .max(10, "เบอร์โทรศัพท์ต้องมี 10 ตัวเลขเท่านั้น")
+    .nullish(),
+  firstName: z.string().nullish(),
+  lastName: z.string().nullish(),
 });
 
 // Discount -------------------------------------------------------------
