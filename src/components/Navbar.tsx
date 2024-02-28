@@ -29,8 +29,8 @@ import {
 
 import AuthModal from "./modal/AuthModal";
 import BasketIcon from "./icons/BasketIcon";
-import DropdownIcon from "./icons/DropdownIcon";
 import { ibm } from "@/app/(client)/providers";
+import DropdownIcon from "./icons/DropdownIcon";
 
 // ----------------------------------------------------------------------
 
