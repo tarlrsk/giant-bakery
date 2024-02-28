@@ -97,7 +97,6 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
     const type = formData.get("type") as RefreshmentType;
     const category = formData.get("category") as RefreshmentCategory;
     const minQty = parseInt(formData.get("minQty") as string);
-    const maxQty = parseInt(formData.get("maxQty") as string);
     const currQty = parseInt(formData.get("currQty") as string);
     const remark = formData.get("remark") as string;
     const unitType = formData.get("unitType") as string;
@@ -115,7 +114,6 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
       type,
       category,
       minQty,
-      maxQty,
       currQty,
       weight,
       height,
@@ -175,7 +173,6 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
         type: type,
         category: category,
         minQty: minQty,
-        maxQty: maxQty,
         currQty: currQty,
         weight: weight,
         height: height,

@@ -23,7 +23,6 @@ export interface ICartSnackBox {
   category: string;
   status: string;
   minQty: number;
-  maxQty: number;
   currQty: number;
   weight: number;
   height: number;
