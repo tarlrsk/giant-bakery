@@ -562,7 +562,7 @@ enum CartItemType {
 }
 
 enum CartType {
-  MEMBER
+  CUSTOMER
   GUEST
 }
 
