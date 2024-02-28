@@ -16,7 +16,7 @@ type Props = {
 
 type IAddRefreshmentToCart = {
   userId: string;
-  type: "MEMBER" | "GUEST";
+  type: "CUSTOMER" | "GUEST";
   refreshmentId: string;
   quantity: number;
 };

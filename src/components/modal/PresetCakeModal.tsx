@@ -82,10 +82,11 @@ export default function PresetCakeModal({ slug, isOpen, onOpenChange }: Props) {
     };
 
     try {
-      await addPresetCakeToCartAction(addCakeToCart(), body);
+      const res = await addPresetCakeToCartAction(addCakeToCart(), body);
       if (isOpen == true) {
         onOpenChange();
       }
+      // console.log(res);
       toast.success("ใส่ตะกร้าสำเร็จ");
     } catch (error) {
       console.error(error);
@@ -146,6 +147,7 @@ export default function PresetCakeModal({ slug, isOpen, onOpenChange }: Props) {
                     {variants?.sizes?.map((size: IVariant) => (
                       <SelectItem
                         key={size?.id}
+                        className={`${ibm.className}`}
                       >{`${size?.name} ปอนด์`}</SelectItem>
                     ))}
                   </Select>
@@ -159,7 +161,9 @@ export default function PresetCakeModal({ slug, isOpen, onOpenChange }: Props) {
                     required
                   >
                     {variants?.bases?.map((base: IVariant) => (
-                      <SelectItem key={base?.id}>{base?.name}</SelectItem>
+                      <SelectItem key={base?.id} className={`${ibm.className}`}>
+                        {base?.name}
+                      </SelectItem>
                     ))}
                   </Select>
                   <Select
@@ -172,7 +176,12 @@ export default function PresetCakeModal({ slug, isOpen, onOpenChange }: Props) {
                     required
                   >
                     {variants?.fillings?.map((filling: IVariant) => (
-                      <SelectItem key={filling?.id}>{filling?.name}</SelectItem>
+                      <SelectItem
+                        key={filling?.id}
+                        className={`${ibm.className}`}
+                      >
+                        {filling?.name}
+                      </SelectItem>
                     ))}
                   </Select>
                   <Button

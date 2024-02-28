@@ -33,7 +33,6 @@ export async function addPresetCakeToCartAction(
 ) {
   try {
     const currentUser = await getCurrentUser();
-
     const request = {
       userId: currentUser?.id || "GUEST",
       type: currentUser?.role || "GUEST",
@@ -52,11 +51,13 @@ export async function addPresetCakeToCartAction(
 
     revalidateTag("cart");
     const data = await res.json();
-    console.log("data", data);
+
+    if (!data.response.success) throw new Error(data.response.error);
 
     return data;
-  } catch (err) {
+  } catch (err: any) {
     console.error(err);
+    throw new Error(err);
   }
 }
 
@@ -84,10 +85,12 @@ export async function addCustomSnackBoxToCartAction(
 
     revalidateTag("cart");
     const data = await res.json();
+    if (!data.response.success) throw new Error(data);
 
     return data;
-  } catch (err) {
+  } catch (err: any) {
     console.error(err);
+    throw new Error(err);
   }
 }
 
@@ -101,7 +104,7 @@ export async function addItemToCart(
 
     const body = {
       userId: currentUser?.id || "GUEST",
-      type: currentUser?.role === "CUSTOMER" ? "MEMBER" : "GUEST",
+      type: currentUser?.role || "GUEST",
       refreshmentId: itemId,
       quantity: quantity,
     };
@@ -114,17 +117,19 @@ export async function addItemToCart(
 
     revalidateTag("cart");
     const data = await res.json();
+    if (!data.response.success) throw new Error(data);
 
     return data;
-  } catch (err) {
+  } catch (err: any) {
     console.error(err);
+    throw new Error(err);
   }
 }
 
 export async function updateCartItem(
   userId: string,
   itemId: string,
-  type: "MEMBER" | "GUEST",
+  type: "CUSTOMER" | "GUEST",
   quantity: number,
   action: "increase" | "decrease" | "remove",
 ) {
@@ -149,10 +154,12 @@ export async function updateCartItem(
 
     revalidateTag("cart");
     const data = await res.json();
+    if (!data.response.success) throw new Error(data);
 
     return data;
-  } catch (err) {
+  } catch (err: any) {
     console.error(err);
+    throw new Error(err);
   }
 }
 

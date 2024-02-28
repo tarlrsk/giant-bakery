@@ -64,7 +64,7 @@ export default function CheckoutSummaryTable({ checkoutDetail }: Props) {
   //   fetcher,
   // );
 
-  console.log("checkoutDetail:", checkoutDetail);
+  // console.log("checkoutDetail:", checkoutDetail);
 
   const items = checkoutDetail?.items || [];
   const total: number = checkoutDetail?.total || 0;
