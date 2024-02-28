@@ -1,6 +1,6 @@
 import { z } from "zod";
+import { signIn, signOut } from "next-auth/react";
 import { signUp, ISignUpRequest } from "@/actions/userActions";
-import { signIn, signOut as onSignOut } from "next-auth/react";
 import { signInValidationSchema } from "@/lib/validationSchema";
 
 // ----------------------------------------------------------------------
@@ -64,6 +64,10 @@ export function useAuth() {
         }
       });
     }
+  }
+
+  async function onSignOut() {
+    await signOut({ callbackUrl: "/" });
   }
 
   return {

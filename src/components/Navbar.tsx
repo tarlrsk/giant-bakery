@@ -30,6 +30,7 @@ import {
 import AuthModal from "./modal/AuthModal";
 import BasketIcon from "./icons/BasketIcon";
 import DropdownIcon from "./icons/DropdownIcon";
+import { ibm } from "@/app/(client)/providers";
 
 // ----------------------------------------------------------------------
 
@@ -154,7 +155,7 @@ export default function Navbar({
               // onClick={onOpen}
             >
               {currentUser?.role !== "GUEST" ? (
-                <Dropdown className="rounded-md min-w-40">
+                <Dropdown className={`rounded-md min-w-40 ${ibm.className}`}>
                   <DropdownTrigger>
                     <Button
                       variant="light"
@@ -180,9 +181,6 @@ export default function Navbar({
                         >
                           ออเดอร์
                         </p>
-                      </DropdownItem>
-                      <DropdownItem key="copy" className=" rounded-sm ">
-                        <p className=" text-base">ประวัติการสั่งซื้อ</p>
                       </DropdownItem>
                     </DropdownSection>
 
@@ -262,7 +260,9 @@ export default function Navbar({
                 // onClick={onOpen}
               >
                 {currentUser?.role !== "GUEST" ? (
-                  <Dropdown className="rounded-md min-w-full">
+                  <Dropdown
+                    className={`rounded-md min-w-full ${ibm.className}`}
+                  >
                     <DropdownTrigger>
                       <Button
                         variant="light"
@@ -281,9 +281,6 @@ export default function Navbar({
                       <DropdownSection showDivider>
                         <DropdownItem key="new" className=" rounded-sm ">
                           <p className=" text-base">ออเดอร์</p>
-                        </DropdownItem>
-                        <DropdownItem key="copy" className=" rounded-sm ">
-                          <p className=" text-base">ประวัติการสั่งซื้อ</p>
                         </DropdownItem>
                       </DropdownSection>
 
