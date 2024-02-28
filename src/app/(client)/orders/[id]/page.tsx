@@ -36,7 +36,7 @@ type RowProps = {
   quantity?: number;
 };
 
-type IOrderDetail = {
+export type IOrderDetail = {
   orderId: string;
   firstName: string;
   lastName: string;
@@ -94,6 +94,8 @@ export default function OrderDetail({ params }: { params: { id: string } }) {
   const { data } = useSWR(getClientOrderById(id), fetcher);
 
   const item: IOrderDetail = data?.response?.data || {};
+
+  console.log("data", data);
 
   const handlePayRestPayment = async () => {
     try {
@@ -388,7 +390,7 @@ function AddressCard({ item }: OrderProps) {
   );
 }
 
-function getStatus(item: IOrderDetail): string {
+export function getStatus(item: IOrderDetail): string {
   let status = "";
   switch (item?.receivedVia) {
     case "PICK_UP":
