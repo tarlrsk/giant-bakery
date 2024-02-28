@@ -3,8 +3,12 @@ import { withAuth, NextRequestWithAuth } from "next-auth/middleware";
 
 const allowedOrigins =
   process.env.NODE_ENV === "production"
-    ? ["https://cukedoh.vercel.app/", "https://cukedoh-uat.vercel.app/"]
-    : ["https://cukedoh-stg.vercel.app/", "http://localhost:3000"];
+    ? ["https://cukedoh.vercel.app/"]
+    : [
+        "https://cukedoh-uat.vercel.app",
+        "https://cukedoh-stg.vercel.app",
+        "http://localhost:3000",
+      ];
 
 export let userId: string | undefined = undefined;
 
