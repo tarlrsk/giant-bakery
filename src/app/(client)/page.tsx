@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Wave from "@/components/Wave";
 import BakeryItems from "@/components/BakeryItems";
 import FeatureSection from "@/components/FeatureSection";
@@ -9,20 +10,32 @@ export default function Home() {
   return (
     <section>
       <Wave />
-      <div className="relative h-auto pl-36 py-28">
+      <div className="relative flex items-center px-36 py-28">
         <FeatureSection
           hasTag={false}
-          title="ไดเอ็ตแคมป์ริกเตอร์ ฮอตแซ็กโซโฟนฟินิกซ์เทค"
-          desc="ไดเอ็ตแคมป์ริกเตอร์ ฮอตแซ็กโซโฟนฟินิกซ์เทควันโดมะกัน"
+          title="คุเกะโดเบเกอรี่ หลากหลายและอบใหม่ทุกวัน"
+          desc="ใส่ใจทุกรายละเอียด เพื่อให้คุณได้รับขนมที่มีคุณภาพและรสชาติที่ดีที่สุด"
           btnLabel="สั่งเลย"
         />
+        <Image
+          className=" invisible md:visible  absolute right-40 h-full"
+          src="/home-page-snack.png"
+          width={100}
+          height={100}
+          alt="cake"
+          style={{
+            width: "auto",
+            height: "120%",
+          }}
+        />
       </div>
+
       <div className="relative flex flex-col py-28 h-auto items-center justify-center gap-16">
         <div className="relative flex flex-col gap-10 items-center justify-center ">
           <h1 className="font-semibold text-5xl">สินค้าขายดี</h1>
-          <p className="font-normal text-2xl">
-            ไดเอ็ตแคมป์ริกเตอร์ ฮอตแซ็กโซโฟนฟินิกซ์เทควันโดมะกัน
-          </p>
+          {/* <p className="font-normal text-2xl">
+            สินค้าที่ขายดีที่สุดตลอดปี 2023
+          </p> */}
         </div>
         <div className="container flex flex-wrap-custom gap-20">
           <BakeryItems cols={4} category="" amount="4" />
