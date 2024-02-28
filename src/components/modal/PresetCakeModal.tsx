@@ -53,7 +53,9 @@ export default function PresetCakeModal({ slug, isOpen, onOpenChange }: Props) {
 
   const fetchPath = getCakeBySlug(slug, id);
 
-  const { data } = useSWR(fetchPath, fetcher);
+  const { data } = useSWR(fetchPath, fetcher, {
+    revalidateOnFocus: false,
+  });
 
   const { data: variantsData } = useSWR(getVariants(), fetcher, {
     revalidateOnFocus: false,
