@@ -5,17 +5,12 @@ import apiPaths from "@/utils/api-path";
 import { useSnackbar } from "notistack";
 import useSWRMutation from "swr/mutation";
 import { adminFetcher } from "@/utils/axios";
+import { OrderStatus } from "@prisma/client";
 import { formatDate } from "@/lib/formatDate";
+import { IOrderDetail } from "@/app/(client)/orders/types";
 import React, { useMemo, useState, useEffect } from "react";
 import UpdateOrderDialog from "@/components/admin/dialog/UpdateOrderDialog";
 import CancelOrderDialog from "@/components/admin/dialog/CancelOrderDialog";
-import {
-  OrderStatus,
-  PaymentType,
-  ReceivedVia,
-  CartItemType,
-  PaymentMethod,
-} from "@prisma/client";
 import {
   Box,
   Card,
@@ -42,41 +37,6 @@ type RowProps = {
   isDiscount?: boolean;
 };
 
-type OrderDetail = {
-  orderId: string;
-  firstName: string;
-  lastName: string;
-  phone: string;
-  orderedAt: Date;
-  paymentMethod: PaymentMethod[];
-  receivedVia: ReceivedVia;
-  totalPrice: number;
-  status: OrderStatus;
-  paymentType: PaymentType;
-  remark: string | null;
-  shippingFee: number;
-  discountPrice: number;
-  paid: number;
-  remaining: number;
-  items: Item[] | any;
-  address: {
-    address: string;
-    district: string;
-    subdistrict: string;
-    province: string;
-    postcode: string;
-  } | null;
-};
-
-type Item = {
-  name: string;
-  quantity: number;
-  type: CartItemType;
-  price: number;
-  pricePer: number;
-  subItem: string[];
-};
-
 type IUpdateOrderRequest = {
   orderId: string;
   status: OrderStatus;
@@ -88,7 +48,7 @@ type IDeleteOrderRequest = {
 };
 
 type OrderProps = {
-  data: OrderDetail;
+  data: IOrderDetail;
 };
 
 const stepsSinglePayment = [
@@ -146,15 +106,6 @@ async function sendCancelOrderRequest(
   }
 }
 
-// const orderStatus = [
-//   "PENDING_PAYMENT1",
-//   "PENDING_ORDER",
-//   "ON_PROCESS",
-//   "PENDING_PAYMENT2",
-//   "COMPLETED",
-//   "CANCELLED",
-// ];
-
 // ----------------------------------------------------------------------
 
 export default function OrderDetail({ params }: { params: { slug: string } }) {
@@ -180,7 +131,7 @@ export default function OrderDetail({ params }: { params: { slug: string } }) {
   const [isOpenUpdate, setIsOpenUpdate] = useState(false);
   const [isOpenCancel, setIsOpenCancel] = useState(false);
 
-  const orderDetail: OrderDetail = orderData?.data || {};
+  const orderDetail: IOrderDetail = orderData?.data || {};
 
   async function handleUpdateOrder() {
     try {
@@ -357,10 +308,6 @@ function OrderDetailCard({ data }: OrderProps) {
     setSteps(stepsArray);
   }, [data, data?.paymentType, data?.receivedVia]);
 
-  const totalProductPrice = data?.items?.reduce((total: any, product: any) => {
-    return total + product.price * product.quantity;
-  }, 0);
-
   return (
     <Card>
       <Box sx={{ width: 1, backgroundColor: "secondary.main", px: 2, py: 2 }}>
@@ -375,9 +322,13 @@ function OrderDetailCard({ data }: OrderProps) {
           alternativeLabel
           sx={{ px: 20, pt: 2.5, pb: 2 }}
         >
-          {steps.map((label) => (
+          {steps.map((label, index) => (
             <Step key={label}>
-              <StepLabel>{label}</StepLabel>
+              <StepLabel error={data?.isCancelled && index === activeStep}>
+                {data?.isCancelled && index === activeStep
+                  ? "ออเดอร์ถูกยกเลิก"
+                  : label}
+              </StepLabel>
             </Step>
           ))}
         </Stepper>
@@ -388,8 +339,6 @@ function OrderDetailCard({ data }: OrderProps) {
           รายการสินค้า
         </Typography>
         <Stack direction="column" spacing={2} divider={<Divider />}>
-          <ProductRow name="เอแคล์" price={147} quantity={3} />
-          <ProductRow name="น้ำส้มกล่อง" price={49} quantity={1} />
           {data?.items?.map((product: any, index: any) => (
             <ProductRow
               key={index}
@@ -399,11 +348,18 @@ function OrderDetailCard({ data }: OrderProps) {
             />
           ))}
           <Stack spacing={1}>
-            <ProductRow name="ราคาสินค้า" price={totalProductPrice} />
+            <ProductRow name="ราคาสินค้า" price={data?.subTotalPrice} />
             <ProductRow name="ค่าจัดส่ง" price={data?.shippingFee} />
             <ProductRow name="ส่วนลด" price={data?.discountPrice} isDiscount />
           </Stack>
           <ProductRow name="ยอดการสั่งซื้อรวม" price={data?.totalPrice} />
+          {data?.paymentType === "INSTALLMENT" &&
+            data?.status !== "COMPLETED" && (
+              <Stack spacing={1}>
+                <ProductRow name="ชำระแล้วทั้งสิ้น" price={data?.paid} />
+                <ProductRow name="ยอดที่ต้องชำระ" price={data?.remaining} />
+              </Stack>
+            )}
         </Stack>
       </CardContent>
     </Card>
@@ -572,7 +528,7 @@ function OrderAddressCard({ data }: OrderProps) {
 
 // ----------------------------------------------------------------------
 
-function getStatus(item: OrderDetail): string {
+function getStatus(item: IOrderDetail): string {
   let status = "";
   switch (item?.receivedVia) {
     case "PICK_UP":

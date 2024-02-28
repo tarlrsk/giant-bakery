@@ -82,13 +82,7 @@ export default function OrderDetail({ params }: { params: { id: string } }) {
 
   const { data } = useSWR(getClientOrderById(id), fetcher);
 
-  const item: IOrderDetail =
-    {
-      ...data?.response?.data,
-      paymentType: "INSTALLMENT",
-      status: "PENDING_PAYMENT2",
-      isCancelled: true,
-    } || {};
+  const item: IOrderDetail = data?.response?.data || {};
 
   const { trigger: triggerCheckoutOrder, isMutating: isMutatingCheckoutOrder } =
     useSWRMutation(checkoutOrder(), sendCheckoutRequest);
@@ -203,10 +197,6 @@ function OrderDetailCard({ item }: OrderProps) {
     setSteps(stepsArray);
   }, [item, item?.paymentType, item?.receivedVia]);
 
-  const totalProductPrice = item?.items?.reduce((total: any, product: any) => {
-    return total + product.price * product.quantity;
-  }, 0);
-
   return (
     <Card>
       <Box sx={{ width: 1, backgroundColor: "primary.darker", px: 2, py: 2 }}>
@@ -262,12 +252,13 @@ function OrderDetailCard({ item }: OrderProps) {
             <ProductRow name="ส่วนลด" price={item?.discountPrice} isDiscount />
           </Stack>
           <ProductRow name="ยอดการสั่งซื้อรวม" price={item?.totalPrice} />
-          {item?.paymentType === "INSTALLMENT" && (
-            <Stack spacing={1}>
-              <ProductRow name="ชำระแล้วทั้งสิ้น" price={item?.paid} />
-              <ProductRow name="ยอดที่ต้องชำระ" price={item?.remaining} />
-            </Stack>
-          )}
+          {item?.paymentType === "INSTALLMENT" &&
+            item?.status !== "COMPLETED" && (
+              <Stack spacing={1}>
+                <ProductRow name="ชำระแล้วทั้งสิ้น" price={item?.paid} />
+                <ProductRow name="ยอดที่ต้องชำระ" price={item?.remaining} />
+              </Stack>
+            )}
         </Stack>
       </CardContent>
     </Card>
