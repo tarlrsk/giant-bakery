@@ -36,6 +36,9 @@ export async function POST(req: NextRequest) {
       return responseWrapper(404, null, `User with ID ${userId} is not found.`);
     }
 
+    let discount = 0;
+    let shippingFee = 0;
+
     const lineItems: LineItem[] = [];
 
     if (order.status == OrderStatus.PENDING_PAYMENT1) {
@@ -80,6 +83,9 @@ export async function POST(req: NextRequest) {
           quantity: snackBox.quantity,
         });
       }
+
+      discount = order.discountPrice;
+      shippingFee = order.shippingFee;
     } else if (order.status == OrderStatus.PENDING_PAYMENT2) {
       let remaining = order.totalPrice;
       for (let payment of order.payment) {
@@ -106,11 +112,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    console.log(lineItems);
-
     const session = await createStripeSessionPayment2(
       userId,
       order.id,
+      discount,
+      shippingFee,
       lineItems,
       req,
       order.status,

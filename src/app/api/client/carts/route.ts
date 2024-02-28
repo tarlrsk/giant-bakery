@@ -39,7 +39,7 @@ const CartInclude = {
 async function deleteItem(cartItem: any, itemId: string) {
   switch (cartItem.type) {
     case "CAKE":
-      if (!cartItem.customCakeId) {
+      if (!cartItem.customerCakeId) {
         return responseWrapper(
           500,
           null,
