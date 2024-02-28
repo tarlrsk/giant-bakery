@@ -18,6 +18,7 @@ import {
   OrderCustomerCake,
   OrderSnackBoxRefreshment,
 } from "@prisma/client";
+import { calculateShippingFee } from "@/lib/interExpress";
 
 type LineItem = {
   price_data: {
@@ -57,9 +58,9 @@ export async function POST(req: NextRequest) {
       return responseWrapper(404, null, `User not found.`);
     }
 
-    var address: undefined | null | CustomerAddress;
-    if (addressId && addressId != "") {
-      address = await prismaCustomerAddress().getUserAddressById(addressId);
+    const address = await prismaCustomerAddress().getUserAddressById(addressId);
+    if (!address) {
+      return responseWrapper(404, null, `Address not found.`);
     }
     const cart = await prismaCart().getCartByUserId(userId);
 
@@ -147,8 +148,7 @@ export async function POST(req: NextRequest) {
 
     let shippingFee = 0;
     if (receivedVia == ReceivedVia.DELIVERY) {
-      // TODO Shipping Fee
-      shippingFee = 130;
+      shippingFee = await calculateShippingFee(address);
     }
 
     // TODO DISCOUNT
