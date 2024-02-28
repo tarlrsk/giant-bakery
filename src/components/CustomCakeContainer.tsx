@@ -1,10 +1,10 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 import useSWR from "swr";
-import React, { useEffect, useState } from "react";
 import { fetcher } from "@/utils/axios";
 import apiPaths from "@/utils/api-path";
 import Circle from "@uiw/react-color-circle";
+import React, { useEffect, useState } from "react";
 import { IBM_Plex_Sans_Thai } from "next/font/google";
 
 import {

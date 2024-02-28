@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { OrderStatus, PaymentType } from "@prisma/client";
+import { OrderStatus } from "@prisma/client";
 import { prismaOrder } from "@/persistence/order";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 

@@ -322,7 +322,7 @@ model Refreshment {
   updatedAt     DateTime             @updatedAt
   deletedAt     DateTime?
   unitType      String               @default("กล่อง")
-  unitRatio     Int?
+  qtyPerUnit    Int                  @default(1)
 
   CartItem                 CartItem?
   SnackBoxRefreshment      SnackBoxRefreshment[]
@@ -375,6 +375,7 @@ model Order {
   totalPrice    Float
   orderedAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
+  isCancelled   Boolean     @default(false)
 
   user       User       @relation(fields: [userId], references: [id])
   payment    Payment[]
@@ -455,7 +456,7 @@ model OrderRefreshment {
   pricePer      Float
   price         Float
   unitType      String               @default("กล่อง")
-  unitRatio     Int?
+  qtyPerUnit    Int                  @default(1)
 
   order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
   orderId String
@@ -502,7 +503,7 @@ model OrderSnackBoxRefreshment {
   OrderSnackBox   OrderSnackBox        @relation(fields: [orderSnackBoxId], references: [id], onDelete: Cascade)
   orderSnackBoxId String
   unitType        String               @default("กล่อง")
-  unitRatio       Int?
+  qtyPerUnit      Int                  @default(1)
 
   refreshment   Refreshment? @relation(fields: [refreshmentId], references: [id])
   refreshmentId String?

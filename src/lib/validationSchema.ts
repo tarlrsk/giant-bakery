@@ -223,7 +223,7 @@ export const updateQtyCartValidateSchema = z.object({
 
 export const checkoutCartValidateSchema = z.object({
   userId: z.string().uuid(),
-  addressId: z.string().uuid().nullish(),
+  addressId: z.string().uuid(),
   email: z.string().email(),
   receivedVia: z.enum(["DELIVERY", "PICK_UP"]),
   paymentMethod: z.enum(["CARD", "PROMPTPAY"]),

@@ -101,7 +101,7 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
     const currQty = parseInt(formData.get("currQty") as string);
     const remark = formData.get("remark") as string;
     const unitType = formData.get("unitType") as string;
-    const unitRatio = Number(formData.get("unitRatio")) as number | null;
+    const qtyPerUnit = Number(formData.get("qtyPerUnit")) as number;
     const weight = parseFloat(formData.get("weight") as string);
     const height = parseFloat(formData.get("height") as string);
     const length = parseFloat(formData.get("length") as string);
@@ -184,7 +184,7 @@ export async function PUT(req: NextRequest, { params }: GetRefreshmentById) {
         price: price,
         isActive: isActive,
         unitType: unitType,
-        unitRatio: unitRatio,
+        qtyPerUnit: qtyPerUnit,
         remark: remark,
       },
     });
