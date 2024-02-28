@@ -10,17 +10,17 @@ const FOOTER_ICONS = {
   facebook: (
     <Iconify
       icon="ic:baseline-facebook"
-      size={24}
+      size={32}
       className=" text-common-white"
     />
   ),
   instagram: (
-    <Iconify icon="iconoir:instagram" size={24} className="text-common-white" />
+    <Iconify icon="iconoir:instagram" size={32} className="text-common-white" />
   ),
   line: (
     <Iconify
       icon="mingcute:line-app-line"
-      size={24}
+      size={32}
       className="text-common-white"
     />
   ),
@@ -44,13 +44,14 @@ export default function Footer() {
         </div>
         <div className="flex-col items-start gap-3 inline-flex relative flex-[0_0_auto]">
           <p className="w-fit font-normal text-xl leading-9 relative mt-[-1.00px] text-common-white tracking-normal">
-            ที่อยู่ 299 หมู่ 4 ต. เนินพระ อ. เมือง จ. ระยอง 21000 <br />
-            (เปิดทุกวัน เวลา 7:00 - 18:00 น.)
+            เลขที่ 53/55 ซอยศูนย์การค้าสาย 4 ถนนสุขุมวิท, เมืองระยอง, ระยอง
+            21000 <br />
+            (เปิดทุกวัน เวลา 9:00 - 21:00 น.)
           </p>
           <div className="items-center justify-center gap-3 inline-flex relative flex-[0_0_auto]">
             {FOOTER_ICONS["telephone"]}
             <div className="relative w-fit mt-[-1.00px] font-medium text-common-white text-xl text-center tracking-normal leading-normal">
-              087-xxx-xxxx, 02-xxx-xxxx
+              038-618-125
             </div>
           </div>
         </div>
