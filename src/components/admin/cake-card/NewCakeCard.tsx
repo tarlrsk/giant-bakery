@@ -30,7 +30,7 @@ export default function NewCakeCard({ onClose }: Props) {
       image: null,
       isActive: true,
       name: undefined,
-      description: undefined,
+      description: "",
       remark: undefined,
       price: undefined,
       weight: undefined,
@@ -76,8 +76,6 @@ export default function NewCakeCard({ onClose }: Props) {
       bodyFormData.append("width", width ? Number(width).toString() : "0");
       bodyFormData.append("isActive", isActive ? "true" : "false");
       bodyFormData.append("type", "PRESET");
-
-      console.log("data", data);
 
       await createCakeTrigger(bodyFormData);
       enqueueSnackbar("สร้างเค้กสำเร็จ", { variant: "success" });

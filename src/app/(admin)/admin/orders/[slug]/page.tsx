@@ -204,7 +204,7 @@ export default function OrderDetail({ params }: { params: { slug: string } }) {
         break;
     }
     return text;
-  }, [orderDetail?.paymentType, orderDetail.receivedVia, orderDetail?.status]);
+  }, [orderDetail]);
 
   return (
     <Box>
@@ -218,7 +218,6 @@ export default function OrderDetail({ params }: { params: { slug: string } }) {
           ข้อมูลออเดอร์
         </Typography>
       </Stack>
-
       <Stack direction="column" spacing={2}>
         <OrderHeaderCard data={orderDetail} />
 
@@ -227,23 +226,22 @@ export default function OrderDetail({ params }: { params: { slug: string } }) {
         <OrderDetailCard data={orderDetail} />
       </Stack>
 
-      {!!buttonActionText &&
-        orderDetail.status !== "COMPLETED" &&
-        !orderDetail?.isCancelled && (
-          <Stack
-            direction="row"
-            justifyContent="end"
-            sx={{ mt: 2, mb: 1 }}
-            spacing={2}
+      {orderDetail.status !== "COMPLETED" && !orderDetail?.isCancelled && (
+        <Stack
+          direction="row"
+          justifyContent="end"
+          sx={{ mt: 2, mb: 1 }}
+          spacing={2}
+        >
+          <Button
+            size="large"
+            variant="outlined"
+            color="error"
+            onClick={() => setIsOpenCancel(true)}
           >
-            <Button
-              size="large"
-              variant="outlined"
-              color="error"
-              onClick={() => setIsOpenCancel(true)}
-            >
-              ยกเลิกออเดอร์
-            </Button>
+            ยกเลิกออเดอร์
+          </Button>
+          {!!buttonActionText && (
             <Button
               size="large"
               variant="contained"
@@ -252,8 +250,9 @@ export default function OrderDetail({ params }: { params: { slug: string } }) {
             >
               {buttonActionText}
             </Button>
-          </Stack>
-        )}
+          )}
+        </Stack>
+      )}
 
       <UpdateOrderDialog
         text={buttonActionText || ""}
@@ -264,14 +263,12 @@ export default function OrderDetail({ params }: { params: { slug: string } }) {
         isTrackingRequired={isTrackingRequired}
         setTrackingNo={setTrackingNo}
       />
-
       <CancelOrderDialog
         open={isOpenCancel}
         onClose={() => setIsOpenCancel(false)}
         onCancel={handleCancelOrder}
         isLoading={isMutatingCancelOrder}
       />
-
       <Backdrop
         sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={isLoading}
