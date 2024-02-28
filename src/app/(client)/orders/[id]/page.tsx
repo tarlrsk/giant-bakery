@@ -178,7 +178,7 @@ function OrderDetailCard({ item }: OrderProps) {
     return total + product.price * product.quantity;
   }, 0);
 
-  const isCancelled = item?.status === "CANCELLED";
+  const isCancelled = false;
 
   return (
     <Card>
@@ -410,10 +410,6 @@ function getStatus(item: IOrderDetail): string {
             case "COMPLETED":
               status = "ส่งมอบสำเร็จ";
               break;
-
-            case "CANCELLED":
-              status = "ยกเลิก";
-              break;
           }
         case "INSTALLMENT":
           switch (item?.status) {
@@ -435,10 +431,6 @@ function getStatus(item: IOrderDetail): string {
 
             case "COMPLETED":
               status = "ส่งมอบสำเร็จ";
-              break;
-
-            case "CANCELLED":
-              status = "ยกเลิก";
               break;
           }
       }
@@ -463,10 +455,6 @@ function getStatus(item: IOrderDetail): string {
             case "COMPLETED":
               status = "จัดส่งไปยัง InterExpress แล้ว";
               break;
-
-            case "CANCELLED":
-              status = "ยกเลิก";
-              break;
           }
         case "INSTALLMENT":
           switch (item?.status) {
@@ -488,10 +476,6 @@ function getStatus(item: IOrderDetail): string {
 
             case "COMPLETED":
               status = "จัดส่งไปยัง InterExpress แล้ว";
-              break;
-
-            case "CANCELLED":
-              status = "ยกเลิก";
               break;
           }
       }
