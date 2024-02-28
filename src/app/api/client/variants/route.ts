@@ -39,24 +39,28 @@ export async function GET(req: NextRequest) {
 
     variants.sizes = await prisma.masterCakeSize.findMany({
       where: {
+        isActive: true,
         isDeleted: false,
       },
     });
 
     variants.bases = await prisma.masterCakeBase.findMany({
       where: {
+        isActive: true,
         isDeleted: false,
       },
     });
 
     variants.fillings = await prisma.masterCakeFilling.findMany({
       where: {
+        isActive: true,
         isDeleted: false,
       },
     });
 
     variants.creams = await prisma.masterCakeCream.findMany({
       where: {
+        isActive: true,
         isDeleted: false,
       },
     });
@@ -68,6 +72,7 @@ export async function GET(req: NextRequest) {
 
     variants.topEdges = await prisma.masterCakeTopEdge.findMany({
       where: {
+        isActive: true,
         isDeleted: false,
       },
     });
@@ -79,6 +84,7 @@ export async function GET(req: NextRequest) {
 
     variants.bottomEdges = await prisma.masterCakeBottomEdge.findMany({
       where: {
+        isActive: true,
         isDeleted: false,
       },
     });
@@ -90,6 +96,7 @@ export async function GET(req: NextRequest) {
 
     variants.decorations = await prisma.masterCakeDecoration.findMany({
       where: {
+        isActive: true,
         isDeleted: false,
       },
     });
@@ -101,6 +108,7 @@ export async function GET(req: NextRequest) {
 
     variants.surfaces = (await prisma.masterCakeSurface.findMany({
       where: {
+        isActive: true,
         isDeleted: false,
       },
     })) as any;

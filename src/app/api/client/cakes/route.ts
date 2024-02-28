@@ -4,6 +4,8 @@ import { NextRequest } from "next/server";
 import { getFileUrl } from "@/lib/gcs/getFileUrl";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 
+export const revalidate = 0;
+
 export async function GET(req: NextRequest) {
   try {
     const type = req.nextUrl.searchParams.get("type") as CakeType;
