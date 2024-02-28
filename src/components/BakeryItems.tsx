@@ -41,6 +41,7 @@ export default function BakeryItems({
   const { data } = useSWR(
     `${getBakeries(category as IBakeryCategory, amount)}`,
     fetcher,
+    { revalidateOnFocus: false },
   );
 
   const items: Refreshment[] = data?.response?.data || [];

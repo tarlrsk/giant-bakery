@@ -79,9 +79,14 @@ export default function CakeCard({ item, onClick, size = "md" }: Props) {
         <Image
           src={(item?.image as string) ?? "/placeholder-image.jpeg"}
           alt={item?.name}
-          width={imgSize.width}
-          height={imgSize.height}
+          width={imgSize?.width}
+          height={imgSize?.height}
           className=" object-cover mb-4 rounded-sm"
+          sizes="100vw"
+          style={{
+            width: "100%",
+            height: "auto",
+          }}
         />
         <article
           className={`flex flex-col flex-wrap text-pretty p-6 gap-${

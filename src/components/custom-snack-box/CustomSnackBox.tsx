@@ -17,12 +17,12 @@ import {
   PopoverTrigger,
 } from "@nextui-org/react";
 
-import CakeItems from "../CakeItems";
 import Iconify from "../icons/Iconify";
 import BakeryItems from "../BakeryItems";
 import { BoxIcon } from "../icons/BoxIcon";
 import { RHFRadioGroup } from "../hook-form";
 import BeverageItems from "../BeverageItems";
+import CakePieceItems from "../CakePieceItems";
 import FormProvider from "../hook-form/form-provider";
 import CustomSnackBoxItems from "./CustomSnackBoxItems";
 
@@ -398,7 +398,7 @@ export default function CustomSnackBox() {
         )}
 
         {selectedTab === "cakes" && (
-          <CakeItems
+          <CakePieceItems
             cols={4}
             size="sm"
             type="CAKE"
@@ -591,25 +591,4 @@ export default function CustomSnackBox() {
       </div>
     </div>
   );
-}
-
-// ----------------------------------------------------------------------
-
-type IAddCustomSnackBoxToCart = {
-  userId: string;
-  type: "CUSTOMER" | "GUEST";
-  packageType: "PAPER_BAG" | "SNACK_BOX_S" | "SNACK_BOX_M";
-  beverage: "INCLUDE" | "EXCLUDE" | "NONE";
-  refreshmentIds: string[];
-  quantity: number;
-};
-
-async function sendAddSnackBoxRequest(
-  url: string,
-  { arg }: { arg: IAddCustomSnackBoxToCart },
-) {
-  await fetch(url, {
-    method: "POST",
-    body: JSON.stringify(arg),
-  }).then((res) => res.json());
 }
