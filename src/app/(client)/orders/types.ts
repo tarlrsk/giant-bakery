@@ -121,6 +121,7 @@ export type IOrderDetail = {
   paid: number;
   remaining: number;
   items: Item[] | any;
+  isCancelled: boolean;
   address: {
     address: string;
     district: string;

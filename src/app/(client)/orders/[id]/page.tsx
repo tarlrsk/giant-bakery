@@ -4,6 +4,8 @@ import useSWR from "swr";
 import toast from "react-hot-toast";
 import apiPaths from "@/utils/api-path";
 import { fetcher } from "@/utils/axios";
+import useSWRMutation from "swr/mutation";
+import { useRouter } from "next/navigation";
 import { formatDate } from "@/lib/formatDate";
 import React, { useState, useEffect } from "react";
 import {
@@ -44,23 +46,68 @@ const stepsDepositPayment = [
   "ส่งมอบสำเร็จ",
 ];
 
+async function sendCheckoutRequest(
+  url: string,
+  {
+    arg,
+  }: {
+    arg: {
+      orderId: string | null;
+    };
+  },
+) {
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      body: JSON.stringify(arg),
+    }).then((res) => res.json());
+
+    if (!res.response.success) throw new Error(res.error);
+
+    return res;
+  } catch (err: any) {
+    throw new Error(err);
+  }
+}
+
 // ----------------------------------------------------------------------
 
 export default function OrderDetail({ params }: { params: { id: string } }) {
   const { id } = params;
 
-  const { getClientOrderById } = apiPaths();
+  const router = useRouter();
+
+  const { checkoutOrder, getClientOrderById } = apiPaths();
 
   const { data } = useSWR(getClientOrderById(id), fetcher);
 
-  const item: IOrderDetail = data?.response?.data || {};
+  const item: IOrderDetail =
+    {
+      ...data?.response?.data,
+      paymentType: "INSTALLMENT",
+      status: "PENDING_PAYMENT2",
+      isCancelled: true,
+    } || {};
 
-  console.log("data", data);
+  const { trigger: triggerCheckoutOrder, isMutating: isMutatingCheckoutOrder } =
+    useSWRMutation(checkoutOrder(), sendCheckoutRequest);
 
   const handlePayRestPayment = async () => {
     try {
-      console.log("pay rest payment");
       // TODO: call api to Stripe here
+      console.log("pay rest payment");
+    } catch (err) {
+      toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
+    }
+  };
+
+  const handlePayFirstPayment = async () => {
+    try {
+      const res = await triggerCheckoutOrder({
+        orderId: item?.orderId || "",
+      });
+      const url = res?.response?.data?.stripeUrl;
+      router.replace(url);
     } catch (err) {
       toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
     }
@@ -88,7 +135,7 @@ export default function OrderDetail({ params }: { params: { id: string } }) {
           <OrderDetailCard item={item} />
         </Stack>
 
-        {item?.status === "PENDING_PAYMENT2" && (
+        {item?.status === "PENDING_PAYMENT2" && !item?.isCancelled && (
           <Stack
             direction="row"
             justifyContent="end"
@@ -102,6 +149,25 @@ export default function OrderDetail({ params }: { params: { id: string } }) {
               onClick={handlePayRestPayment}
             >
               ชำระเงินที่เหลือ
+            </Button>
+          </Stack>
+        )}
+
+        {item?.status === "PENDING_PAYMENT1" && !item?.isCancelled && (
+          <Stack
+            direction="row"
+            justifyContent="end"
+            sx={{ mt: 2, mb: 1 }}
+            spacing={2}
+          >
+            <Button
+              size="lg"
+              radius="sm"
+              color="secondary"
+              onClick={handlePayFirstPayment}
+              isLoading={isMutatingCheckoutOrder}
+            >
+              {item?.paymentType === "SINGLE" ? "ชำระเงิน" : "ชำระมัดจำ"}
             </Button>
           </Stack>
         )}
@@ -140,8 +206,6 @@ function OrderDetailCard({ item }: OrderProps) {
     return total + product.price * product.quantity;
   }, 0);
 
-  const isCancelled = false;
-
   return (
     <Card>
       <Box sx={{ width: 1, backgroundColor: "primary.darker", px: 2, py: 2 }}>
@@ -156,17 +220,15 @@ function OrderDetailCard({ item }: OrderProps) {
           alternativeLabel
           sx={{ px: 20, pt: 2.5, pb: 2 }}
         >
-          {!isCancelled ? (
-            steps.map((label) => (
-              <Step key={label}>
-                <StepLabel>{label}</StepLabel>
-              </Step>
-            ))
-          ) : (
-            <Step>
-              <StepLabel error>ออเดอร์ถูกยกเลิก</StepLabel>
+          {steps.map((label, index) => (
+            <Step key={label}>
+              <StepLabel error={item?.isCancelled && index === activeStep}>
+                {item?.isCancelled && index === activeStep
+                  ? "ออเดอร์ถูกยกเลิก"
+                  : label}
+              </StepLabel>
             </Step>
-          )}
+          ))}
         </Stepper>
       </CardContent>
       {item?.remark && (
@@ -194,10 +256,16 @@ function OrderDetailCard({ item }: OrderProps) {
             />
           ))}
           <Stack spacing={1}>
-            <ProductRow name="ราคาสินค้า" price={totalProductPrice} />
+            <ProductRow name="ราคาสินค้า" price={item?.shippingFee} />
             <ProductRow name="ค่าจัดส่ง" price={item?.shippingFee} />
           </Stack>
           <ProductRow name="ยอดการสั่งซื้อรวม" price={item?.totalPrice} />
+          {item?.paymentType === "INSTALLMENT" && (
+            <Stack spacing={1}>
+              <ProductRow name="ชำระแล้วทั้งสิ้น" price={item?.paid} />
+              <ProductRow name="ยอดที่ต้องชำระ" price={item?.remaining} />
+            </Stack>
+          )}
         </Stack>
       </CardContent>
     </Card>

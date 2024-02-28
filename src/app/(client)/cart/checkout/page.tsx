@@ -329,7 +329,6 @@ export default function CheckoutPage() {
     try {
       const res = await triggerAddCheckoutOrder(body);
       const url = res?.response?.data?.stripeUrl;
-      console.log("url", url);
       router.replace(url);
     } catch (error: any) {
       console.error(error.errorMessage);
