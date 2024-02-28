@@ -430,6 +430,7 @@ export async function POST(req: NextRequest) {
       totalDiscount,
       lineItems,
       req,
+      OrderStatus.PENDING_PAYMENT1,
     );
 
     const data = {
