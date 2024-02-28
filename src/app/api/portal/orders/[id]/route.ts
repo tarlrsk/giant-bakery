@@ -24,6 +24,7 @@ type OrderDetail = {
   paymentMethod: PaymentMethod[];
   receivedVia: ReceivedVia;
   trackingNo: string | null;
+  subTotalPrice: number;
   totalPrice: number;
   status: OrderStatus;
   paymentType: PaymentType;
@@ -76,6 +77,7 @@ export async function GET(_req: NextRequest, { params }: GetOrderById) {
       paymentMethod: paymentTypes,
       receivedVia: order.receivedVia,
       trackingNo: order.trackingNo,
+      subTotalPrice: order.subTotalPrice,
       totalPrice: order.totalPrice,
       status: order.status,
       paymentType: order.paymentType,
