@@ -124,7 +124,6 @@ export default function EditProductCard({ data, isLoading, onClose }: Props) {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      console.log("data", data);
       const {
         name,
         image,
@@ -167,14 +166,11 @@ export default function EditProductCard({ data, isLoading, onClose }: Props) {
       bodyFormData.append("isActive", isActive ? "true" : "false");
       bodyFormData.append("unitType", type === "BAKERY" ? "ชิ้น" : "กล่อง");
 
-      console.log(updateProduct("test"));
       const res = await updateProductTrigger(bodyFormData);
-      console.log(res);
       enqueueSnackbar("อัพเดทสินค้าสำเร็จ", { variant: "success" });
       productsMutate();
     } catch (error) {
       console.error(error);
-      console.log("error", error);
       enqueueSnackbar("เกิดข้อผิดพลาด กรุณาลองใหม่", { variant: "error" });
     }
   });

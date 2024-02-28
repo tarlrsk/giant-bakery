@@ -29,7 +29,7 @@ export async function updateItem(url: string, { arg }: { arg: any }) {
   await fetch(url, {
     method: "PUT",
     body: arg,
-  }).then(async (res) => {
+  }).then((res) => {
     if (!res.ok) throw new Error("Something went wrong");
     return res;
   });
