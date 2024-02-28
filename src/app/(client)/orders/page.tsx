@@ -18,7 +18,7 @@ import {
   getKeyValue,
 } from "@nextui-org/react";
 
-import { getStatus, IOrderDetail } from "./[id]/page";
+import { getStatus, IOrderDetail } from "./types";
 
 // ----------------------------------------------------------------------
 
