@@ -24,7 +24,7 @@ export default function RHFTextField({
           {...field}
           fullWidth
           type={type}
-          value={type === "number" && field.value === 0 ? "" : field.value}
+          value={field.value}
           onChange={(event) => {
             if (type === "number") {
               field.onChange(Number(event.target.value));
