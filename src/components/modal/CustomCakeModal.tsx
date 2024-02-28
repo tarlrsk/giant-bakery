@@ -209,8 +209,6 @@ export default function CustomCakeModal({ slug, isOpen, onOpenChange }: Props) {
   const [selectedBase, setSelectedBase] = useState<string>("");
   const [selectedFilling, setSelectedFilling] = useState<string>("");
 
-  console.log(item);
-
   const { name, price, sizes } = MOCKUP_ITEM;
 
   return (

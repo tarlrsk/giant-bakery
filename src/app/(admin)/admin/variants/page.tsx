@@ -49,7 +49,6 @@ export default function AdminVariant() {
 
   const {
     variantsData: variants,
-    creamBaseData,
     variantsIsLoading: isLoading,
     updateVariantTrigger,
     updateVariantIsLoading,
@@ -61,8 +60,6 @@ export default function AdminVariant() {
   } = useAdmin(
     filteredRows?.find((row: IVariant) => row.id === rowSelectionModel[0]),
   );
-
-  const creamBaseImage = creamBaseData?.data?.image || "";
 
   const filterMethods = useForm({
     defaultValues: { search: "", variantType: "all", status: "all" },
@@ -204,6 +201,7 @@ export default function AdminVariant() {
 
       await updateVariantTrigger(bodyFormData);
       variantsMutate();
+      setOpenEditDrawer(false);
       enqueueSnackbar("อัพเดทตัวเลือกเค้กสำเร็จ", { variant: "success" });
     } catch (error) {
       console.error(error);
@@ -232,7 +230,7 @@ export default function AdminVariant() {
           />
           <Typography>พรีวิว</Typography>
           <Upload
-            file={creamBaseImage}
+            file="/cake-cream-base.svg"
             layerFile={
               typeof newVariantImage === "string"
                 ? newVariantImage
@@ -247,7 +245,12 @@ export default function AdminVariant() {
               label={isActiveNewVariant ? "แสดง" : "ซ่อน"}
             />
           </Stack>
-          <Stack direction="row" alignItems="center" spacing={1}>
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="center"
+            spacing={1}
+          >
             <RHFSelect name="type" label="ประเภทตัวเลือกเค้ก" required>
               {VARIANT_TYPE.map((option) => (
                 <MenuItem key={option.value} value={option.value}>
@@ -291,7 +294,7 @@ export default function AdminVariant() {
           />
           <Typography>พรีวิว</Typography>
           <Upload
-            file={creamBaseImage}
+            file="/cake-cream-base.svg"
             layerFile={
               typeof editVariantImage === "string"
                 ? editVariantImage
@@ -340,8 +343,7 @@ export default function AdminVariant() {
   );
 
   useEffect(() => {
-    let data =
-      variants?.data.filter((row: IVariant) => row.type !== "CREAM") || [];
+    let data = variants?.data || [];
 
     if (search) {
       data = data.filter(
@@ -379,9 +381,7 @@ export default function AdminVariant() {
   }, [resetEditVariant, selectedRow]);
 
   useEffect(() => {
-    setFilteredRows(
-      variants?.data?.filter((row: IVariant) => row.type !== "CREAM") || [],
-    );
+    setFilteredRows(variants?.data || []);
   }, [variants]);
 
   return (

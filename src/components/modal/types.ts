@@ -1,6 +1,7 @@
 export type IVariant = {
   id: string;
   name: string;
+  image: string;
   isActive: boolean;
   isDeleted: boolean;
   createdAt: string;

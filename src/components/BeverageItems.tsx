@@ -16,7 +16,7 @@ type Props = {
 
 type IAddRefreshmentToCart = {
   userId: string;
-  type: "MEMBER" | "GUEST";
+  type: "CUSTOMER" | "GUEST";
   refreshmentId: string;
   quantity: number;
 };
@@ -41,7 +41,9 @@ export default function BeverageItems({
 
   const { getBeverages } = apiPaths();
 
-  const { data } = useSWR(getBeverages(), fetcher);
+  const { data } = useSWR(getBeverages(), fetcher, {
+    revalidateOnFocus: false,
+  });
 
   const items: Refreshment[] = data?.response?.data || [];
 

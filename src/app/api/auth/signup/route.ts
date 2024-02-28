@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
           where: {
             id: cart.id,
           },
-          data: { userId: newUser.id, type: "MEMBER" },
+          data: { userId: newUser.id, type: "CUSTOMER" },
         });
       }
     }

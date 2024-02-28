@@ -12,6 +12,19 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      padding: {
+        "32p": "32%",
+      },
+      height: {
+        "75p": "75%",
+        "90p": "90%",
+        "95p": "95%",
+      },
+      maxHeight: {
+        "25": "25%",
+        "50": "50%",
+        "75": "75%",
+      },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic":

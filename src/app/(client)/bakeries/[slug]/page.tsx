@@ -19,7 +19,7 @@ type BakeryDetailParams = {
 
 type IAddRefreshmentToCart = {
   userId: string;
-  type: "MEMBER" | "GUEST";
+  type: "CUSTOMER" | "GUEST";
   refreshmentId: string;
   quantity: number;
 };
@@ -76,7 +76,7 @@ export default function BakeryDetail({ params }: BakeryDetailParams) {
 
     const body: IAddRefreshmentToCart = {
       userId: currentUser?.id || "",
-      type: currentUser?.role === "CUSTOMER" ? "MEMBER" : "GUEST",
+      type: (currentUser?.role as "GUEST" | "CUSTOMER") || "GUEST",
       refreshmentId: item.id,
       quantity: counter,
     };

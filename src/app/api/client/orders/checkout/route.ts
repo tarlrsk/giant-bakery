@@ -5,6 +5,7 @@ import { prismaUser } from "@/persistence/user";
 import { getFileUrl } from "@/lib/gcs/getFileUrl";
 import { prismaOrder } from "@/persistence/order";
 import { createStripeSession } from "@/lib/stripe";
+import { calculateShippingFee } from "@/lib/interExpress";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { checkoutCartValidateSchema } from "@/lib/validationSchema";
 import { prismaCustomerAddress } from "@/persistence/customerAddress";
@@ -13,7 +14,6 @@ import {
   Prisma,
   ReceivedVia,
   OrderStatus,
-  CustomerAddress,
   OrderRefreshment,
   OrderCustomerCake,
   OrderSnackBoxRefreshment,
@@ -57,9 +57,9 @@ export async function POST(req: NextRequest) {
       return responseWrapper(404, null, `User not found.`);
     }
 
-    var address: undefined | null | CustomerAddress;
-    if (addressId && addressId != "") {
-      address = await prismaCustomerAddress().getUserAddressById(addressId);
+    const address = await prismaCustomerAddress().getUserAddressById(addressId);
+    if (!address) {
+      return responseWrapper(404, null, `Address not found.`);
     }
     const cart = await prismaCart().getCartByUserId(userId);
 
@@ -147,8 +147,7 @@ export async function POST(req: NextRequest) {
 
     let shippingFee = 0;
     if (receivedVia == ReceivedVia.DELIVERY) {
-      // TODO Shipping Fee
-      shippingFee = 130;
+      shippingFee = await calculateShippingFee(address);
     }
 
     // TODO DISCOUNT
@@ -233,7 +232,7 @@ export async function POST(req: NextRequest) {
             price: cartItem.refreshment.price * cartItem.quantity,
             orderId: "",
             unitType: cartItem.refreshment.unitType,
-            unitRatio: cartItem.refreshment.unitRatio,
+            qtyPerUnit: cartItem.refreshment.qtyPerUnit,
             refreshmentId: cartItem.refreshment.id,
           });
 
@@ -268,7 +267,7 @@ export async function POST(req: NextRequest) {
               price: refreshment.refreshment.price,
               orderSnackBoxId: "",
               unitType: refreshment.refreshment.unitType,
-              unitRatio: refreshment.refreshment.unitRatio,
+              qtyPerUnit: refreshment.refreshment.qtyPerUnit,
               refreshmentId: refreshment.refreshment.id,
             });
           }
@@ -362,7 +361,7 @@ export async function POST(req: NextRequest) {
           pricePer: refreshment.pricePer,
           price: refreshment.price,
           unitType: refreshment.unitType,
-          unitRatio: refreshment.unitRatio,
+          qtyPerUnit: refreshment.qtyPerUnit,
           refreshmentId: refreshment.refreshmentId,
         })),
       },
@@ -395,7 +394,7 @@ export async function POST(req: NextRequest) {
               width: refreshment.width,
               price: refreshment.price,
               unitType: refreshment.unitType,
-              unitRatio: refreshment.unitRatio,
+              qtyPerUnit: refreshment.qtyPerUnit,
               refreshmentId: refreshment.refreshmentId,
             })),
           },

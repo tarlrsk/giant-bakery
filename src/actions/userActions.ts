@@ -55,7 +55,10 @@ export default async function getCurrentUser() {
       where: { email: session.user.email as string },
     });
 
-    return currentUser;
+    return {
+      ...currentUser,
+      role: currentUser?.role || "GUEST",
+    };
   } catch (error: any) {
     return null;
   }

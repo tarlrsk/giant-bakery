@@ -141,7 +141,10 @@ export const createUpdateVariantSchema = z.object({
       return { message: "none" };
     },
   ),
-  name: z.string({ required_error: "Name is required." }).min(3).max(255),
+  name: z
+    .string({ required_error: "Name is required." })
+    .min(1, "โปรดกรอกชื่อตัวเลือกเค้ก")
+    .max(255),
   isActive: z.boolean(),
   type: z.string(),
 });
@@ -150,7 +153,7 @@ export const createUpdateVariantSchema = z.object({
 
 export interface IProductRow extends ICommonRow {
   type: string;
-  category: string;
+  category: string | null;
   status: string;
   minQty: number;
   maxQty: number;

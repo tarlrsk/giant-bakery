@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
-import { OrderStatus, PaymentType } from "@prisma/client";
 import { prismaOrder } from "@/persistence/order";
+import { OrderStatus, PaymentType } from "@prisma/client";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 
 export async function GET(_req: NextRequest) {
