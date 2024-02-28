@@ -141,7 +141,10 @@ export const createUpdateVariantSchema = z.object({
       return { message: "none" };
     },
   ),
-  name: z.string({ required_error: "Name is required." }).min(3).max(255),
+  name: z
+    .string({ required_error: "Name is required." })
+    .min(1, "โปรดกรอกชื่อตัวเลือกเค้ก")
+    .max(255),
   isActive: z.boolean(),
   type: z.string(),
 });
