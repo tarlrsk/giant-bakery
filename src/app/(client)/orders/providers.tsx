@@ -3,6 +3,8 @@
 import { Toaster } from "react-hot-toast";
 import { createTheme, ThemeProvider } from "@mui/material";
 
+import "./styles.css";
+
 // ----------------------------------------------------------------------
 
 declare module "@mui/material/styles/createPalette" {

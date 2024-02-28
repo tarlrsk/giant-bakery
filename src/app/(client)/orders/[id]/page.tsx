@@ -1,6 +1,7 @@
 "use client";
 
 import useSWR from "swr";
+import toast from "react-hot-toast";
 import apiPaths from "@/utils/api-path";
 import { fetcher } from "@/utils/axios";
 import { formatDate } from "@/lib/formatDate";
@@ -16,7 +17,6 @@ import {
   Box,
   Card,
   Step,
-  Paper,
   Stack,
   Divider,
   Stepper,
@@ -24,6 +24,8 @@ import {
   Typography,
   CardContent,
 } from "@mui/material";
+
+import { Button } from "@nextui-org/react";
 
 // ----------------------------------------------------------------------
 
@@ -34,7 +36,7 @@ type RowProps = {
   quantity?: number;
 };
 
-type OrderDetail = {
+type IOrderDetail = {
   orderId: string;
   firstName: string;
   lastName: string;
@@ -70,7 +72,7 @@ type Item = {
 };
 
 type OrderProps = {
-  item: OrderDetail;
+  item: IOrderDetail;
 };
 
 const stepsSinglePayment = ["รอชำระเงิน", "กำลังเตรียมออเดอร์", "ส่งมอบสำเร็จ"];
@@ -91,10 +93,19 @@ export default function OrderDetail({ params }: { params: { id: string } }) {
 
   const { data } = useSWR(getClientOrderById(id), fetcher);
 
-  const item: OrderDetail = data?.response?.data || {};
+  const item: IOrderDetail = data?.response?.data || {};
+
+  const handlePayRestPayment = async () => {
+    try {
+      console.log("pay rest payment");
+      // TODO: call api to Stripe here
+    } catch (err) {
+      toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
+    }
+  };
 
   return (
-    <div className="relative px-40 py-20">
+    <div className={`relative px-40 py-20`}>
       <Box>
         <Stack
           direction="row"
@@ -103,7 +114,7 @@ export default function OrderDetail({ params }: { params: { id: string } }) {
           sx={{ mb: 2, width: 1 }}
         >
           <Typography variant="h5" fontWeight={400}>
-            ข้อมูลออเดอร์
+            {`ออเดอร์ #${item?.orderId?.replace(/-/g, "") || ""}`}
           </Typography>
         </Stack>
 
@@ -114,6 +125,24 @@ export default function OrderDetail({ params }: { params: { id: string } }) {
 
           <OrderDetailCard item={item} />
         </Stack>
+
+        {item?.status === "PENDING_PAYMENT2" && (
+          <Stack
+            direction="row"
+            justifyContent="end"
+            sx={{ mt: 2, mb: 1 }}
+            spacing={2}
+          >
+            <Button
+              size="lg"
+              radius="sm"
+              color="secondary"
+              onClick={handlePayRestPayment}
+            >
+              ชำระเงินที่เหลือ
+            </Button>
+          </Stack>
+        )}
       </Box>
     </div>
   );
@@ -149,6 +178,8 @@ function OrderDetailCard({ item }: OrderProps) {
     return total + product.price * product.quantity;
   }, 0);
 
+  const isCancelled = item?.status === "CANCELLED";
+
   return (
     <Card>
       <Box sx={{ width: 1, backgroundColor: "primary.darker", px: 2, py: 2 }}>
@@ -163,21 +194,29 @@ function OrderDetailCard({ item }: OrderProps) {
           alternativeLabel
           sx={{ px: 20, pt: 2.5, pb: 2 }}
         >
-          {steps.map((label) => (
-            <Step key={label}>
-              <StepLabel>{label}</StepLabel>
+          {!isCancelled ? (
+            steps.map((label) => (
+              <Step key={label}>
+                <StepLabel>{label}</StepLabel>
+              </Step>
+            ))
+          ) : (
+            <Step>
+              <StepLabel error>ออเดอร์ถูกยกเลิก</StepLabel>
             </Step>
-          ))}
+          )}
         </Stepper>
       </CardContent>
-      <CardContent sx={{ px: 6 }}>
-        <Stack spacing={1} direction="row" justifyContent="space-between">
-          <Stack direction="column">Remark</Stack>
-          <Stack direction="column" justifyContent="end">
-            <Typography>{item?.remark ? item?.remark : "-"}</Typography>
+      {item?.remark && (
+        <CardContent sx={{ px: 6 }}>
+          <Stack spacing={1} direction="row" justifyContent="space-between">
+            <Stack direction="column">Remark</Stack>
+            <Stack direction="column" justifyContent="end">
+              <Typography>{item?.remark ? item?.remark : "-"}</Typography>
+            </Stack>
           </Stack>
-        </Stack>
-      </CardContent>
+        </CardContent>
+      )}
       <Divider />
       <CardContent sx={{ px: 6 }}>
         <Typography fontWeight={500} variant="body1" sx={{ mt: 1, mb: 2 }}>
@@ -225,53 +264,59 @@ function OrderHeaderCard({ item }: OrderProps) {
   const status = getStatus(item);
 
   return (
-    <Paper
-      elevation={1}
-      sx={{
-        py: 4,
-        px: 6,
-      }}
-    >
-      <Stack direction="row" justifyContent="space-between" sx={{ width: 1 }}>
-        <Stack direction="column" spacing={0.5}>
-          <Typography color="grey.800">เลขออเดอร์</Typography>
-          <Typography fontWeight={500}>
-            {item?.orderId?.replace(/-/g, "") || ""}
-          </Typography>
-        </Stack>
+    <Card>
+      <Box sx={{ width: 1, backgroundColor: "primary.darker", px: 2, py: 2 }}>
+        <Typography color="white" fontWeight={500}>
+          ข้อมูลออเดอร์
+        </Typography>
+      </Box>
+      <CardContent sx={{ px: 6 }}>
+        <Stack direction="row" justifyContent="space-between" sx={{ width: 1 }}>
+          <Stack direction="column" spacing={0.5}>
+            <Typography color="grey.800">เลขออเดอร์</Typography>
+            <Typography fontWeight={500}>
+              {item?.orderId?.replace(/-/g, "") || ""}
+            </Typography>
+          </Stack>
 
-        <Stack direction="column" spacing={0.5}>
-          <Typography color="grey.800">วันที่สั่งออเดอร์</Typography>
-          <Typography fontWeight={500}>
-            {formatDate(item?.orderedAt?.toString())}
-          </Typography>
-        </Stack>
+          <Stack direction="column" spacing={0.5}>
+            <Typography color="grey.800">วันที่สั่งออเดอร์</Typography>
+            <Typography fontWeight={500}>
+              {formatDate(item?.orderedAt?.toString())}
+            </Typography>
+          </Stack>
 
-        <Stack direction="column" spacing={0.5}>
-          <Typography color="grey.800">สถานะออเดอร์</Typography>
-          <Typography fontWeight={500}>{status}</Typography>
-        </Stack>
+          <Stack direction="column" spacing={0.5}>
+            <Typography color="grey.800">สถานะออเดอร์</Typography>
+            <Typography fontWeight={500}>{status}</Typography>
+          </Stack>
 
-        <Stack direction="column" spacing={0.5}>
-          <Typography color="grey.800">ตัวเลือกการชำระเงิน</Typography>
-          <Typography fontWeight={500}>
-            {item?.paymentType === "SINGLE" ? "ชำระจำนวนเต็ม" : "ชำระมัดจำ"}
-          </Typography>
-        </Stack>
+          <Stack direction="column" spacing={0.5}>
+            <Typography color="grey.800">ตัวเลือกการชำระเงิน</Typography>
+            <Typography
+              color={
+                item?.paymentType === "SINGLE" ? "success.main" : "primary"
+              }
+              fontWeight={500}
+            >
+              {item?.paymentType === "SINGLE" ? "ชำระเต็มจำนวน" : "ชำระมัดจำ"}
+            </Typography>
+          </Stack>
 
-        <Stack direction="column" spacing={0.5}>
-          <Typography color="grey.800">เป็นจำนวนเงิน</Typography>
-          <Typography fontWeight={500}>฿{item?.totalPrice}</Typography>
+          <Stack direction="column" spacing={0.5}>
+            <Typography color="grey.800">ยอดรวม</Typography>
+            <Typography fontWeight={500}>฿{item?.totalPrice}</Typography>
+          </Stack>
         </Stack>
-      </Stack>
-    </Paper>
+      </CardContent>
+    </Card>
   );
 }
 
 function AddressCard({ item }: OrderProps) {
   return (
     <Card elevation={1}>
-      <Box sx={{ width: 1, backgroundColor: "secondary.main", px: 2, py: 2 }}>
+      <Box sx={{ width: 1, backgroundColor: "primary.darker", px: 2, py: 2 }}>
         <Typography color="white" fontWeight={500}>
           {`ข้อมูลการ${
             item?.receivedVia === "DELIVERY" ? "การจัดส่ง" : "การส่งมอบ"
@@ -343,7 +388,7 @@ function AddressCard({ item }: OrderProps) {
   );
 }
 
-function getStatus(item: OrderDetail): string {
+function getStatus(item: IOrderDetail): string {
   let status = "";
   switch (item?.receivedVia) {
     case "PICK_UP":
