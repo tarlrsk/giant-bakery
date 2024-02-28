@@ -5,9 +5,11 @@ import CartItemTable from "@/components/cart-table/CartItemTable";
 import { getCartData, updateCartItem } from "@/actions/cartActions";
 import CartSummaryTable from "@/components/cart-table/CartSummaryTable";
 
-import { Button } from "@nextui-org/react";
+import { Button, useDisclosure } from "@nextui-org/react";
 
 import { ICartItem } from "./types";
+import AuthModal from "@/components/modal/AuthModal";
+import CheckoutButtonModal from "@/components/modal/CheckoutButtonModal";
 
 // ----------------------------------------------------------------------
 
@@ -86,16 +88,20 @@ async function ItemCartView() {
             totalDiscount={cartData.totalDiscount}
             total={cartData.total}
           />
-          <Button
-            href="/cart/checkout"
-            as={Link}
-            color="secondary"
-            size="lg"
-            className=" font-medium text-xl rounded-none"
-            fullWidth
-          >
-            ดำเนินการต่อ
-          </Button>
+          {currentUser?.role === "GUEST" ? (
+            <CheckoutButtonModal />
+          ) : (
+            <Button
+              href="/cart/checkout"
+              as={Link}
+              color="secondary"
+              size="lg"
+              className=" font-medium text-xl rounded-none"
+              fullWidth
+            >
+              ดำเนินการต่อ
+            </Button>
+          )}
         </div>
       </div>
     </div>
