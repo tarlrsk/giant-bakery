@@ -18,21 +18,23 @@ export default function FeatureSection({
   btnLabel,
 }: Props) {
   return (
-    <div className=" flex flex-col items-start justify-center gap-6 max-w-2xl">
-      <div className="flex flex-col items-start justify-center relative">
-        {hasTag === true ? (
-          <p className="text-secondaryT-main text-2xl font-semibold leading-normal">
+    <div
+      className={`flex max-w-2xl flex-col items-center justify-center gap-4 md:items-start md:gap-6`}
+    >
+      <div className="relative flex flex-col items-center justify-center gap-2 md:items-start md:gap-4">
+        {hasTag === true && (
+          <p className="text-xl font-semibold leading-normal text-secondaryT-main md:text-2xl">
             {tag ?? "คุเคะโด"}
           </p>
-        ) : (
-          <></>
         )}
-        <h1 className="text-black text-5xl relative font-semibold leading-normal">
+        <h1 className="relative text-4xl font-semibold !leading-snug text-black md:text-5xl">
           {title}
         </h1>
       </div>
-      <p className="relative font-normal text-black text-xl">{desc}</p>
-      <Button className="w-36 h-12 bg-secondaryT-main text-white text-xl font-semibold rounded-full relative">
+      <p className="relative text-center text-xl font-normal leading-relaxed text-black md:text-left">
+        {desc}
+      </p>
+      <Button className=" relative h-12 w-36 rounded-full bg-secondaryT-main text-lg font-semibold text-white md:text-xl">
         {btnLabel}
       </Button>
     </div>
