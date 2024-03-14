@@ -8,9 +8,9 @@ import HomeFeatureContent from "@/components/home/HomeFeatureContent";
 type IFeatureItem = {
   title: string;
   desc: string;
+  image: string;
   btnLabel: string;
   align: "left" | "right";
-  image: string;
   className?: string;
 };
 
@@ -20,21 +20,21 @@ const FEATURE_ITEMS: IFeatureItem[] = [
     desc: "เบเกอรี่แสนอร่อยคุณภาพสูงไร้ไขมันทรานส์ ไม่มีวัตถุกันเสียทำสดใหม่ทุกวัน การันตรีด้วยคุณภาพมากกว่า 35 ปีสั่งได้ 24 ชั่วโมงสำหรับจัด Break งานประชุม",
     btnLabel: "สั่งเลย",
     align: "left",
-    image: "/home-page-snack.png",
+    image: "/home-croissant.webp",
   },
   {
     title: "ชุดเบรกเลือกได้",
     desc: "เบเกอรี่แสนอร่อยคุณภาพสูงไร้ไขมันทรานส์ ไม่มีวัตถุกันเสียทำสดใหม่ทุกวัน การันตรีด้วยคุณภาพมากกว่า 35 ปีสั่งได้ 24 ชั่วโมงสำหรับจัด Break งานประชุม",
     btnLabel: "จัดชุดเบรก",
     align: "right",
-    image: "/home-page-snack.png",
+    image: "/home-snack-box.png",
   },
   {
     title: "เค้กแต่งเอง",
     desc: "เบเกอรี่แสนอร่อยคุณภาพสูงไร้ไขมันทรานส์ ไม่มีวัตถุกันเสียทำสดใหม่ทุกวัน การันตรีด้วยคุณภาพมากกว่า 35 ปีสั่งได้ 24 ชั่วโมงสำหรับจัด Break งานประชุม",
     btnLabel: "แต่งเค้ก",
     align: "left",
-    image: "/home-page-snack.png",
+    image: "/home-cake.png",
     className: " mb-32",
   },
 ];
@@ -61,7 +61,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="relative mb-2 flex flex-col gap-10 md:gap-0">
+        <div className="relative mb-2 flex flex-col gap-32 md:gap-0">
           {FEATURE_ITEMS.map((item, index) => (
             <HomeFeatureContent
               key={index}
@@ -69,7 +69,8 @@ export default function Home() {
               desc={item.desc}
               btnLabel={item.btnLabel}
               align={item.align}
-              className={item.className || ""}
+              image={item.image}
+              className={item.className}
             />
           ))}
         </div>

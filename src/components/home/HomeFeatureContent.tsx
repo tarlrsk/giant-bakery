@@ -29,9 +29,10 @@ type Props = {
   btnLabel: string;
   align: "left" | "right";
   className?: string;
+  image: string;
 };
 
-type FeatureContentProps = Omit<Props, "align">;
+type FeatureContentProps = Omit<Props, "align" | "image">;
 
 // ----------------------------------------------------------------------
 
@@ -40,6 +41,7 @@ export default function HomeFeatureContent({
   desc,
   btnLabel,
   align,
+  image,
   className,
 }: Props) {
   const alignmentClassNames =
@@ -59,13 +61,13 @@ export default function HomeFeatureContent({
 
           <Image
             className=" h-full max-w-xs md:max-w-sm lg:max-w-md xl:max-w-lg 2xl:max-w-xl"
-            src="/home-page-snack.png"
+            src={image}
             width={100}
             height={100}
             alt="cake"
             style={{
               width: "auto",
-              height: "100%",
+              height: "75%",
             }}
           />
         </div>

@@ -53,7 +53,7 @@ export default function HomeFeatureHeader({ title, desc, btnLabel }: Props) {
         <motion.div variants={animationVariants}>
           <Image
             className=" h-full max-w-xs md:max-w-sm lg:max-w-md xl:max-w-lg 2xl:max-w-xl"
-            src="/home-page-snack.png"
+            src="/home-snack.png"
             width={100}
             height={100}
             alt="cake"
