@@ -11,6 +11,11 @@ const config: Config = {
     "./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
+    container: {
+      padding: {
+        DEFAULT: "2rem",
+      },
+    },
     extend: {
       padding: {
         "32p": "32%",

@@ -5,6 +5,7 @@ import { User } from "@prisma/client";
 import { motion } from "framer-motion";
 import React, { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { ibm } from "@/app/(client)/providers";
 import { useRouter, usePathname } from "next/navigation";
 
 import {
@@ -29,7 +30,6 @@ import {
 
 import AuthModal from "./modal/AuthModal";
 import BasketIcon from "./icons/BasketIcon";
-import { ibm } from "@/app/(client)/providers";
 import DropdownIcon from "./icons/DropdownIcon";
 
 // ----------------------------------------------------------------------
@@ -115,12 +115,12 @@ export default function Navbar({
             height={64}
             alt="logo"
             onClick={() => router.push("/")}
-            className=" w-24 ml-2 md:w-52 md:ml-0 cursor-pointer"
+            className=" ml-2 w-24 cursor-pointer md:ml-0 md:w-52"
           />
         </NavbarBrand>
       </NavbarContent>
 
-      <NavbarContent className="hidden sm:flex gap-14" justify="center">
+      <NavbarContent className="hidden gap-14 sm:flex" justify="center">
         {NAV_ITEMS.map((item, index) => (
           <NavbarItem
             key={index}
@@ -141,25 +141,20 @@ export default function Navbar({
               </Link>
               <motion.div
                 variants={underlinedMotion}
-                className="flex h-0.5 w-full items-center absolute bottom-0 bg-primaryT-main"
+                className="absolute bottom-0 flex h-0.5 w-full items-center bg-primaryT-main"
               />
             </motion.div>
           </NavbarItem>
         ))}
-        <div className="flex flex-row items-center h-full gap-8 justify-between">
+        <div className="flex h-full flex-row items-center justify-between gap-8">
           <NavbarItem className="group relative">
-            <motion.div
-              initial="rest"
-              whileHover="hover"
-              animate="rest"
-              // onClick={onOpen}
-            >
+            <motion.div initial="rest" whileHover="hover" animate="rest">
               {currentUser?.role !== "GUEST" ? (
-                <Dropdown className={`rounded-md min-w-40 ${ibm.className}`}>
+                <Dropdown className={`min-w-40 rounded-md ${ibm.className}`}>
                   <DropdownTrigger>
                     <Button
                       variant="light"
-                      className="text-xl bg-transparent hover:!bg-transparent aria-expanded:!opacity-85 px-0"
+                      className="aria-expanded:!opacity-85 bg-transparent px-0 text-xl hover:!bg-transparent"
                       disableRipple
                       endContent={<DropdownIcon width={32} height={32} />}
                     >
@@ -187,7 +182,7 @@ export default function Navbar({
                     <DropdownSection>
                       <DropdownItem
                         key="delete"
-                        className="text-danger  rounded-sm "
+                        className="rounded-sm  text-danger "
                         color="danger"
                         onClick={() => onSignOut()}
                       >
@@ -198,7 +193,7 @@ export default function Navbar({
                 </Dropdown>
               ) : (
                 <p
-                  className=" text-xl cursor-pointer text-primaryT-darker"
+                  className=" cursor-pointer text-xl text-primaryT-darker"
                   onClick={onOpen}
                 >
                   เข้าสู่ระบบ/สมัคร
@@ -206,14 +201,14 @@ export default function Navbar({
               )}
               <motion.div
                 variants={underlinedMotion}
-                className="flex h-0.5 w-full items-center absolute bottom-0 bg-primaryT-main"
+                className="absolute bottom-0 flex h-0.5 w-full items-center bg-primaryT-main"
               />
             </motion.div>
           </NavbarItem>
 
           <Divider
             orientation="vertical"
-            className=" h-2/3 bg-primaryT-darker w-0.25"
+            className=" h-2/3 w-0.25 bg-primaryT-darker"
           />
           <Badge
             content={cartItemsAmount}
@@ -229,7 +224,7 @@ export default function Navbar({
               }}
               isIconOnly
               size="lg"
-              className="bg-transparent rounded-full"
+              className="rounded-full bg-transparent"
             >
               <BasketIcon width={40} height={40} />
             </Button>
@@ -238,7 +233,7 @@ export default function Navbar({
       </NavbarContent>
 
       <NavbarMenu>
-        <div className="relative flex flex-col gap-8 my-5">
+        <div className="relative my-5 flex flex-col gap-8">
           {NAV_ITEMS.map((item, index) => (
             <NavbarMenuItem key={`${item}-${index}`}>
               <Link
@@ -251,7 +246,7 @@ export default function Navbar({
               </Link>
             </NavbarMenuItem>
           ))}
-          <div className="flex flex-row items-center gap-8 justify-between">
+          <div className="flex flex-row items-center justify-between gap-8">
             <NavbarItem className="group relative">
               <motion.div
                 initial="rest"
@@ -261,12 +256,12 @@ export default function Navbar({
               >
                 {currentUser?.role !== "GUEST" ? (
                   <Dropdown
-                    className={`rounded-md min-w-full ${ibm.className}`}
+                    className={`min-w-full rounded-md ${ibm.className}`}
                   >
                     <DropdownTrigger>
                       <Button
                         variant="light"
-                        className="text-xl bg-transparent hover:!bg-transparent aria-expanded:!opacity-85 px-0"
+                        className="aria-expanded:!opacity-85 bg-transparent px-0 text-xl hover:!bg-transparent"
                         disableRipple
                         endContent={<DropdownIcon width={32} height={32} />}
                       >
@@ -287,7 +282,7 @@ export default function Navbar({
                       <DropdownSection>
                         <DropdownItem
                           key="delete"
-                          className="text-danger  rounded-sm "
+                          className="rounded-sm  text-danger "
                           color="danger"
                           onClick={() => onSignOut()}
                         >
@@ -298,7 +293,7 @@ export default function Navbar({
                   </Dropdown>
                 ) : (
                   <p
-                    className=" text-xl cursor-pointer text-primaryT-darker"
+                    className=" cursor-pointer text-xl text-primaryT-darker"
                     onClick={onOpen}
                   >
                     เข้าสู่ระบบ/สมัคร
@@ -306,7 +301,7 @@ export default function Navbar({
                 )}
                 <motion.div
                   variants={underlinedMotion}
-                  className="flex h-0.5 w-full items-center absolute bottom-0 bg-primaryT-main"
+                  className="absolute bottom-0 flex h-0.5 w-full items-center bg-primaryT-main"
                 />
               </motion.div>
             </NavbarItem>

@@ -29,28 +29,28 @@ const FOOTER_ICONS = {
 
 export default function Footer() {
   return (
-    <div className="flex flex-col md:flex-row items-center gap-16 px-24 py-8 relative bg-primaryT-darker">
-      <div className="inline-flex flex-col items-center gap-2 relative">
+    <div className="relative flex flex-col items-center justify-center gap-10 bg-primaryT-darker px-10 py-8 md:flex-row md:gap-16 md:px-24">
+      <div className="relative inline-flex flex-col items-center gap-2">
         <Image src="/logo-white.png" width={250} height={64} alt="logo" />
-        <div className="inline-flex items-start gap-7 relative flex-[0_0_auto]">
+        <div className="relative inline-flex flex-[0_0_auto] items-start gap-7">
           {FOOTER_ICONS["facebook"]}
           {FOOTER_ICONS["instagram"]}
           {FOOTER_ICONS["line"]}
         </div>
       </div>
-      <div className="inline-flex flex-col items-start relative">
-        <div className="self-stretch font-semibold text-3xl leading-normal relative mt-[-1.00px] text-common-white tracking-normal">
+      <div className="relative inline-flex flex-col items-center gap-2 md:items-start">
+        <div className="relative mt-[-1.00px] self-stretch text-center text-2xl font-semibold leading-normal tracking-normal text-common-white md:text-left md:text-3xl">
           ติดต่อเรา
         </div>
-        <div className="flex-col items-start gap-3 inline-flex relative flex-[0_0_auto]">
-          <p className="w-fit font-normal text-xl leading-9 relative mt-[-1.00px] text-common-white tracking-normal">
+        <div className="relative inline-flex flex-[0_0_auto] flex-col items-center gap-3 md:items-start">
+          <p className=" relative mt-[-1.00px] w-fit text-center text-lg font-normal leading-relaxed tracking-normal text-common-white md:text-left md:text-xl">
             เลขที่ 53/55 ซอยศูนย์การค้าสาย 4 ถนนสุขุมวิท, เมืองระยอง, ระยอง
             21000 <br />
             (เปิดทุกวัน เวลา 9:00 - 21:00 น.)
           </p>
-          <div className="items-center justify-center gap-3 inline-flex relative flex-[0_0_auto]">
+          <div className="relative inline-flex flex-[0_0_auto] items-center justify-center gap-3">
             {FOOTER_ICONS["telephone"]}
-            <div className="relative w-fit mt-[-1.00px] font-medium text-common-white text-xl text-center tracking-normal leading-normal">
+            <div className="relative mt-[-1.00px] w-fit text-center text-lg leading-normal tracking-normal text-common-white md:text-xl">
               038-618-125
             </div>
           </div>
