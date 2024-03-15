@@ -6,7 +6,7 @@ import { Cake } from "@prisma/client";
 import { fetcher } from "@/utils/axios";
 import apiPaths from "@/utils/api-path";
 
-import CakeCard from "../CakeCard";
+import CustomItemCard from "./CustomItemCard";
 
 // ----------------------------------------------------------------------
 
@@ -39,13 +39,11 @@ export default function CustomCakeItems({
   return (
     <>
       <div
-        className={`grid grid-cols-${cols} gap-${
-          size === "sm" ? "4 pb-2" : "10"
-        } justify-center items-baseline`}
+        className="mx-auto grid grid-cols-2 items-center justify-center gap-4 pb-2 md:grid-cols-4 md:gap-5"
         {...other}
       >
         {Object.values(items)?.map((item: Cake) => (
-          <CakeCard
+          <CustomItemCard
             key={item.id}
             item={item}
             size={size}
