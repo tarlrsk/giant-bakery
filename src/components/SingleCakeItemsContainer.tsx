@@ -32,23 +32,21 @@ export default function SingleCakeItemsContainer({
 }: SingleCakeItemsContainerProps) {
   const router = useRouter();
   return (
-    <div className="relative md:px-36 pb-8">
-      <div className="pb-10 flex flex-row justify-between items-center">
-        <div className="text-2xl md:text-4xl font-normal">
+    <div className="relative pb-8 md:px-36">
+      <div className="flex flex-row items-center justify-between pb-10">
+        <div className="text-2xl font-normal md:text-4xl">
           เค้กสำเร็จรูป (ชิ้น)
         </div>
         {!isSingleCakePage && (
           <div
-            className="text-lg md:text-xl text-secondaryT-main font-semibold cursor-pointer"
+            className="cursor-pointer text-lg font-semibold text-secondaryT-main md:text-xl"
             onClick={() => router.push("/cakes/single")}
           >
             {`ดูทั้งหมด >`}
           </div>
         )}
       </div>
-      <div className="container pr-6">
-        <RefreshmentCakeItems limitItems={limitItems} cols={4} />
-      </div>
+      <RefreshmentCakeItems limitItems={limitItems} cols={4} />
     </div>
   );
 }
@@ -85,7 +83,7 @@ function RefreshmentCakeItems({
   return (
     <>
       <div
-        className="grid grid-cols-2 md:grid-cols-4 gap-5 md:gap-10 justify-center items-center mx-auto"
+        className="mx-auto grid grid-cols-2 items-center justify-center gap-5 md:grid-cols-4 md:gap-10"
         {...other}
       >
         {Object.values(displayItems)?.map((item: any) => (

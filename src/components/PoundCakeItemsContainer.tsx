@@ -35,12 +35,12 @@ export default function PoundCakeItemsContainer({
 
   return (
     <div className="relative">
-      <div className="md:px-36 pb-8">
-        <div className=" flex flex-row justify-between items-center pb-10 text-2xl md:text-4xl  font-normal">
+      <div className="pb-8 md:px-36">
+        <div className=" flex flex-row items-center justify-between pb-10 text-2xl font-normal  md:text-4xl">
           เค้กสำเร็จรูป (ปอนด์)
           {!isPoundCakePage && (
             <div
-              className=" text-lg md:text-xl text-secondaryT-main font-semibold cursor-pointer"
+              className=" cursor-pointer text-lg font-semibold text-secondaryT-main md:text-xl"
               onClick={() => router.push("/cakes/pound")}
             >
               {`ดูทั้งหมด >`}
@@ -48,9 +48,7 @@ export default function PoundCakeItemsContainer({
           )}
           {/* <CustomCakeContainer /> */}
         </div>
-        <div className="container pr-6">
-          <PoundCakeItems cols={4} isPoundCakePage={isPoundCakePage} />
-        </div>
+        <PoundCakeItems cols={4} isPoundCakePage={isPoundCakePage} />
       </div>
     </div>
   );
@@ -106,7 +104,7 @@ function PoundCakeItems({
   return (
     <>
       <div
-        className="grid grid-cols-2 md:grid-cols-4 gap-5 md:gap-10 justify-center items-center mx-auto"
+        className="mx-auto grid grid-cols-2 items-center justify-center gap-5 md:grid-cols-4 md:gap-10"
         {...other}
       >
         {Object.values(displayItems)?.map((item: Cake) => (

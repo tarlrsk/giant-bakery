@@ -31,7 +31,7 @@ export default function CustomBeverageItems({
 
   return (
     <div
-      className="grid grid-cols-2 md:grid-cols-4 gap-5 md:gap-10 justify-center items-center mx-auto"
+      className="mx-auto grid grid-cols-2 items-center justify-center gap-5 pb-2 md:grid-cols-4 md:gap-10"
       {...other}
     >
       {Object.values(items)?.map((item: Refreshment) => (
