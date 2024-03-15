@@ -92,7 +92,7 @@ export default function BakeryDetail({ params }: BakeryDetailParams) {
   }
 
   return (
-    <div className="flex w-auto h-auto items-center justify-center p-[9.1rem]">
+    <div className="flex h-auto w-auto items-center justify-center p-36">
       <ProductDetail
         item={item}
         counter={counter}
