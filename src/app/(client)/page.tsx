@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Wave from "@/components/Wave";
-import BakeryItems from "@/components/BakeryItems";
 import FeatureSection from "@/components/FeatureSection";
+import BestSellerItems from "@/components/BestSellerItems";
 import FeatureImageContainer from "@/components/FeatureImageContainer";
 
 // ----------------------------------------------------------------------
@@ -30,15 +30,15 @@ export default function Home() {
         />
       </div>
 
-      <div className="relative flex flex-col py-28 h-auto items-center justify-center gap-16">
-        <div className="relative flex flex-col gap-10 items-center justify-center ">
+      <div className="relative flex flex-col py-28 h-auto items-center justify-center gap-8 md:gap-16">
+        <div className="relative flex flex-col gap-4 md:gap-10 items-center justify-center ">
           <h1 className="font-semibold text-5xl">สินค้าขายดี</h1>
-          {/* <p className="font-normal text-2xl">
+          <p className="font-normal text-2xl">
             สินค้าที่ขายดีที่สุดตลอดปี 2023
-          </p> */}
+          </p>
         </div>
-        <div className="container flex flex-wrap-custom gap-20">
-          <BakeryItems cols={4} category="" amount="4" />
+        <div className="container flex flex-wrap-custom gap-20 justify-center">
+          <BestSellerItems />
         </div>
       </div>
       <div className="relative flex flex-col gap-2 mb-2">

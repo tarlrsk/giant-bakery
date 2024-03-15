@@ -6,7 +6,7 @@ import { Cake } from "@prisma/client";
 import { fetcher } from "@/utils/axios";
 import apiPaths from "@/utils/api-path";
 
-import CakeCard from "./CakeCard";
+import CakeCard from "../CakeCard";
 
 // ----------------------------------------------------------------------
 
@@ -21,7 +21,7 @@ type Props = {
 
 // ----------------------------------------------------------------------
 
-export default function CakePieceItems({
+export default function CustomCakeItems({
   size = "md",
   cols,
   type,

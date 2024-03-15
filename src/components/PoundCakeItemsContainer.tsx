@@ -14,22 +14,56 @@ import PresetCakeModal from "./modal/PresetCakeModal";
 
 // ----------------------------------------------------------------------
 
-export type ICakeType = "PRESET" | "CUSTOM" | "CAKE";
+type PoundCakeItemsContainerProps = {
+  limitItems: number;
+  isPoundCakePage?: boolean;
+};
 
-type Props = {
-  size?: "sm" | "md";
+type PoundCakeItemsProps = {
   cols: number;
   onClick?: (selected: any) => void;
+  isPoundCakePage?: boolean;
 };
 
 // ----------------------------------------------------------------------
 
-export default function CakeItems({
-  size = "md",
+export default function PoundCakeItemsContainer({
+  limitItems,
+  isPoundCakePage = false,
+}: PoundCakeItemsContainerProps) {
+  const router = useRouter();
+
+  return (
+    <div className="relative">
+      <div className="md:px-36 pb-8">
+        <div className=" flex flex-row justify-between items-center pb-10 text-2xl md:text-4xl  font-normal">
+          เค้กสำเร็จรูป (ปอนด์)
+          {!isPoundCakePage && (
+            <div
+              className=" text-lg md:text-xl text-secondaryT-main font-semibold cursor-pointer"
+              onClick={() => router.push("/cakes/pound")}
+            >
+              {`ดูทั้งหมด >`}
+            </div>
+          )}
+          {/* <CustomCakeContainer /> */}
+        </div>
+        <div className="container pr-6">
+          <PoundCakeItems cols={4} isPoundCakePage={isPoundCakePage} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ----------------------------------------------------------------------
+
+function PoundCakeItems({
   cols,
   onClick,
+  isPoundCakePage = false,
   ...other
-}: Props) {
+}: PoundCakeItemsProps) {
   const router = useRouter();
 
   const [selectedCakeName, setSelectedCakeName] = useState<string>("");
@@ -38,9 +72,9 @@ export default function CakeItems({
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
-  const fetchPath = getCakes("PRESET");
-
-  const { data } = useSWR(fetchPath, fetcher, { revalidateOnFocus: false });
+  const { data } = useSWR(getCakes("PRESET"), fetcher, {
+    revalidateOnFocus: false,
+  });
 
   const items: Cake[] = data?.response?.data || [];
 
@@ -54,16 +88,17 @@ export default function CakeItems({
   const endIndex = startIndex + itemsPerPage;
   const displayItems = items.slice(startIndex, endIndex);
 
-  const handleCardClick = (id: string, itemName: string, type: string) => {
-    if (type === "PRESET") {
-      router.replace(`/cakes?id=${id}&slug=${itemName}&type=PRESET`, {
+  const handleCardClick = (id: string, itemName: string) => {
+    if (isPoundCakePage) {
+      router.replace(`/cakes/pound?id=${id}&slug=${itemName}&type=PRESET`, {
         scroll: false,
       });
     } else {
-      router.replace(`/cakes?id=${id}&slug=${itemName}&type=CUSTOM`, {
+      router.replace(`/cakes?id=${id}&slug=${itemName}&type=PRESET`, {
         scroll: false,
       });
     }
+
     setSelectedCakeName(itemName);
     onOpen();
   };
@@ -79,7 +114,7 @@ export default function CakeItems({
             key={item.id}
             item={item}
             onClick={() => {
-              handleCardClick(item.id, item.name, item.type);
+              handleCardClick(item.id, item.name);
             }}
           />
         ))}
@@ -97,7 +132,11 @@ export default function CakeItems({
         slug={selectedCakeName}
         isOpen={isOpen}
         onOpenChange={() => {
-          router.push(`/cakes`, { scroll: false });
+          if (isPoundCakePage) {
+            router.push(`/cakes/pound`, { scroll: false });
+          } else {
+            router.push(`/cakes`, { scroll: false });
+          }
           onOpenChange();
         }}
       />

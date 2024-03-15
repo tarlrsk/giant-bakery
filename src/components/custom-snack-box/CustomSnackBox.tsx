@@ -18,13 +18,13 @@ import {
 } from "@nextui-org/react";
 
 import Iconify from "../icons/Iconify";
-import BakeryItems from "../BakeryItems";
 import { BoxIcon } from "../icons/BoxIcon";
 import { RHFRadioGroup } from "../hook-form";
-import BeverageItems from "../BeverageItems";
-import CakePieceItems from "../CakePieceItems";
+import CustomCakeItems from "./CustomCakeItems";
+import CustomBakeryItems from "./CustomBakeryItems";
 import FormProvider from "../hook-form/form-provider";
 import CustomSnackBoxItems from "./CustomSnackBoxItems";
+import CustomBeverageItems from "./CustomBeverageItems";
 
 // ----------------------------------------------------------------------
 
@@ -387,16 +387,15 @@ export default function CustomSnackBox() {
       </Tabs>
       <div className="overflow-y-auto max-h-unit-96 mb-4">
         {selectedTab === "bakeries" && (
-          <BakeryItems
+          <CustomBakeryItems
             cols={4}
-            size="sm"
             category=""
             onClick={(selected) => onAddItem(selected)}
           />
         )}
 
         {selectedTab === "cakes" && (
-          <CakePieceItems
+          <CustomCakeItems
             cols={4}
             size="sm"
             type="CAKE"
@@ -405,9 +404,8 @@ export default function CustomSnackBox() {
         )}
 
         {selectedTab === "drinks" && (
-          <BeverageItems
+          <CustomBeverageItems
             cols={4}
-            size="sm"
             onClick={(selected) => onAddItem(selected)}
           />
         )}
