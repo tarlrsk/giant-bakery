@@ -119,7 +119,6 @@ model Cake {
   imageFileName String?
   imagePath     String?
   image         String?
-  type          CakeType
   price         Float
   weight        Float
   height        Float
@@ -190,6 +189,7 @@ model MasterCakeCream {
   imageFileName String?
   imagePath     String?
   image         String?
+  color         String?
 
   isActive  Boolean   @default(true)
   createdAt DateTime  @default(now())
@@ -206,6 +206,7 @@ model MasterCakeTopEdge {
   imageFileName String?
   imagePath     String?
   image         String?
+  color         String?
 
   isActive  Boolean   @default(true)
   createdAt DateTime  @default(now())
@@ -222,6 +223,7 @@ model MasterCakeBottomEdge {
   imageFileName String?
   imagePath     String?
   image         String?
+  color         String?
 
   isActive  Boolean   @default(true)
   createdAt DateTime  @default(now())
@@ -263,16 +265,17 @@ model MasterCakeSurface {
 }
 
 model CustomerCake {
-  id        String   @id @default(uuid())
-  name      String
-  price     Float
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  type      CakeType
+  id          String   @id @default(uuid())
+  name        String
+  price       Float
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  cakeMessage String   @default("")
+  type        CakeType
 
-  cakeId              String
-  cake                Cake                  @relation(fields: [cakeId], references: [id])
+  cakeId              String?
+  cake                Cake?                 @relation(fields: [cakeId], references: [id])
   orderCakes          OrderCustomerCake[]
   CartItems           CartItem[]
   size                MasterCakeSize?       @relation(fields: [sizeId], references: [id])
@@ -287,11 +290,8 @@ model CustomerCake {
   baseId              String?
   fillingId           String?
   creamId             String?
-  creamColor          String?
   topEdgeId           String?
-  topEdgeColor        String?
   bottomEdgeId        String?
-  bottomEdgeColor     String?
   decorationId        String?
   surfaceId           String?
   orderCustomerCakeId String?
@@ -421,6 +421,7 @@ model OrderCustomerCake {
   cakeType CakeType
 
   customerCake   CustomerCake? @relation(fields: [customerCakeId], references: [id])
+  cakeMessage    String        @default("")
   customerCakeId String?
 
   CartItem        CartItem[]
@@ -556,7 +557,8 @@ enum CakeType {
 }
 
 enum CartItemType {
-  CAKE
+  PRESET_CAKE
+  CUSTOM_CAKE
   REFRESHMENT
   SNACK_BOX
 }

@@ -13,12 +13,12 @@ import {
   Order,
   Prisma,
   ReceivedVia,
+  PaymentType,
   OrderStatus,
   CustomerAddress,
   OrderRefreshment,
   OrderCustomerCake,
   OrderSnackBoxRefreshment,
-  PaymentType,
 } from "@prisma/client";
 
 type LineItem = {
@@ -97,15 +97,33 @@ export async function POST(req: NextRequest) {
     const lineItems = [] as LineItem[];
     for (var cartItem of cart?.items) {
       switch (cartItem.type) {
-        case "CAKE":
+        case "PRESET_CAKE":
+          if (!cartItem.customerCake || !cartItem.customerCake.cake) {
+            return responseWrapper(409, null, "Cake Type is missing cake.");
+          }
+
+          var image: string[] = [];
+          if (cartItem.customerCake.cake.imagePath) {
+            image.push(await getFileUrl(cartItem.customerCake.cake.imagePath));
+          }
+          lineItems.push({
+            price_data: {
+              currency: "thb",
+              unit_amount: cartItem.customerCake.price,
+              product_data: {
+                images: image,
+                name: cartItem.customerCake.name,
+              },
+            },
+            quantity: cartItem.quantity,
+          });
+          break;
+        case "CUSTOM_CAKE":
           if (!cartItem.customerCake) {
             return responseWrapper(409, null, "Cake Type is missing cake.");
           }
 
-          var image = [];
-          if (cartItem.customerCake.cake.imagePath) {
-            image.push(await getFileUrl(cartItem.customerCake.cake.imagePath));
-          }
+          var image: string[] = [];
           lineItems.push({
             price_data: {
               currency: "thb",
@@ -127,7 +145,7 @@ export async function POST(req: NextRequest) {
             );
           }
 
-          var image = [];
+          var image: string[] = [];
           if (cartItem.refreshment.imagePath) {
             image.push(await getFileUrl(cartItem.refreshment.imagePath));
           }
@@ -147,7 +165,7 @@ export async function POST(req: NextRequest) {
           if (!cartItem.snackBox) {
             return responseWrapper(409, null, "Snack Box is missing snackbox.");
           }
-          var image = [];
+          var image: string[] = [];
           if (cartItem.snackBox.imagePath) {
             image.push(await getFileUrl(cartItem.snackBox.imagePath));
           }
@@ -179,8 +197,8 @@ export async function POST(req: NextRequest) {
 
     for (var cartItem of cart?.items) {
       switch (cartItem.type) {
-        case "CAKE":
-          if (!cartItem.customerCake) {
+        case "PRESET_CAKE":
+          if (!cartItem.customerCake || !cartItem.customerCake.cake) {
             return responseWrapper(
               409,
               null,
@@ -210,13 +228,106 @@ export async function POST(req: NextRequest) {
             base: cartItem.customerCake.base?.name || null,
             filling: cartItem.customerCake.filling?.name || null,
             cream: cartItem.customerCake.cream?.name || null,
-            creamColor: cartItem.customerCake.creamColor,
+            creamColor: cartItem.customerCake.cream?.color || null,
             topEdge: cartItem.customerCake.topEdge?.name || null,
-            topEdgeColor: cartItem.customerCake.topEdgeColor,
+            topEdgeColor: cartItem.customerCake.topEdge?.color || null,
             bottomEdge: cartItem.customerCake.bottomEdge?.name || null,
-            bottomEdgeColor: cartItem.customerCake.bottomEdgeColor,
+            bottomEdgeColor: cartItem.customerCake.bottomEdge?.color || null,
             decoration: cartItem.customerCake.decoration?.name || null,
             surface: cartItem.customerCake.surface?.name || null,
+            cakeMessage: cartItem.customerCake.cakeMessage,
+          });
+
+          subTotal += cartItem.customerCake.price * cartItem.quantity;
+          break;
+        case "CUSTOM_CAKE":
+          if (!cartItem.customerCake) {
+            return responseWrapper(
+              409,
+              null,
+              "Cake Item missing Customer Cake",
+            );
+          }
+
+          const size = await prisma.masterCakeSize.findFirst({
+            where: {
+              id: cartItem.customerCake.sizeId!
+            }
+          })
+          if (!size){
+            return responseWrapper(404,null,"Size is not found.")
+          }
+    
+          let weight = 0.0
+          let height = 0.0
+          let length = 0.0
+          let width = 0.0
+          switch(size.name){
+            case "1":
+              weight = 100
+              height = 100
+              length = 100
+              width = 100
+              break;
+            case "2":
+              weight = 100
+              height = 100
+              length = 100
+              width = 100
+              break;
+            case "3":
+              weight = 100
+              height = 100
+              length = 100
+              width = 100
+              break;
+          }
+          
+          let description = [
+            cartItem.customerCake.size?.name || null,
+            cartItem.customerCake.base?.name || null,
+            cartItem.customerCake.filling?.name || null,
+            cartItem.customerCake.cream?.name || null,
+            cartItem.customerCake.cream?.color || null,
+            cartItem.customerCake.topEdge?.name || null,
+            cartItem.customerCake.topEdge?.color || null,
+            cartItem.customerCake.bottomEdge?.name || null,
+            cartItem.customerCake.bottomEdge?.color || null,
+            cartItem.customerCake.decoration?.name || null,
+            cartItem.customerCake.surface?.name || null,
+          ].filter(Boolean).join(', ');
+
+          orderCustomCakes.push({
+            id: "",
+            name: cartItem.customerCake.name,
+            quantity: cartItem.quantity,
+            description: description,
+            remark: null,
+            imageFileName: null,
+            imagePath: null,
+            image: null,
+            pricePer: cartItem.customerCake.price,
+            price: cartItem.customerCake.price * cartItem.quantity,
+            weight: weight,
+            height: height,
+            length: length,
+            width: width,
+            orderId: "1234",
+            cakeType: cartItem.customerCake.type,
+            customerCakeId: cartItem.customerCake.id,
+            cakeId: cartItem.customerCake.cakeId,
+            size: cartItem.customerCake.size?.name || null,
+            base: cartItem.customerCake.base?.name || null,
+            filling: cartItem.customerCake.filling?.name || null,
+            cream: cartItem.customerCake.cream?.name || null,
+            creamColor: cartItem.customerCake.cream?.color || null,
+            topEdge: cartItem.customerCake.topEdge?.name || null,
+            topEdgeColor: cartItem.customerCake.topEdge?.color || null,
+            bottomEdge: cartItem.customerCake.bottomEdge?.name || null,
+            bottomEdgeColor: cartItem.customerCake.bottomEdge?.color || null,
+            decoration: cartItem.customerCake.decoration?.name || null,
+            surface: cartItem.customerCake.surface?.name || null,
+            cakeMessage: cartItem.customerCake.cakeMessage,
           });
 
           subTotal += cartItem.customerCake.price * cartItem.quantity;
@@ -419,7 +530,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (paymentType == PaymentType.INSTALLMENT) {
-      totalDiscount += Math.floor(subTotal / 2);
+      totalDiscount += subTotal - totalDiscount + shippingFee;
     }
 
     const session = await createStripeSession(

@@ -2,7 +2,7 @@ import paths from "@/utils/paths";
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
 import { revalidatePath } from "next/cache";
-import { CartItemType } from "@prisma/client";
+import { CakeType, CartItemType } from "@prisma/client";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { cartCustomCakeValidationSchema } from "@/lib/validationSchema";
 
@@ -31,7 +31,6 @@ export async function POST(req: NextRequest) {
     // TODO USER ID FROM TOKEN OR COOKIE ID
     const {
       cakeId,
-      cakeType,
       type,
       userId,
       quantity,
@@ -39,68 +38,11 @@ export async function POST(req: NextRequest) {
       baseId,
       fillingId,
       creamId,
-      creamColor,
       topEdgeId,
-      topEdgeColor,
       bottomEdgeId,
-      bottomEdgeColor,
       decorationId,
       surfaceId,
     } = body;
-    const cake = await prisma.cake.findUnique({
-      where: {
-        id: cakeId,
-        isDeleted: false,
-        type: cakeType,
-      },
-      include: CakeInclude,
-    });
-
-    if (!cake) {
-      return responseWrapper(
-        404,
-        null,
-        `${cakeType} Cake with given id ${cakeId} not found.`,
-      );
-    }
-
-    const isIdInList = (list: any[], id: any) => {
-      if (id && id != "") {
-        return list.some((item) => item.id === id);
-      }
-      return true;
-    };
-
-    const validateIds = () => {
-      const invalidIds = [];
-      if (!isIdInList(cake.creams, creamId)) {
-        invalidIds.push("creamId");
-      }
-      if (!isIdInList(cake.topEdges, topEdgeId)) {
-        invalidIds.push("topEdgeId");
-      }
-      if (!isIdInList(cake.bottomEdges, bottomEdgeId)) {
-        invalidIds.push("bottomEdgeId");
-      }
-      if (!isIdInList(cake.decorations, decorationId)) {
-        invalidIds.push("decorationId");
-      }
-      if (!isIdInList(cake.surfaces, surfaceId)) {
-        invalidIds.push("surfaceId");
-      }
-      return invalidIds;
-    };
-
-    // Validate the IDs
-    const invalidIds = validateIds();
-
-    if (invalidIds.length > 0) {
-      return responseWrapper(
-        400,
-        null,
-        `Invalid IDs: ${invalidIds.join(", ")}`,
-      );
-    }
 
     const CartInclude = {
       items: {
@@ -167,14 +109,7 @@ export async function POST(req: NextRequest) {
         (item.customerCake?.decorationId === decorationId ||
           (item.customerCake?.decorationId === null && decorationId === "")) &&
         (item.customerCake?.surfaceId === surfaceId ||
-          (item.customerCake?.surfaceId === null && surfaceId === "")) &&
-        (item.customerCake?.creamColor === creamColor ||
-          (item.customerCake?.creamColor === null && creamColor === "")) &&
-        (item.customerCake?.topEdgeColor === topEdgeColor ||
-          (item.customerCake?.topEdgeColor === null && topEdgeColor === "")) &&
-        (item.customerCake?.bottomEdgeColor === bottomEdgeColor ||
-          (item.customerCake?.bottomEdgeColor === null &&
-            bottomEdgeColor === "")),
+          (item.customerCake?.surfaceId === null && surfaceId === ""))
     );
 
     const existingItemsIndex = cart.items.findIndex(
@@ -195,14 +130,7 @@ export async function POST(req: NextRequest) {
         (item.customerCake?.decorationId === decorationId ||
           (item.customerCake?.decorationId === null && decorationId === "")) &&
         (item.customerCake?.surfaceId === surfaceId ||
-          (item.customerCake?.surfaceId === null && surfaceId === "")) &&
-        (item.customerCake?.creamColor === creamColor ||
-          (item.customerCake?.creamColor === null && creamColor === "")) &&
-        (item.customerCake?.topEdgeColor === topEdgeColor ||
-          (item.customerCake?.topEdgeColor === null && topEdgeColor === "")) &&
-        (item.customerCake?.bottomEdgeColor === bottomEdgeColor ||
-          (item.customerCake?.bottomEdgeColor === null &&
-            bottomEdgeColor === "")),
+          (item.customerCake?.surfaceId === null && surfaceId === ""))
     );
 
     if (existingItem) {
@@ -216,6 +144,28 @@ export async function POST(req: NextRequest) {
         include: CartInclude.items.include,
       });
     } else {
+      const size = await prisma.masterCakeSize.findFirst({
+        where: {
+          id: sizeId
+        }
+      })
+      if (!size){
+        return responseWrapper(404,null,"Size is not found.")
+      }
+
+      let price = 0
+      switch(size.name){
+        case "1":
+          price = 100
+          break;
+        case "2":
+          price = 200
+          break;
+        case "3":
+          price = 400
+          break;
+      }
+
       cart = await prisma.cart.update({
         where: {
           id: cart.id,
@@ -223,14 +173,14 @@ export async function POST(req: NextRequest) {
         data: {
           items: {
             create: {
-              type: CartItemType.CAKE,
+              type: CartItemType.CUSTOM_CAKE,
               quantity: quantity,
               customerCake: {
                 create: {
-                  name: cake.name,
-                  price: cake.price,
+                  name: "Custom Cake",
+                  price: price,
                   isActive: true,
-                  type: cake.type,
+                  type: CakeType.CUSTOM,
                   size: {
                     connect: sizeId ? { id: sizeId } : undefined,
                   },
@@ -243,15 +193,12 @@ export async function POST(req: NextRequest) {
                   cream: {
                     connect: creamId ? { id: creamId } : undefined,
                   },
-                  creamColor: creamColor,
                   topEdge: {
                     connect: topEdgeId ? { id: topEdgeId } : undefined,
                   },
-                  topEdgeColor: topEdgeColor,
                   bottomEdge: {
                     connect: bottomEdgeId ? { id: bottomEdgeId } : undefined,
                   },
-                  bottomEdgeColor: bottomEdgeColor,
                   decoration: {
                     connect: decorationId ? { id: decorationId } : undefined,
                   },
