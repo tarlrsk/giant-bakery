@@ -180,6 +180,8 @@ export async function GET(req: NextRequest, { params }: GetOrderById) {
       for (let refreshment of snackBox.refreshments) {
         item.subItem.push(refreshment.name);
       }
+
+      item.description = item.subItem.join(', ');
     }
 
     data.items = items;
