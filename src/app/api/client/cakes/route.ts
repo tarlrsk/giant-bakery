@@ -1,18 +1,14 @@
 import { prisma } from "@/lib/prisma";
-import { CakeType } from "@prisma/client";
 import { NextRequest } from "next/server";
 import { getFileUrl } from "@/lib/gcs/getFileUrl";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 
 export const revalidate = 0;
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
-    const type = req.nextUrl.searchParams.get("type") as CakeType;
-
     const cakes = await prisma.cake.findMany({
       where: {
-        type: type !== null && String(type) !== "" ? type : undefined,
         isActive: true,
         isDeleted: false,
       },

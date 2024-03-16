@@ -190,7 +190,6 @@ export async function PUT(req: NextRequest, { params }: GetCakeByIdProps) {
       data: {
         name: name,
         remark: remark,
-        type: type,
         price: price,
         weight: weight,
         description: description,

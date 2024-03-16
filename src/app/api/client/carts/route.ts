@@ -224,7 +224,22 @@ export async function APIgetCartItems(userId: string | null | undefined) {
       };
       let responseItem: any;
       switch (item.type) {
-        case "CAKE":
+        case "PRESET_CAKE":
+          baseResponse.pricePer = item.customerCake?.price || 0;
+          responseItem = { ...baseResponse, ...item.customerCake };
+          responseItem.price = baseResponse.pricePer * item.quantity;
+          if (
+            responseItem.cake &&
+            responseItem.cake.imagePath &&
+            responseItem.cake.imagePath != ""
+          ) {
+            responseItem.image = await getFileUrl(responseItem.cake.imagePath);
+          }
+
+          delete responseItem.cake;
+
+          break;
+        case "CUSTOM_CAKE":
           baseResponse.pricePer = item.customerCake?.price || 0;
           responseItem = { ...baseResponse, ...item.customerCake };
           responseItem.price = baseResponse.pricePer * item.quantity;

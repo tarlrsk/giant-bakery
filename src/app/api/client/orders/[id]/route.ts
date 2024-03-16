@@ -1,5 +1,7 @@
 import { NextRequest } from "next/server";
+import { prismaUser } from "@/persistence/user";
 import { prismaOrder } from "@/persistence/order";
+import getCurrentUser from "@/actions/userActions";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import {
   OrderStatus,
@@ -45,6 +47,7 @@ type OrderDetail = {
 
 type Item = {
   name: string;
+  description: string;
   quantity: number;
   type: CartItemType;
   price: number;
@@ -54,10 +57,20 @@ type Item = {
 
 export async function GET(req: NextRequest, { params }: GetOrderById) {
   try {
+    const userId = (await getCurrentUser())?.id;
+    if (!userId) {
+      return responseWrapper(400, null, "UserId is required");
+    }
+
+    const user = await prismaUser().getUserById(userId);
+    if (!user) {
+      return responseWrapper(404, null, `User with ID ${userId} is not found`);
+    }
+
     const { id } = params;
-    const order = await prismaOrder().getOrderById(id);
+    const order = await prismaOrder().getOrderByIdAndUserId(id, userId);
     if (!order) {
-      return responseWrapper(404, null, `Order with ID ${id} is not found.`);
+      return responseWrapper(404, null, `Order is not found`);
     }
 
     var paid = 0;
@@ -108,8 +121,12 @@ export async function GET(req: NextRequest, { params }: GetOrderById) {
         price: cake.price,
         pricePer: cake.pricePer,
         subItem: [],
-        type: CartItemType.CAKE,
+        description: "",
+        type: "PRESET_CAKE"
       };
+      if(cake.cakeType == "CUSTOM"){
+        item.type = "CUSTOM_CAKE"
+      }
       if (cake.size) {
         item.subItem.push(cake.size);
       }
@@ -120,24 +137,25 @@ export async function GET(req: NextRequest, { params }: GetOrderById) {
         item.subItem.push(cake.filling);
       }
       if (cake.cream) {
-        item.subItem.push(cake.cream);
+        item.subItem.push(cake.cream + `(${cake.creamColor})`);
       }
       if (cake.topEdge) {
-        item.subItem.push(cake.topEdge);
+        item.subItem.push(cake.topEdge + `(${cake.topEdgeColor})`);
       }
       if (cake.bottomEdge) {
-        item.subItem.push(cake.bottomEdge);
+        item.subItem.push(cake.bottomEdge + `(${cake.bottomEdgeColor})`);
       }
       if (cake.surface) {
         item.subItem.push(cake.surface);
       }
-      // TODO Color Cake
+      item.description = item.subItem.join(', ');
       items.push(item);
     }
 
     for (let refreshment of order.orderRefreshment) {
       let item: Item = {
         name: refreshment.name,
+        description: "",
         quantity: refreshment.quantity,
         price: refreshment.price,
         pricePer: refreshment.pricePer,
@@ -151,6 +169,7 @@ export async function GET(req: NextRequest, { params }: GetOrderById) {
     for (let snackBox of order.orderSnackBox) {
       let item: Item = {
         name: snackBox.name,
+        description: "",
         quantity: snackBox.quantity,
         price: snackBox.price,
         pricePer: snackBox.pricePer,
@@ -161,6 +180,8 @@ export async function GET(req: NextRequest, { params }: GetOrderById) {
       for (let refreshment of snackBox.refreshments) {
         item.subItem.push(refreshment.name);
       }
+
+      item.description = item.subItem.join(', ');
     }
 
     data.items = items;
