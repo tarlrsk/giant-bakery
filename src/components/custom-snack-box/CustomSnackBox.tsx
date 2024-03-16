@@ -18,13 +18,13 @@ import {
 } from "@nextui-org/react";
 
 import Iconify from "../icons/Iconify";
-import BakeryItems from "../BakeryItems";
 import { BoxIcon } from "../icons/BoxIcon";
 import { RHFRadioGroup } from "../hook-form";
-import BeverageItems from "../BeverageItems";
-import CakePieceItems from "../CakePieceItems";
+import CustomCakeItems from "./CustomCakeItems";
+import CustomBakeryItems from "./CustomBakeryItems";
 import FormProvider from "../hook-form/form-provider";
 import CustomSnackBoxItems from "./CustomSnackBoxItems";
+import CustomBeverageItems from "./CustomBeverageItems";
 
 // ----------------------------------------------------------------------
 
@@ -265,7 +265,7 @@ export default function CustomSnackBox() {
   );
 
   const renderPackageSection = (
-    <div className="grid gap-2 md:grid-cols-3 md:gap-4">
+    <div className="my-auto grid items-center justify-center gap-1 overflow-y-auto md:grid-cols-3 md:gap-4">
       <div className="md:col-span-1">
         <Image
           src={
@@ -283,7 +283,7 @@ export default function CustomSnackBox() {
       </div>
       <div className="md:col-span-2">
         <FormProvider methods={methods} onSubmit={onSubmit}>
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2 md:gap-3">
             <RHFRadioGroup
               name="selectedPackaging"
               options={PACKAGING_OPTIONS}
@@ -345,7 +345,7 @@ export default function CustomSnackBox() {
 
         <PopoverContent>
           <div className="px-1 py-2">
-            <div className="text-small font-medium text-center text-white bg-primaryT-darker rounded-sm py-2 px-4 min-w-72 mb-2">
+            <div className="min-w-72 mb-2 rounded-sm bg-primaryT-darker px-4 py-2 text-center text-small font-medium text-white">
               ชุดเบรกของฉัน
             </div>
 
@@ -355,7 +355,7 @@ export default function CustomSnackBox() {
             />
 
             {selectedItems.length > 0 && (
-              <div className="text-sm py-2 px-4 font-medium">{`ราคารวมกล่องละ ${selectedItems.reduce(
+              <div className="px-4 py-2 text-sm font-medium">{`ราคารวมกล่องละ ${selectedItems.reduce(
                 (prev, curr) => prev + curr.price,
                 0,
               )} บาท`}</div>
@@ -385,18 +385,17 @@ export default function CustomSnackBox() {
         <Tab key="bakeries" title="เบเกอรี่" />
         <Tab key="cakes" title="เค้ก" />
       </Tabs>
-      <div className="overflow-y-auto max-h-unit-96 mb-4">
+      <div className="overflow-y-auto pb-4">
         {selectedTab === "bakeries" && (
-          <BakeryItems
+          <CustomBakeryItems
             cols={4}
-            size="sm"
             category=""
             onClick={(selected) => onAddItem(selected)}
           />
         )}
 
         {selectedTab === "cakes" && (
-          <CakePieceItems
+          <CustomCakeItems
             cols={4}
             size="sm"
             type="CAKE"
@@ -405,9 +404,8 @@ export default function CustomSnackBox() {
         )}
 
         {selectedTab === "drinks" && (
-          <BeverageItems
+          <CustomBeverageItems
             cols={4}
-            size="sm"
             onClick={(selected) => onAddItem(selected)}
           />
         )}
@@ -415,7 +413,7 @@ export default function CustomSnackBox() {
       <div className=" flex flex-row gap-4">
         {!!limitDrinkQty && (
           <div
-            className={` flex flex-row gap-2 items-center ${
+            className={` flex flex-row items-center gap-2 ${
               isMatchLimitDrinkQty ? "text-green-600" : ""
             }`}
           >
@@ -424,7 +422,7 @@ export default function CustomSnackBox() {
           </div>
         )}
         <div
-          className={` flex flex-row gap-2 items-center ${
+          className={` flex flex-row items-center gap-2 ${
             isMatchLimitSnackQty ? "text-green-600" : ""
           }`}
         >
@@ -470,8 +468,8 @@ export default function CustomSnackBox() {
   );
 
   const renderSelectAmountSection = (
-    <div className="relative flex items-center justify-center gap-20">
-      <div className=" flex flex-col gap-2 justify-center items-center ml-24">
+    <div className="relative flex flex-col items-center justify-center gap-6 overflow-y-auto md:mx-24 md:flex-row md:gap-20">
+      <div className=" flex flex-col items-center justify-center gap-0">
         <Image
           src={
             selectedPackaging === "PAPER_BAG"
@@ -481,51 +479,56 @@ export default function CustomSnackBox() {
                 : "/snack-box-m.png"
           }
           alt="packaging"
-          width={280}
-          height={280}
+          width={250}
+          height={250}
         />
         <div className=" flex flex-row gap-2">
           {selectedItems.map((item, index) => (
-            <Image
-              key={index}
-              src={item?.image || "/placeholder-image.jpeg"}
-              alt={item.name}
-              width={55}
-              height={55}
-              className=" border-1 border-primaryT-darker rounded-sm p-0.5"
-            />
+            <div key={index} className=" relative h-14 w-14">
+              <Image
+                src={(item?.image as string) ?? "/placeholder-image.jpeg"}
+                alt={item?.name}
+                fill
+                className=" rounded-sm border-1 border-primaryT-darker object-cover"
+              />
+            </div>
           ))}
         </div>
       </div>
-      <div className="relative flex grow flex-col gap-5 mr-24">
+      <div className="relative flex h-full grow flex-col gap-4 text-center md:gap-5 md:text-left">
         <div className=" flex flex-col gap-3">
-          <h1 className="font-semibold text-xl leading-normal">
+          <h1 className="text-xl font-semibold leading-normal">
             {`บรรจุภัณฑ์: ${
               selectedPackaging === "PAPER_BAG" ? "ถุงกระดาษ" : "กล่องขนม"
             }`}
           </h1>
           <div className=" flex flex-col gap-1">
             <p>
-              {selectedDrinkOption === "EXCLUDE"
-                ? "มีเครื่องดื่ม"
-                : "ไม่มีเครื่องดื่ม"}
+              {`ตัวเลือกเครื่องดื่ม: ${
+                selectedDrinkOption === "EXCLUDE"
+                  ? "มีเครื่องดื่ม"
+                  : "ไม่มีเครื่องดื่ม"
+              }`}
             </p>
-            <p className=" text-base">ประกอบด้วย: </p>
+            {/* <p className=" text-base">ประกอบด้วย: </p> */}
             <p className=" text-base">
+              ประกอบด้วย:
               {selectedItems
                 .map((item) => `${item.name} x${item.quantity}`)
                 .join(", ")}
             </p>
           </div>
-          <h1 className="font-semibold text-xl leading-normal">162 บาท</h1>
+          <h1 className="text-2xl font-semibold leading-normal text-secondaryT-main">
+            162 บาท
+          </h1>
         </div>
 
-        <div className=" flex flex-row grow gap-6">
-          <div className=" flex border-1 rounded-sm h-12  border-black">
+        <div className=" flex grow flex-row gap-6">
+          <div className=" flex h-12 rounded-sm border-1  border-black">
             <Button
               size="sm"
               onClick={handleDecrement}
-              className=" h-full w-full items-center bg-transparent text-black text-xl font-medium rounded-l-sm py-1"
+              className=" h-full w-full items-center rounded-l-sm bg-transparent py-1 text-xl font-medium text-black"
             >
               -
             </Button>
@@ -533,12 +536,12 @@ export default function CustomSnackBox() {
               type="text"
               value={snackBoxQty}
               onChange={handleInputChange}
-              className=" h-full w-16 items-center text-center text-black text-xl font-medium py-1 border-x-1 border-x-black"
+              className=" h-full w-16 items-center border-x-1 border-x-black py-1 text-center text-xl font-medium text-black"
             />
             <Button
               size="sm"
               onClick={handleIncrement}
-              className="  h-full w-full items-center bg-transparent text-black text-xl font-medium rounded-r-sm py-1"
+              className="  h-full w-full items-center rounded-r-sm bg-transparent py-1 text-xl font-medium text-black"
             >
               +
             </Button>
@@ -546,7 +549,7 @@ export default function CustomSnackBox() {
           <Button
             size="lg"
             color="secondary"
-            className="items-center w-full text-lg rounded-sm"
+            className="w-full items-center rounded-sm"
             isLoading={isAddingToCart}
             onPress={() => {
               handleAddToCart();
@@ -573,12 +576,12 @@ export default function CustomSnackBox() {
   );
 
   return (
-    <div className="relative px-36">
-      <div className="flex flex-col pb-20 text-5xl font-normal max-w-screen-lg">
+    <div className="relative pb-8 md:px-36 ">
+      <div className="flex max-w-screen-lg flex-col pb-10 text-2xl font-normal md:text-4xl">
         ชุดเบรกจัดเอง
       </div>
-      <div className="flex flex-col p-6 border border-primaryT-darker rounded-sm gap-4 max-w-screen-lg">
-        <div className="flex justify-center md:justify-between items-center relative">
+      <div className="flex  max-h-unit-9xl max-w-screen-lg flex-col gap-4 rounded-sm border border-primaryT-darker p-6 md:h-auto">
+        <div className="relative flex items-center justify-between">
           {currentPage === 1 && renderPackageHeader}
           {currentPage === 2 && renderSnackHeader}
           {currentPage === 3 && renderSnackBoxAmountHeader}

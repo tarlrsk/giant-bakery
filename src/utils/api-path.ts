@@ -1,4 +1,4 @@
-import { IBakeryCategory } from "@/components/BakeryItems";
+import { IBakeryCategory } from "@/components/BakeryTabItems";
 
 export const baseUrl = process.env.NEXT_PUBLIC_URL as string;
 const interExpressUrl = process.env.NEXT_PUBLIC_INTER_EXPRESS_API as string;

@@ -1,6 +1,8 @@
 import React, { Suspense } from "react";
-import BakeryTab from "@/components/BakeryTab";
 import TitleSection from "@/components/TitleSection";
+import BakeryTabItems from "@/components/BakeryTabItems";
+
+// ----------------------------------------------------------------------
 
 export default function BakeryPage() {
   return (
@@ -8,7 +10,7 @@ export default function BakeryPage() {
       <TitleSection title={"เบเกอรี่"} />
       <Suspense>
         <div className="relative flex flex-col justify-center items-center">
-          <BakeryTab />
+          <BakeryTabItems />
         </div>
       </Suspense>
     </section>

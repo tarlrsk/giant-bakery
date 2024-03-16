@@ -8,6 +8,8 @@ import { Cake } from "@prisma/client";
 
 import { Card, Button } from "@nextui-org/react";
 
+// ----------------------------------------------------------------------
+
 type Props = {
   item: Cake;
   size?: "sm" | "md";
@@ -30,6 +32,8 @@ type Props = {
 //     body: JSON.stringify(arg),
 //   }).then((res) => res.json());
 // }
+
+// ----------------------------------------------------------------------
 
 export default function CakeCard({ item, onClick, size = "md" }: Props) {
   // TODO : ADD CAKE TO CART
@@ -57,81 +61,43 @@ export default function CakeCard({ item, onClick, size = "md" }: Props) {
   //     }
   //   }
 
-  let imgSize: { width: number; height: number } = { width: 800, height: 128 };
-  let padding = 12;
-  let fontSize = "lg";
-
-  if (size === "sm") {
-    imgSize.width = 180;
-    imgSize.height = 50;
-
-    padding = 2;
-    fontSize = "md";
-  }
-
   return (
     <Card
-      className={` bg-white pb-${
-        size === "sm" ? "4" : "6"
-      } rounded-md shadow-md hover:cursor-pointer`}
+      className={` bg-white pb-1 md:pb-2 w-44 md:w-unit-80 rounded-md shadow-md hover:cursor-pointer h-full items-center`}
+      isPressable
+      onPress={onClick}
     >
-      <div onClick={onClick}>
+      <div className=" relative w-full h-36 md:h-64">
         <Image
           src={(item?.image as string) ?? "/placeholder-image.jpeg"}
           alt={item?.name}
-          width={imgSize?.width}
-          height={imgSize?.height}
-          className=" object-cover mb-4 rounded-sm"
-          sizes="100vw"
-          style={{
-            width: "100%",
-            height: "auto",
-          }}
+          fill
+          className=" object-cover"
         />
-        <article
-          className={`flex flex-col flex-wrap text-pretty p-6 gap-${
-            size === "sm" ? "1" : "2 items-center"
-          }`}
-        >
-          <p
-            className={`text-black truncate text-${fontSize} font-normal max-w-full`}
-          >
-            {item?.name}
-          </p>
-
-          {size === "sm" ? (
-            <div className="flex flex-row w-full justify-between items-center ">
-              <p
-                className={`text-secondaryT-main text-${fontSize} font-semibold`}
-              >
-                ฿{item?.price?.toFixed(2) ?? 0}
-              </p>
-              <Button
-                size={size}
-                onClick={onClick}
-                className={`bg-secondaryT-main items-center text-white text-${size} rounded-sm px-${padding}`}
-              >
-                เพิ่ม
-              </Button>
-            </div>
-          ) : (
-            <>
-              <p
-                className={`text-secondaryT-main text-${fontSize} font-semibold`}
-              >
-                ฿{item?.price?.toFixed(2) ?? 0}
-              </p>
-              <Button
-                size={size}
-                onClick={onClick}
-                className={`bg-secondaryT-main items-center text-white text-${size} rounded-sm px-${padding}`}
-              >
-                ใส่ตะกร้า
-              </Button>
-            </>
-          )}
-        </article>
       </div>
+
+      <article
+        className={`flex flex-col flex-wrap text-pretty p-6 gap-${
+          size === "sm" ? "1" : "2 items-center"
+        }`}
+      >
+        <p
+          className={`text-primaryT-darker truncate text-lg md:text-xl font-normal max-w-full`}
+        >
+          {item?.name}
+        </p>
+
+        <p className={`text-secondaryT-main text-lg md:text-xl font-semibold`}>
+          ฿{item?.price?.toFixed(0) ?? 0}
+        </p>
+        <Button
+          size={size}
+          onClick={onClick}
+          className={`bg-secondaryT-main items-center text-white text-md rounded-sm px-12`}
+        >
+          ใส่ตะกร้า
+        </Button>
+      </article>
     </Card>
   );
 }

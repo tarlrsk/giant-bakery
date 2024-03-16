@@ -1,5 +1,5 @@
 import Wave from "@/components/Wave";
-import BakeryItems from "@/components/BakeryItems";
+import BestSellerItems from "@/components/BestSellerItems";
 import HomeFeatureHeader from "@/components/home/HomeFeatureHeader";
 import HomeFeatureContent from "@/components/home/HomeFeatureContent";
 
@@ -52,12 +52,15 @@ export default function Home() {
           btnLabel="สั่งเลย"
         />
 
-        <div className="relative flex h-auto flex-col items-center justify-center gap-16 py-28">
-          <div className="relative flex flex-col items-center justify-center gap-10 ">
-            <h1 className="text-4xl font-semibold md:text-5xl">สินค้าขายดี</h1>
+        <div className="relative flex h-auto flex-col items-center justify-center gap-8 py-28 md:gap-16">
+          <div className="relative flex flex-col items-center justify-center gap-4 md:gap-10 ">
+            <h1 className="text-5xl font-semibold">สินค้าขายดี</h1>
+            <p className="text-2xl font-normal">
+              สินค้าที่ขายดีที่สุดตลอดปี 2023
+            </p>
           </div>
-          <div className="flex-wrap-custom container flex gap-20">
-            <BakeryItems cols={4} category="" amount="4" />
+          <div className="flex-wrap-custom flex justify-center gap-20">
+            <BestSellerItems />
           </div>
         </div>
 

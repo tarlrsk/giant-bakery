@@ -9,10 +9,10 @@ export default function SnackBoxPage() {
   return (
     <section>
       <TitleSection title={"ชุดเบรก"} />
-      <div className="pb-20">
+      <div className="px-6 pb-20 ">
         <SnackBoxPaginationContainer />
       </div>
-      <div className="pb-20">
+      <div className="px-6 pb-20 ">
         <CustomSnackBox />
       </div>
     </section>

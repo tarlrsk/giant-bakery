@@ -11,17 +11,15 @@ import RefreshmentCard from "./RefreshmentCard";
 // ----------------------------------------------------------------------
 
 type Props = {
-  cols: number;
+  onClick?: (selected: any) => void;
 };
 
-// ----------------------------------------------------------------------
-
-export default function BeverageItems({ cols, ...other }: Props) {
+export default function BestSellerItems({ onClick, ...other }: Props) {
   const router = useRouter();
 
-  const { getBeverages } = apiPaths();
+  const { getBakeries } = apiPaths();
 
-  const { data } = useSWR(getBeverages(), fetcher, {
+  const { data } = useSWR(`${getBakeries("", "4")}`, fetcher, {
     revalidateOnFocus: false,
   });
 
@@ -29,14 +27,17 @@ export default function BeverageItems({ cols, ...other }: Props) {
 
   return (
     <div
-      className="grid grid-cols-2 md:grid-cols-4 gap-5 md:gap-10 justify-center items-center mx-auto"
+      className={`grid grid-cols-2 md:grid-cols-4 gap-5 md:gap-10 justify-center items-center mx-auto`}
       {...other}
     >
-      {Object.values(items)?.map((item: Refreshment) => (
+      {Object.values(items)?.map((item: any) => (
         <RefreshmentCard
           key={item.id}
           item={item}
-          onClick={() => router.push(`/beverages/${item.name}?id=${item.id}`)}
+          onClick={() => {
+            console.log("ho");
+            router.push(`/bakeries/${item.name}?id=${item.id}`);
+          }}
         />
       ))}
     </div>

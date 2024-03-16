@@ -3,22 +3,24 @@
 import useSWR from "swr";
 import apiPaths from "@/utils/api-path";
 import { fetcher } from "@/utils/axios";
-import { useRouter } from "next/navigation";
 import { Refreshment } from "@prisma/client";
 
-import RefreshmentCard from "./RefreshmentCard";
+import CustomItemCard from "./CustomItemCard";
 
 // ----------------------------------------------------------------------
 
 type Props = {
   cols: number;
+  onClick: (selected: any) => void;
 };
 
 // ----------------------------------------------------------------------
 
-export default function BeverageItems({ cols, ...other }: Props) {
-  const router = useRouter();
-
+export default function CustomBeverageItems({
+  cols,
+  onClick,
+  ...other
+}: Props) {
   const { getBeverages } = apiPaths();
 
   const { data } = useSWR(getBeverages(), fetcher, {
@@ -29,14 +31,14 @@ export default function BeverageItems({ cols, ...other }: Props) {
 
   return (
     <div
-      className="grid grid-cols-2 md:grid-cols-4 gap-5 md:gap-10 justify-center items-center mx-auto"
+      className="mx-auto grid grid-cols-2 items-center justify-center gap-5 pb-2 md:grid-cols-4 md:gap-10"
       {...other}
     >
       {Object.values(items)?.map((item: Refreshment) => (
-        <RefreshmentCard
+        <CustomItemCard
           key={item.id}
           item={item}
-          onClick={() => router.push(`/beverages/${item.name}?id=${item.id}`)}
+          onClick={() => onClick(item)}
         />
       ))}
     </div>
