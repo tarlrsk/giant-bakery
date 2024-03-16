@@ -177,8 +177,6 @@ export const presetSnackBoxesValidateSchema = z.object({
 export const cartCustomCakeValidationSchema = z.object({
   userId: z.string().min(3),
   type: z.enum(["GUEST", "CUSTOMER"]),
-  cakeType: z.enum(["PRESET", "CUSTOM"]),
-  cakeId: z.string(),
   quantity: z.number(),
 });
 
