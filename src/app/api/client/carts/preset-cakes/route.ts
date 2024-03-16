@@ -4,7 +4,7 @@ import { NextRequest } from "next/server";
 import { revalidatePath } from "next/cache";
 import { CakeType, CartItemType } from "@prisma/client";
 import { responseWrapper } from "@/utils/api-response-wrapper";
-import { cartCustomCakeValidationSchema, cartPresetCakeValidationSchema } from "@/lib/validationSchema";
+import { cartPresetCakeValidationSchema } from "@/lib/validationSchema";
 
 // ----------------------------------------------------------------------
 

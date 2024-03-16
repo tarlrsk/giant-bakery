@@ -13,12 +13,12 @@ import {
   Order,
   Prisma,
   ReceivedVia,
+  PaymentType,
   OrderStatus,
   CustomerAddress,
   OrderRefreshment,
   OrderCustomerCake,
   OrderSnackBoxRefreshment,
-  PaymentType,
 } from "@prisma/client";
 
 type LineItem = {

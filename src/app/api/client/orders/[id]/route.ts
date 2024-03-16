@@ -1,5 +1,7 @@
 import { NextRequest } from "next/server";
+import { prismaUser } from "@/persistence/user";
 import { prismaOrder } from "@/persistence/order";
+import getCurrentUser from "@/actions/userActions";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import {
   OrderStatus,
@@ -8,8 +10,6 @@ import {
   CartItemType,
   PaymentMethod,
 } from "@prisma/client";
-import getCurrentUser from "@/actions/userActions";
-import { prismaUser } from "@/persistence/user";
 
 type GetOrderById = {
   params: {
@@ -70,7 +70,7 @@ export async function GET(req: NextRequest, { params }: GetOrderById) {
     const { id } = params;
     const order = await prismaOrder().getOrderByIdAndUserId(id, userId);
     if (!order) {
-      return responseWrapper(404, null, `Cannot Find Order`);
+      return responseWrapper(404, null, `Order is not found`);
     }
 
     var paid = 0;

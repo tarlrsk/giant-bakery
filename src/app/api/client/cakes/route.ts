@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma";
-import { CakeType } from "@prisma/client";
 import { NextRequest } from "next/server";
 import { getFileUrl } from "@/lib/gcs/getFileUrl";
 import { responseWrapper } from "@/utils/api-response-wrapper";
