@@ -146,7 +146,6 @@ export async function POST(req: NextRequest) {
         name: name,
         description: description,
         remark: remark,
-        type: type,
         price: price,
         weight: weight,
         height: height,

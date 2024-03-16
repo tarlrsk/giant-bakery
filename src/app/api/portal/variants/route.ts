@@ -52,6 +52,7 @@ export async function POST(req: NextRequest) {
     const type = formData.get("type") as VariantType;
     const isActive = parseBoolean(formData.get("isActive") as string);
     const image = formData.get("image") as File | null;
+    const color = formData.get("color") as string | null;
 
     const validation = variantValidationSchema.safeParse({
       name,
@@ -106,6 +107,10 @@ export async function POST(req: NextRequest) {
         }
         var imageFile = await uploadVariantFile(image, type, variantId);
 
+        if(!color){
+          return responseWrapper(400,null,"Color is required")
+        }
+
         newVariant = (await prisma.masterCakeCream.create({
           data: {
             id: variantId,
@@ -113,6 +118,7 @@ export async function POST(req: NextRequest) {
             isActive: isActive,
             imageFileName: imageFile.imageFileName,
             imagePath: imageFile.imagePath,
+            color: color
           },
         })) as any;
 
@@ -125,6 +131,10 @@ export async function POST(req: NextRequest) {
         }
         var imageFile = await uploadVariantFile(image, type, variantId);
 
+        if(!color){
+          return responseWrapper(400,null,"Color is required")
+        }
+
         newVariant = (await prisma.masterCakeTopEdge.create({
           data: {
             id: variantId,
@@ -132,6 +142,7 @@ export async function POST(req: NextRequest) {
             isActive: isActive,
             imageFileName: imageFile.imageFileName,
             imagePath: imageFile.imagePath,
+            color: color,
           },
         })) as any;
 
@@ -144,6 +155,10 @@ export async function POST(req: NextRequest) {
         }
         var imageFile = await uploadVariantFile(image, type, variantId);
 
+        if(!color){
+          return responseWrapper(400,null,"Color is required")
+        }
+
         newVariant = (await prisma.masterCakeBottomEdge.create({
           data: {
             id: variantId,
@@ -151,6 +166,7 @@ export async function POST(req: NextRequest) {
             isActive: isActive,
             imageFileName: imageFile.imageFileName,
             imagePath: imageFile.imagePath,
+            color: color,
           },
         })) as any;
 

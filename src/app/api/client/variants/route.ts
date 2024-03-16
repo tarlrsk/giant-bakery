@@ -64,7 +64,7 @@ export async function GET(req: NextRequest) {
         isDeleted: false,
       },
     });
-    for (var variant of variants.creams) {
+    for (let variant of variants.creams) {
       if (variant.imagePath) {
         variant.image = await getFileUrl(variant.imagePath);
       }
@@ -76,7 +76,7 @@ export async function GET(req: NextRequest) {
         isDeleted: false,
       },
     });
-    for (var variant of variants.topEdges) {
+    for (let variant of variants.topEdges) {
       if (variant.imagePath) {
         variant.image = await getFileUrl(variant.imagePath);
       }
@@ -88,7 +88,7 @@ export async function GET(req: NextRequest) {
         isDeleted: false,
       },
     });
-    for (variant of variants.bottomEdges) {
+    for (let variant of variants.bottomEdges) {
       if (variant.imagePath) {
         variant.image = await getFileUrl(variant.imagePath);
       }
@@ -100,7 +100,7 @@ export async function GET(req: NextRequest) {
         isDeleted: false,
       },
     });
-    for (var variant of variants.decorations) {
+    for (let variant of variants.decorations) {
       if (variant.imagePath) {
         variant.image = await getFileUrl(variant.imagePath);
       }
@@ -112,7 +112,7 @@ export async function GET(req: NextRequest) {
         isDeleted: false,
       },
     })) as any;
-    for (var variant of variants.surfaces) {
+    for (let variant of variants.surfaces) {
       if (variant.imagePath) {
         variant.image = await getFileUrl(variant.imagePath);
       }
