@@ -132,7 +132,7 @@ export async function updateCartItem(
   itemId: string,
   type: "CUSTOMER" | "GUEST",
   quantity: number,
-  action: "increase" | "decrease" | "remove",
+  action: "increase" | "decrease" | "remove" | "replace",
 ) {
   try {
     const { updateCartItem } = apiPaths();
@@ -143,6 +143,8 @@ export async function updateCartItem(
       updatedQuantity = quantity + 1;
     } else if (action === "decrease") {
       updatedQuantity = quantity - 1;
+    } else if (action === "replace") {
+      updatedQuantity = quantity;
     } else {
       updatedQuantity = 0;
     }

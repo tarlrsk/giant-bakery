@@ -30,7 +30,7 @@ export default function CartSummaryTable({
 }: Props) {
   const classNames = useMemo(
     () => ({
-      wrapper: ["max-h-[382px]", "max-w-3xl"],
+      wrapper: ["max-h-[382px]", "max-w-3xl", "p-0", "pb-3"],
       th: [
         "bg-primaryT-lighter",
         "font-medium",
@@ -58,7 +58,7 @@ export default function CartSummaryTable({
   );
 
   return (
-    <Table radius="sm" removeWrapper isCompact classNames={classNames}>
+    <Table radius="sm" isCompact classNames={classNames}>
       <TableHeader>
         <TableColumn className=" text-primaryT-darker" key="name">
           สรุปคำสั่งซื้อ
@@ -69,37 +69,40 @@ export default function CartSummaryTable({
       </TableHeader>
       <TableBody emptyContent={"ไม่พบสินค้า"}>
         <TableRow key="1">
-          <TableCell className="text-sm md:text-lg font-medium">
+          <TableCell className="text-sm font-medium md:text-lg">
             ราคาสินค้า
           </TableCell>
-          <TableCell className="relative flex justify-end mb-4 text-sm md:text-lg">
+          <TableCell className="relative mb-4 flex justify-end text-sm md:text-lg">
             {`฿${subTotal}`}
           </TableCell>
         </TableRow>
         <TableRow key="2">
-          <TableCell className="text-sm md:text-lg font-medium">
+          <TableCell className="text-sm font-medium md:text-lg">
             <div className=" flex flex-col">
               <div>ส่วนลด</div>
               {discounts.map((discount, index) => {
                 return (
-                  <p key={index} className=" text-sm font-normal text-gray-500">
+                  <p
+                    key={index}
+                    className=" text-xs font-normal text-gray-500 md:text-sm"
+                  >
                     {discount.name}
                   </p>
                 );
               })}
             </div>
           </TableCell>
-          <TableCell className="relative flex justify-end  mb-4 text-sm md:text-lg">
+          <TableCell className="relative mb-4 flex  justify-end text-sm md:text-lg">
             <div className=" flex flex-col">
               <div> {`-฿${totalDiscount}`}</div>
             </div>
           </TableCell>
         </TableRow>
         <TableRow key="3">
-          <TableCell className="text-sm md:text-lg font-medium text-secondaryT-main">
+          <TableCell className="text-lg font-medium text-secondaryT-main md:text-xl">
             ยอดรวม
           </TableCell>
-          <TableCell className="relative flex justify-end  mb-4 text-sm md:text-lg font-medium text-secondaryT-main">
+          <TableCell className="relative flex h-full  justify-end text-lg font-medium text-secondaryT-main md:text-xl">
             {`฿${total}`}
           </TableCell>
         </TableRow>

@@ -16,7 +16,7 @@ const position = { lat: 12.683927491778288, lng: 101.2714474409568 };
 const containerStyle = {
   width: "100%",
   height: "100%",
-  "border-radius": "8px",
+  borderRadius: "8px",
 };
 
 function MapContainer() {
@@ -26,7 +26,7 @@ function MapContainer() {
   });
 
   return isLoaded ? (
-    <div className="relative flex-1 self-stretch grow rounded-sm">
+    <div className="relative flex-1 grow self-stretch rounded-sm">
       <GoogleMap mapContainerStyle={containerStyle} center={position} zoom={18}>
         <Marker position={position} />
       </GoogleMap>

@@ -452,7 +452,7 @@ export default function CheckoutPage() {
           >
             <CustomDeliveryRadio
               value="PICK_UP"
-              description="อำเภอเมือง จังหวัดระยอง"
+              description="อำเภอเมือง จังหวัดระยอง (เปิดทุกวัน เวลา 9:00 - 21:00 น.)"
               className="mt-1 max-w-none"
             >
               <span>สั่งและรับที่ร้าน</span>
@@ -806,6 +806,11 @@ export default function CheckoutPage() {
             ดำเนินการชำระเงิน
           </h1>
           <div className="grid gap-4 md:grid-cols-2">
+            <CheckoutSummaryTable
+              className="md:hidden"
+              checkoutDetail={checkoutDetail}
+            />
+
             <div>
               <Accordion
                 variant="splitted"
@@ -829,7 +834,10 @@ export default function CheckoutPage() {
               </Accordion>
             </div>
 
-            <CheckoutSummaryTable checkoutDetail={checkoutDetail} />
+            <CheckoutSummaryTable
+              className="hidden md:block"
+              checkoutDetail={checkoutDetail}
+            />
 
             <CustomAddressModal
               isOpen={isOpen}
@@ -895,7 +903,7 @@ const ConfirmButton = ({
       isLoading={isLoading}
       onClick={onClickButton}
       size="lg"
-      className=" rounded-xs text-lg"
+      className="rounded-xs text-medium md:text-lg"
       fullWidth
       type="submit"
     >
