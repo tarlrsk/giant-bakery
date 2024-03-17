@@ -20,7 +20,8 @@ export default function AdminCake() {
 
   const [selectedRow, setSelectedRow] = useState<ICakeRow | null>(null);
 
-  const { cakesData: cakes, cakesIsLoading: isLoading } = useAdmin();
+  const { cakesData: cakes, cakesIsLoading: isLoading } =
+    useAdmin().useCakeAdmin();
 
   const [filteredRows, setFilteredRows] = useState(cakes?.data || []);
 

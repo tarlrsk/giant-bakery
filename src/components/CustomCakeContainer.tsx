@@ -4,8 +4,9 @@ import useSWR from "swr";
 import { fetcher } from "@/utils/axios";
 import apiPaths from "@/utils/api-path";
 import Circle from "@uiw/react-color-circle";
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { IBM_Plex_Sans_Thai } from "next/font/google";
+import { AVAILABLE_COLORS } from "@/app/(admin)/admin/variants/page";
 
 import {
   Modal,
@@ -19,14 +20,17 @@ import {
 
 import "./styles.css";
 import { IVariant } from "./modal/types";
-import { SingleFilePreview } from "./upload";
 
 // ----------------------------------------------------------------------
 
-const ibm = IBM_Plex_Sans_Thai({
-  weight: ["100", "200", "300", "400", "500", "600", "700"],
-  subsets: ["latin", "thai"],
-});
+type VariantContainerProps = {
+  title: string;
+  children: React.ReactNode;
+};
+type VariantColorContainerProps = {
+  title: string;
+  children: React.ReactNode;
+};
 
 type IVariantData = {
   sizes: IVariant[];
@@ -38,6 +42,46 @@ type IVariantData = {
   bottomEdges: IVariant[];
   surfaces: IVariant[];
 };
+
+const VariantColorContainer = ({
+  title,
+  children,
+}: VariantColorContainerProps) => {
+  return (
+    <div>
+      <div className=" mb-4">
+        <p>{title}</p>
+        <Divider className=" mt-2" />
+      </div>
+      {children}
+    </div>
+  );
+};
+
+const VariantLabelContainer = ({ name }: { name: string }) => {
+  return <p className=" text-center text-sm">{name}</p>;
+};
+
+const VariantContainer = ({ title, children }: VariantContainerProps) => {
+  return (
+    <div>
+      <div className=" mb-0">
+        <p>{title}</p>
+        <Divider className=" mt-2" />
+      </div>
+      <div className="grid grid-cols-6 items-baseline justify-between">
+        {children}
+      </div>
+    </div>
+  );
+};
+
+const ibm = IBM_Plex_Sans_Thai({
+  weight: ["100", "200", "300", "400", "500", "600", "700"],
+  subsets: ["latin", "thai"],
+});
+
+const availableColors = AVAILABLE_COLORS.map((el) => el.code);
 
 // ----------------------------------------------------------------------
 
@@ -72,21 +116,6 @@ export default function CustomCakeContainer() {
 
 // ----------------------------------------------------------------------
 
-const availableColors = [
-  "#F48c08", // orange
-  "#aa2639", // red
-  "#e388df", // pink
-  "#5997bc", // light blue
-  "#3780b3", // blue
-  "#80c06d", // green apple
-  "#7758a9", // purple
-  "#2f5e1e", // dark green
-  "#e6e007", // lemon
-  "#443300", // brown
-];
-
-// ----------------------------------------------------------------------
-
 type CustomCakeModalProps = {
   variants: IVariantData;
   isOpen: boolean;
@@ -113,9 +142,9 @@ export function CustomCakeModal({
   });
 
   const [variantColorData, setVariantColorData] = useState({
-    creamColor: "#F48c08",
-    topEdgeColor: "#F48c08",
-    bottomEdgeColor: "#F48c08",
+    creamColor: "#FFFFFF",
+    topEdgeColor: "#FFFFFF",
+    bottomEdgeColor: "#FFFFFF",
   });
 
   const [creamImage, setCreamImage] = useState("");
@@ -171,7 +200,6 @@ export function CustomCakeModal({
     const currentBottomEdge = variants.bottomEdges.find(
       (el) => el.id === variantData.bottomEdge,
     );
-    console.log("currentBottomEdge", currentBottomEdge);
     setBottomEdgeImage(currentBottomEdge?.image || "");
   }, [variantData.bottomEdge, variants.bottomEdges]);
 
@@ -244,41 +272,28 @@ export function CustomCakeModal({
 
   const renderCream = (
     <>
-      <div>
-        <div className=" mb-4">
-          <p>เลือกครีม</p>
-          <Divider className=" mt-2" />
-        </div>
-        <div className=" flex flex-row gap-3">
-          {variants?.creams?.map((el, index) => (
-            <div
-              key={el.id}
-              className=" flex flex-col items-center justify-center gap-2"
-            >
-              <label className=" w-fit">
-                <input
-                  type="radio"
-                  name="cream"
-                  value={el.id}
-                  onChange={updateVariantData}
-                  defaultChecked={index === 0}
-                />
-                <img
-                  src={el?.image || "/placeholder-image.png"}
-                  alt={el.name}
-                />
-              </label>
-              <p className=" text-sm">{el.name}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-      {/* <div>
-        <div className=" mb-4">
-          <p>เลือกสีครีม</p>
-          <Divider className=" mt-2" />
-        </div>
+      <VariantContainer title="เลือกครีม">
+        {variants?.creams?.map((el, index) => (
+          <div
+            key={el.id}
+            className=" flex flex-col items-center justify-center gap-2"
+          >
+            <label className=" w-fit">
+              <input
+                type="radio"
+                name="cream"
+                value={el.id}
+                onChange={updateVariantData}
+                defaultChecked={index === 0}
+              />
+              <img src={el?.image || "/placeholder-image.png"} alt={el.name} />
+            </label>
+            <VariantLabelContainer name={el.name} />
+          </div>
+        ))}
+      </VariantContainer>
 
+      <VariantColorContainer title="เลือกสีครีม">
         <Circle
           colors={availableColors}
           color={variantColorData.creamColor}
@@ -289,63 +304,50 @@ export function CustomCakeModal({
             }));
           }}
         />
-      </div> */}
+      </VariantColorContainer>
     </>
   );
 
   const renderTopEdge = (
     <>
-      <div>
-        <div className=" mb-4">
-          <p>เลือกขอบบน</p>
-          <Divider className=" mt-2" />
-        </div>
-        <div className=" flex flex-row gap-5">
-          {variants?.topEdges?.map((el) => (
-            <div
-              key={el.id}
-              className=" flex flex-col items-center justify-center gap-2"
-            >
-              <label className=" w-fit">
-                <input
-                  type="radio"
-                  name="topEdge"
-                  value={el.id}
-                  onChange={updateVariantData}
-                />
-                <img
-                  src={el?.image || "/placeholder-image.png"}
-                  alt={el.name}
-                />
-              </label>
-              <p className=" text-sm">{el.name}</p>
-            </div>
-          ))}
-          <div className=" flex flex-col items-center justify-center gap-2">
+      <VariantContainer title="เลือกขอบบน">
+        {variants?.topEdges?.map((el) => (
+          <div
+            key={el.id}
+            className=" flex flex-col flex-wrap items-center justify-center gap-2"
+          >
             <label className=" w-fit">
               <input
                 type="radio"
                 name="topEdge"
-                value="none"
+                value={el.id}
                 onChange={updateVariantData}
-                defaultChecked
               />
-              <img
-                src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
-                alt="not select"
-              />
+              <img src={el?.image || "/placeholder-image.png"} alt={el.name} />
             </label>
-            <p className=" text-sm">ไม่เลือก</p>
+            <VariantLabelContainer name={el.name} />
           </div>
+        ))}
+        <div className=" flex flex-col items-center justify-center gap-2">
+          <label className=" w-fit">
+            <input
+              type="radio"
+              name="topEdge"
+              value="none"
+              onChange={updateVariantData}
+              defaultChecked
+            />
+            <img
+              src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+              alt="not select"
+            />
+          </label>
+          <VariantLabelContainer name="ไม่เลือก" />
         </div>
-      </div>
-      {/* {variantData?.topEdge !== "none" && (
-        <div>
-          <div className=" mb-4">
-            <p>เลือกสีขอบบน</p>
-            <Divider className=" mt-2" />
-          </div>
+      </VariantContainer>
 
+      {variantData?.topEdge !== "none" && (
+        <VariantColorContainer title="เลือกสีขอบบน">
           <Circle
             colors={availableColors}
             color={variantColorData.topEdgeColor}
@@ -356,19 +358,53 @@ export function CustomCakeModal({
               }));
             }}
           />
-        </div>
-      )} */}
+        </VariantColorContainer>
+      )}
     </>
   );
 
   const renderDecoration = (
-    <div>
-      <div className=" mb-4">
-        <p>เลือกลายรอบเค้ก</p>
-        <Divider className=" mt-2" />
+    <VariantContainer title="เลือกลายรอบเค้ก">
+      {variants?.decorations?.map((el) => (
+        <div
+          key={el.id}
+          className=" flex flex-col items-center justify-center gap-2"
+        >
+          <label className=" w-fit">
+            <input
+              type="radio"
+              name="decoration"
+              value={el.id}
+              onChange={updateVariantData}
+            />
+            <img src={el?.image || "/placeholder-image.png"} alt={el.name} />
+          </label>
+          <VariantLabelContainer name={el.name} />
+        </div>
+      ))}
+      <div className=" flex flex-col items-center justify-center gap-2">
+        <label className=" w-fit">
+          <input
+            type="radio"
+            name="decoration"
+            value="none"
+            onChange={updateVariantData}
+            defaultChecked
+          />
+          <img
+            src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+            alt="not select"
+          />
+        </label>
+        <VariantLabelContainer name="ไม่เลือก" />
       </div>
-      <div className=" flex flex-row gap-3">
-        {variants?.decorations?.map((el) => (
+    </VariantContainer>
+  );
+
+  const renderBottomEdge = (
+    <>
+      <VariantContainer title="เลือกขอบล่าง">
+        {variants?.bottomEdges?.map((el) => (
           <div
             key={el.id}
             className=" flex flex-col items-center justify-center gap-2"
@@ -376,20 +412,20 @@ export function CustomCakeModal({
             <label className=" w-fit">
               <input
                 type="radio"
-                name="decoration"
+                name="bottomEdge"
                 value={el.id}
                 onChange={updateVariantData}
               />
               <img src={el?.image || "/placeholder-image.png"} alt={el.name} />
             </label>
-            <p className=" text-sm">{el.name}</p>
+            <VariantLabelContainer name={el.name} />
           </div>
         ))}
         <div className=" flex flex-col items-center justify-center gap-2">
           <label className=" w-fit">
             <input
               type="radio"
-              name="decoration"
+              name="bottomEdge"
               value="none"
               onChange={updateVariantData}
               defaultChecked
@@ -399,65 +435,12 @@ export function CustomCakeModal({
               alt="not select"
             />
           </label>
-          <p className=" text-sm">ไม่เลือก</p>
+          <VariantLabelContainer name="ไม่เลือก" />
         </div>
-      </div>
-    </div>
-  );
+      </VariantContainer>
 
-  const renderBottomEdge = (
-    <>
-      <div>
-        <div className=" mb-4">
-          <p>เลือกขอบล่าง</p>
-          <Divider className=" mt-2" />
-        </div>
-        <div className=" flex flex-row gap-3">
-          {variants?.bottomEdges?.map((el) => (
-            <div
-              key={el.id}
-              className=" flex flex-col items-center justify-center gap-2"
-            >
-              <label className=" w-fit">
-                <input
-                  type="radio"
-                  name="bottomEdge"
-                  value={el.id}
-                  onChange={updateVariantData}
-                />
-                <img
-                  src={el?.image || "/placeholder-image.png"}
-                  alt={el.name}
-                />
-              </label>
-              <p className=" text-sm">{el.name}</p>
-            </div>
-          ))}
-          <div className=" flex flex-col items-center justify-center gap-2">
-            <label className=" w-fit">
-              <input
-                type="radio"
-                name="bottomEdge"
-                value="none"
-                onChange={updateVariantData}
-                defaultChecked
-              />
-              <img
-                src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
-                alt="not select"
-              />
-            </label>
-            <p className=" text-sm">ไม่เลือก</p>
-          </div>
-        </div>
-      </div>
-      {/* {variantData?.bottomEdge !== "none" && (
-        <div>
-          <div className=" mb-4">
-            <p>เลือกสีขอบล่าง</p>
-            <Divider className=" mt-2" />
-          </div>
-
+      {variantData?.bottomEdge !== "none" && (
+        <VariantColorContainer title="เลือกสีขอบล่าง">
           <Circle
             colors={availableColors}
             color={variantColorData.bottomEdgeColor}
@@ -468,38 +451,32 @@ export function CustomCakeModal({
               }));
             }}
           />
-        </div>
-      )} */}
+        </VariantColorContainer>
+      )}
     </>
   );
 
   const renderSurface = (
-    <div>
-      <div className=" mb-4">
-        <p>เลือกหน้าเค้ก</p>
-        <Divider className=" mt-2" />
-      </div>
-      <div className=" flex flex-row gap-3">
-        {variants?.surfaces?.map((el, index) => (
-          <div
-            key={el.id}
-            className=" flex flex-col items-center justify-center gap-2"
-          >
-            <label key={el.id} className=" w-fit">
-              <input
-                type="radio"
-                name="surface"
-                value={el.id}
-                onChange={updateVariantData}
-                defaultChecked={index === 0}
-              />
-              <img src={el?.image || "/placeholder-image.png"} alt={el.name} />
-            </label>
-            <p className=" text-sm">{el.name}</p>
-          </div>
-        ))}
-      </div>
-    </div>
+    <VariantContainer title="เลือกหน้าเค้ก">
+      {variants?.surfaces?.map((el, index) => (
+        <div
+          key={el.id}
+          className=" flex flex-col items-center justify-center gap-2"
+        >
+          <label key={el.id} className=" w-fit">
+            <input
+              type="radio"
+              name="surface"
+              value={el.id}
+              onChange={updateVariantData}
+              defaultChecked={index === 0}
+            />
+            <img src={el?.image || "/placeholder-image.png"} alt={el.name} />
+          </label>
+          <VariantLabelContainer name={el.name} />
+        </div>
+      ))}
+    </VariantContainer>
   );
 
   return (
@@ -510,19 +487,19 @@ export function CustomCakeModal({
       classNames={{
         body: `${ibm.className} `,
       }}
-      className=" max-w-screen-2xl w-full max-h-75 "
+      className=" max-h-75 w-full max-w-screen-2xl "
     >
       <ModalContent>
         {(onClose) => (
           <>
             <div
-              className={`grid grid-cols-3 relative overflow-hidden ${ibm.className}`}
+              className={`relative grid grid-cols-3 overflow-hidden ${ibm.className}`}
             >
               {/* Left-hand side */}
-              <div className=" col-span-1 relative p-6 overflow-y-scroll">
+              <div className=" relative col-span-1 overflow-y-scroll p-6">
                 <h6 className=" text-3xl">เค้กแต่งเอง</h6>
 
-                <div className=" flex flex-col my-5 gap-8">
+                <div className=" my-5 flex flex-col gap-8">
                   {renderStaticRadioGroup}
 
                   {variants?.creams?.length > 0 && renderCream}
@@ -536,90 +513,60 @@ export function CustomCakeModal({
                   {variants?.surfaces?.length > 0 && renderSurface}
                 </div>
               </div>
-              <div className="col-span-2 p-6 relative">
+              <div className="relative col-span-2 p-6">
                 {/* Right-hand side */}
                 <Divider
                   orientation="vertical"
-                  className=" absolute top-0 left-0"
+                  className=" absolute left-0 top-0"
                 />
-                <div className=" flex flex-col h-95p">
+                <div className=" flex h-95p flex-col">
                   <h6 className=" text-3xl text-primaryT-main">
                     {selectedPound === "1"
-                      ? "฿250"
+                      ? "฿342"
                       : selectedPound === "2"
-                        ? "฿500"
-                        : "฿750"}
+                        ? "฿684"
+                        : "฿1,026"}
                   </h6>
-                  <div className=" flex flex-1 justify-center items-center">
-                    <div className=" flex justify-center items-center p-5 relative h-2/3 w-2/3">
+                  <div className=" flex flex-1 items-center justify-center">
+                    <div className=" relative flex h-2/3 w-2/3 items-center justify-center p-5">
                       {creamImage && (
-                        // <div
-                        //   className="w-full h-full absolute z-0"
-                        //   style={{
-                        //     backgroundColor: `${variantColorData.creamColor}`,
-                        //     WebkitMaskImage: `url(${creamImage}) no-repeat 50% 50%`,
-                        //     mask: `url(${creamImage}) no-repeat 50% 50%`,
-                        //     maskSize: "cover",
-                        //     WebkitMaskSize: "cover",
-                        //   }}
-                        // />
                         <img
-                          className="w-full absolute z-30"
+                          className="absolute z-30 w-full"
                           alt={variantData.bottomEdge}
                           src={creamImage}
                         />
                       )}
                       {topEdgeImage && (
-                        // <div
-                        //   className="w-full h-full absolute z-10"
-                        //   style={{
-                        //     backgroundColor: `${variantColorData.topEdgeColor}`,
-                        //     WebkitMaskImage: `url(${topEdgeImage}) no-repeat 50% 50%`,
-                        //     mask: `url(${topEdgeImage}) no-repeat 50% 50%`,
-                        //     maskSize: "cover",
-                        //     WebkitMaskSize: "cover",
-                        //   }}
-                        // />
                         <img
-                          className="w-full absolute z-30"
+                          className="absolute z-30 w-full"
                           alt={variantData.bottomEdge}
                           src={topEdgeImage}
                         />
                       )}
                       {decorationImage && (
                         <img
-                          className="w-full absolute z-30"
+                          className="absolute z-30 w-full"
                           alt={variantData.decoration}
                           src={decorationImage}
                         />
                       )}
                       {bottomEdgeImage && (
-                        // <div
-                        //   className="w-full h-full absolute z-20"
-                        //   style={{
-                        //     backgroundColor: `${variantColorData.bottomEdgeColor}`,
-                        //     WebkitMaskImage: `url(${bottomEdgeImage}) no-repeat 50% 50%`,
-                        //     mask: `url(${bottomEdgeImage}) no-repeat 50% 50%`,
-                        //     maskSize: "cover",
-                        //     WebkitMaskSize: "cover",
-                        //   }}
-                        // />
                         <img
-                          className="w-full absolute z-30"
+                          className="absolute z-30 w-full"
                           alt={variantData.bottomEdge}
                           src={bottomEdgeImage}
                         />
                       )}
                       {surfaceImage && (
                         <img
-                          className="w-full absolute z-30"
+                          className="absolute z-30 w-full"
                           alt={variantData.surface}
                           src={surfaceImage}
                         />
                       )}
                     </div>
                   </div>
-                  <div className="flex justify-center items-center">
+                  <div className="flex items-center justify-center">
                     <Button
                       size="lg"
                       color="secondary"

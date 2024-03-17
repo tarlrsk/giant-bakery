@@ -55,8 +55,6 @@ export default function useAdmin(
   const {
     getProducts,
     createProduct,
-    updateProduct,
-    deleteProduct,
     getCakesAdmin,
     createCakeAdmin,
     updateCakeAdmin,
@@ -73,70 +71,111 @@ export default function useAdmin(
     getOrderById,
   } = apiPaths();
 
-  // Products
-  const {
-    data: productsData,
-    mutate: productsMutate,
-    isLoading: productsIsLoading,
-  } = useSWR(getProducts(), adminFetcher, options);
+  const useProductAdmin = () => {
+    const {
+      data: productsData,
+      mutate: productsMutate,
+      isLoading: productsIsLoading,
+    } = useSWR(getProducts(), adminFetcher, options);
 
-  // console.log(updateProduct(selectedItem?.id || ""));
+    const {
+      trigger: createProductTrigger,
+      isMutating: createProductIsLoading,
+    } = useSWRMutation(createProduct(), createItem);
 
-  const { trigger: createProductTrigger, isMutating: createProductIsLoading } =
-    useSWRMutation(createProduct(), createItem);
+    return {
+      productsData,
+      productsMutate,
+      productsIsLoading,
+      createProductTrigger,
+      createProductIsLoading,
+    };
+  };
 
-  // Cakes
-  const {
-    data: cakesData,
-    mutate: cakesMutate,
-    isLoading: cakesIsLoading,
-  } = useSWR(getCakesAdmin(), adminFetcher, options);
+  const useCakeAdmin = () => {
+    const {
+      data: cakesData,
+      mutate: cakesMutate,
+      isLoading: cakesIsLoading,
+    } = useSWR(getCakesAdmin(), adminFetcher, options);
 
-  const { trigger: updateCakeTrigger, isMutating: updateCakeIsLoading } =
-    useSWRMutation(updateCakeAdmin(selectedItem?.id || ""), updateItem);
+    const { trigger: updateCakeTrigger, isMutating: updateCakeIsLoading } =
+      useSWRMutation(updateCakeAdmin(selectedItem?.id || ""), updateItem);
 
-  const { trigger: createCakeTrigger, isMutating: createCakeIsLoading } =
-    useSWRMutation(createCakeAdmin(), createItem);
+    const { trigger: createCakeTrigger, isMutating: createCakeIsLoading } =
+      useSWRMutation(createCakeAdmin(), createItem);
 
-  const { trigger: deleteCakeTrigger, isMutating: deleteCakeIsLoading } =
-    useSWRMutation(deleteCakeAdmin(selectedItem?.id || ""), deleteItem);
+    const { trigger: deleteCakeTrigger, isMutating: deleteCakeIsLoading } =
+      useSWRMutation(deleteCakeAdmin(selectedItem?.id || ""), deleteItem);
 
-  // Snack box
-  const {
-    data: snackBoxData,
-    mutate: snackBoxMutate,
-    isLoading: snackBoxIsLoading,
-  } = useSWR(getSnackBoxAdmin(), adminFetcher, options);
+    return {
+      cakesData,
+      cakesMutate,
+      cakesIsLoading,
+      updateCakeTrigger,
+      updateCakeIsLoading,
+      createCakeTrigger,
+      createCakeIsLoading,
+      deleteCakeTrigger,
+      deleteCakeIsLoading,
+    };
+  };
 
-  const {
-    trigger: updateSnackBoxTrigger,
-    isMutating: updateSnackBoxIsLoading,
-  } = useSWRMutation(updateSnackBoxAdmin(selectedItem?.id || ""), updateItem);
+  const useSnackBoxAdmin = () => {
+    const {
+      data: snackBoxData,
+      mutate: snackBoxMutate,
+      isLoading: snackBoxIsLoading,
+    } = useSWR(getSnackBoxAdmin(), adminFetcher, options);
 
-  const {
-    trigger: createSnackBoxTrigger,
-    isMutating: createSnackBoxIsLoading,
-  } = useSWRMutation(createSnackBoxAdmin(), createItem);
+    const {
+      data: productsData,
+      mutate: productsMutate,
+      isLoading: productsIsLoading,
+    } = useSWR(getProducts(), adminFetcher, options);
 
-  const {
-    trigger: deleteSnackBoxTrigger,
-    isMutating: deleteSnackBoxIsLoading,
-  } = useSWRMutation(deleteSnackBoxAdmin(selectedItem?.id || ""), deleteItem);
+    const {
+      trigger: updateSnackBoxTrigger,
+      isMutating: updateSnackBoxIsLoading,
+    } = useSWRMutation(updateSnackBoxAdmin(selectedItem?.id || ""), updateItem);
 
-  // Variants
-  const {
-    data: variantsData,
-    mutate: variantsMutate,
-    isLoading: variantsIsLoading,
-  } = useSWR(getVariantAdmin(), adminFetcher, options);
+    const {
+      trigger: createSnackBoxTrigger,
+      isMutating: createSnackBoxIsLoading,
+    } = useSWRMutation(createSnackBoxAdmin(), createItem);
 
-  const { data: creamBaseData } = useSWR(
-    `${getVariantAdmin()}/CREAM/30e2bb1c-3dd3-4293-8ef4-0b2b3454cbe9`,
-    adminFetcher,
-  );
+    const {
+      trigger: deleteSnackBoxTrigger,
+      isMutating: deleteSnackBoxIsLoading,
+    } = useSWRMutation(deleteSnackBoxAdmin(selectedItem?.id || ""), deleteItem);
 
-  const { trigger: updateVariantTrigger, isMutating: updateVariantIsLoading } =
-    useSWRMutation(
+    return {
+      snackBoxData,
+      snackBoxMutate,
+      snackBoxIsLoading,
+      updateSnackBoxTrigger,
+      updateSnackBoxIsLoading,
+      createSnackBoxTrigger,
+      createSnackBoxIsLoading,
+      deleteSnackBoxTrigger,
+      deleteSnackBoxIsLoading,
+      productsData,
+      productsMutate,
+      productsIsLoading,
+    };
+  };
+
+  const useVariantAdmin = (selectedItem?: IVariant) => {
+    const {
+      data: variantsData,
+      mutate: variantsMutate,
+      isLoading: variantsIsLoading,
+    } = useSWR(getVariantAdmin(), adminFetcher, options);
+
+    const {
+      trigger: updateVariantTrigger,
+      isMutating: updateVariantIsLoading,
+    } = useSWRMutation(
       updateVariantAdmin(
         selectedItem
           ? (selectedItem.type as
@@ -146,16 +185,19 @@ export default function useAdmin(
               | "DECORATION"
               | "SURFACE")
           : "TOP_EDGE",
-        selectedItem?.id || "",
       ),
       updateItem,
     );
 
-  const { trigger: createVariantTrigger, isMutating: createVariantIsLoading } =
-    useSWRMutation(createVariantAdmin(), createItem);
+    const {
+      trigger: createVariantTrigger,
+      isMutating: createVariantIsLoading,
+    } = useSWRMutation(createVariantAdmin(), createItem);
 
-  const { trigger: deleteVariantTrigger, isMutating: deleteVariantIsLoading } =
-    useSWRMutation(
+    const {
+      trigger: deleteVariantTrigger,
+      isMutating: deleteVariantIsLoading,
+    } = useSWRMutation(
       deleteVariantAdmin(
         selectedItem?.type as
           | "CREAM"
@@ -168,64 +210,48 @@ export default function useAdmin(
       deleteItem,
     );
 
-  // Orders
-  const {
-    data: ordersData,
-    mutate: ordersMutate,
-    isLoading: ordersIsLoading,
-  } = useSWR(getOrders(), adminFetcher, options);
+    return {
+      variantsData,
+      variantsMutate,
+      variantsIsLoading,
+      updateVariantTrigger,
+      updateVariantIsLoading,
+      createVariantTrigger,
+      createVariantIsLoading,
 
-  const {
-    data: orderByIdData,
-    mutate: orderByIdMutate,
-    isLoading: orderByIdIsLoading,
-  } = useSWR(getOrderById(selectedItem?.id || ""), adminFetcher);
+      deleteVariantTrigger,
+      deleteVariantIsLoading,
+    };
+  };
+
+  const useOrderAdmin = () => {
+    const {
+      data: ordersData,
+      mutate: ordersMutate,
+      isLoading: ordersIsLoading,
+    } = useSWR(getOrders(), adminFetcher, options);
+
+    const {
+      data: orderByIdData,
+      mutate: orderByIdMutate,
+      isLoading: orderByIdIsLoading,
+    } = useSWR(getOrderById(selectedItem?.id || ""), adminFetcher);
+
+    return {
+      ordersData,
+      ordersMutate,
+      ordersIsLoading,
+      orderByIdData,
+      orderByIdMutate,
+      orderByIdIsLoading,
+    };
+  };
 
   return {
-    productsData,
-    productsMutate,
-    productsIsLoading,
-
-    createProductTrigger,
-    createProductIsLoading,
-    //
-    cakesData,
-    cakesMutate,
-    cakesIsLoading,
-    updateCakeTrigger,
-    updateCakeIsLoading,
-    createCakeTrigger,
-    createCakeIsLoading,
-    //
-    snackBoxData,
-    snackBoxMutate,
-    snackBoxIsLoading,
-    updateSnackBoxTrigger,
-    updateSnackBoxIsLoading,
-    createSnackBoxTrigger,
-    createSnackBoxIsLoading,
-    //
-    variantsData,
-    creamBaseData,
-    variantsMutate,
-    variantsIsLoading,
-    updateVariantTrigger,
-    updateVariantIsLoading,
-    createVariantTrigger,
-    createVariantIsLoading,
-
-    deleteCakeTrigger,
-    deleteCakeIsLoading,
-    deleteVariantTrigger,
-    deleteVariantIsLoading,
-    deleteSnackBoxTrigger,
-    deleteSnackBoxIsLoading,
-    //
-    ordersData,
-    ordersMutate,
-    ordersIsLoading,
-    orderByIdData,
-    orderByIdMutate,
-    orderByIdIsLoading,
+    useProductAdmin,
+    useCakeAdmin,
+    useSnackBoxAdmin,
+    useOrderAdmin,
+    useVariantAdmin,
   };
 }

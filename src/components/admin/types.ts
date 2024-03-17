@@ -147,6 +147,7 @@ export const createUpdateVariantSchema = z.object({
     .max(255),
   isActive: z.boolean(),
   type: z.string(),
+  color: z.string(),
 });
 
 // ----------------------------------------------------------------------
@@ -231,6 +232,9 @@ export interface IVariant {
   id: string;
   type: "CREAM" | "TOP_EDGE" | "BOTTOM_EDGE" | "DECORATION" | "SURFACE";
   name: string;
+  color: string;
+  colors: { id: string; color: string; image: string }[];
+  editedColorId?: string;
   imageFileName: string;
   imagePath: string;
   image: CustomFile | string | null;

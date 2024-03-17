@@ -122,12 +122,11 @@ const apiPaths = () => {
   const createVariantAdmin = () => createAdminUrl("variants");
   const updateVariantAdmin = (
     type: "CREAM" | "TOP_EDGE" | "BOTTOM_EDGE" | "DECORATION" | "SURFACE",
-    string: string,
-  ) => createAdminUrl(`variants/${type}/${string}`);
+  ) => createAdminUrl(`variants/${type}`);
   const deleteVariantAdmin = (
     type: "CREAM" | "TOP_EDGE" | "BOTTOM_EDGE" | "DECORATION" | "SURFACE",
-    string: string,
-  ) => createAdminUrl(`variants/${type}/${string}`);
+    id: string,
+  ) => createAdminUrl(`variants/${type}/${id}`);
 
   // Orders
   const getOrdersOverview = () => createAdminUrl("orders/overview");
