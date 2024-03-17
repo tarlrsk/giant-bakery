@@ -120,9 +120,7 @@ const apiPaths = () => {
   // Variants
   const getVariantAdmin = () => createAdminUrl("variants");
   const createVariantAdmin = () => createAdminUrl("variants");
-  const updateVariantAdmin = (
-    type: "CREAM" | "TOP_EDGE" | "BOTTOM_EDGE" | "DECORATION" | "SURFACE",
-  ) => createAdminUrl(`variants/${type}`);
+  const updateVariantAdmin = () => createAdminUrl("variants");
   const deleteVariantAdmin = (
     type: "CREAM" | "TOP_EDGE" | "BOTTOM_EDGE" | "DECORATION" | "SURFACE",
     id: string,

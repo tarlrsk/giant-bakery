@@ -175,19 +175,7 @@ export default function useAdmin(
     const {
       trigger: updateVariantTrigger,
       isMutating: updateVariantIsLoading,
-    } = useSWRMutation(
-      updateVariantAdmin(
-        selectedItem
-          ? (selectedItem.type as
-              | "CREAM"
-              | "TOP_EDGE"
-              | "BOTTOM_EDGE"
-              | "DECORATION"
-              | "SURFACE")
-          : "TOP_EDGE",
-      ),
-      updateItem,
-    );
+    } = useSWRMutation(updateVariantAdmin(), updateItem);
 
     const {
       trigger: createVariantTrigger,

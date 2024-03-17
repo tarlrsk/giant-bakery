@@ -43,7 +43,7 @@ export const AVAILABLE_COLORS = [
   { value: "WHITE", label: "ขาว", code: "#FFFFFF" },
   { value: "PURPLE", label: "ม่วง", code: "#7758a9" },
   { value: "RED", label: "แดง", code: "#aa2639" },
-  { value: "DARK_RED", label: "แดงคริสมาสต์", code: "#aa2639" },
+  { value: "DARK_RED", label: "แดงคริสมาสต์", code: "#c30000" },
   { value: "ORANGE", label: "ส้ม", code: "#F48c08" },
   { value: "YELLO_LEMON", label: "เหลืองมะนาว", code: "#e6e007" },
   { value: "DARK_GREEN", label: "เขียวแก่", code: "#2f5e1e" },
@@ -139,6 +139,7 @@ export default function AdminVariant() {
     image: editVariantImage,
     type: editVariantType,
     color: editVariantColor,
+    editedColorId,
   } = watchEditVariant();
 
   const onDropSingleFileNewVariant = useCallback(
@@ -179,6 +180,7 @@ export default function AdminVariant() {
     try {
       await deleteVariantTrigger();
       variantsMutate();
+      setRowSelectionModel([]);
       setOpenEditDrawer(false);
       setIsOpenDelete(false);
       enqueueSnackbar(`ตัวเลือกเค้ก ${selectedRow?.name || ""} ถูกลบแล้ว`, {
@@ -215,7 +217,7 @@ export default function AdminVariant() {
 
   const onSubmitEdit = handleSubmitEdit(async (data) => {
     try {
-      const { image, name, isActive, type, editedColorId } = data;
+      const { image, name, isActive, type, color } = data;
       const bodyFormData = new FormData();
       bodyFormData.append("name", name);
       if (typeof image !== "string" && image) {
@@ -231,7 +233,14 @@ export default function AdminVariant() {
         bodyFormData.append("id", selectedRow?.id ?? "");
       }
 
-      await updateVariantTrigger(bodyFormData);
+      if (hasColor(type) && !editedColorId) {
+        bodyFormData.append("color", color);
+
+        await createVariantTrigger(bodyFormData);
+      } else {
+        await updateVariantTrigger(bodyFormData);
+      }
+
       variantsMutate();
       enqueueSnackbar("อัพเดทตัวเลือกเค้กสำเร็จ", { variant: "success" });
     } catch (error) {
@@ -239,6 +248,93 @@ export default function AdminVariant() {
       enqueueSnackbar("เกิดข้อผิดพลาด กรุณาลองใหม่", { variant: "error" });
     }
   });
+
+  useEffect(() => {
+    let data = variants?.data || [];
+
+    if (search) {
+      data = data.filter(
+        (row: IVariant) =>
+          row.name.toLowerCase().indexOf(search?.toLowerCase()) > -1,
+      );
+    }
+
+    if (variantType !== "all") {
+      data = data.filter((row: IVariant) => row.type === variantType);
+    }
+
+    if (status !== "all") {
+      if (status === "active") {
+        data = data.filter((row: { isActive: any }) => row.isActive);
+      } else {
+        data = data.filter((row: { isActive: any }) => !row.isActive);
+      }
+    }
+    setFilteredRows(data);
+  }, [search, variantType, status, variants?.data]);
+
+  // On selected row, then open Edit Drawer
+  useEffect(() => {
+    if (rowSelectionModel.length) {
+      const selectedRowData: IVariant = variants?.data?.find(
+        (row: IVariant) => row.id === rowSelectionModel[0],
+      );
+
+      setSelectedRow(selectedRowData);
+
+      setOpenEditDrawer(true);
+    }
+  }, [
+    resetEditVariant,
+    rowSelectionModel,
+    selectedRow?.id,
+    setValueEditVariant,
+    variants?.data,
+  ]);
+
+  // Set default value for edit form
+  useEffect(() => {
+    // If selected row has colors, then set editedId to white as default
+    if (selectedRow && selectedRow?.colors?.length > 0) {
+      const whiteColorObject = selectedRow.colors?.find(
+        (el) => el.color === "WHITE",
+      );
+
+      resetEditVariant(selectedRow);
+      setValueEditVariant("type", selectedRow.type);
+      setValueEditVariant("image", whiteColorObject?.image || "");
+      setValueEditVariant("editedColorId", whiteColorObject?.id || "");
+      setValueEditVariant(
+        "color",
+        editVariantColor ? editVariantColor : "WHITE",
+      );
+    } else {
+      resetEditVariant(selectedRow);
+    }
+  }, [editVariantColor, resetEditVariant, selectedRow, setValueEditVariant]);
+
+  useEffect(() => {
+    setFilteredRows(variants?.data || []);
+  }, [variants]);
+
+  // On color option of existing row is changed, then update editId to the id of that color
+  useEffect(() => {
+    const itemAvailableColors = selectedRow?.colors || [];
+    const foundColor = itemAvailableColors.find(
+      (el) => el.color === editVariantColor,
+    );
+
+    if (!foundColor && hasColor(editVariantType || "")) {
+      setValueEditVariant("editedColorId", "");
+      setValueEditVariant("image", null);
+      return;
+    }
+
+    if (foundColor) {
+      setValueEditVariant("editedColorId", foundColor.id);
+      setValueEditVariant("image", foundColor.image);
+    }
+  }, [editVariantColor, editVariantType, selectedRow, setValueEditVariant]);
 
   const DrawerAddVariant = (
     <Box
@@ -347,7 +443,7 @@ export default function AdminVariant() {
             onDrop={onDropSingleFileEditVariant}
             onDelete={() =>
               setValueEditVariant("image", null, {
-                shouldValidate: true,
+                shouldValidate: false,
               })
             }
           />
@@ -412,7 +508,7 @@ export default function AdminVariant() {
             size="large"
             variant="contained"
             type="submit"
-            loading={updateVariantIsLoading}
+            loading={updateVariantIsLoading || createVariantIsLoading}
           >
             อัพเดทตัวเลือกเค้ก
           </LoadingButton>
@@ -420,79 +516,6 @@ export default function AdminVariant() {
       </FormProvider>
     </Box>
   );
-
-  useEffect(() => {
-    let data = variants?.data || [];
-
-    if (search) {
-      data = data.filter(
-        (row: IVariant) =>
-          row.name.toLowerCase().indexOf(search?.toLowerCase()) > -1,
-      );
-    }
-
-    if (variantType !== "all") {
-      data = data.filter((row: IVariant) => row.type === variantType);
-    }
-
-    if (status !== "all") {
-      if (status === "active") {
-        data = data.filter((row: { isActive: any }) => row.isActive);
-      } else {
-        data = data.filter((row: { isActive: any }) => !row.isActive);
-      }
-    }
-    setFilteredRows(data);
-  }, [search, variantType, status, variants?.data]);
-
-  // On selected row, then open Edit Drawer
-  useEffect(() => {
-    if (rowSelectionModel.length && selectedRow?.id !== rowSelectionModel[0]) {
-      const selectedRowData: IVariant = variants?.data?.find(
-        (row: IVariant) => row.id === rowSelectionModel[0],
-      );
-
-      setSelectedRow(selectedRowData);
-
-      // If selected row has colors, then set editedId to white as default
-      if (selectedRowData?.colors?.length > 0) {
-        const whiteColor = selectedRowData?.colors.find(
-          (el) => el.color === "WHITE",
-        )?.image;
-        setValueEditVariant("editedColorId", whiteColor || "");
-      }
-
-      setOpenEditDrawer(true);
-    }
-  }, [
-    resetEditVariant,
-    rowSelectionModel,
-    selectedRow?.id,
-    setValueEditVariant,
-    variants?.data,
-  ]);
-
-  useEffect(() => {
-    resetEditVariant(selectedRow);
-  }, [resetEditVariant, selectedRow]);
-
-  useEffect(() => {
-    setFilteredRows(variants?.data || []);
-  }, [variants]);
-
-  // On color option of existing row is changed, then update editId to the id of that color
-  useEffect(() => {
-    const itemAvailableColors = selectedRow?.colors || [];
-    const foundColor = itemAvailableColors.find(
-      (el) => el.color === editVariantColor,
-    );
-
-    if (!foundColor) return;
-
-    setValueEditVariant("editedColorId", foundColor.id);
-    setValueEditVariant("image", foundColor.image);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editVariantColor]);
 
   return (
     <Box>
