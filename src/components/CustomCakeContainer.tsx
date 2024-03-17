@@ -4,8 +4,8 @@ import useSWR from "swr";
 import { fetcher } from "@/utils/axios";
 import apiPaths from "@/utils/api-path";
 import Circle from "@uiw/react-color-circle";
-import React, { useState, useEffect } from "react";
 import { IBM_Plex_Sans_Thai } from "next/font/google";
+import React, { useMemo, useState, useEffect } from "react";
 import { AVAILABLE_COLORS } from "@/app/(admin)/admin/variants/page";
 
 import {
@@ -59,19 +59,17 @@ const VariantColorContainer = ({
 };
 
 const VariantLabelContainer = ({ name }: { name: string }) => {
-  return <p className=" text-center text-sm">{name}</p>;
+  return <p className=" text-center text-sm leading-relaxed">{name}</p>;
 };
 
 const VariantContainer = ({ title, children }: VariantContainerProps) => {
   return (
     <div>
-      <div className=" mb-0">
+      <div className=" mb-4">
         <p>{title}</p>
         <Divider className=" mt-2" />
       </div>
-      <div className="grid grid-cols-6 items-baseline justify-between">
-        {children}
-      </div>
+      <div className="grid grid-cols-5 items-baseline gap-3 ">{children}</div>
     </div>
   );
 };
@@ -80,8 +78,6 @@ const ibm = IBM_Plex_Sans_Thai({
   weight: ["100", "200", "300", "400", "500", "600", "700"],
   subsets: ["latin", "thai"],
 });
-
-const availableColors = AVAILABLE_COLORS.map((el) => el.code);
 
 // ----------------------------------------------------------------------
 
@@ -134,17 +130,17 @@ export function CustomCakeModal({
     decoration: string;
     surface: string;
   }>({
-    cream: "",
-    topEdge: "",
-    bottomEdge: "",
+    cream: "none",
+    topEdge: "none",
+    bottomEdge: "none",
     decoration: "",
     surface: "",
   });
 
   const [variantColorData, setVariantColorData] = useState({
-    creamColor: "#FFFFFF",
-    topEdgeColor: "#FFFFFF",
-    bottomEdgeColor: "#FFFFFF",
+    creamColor: "#ffffff",
+    topEdgeColor: "#ffffff",
+    bottomEdgeColor: "#ffffff",
   });
 
   const [creamImage, setCreamImage] = useState("");
@@ -168,8 +164,8 @@ export function CustomCakeModal({
     if (Object.keys(variants).length === 0) return;
     setVariantData({
       cream: variants?.creams[0]?.id || "",
-      topEdge: "",
-      bottomEdge: "",
+      topEdge: "none",
+      bottomEdge: "none",
       decoration: "",
       surface: "",
     });
@@ -184,24 +180,55 @@ export function CustomCakeModal({
     const currentCream = variants.creams.find(
       (el) => el.id === variantData.cream,
     );
-    setCreamImage(currentCream?.image || "");
-  }, [variantData.cream, variants.creams]);
+
+    if (!currentCream) return setCreamImage("");
+    // Map colored image
+    const { creamColor } = variantColorData;
+    const currentColor = AVAILABLE_COLORS.find(
+      (color) => color.code === creamColor,
+    )?.value;
+    const image = currentCream?.colors?.find(
+      (eachColor) => eachColor.color === currentColor,
+    )?.image;
+
+    setCreamImage(image || "");
+  }, [variantColorData, variantData.cream, variants.creams]);
 
   useEffect(() => {
     if (!variantData.topEdge) return;
     const currentTopEdge = variants.topEdges.find(
       (el) => el.id === variantData.topEdge,
     );
-    setTopEdgeImage(currentTopEdge?.image || "");
-  }, [variantData.topEdge, variants.topEdges]);
+    if (!currentTopEdge) return setTopEdgeImage("");
+
+    // Map colored image
+    const { topEdgeColor } = variantColorData;
+    const currentColor = AVAILABLE_COLORS.find(
+      (color) => color.code === topEdgeColor,
+    )?.value;
+    const image = currentTopEdge?.colors?.find(
+      (eachColor) => eachColor.color === currentColor,
+    )?.image;
+    setTopEdgeImage(image || "");
+  }, [variantColorData, variantData.topEdge, variants.topEdges]);
 
   useEffect(() => {
     if (!variantData.bottomEdge) return;
     const currentBottomEdge = variants.bottomEdges.find(
       (el) => el.id === variantData.bottomEdge,
     );
-    setBottomEdgeImage(currentBottomEdge?.image || "");
-  }, [variantData.bottomEdge, variants.bottomEdges]);
+    if (!currentBottomEdge) return setBottomEdgeImage("");
+    // Map colored image
+    const { bottomEdgeColor } = variantColorData;
+    const currentColor = AVAILABLE_COLORS.find(
+      (color) => color.code === bottomEdgeColor,
+    )?.value;
+    const image = currentBottomEdge?.colors?.find(
+      (eachColor) => eachColor.color === currentColor,
+    )?.image;
+
+    setBottomEdgeImage(image || "");
+  }, [variantColorData, variantData.bottomEdge, variants.bottomEdges]);
 
   useEffect(() => {
     if (!variantData.decoration) return;
@@ -218,6 +245,75 @@ export function CustomCakeModal({
     );
     setSurfaceImage(currentSurface?.image || "");
   }, [variantData.surface, variants.surfaces]);
+
+  // ----------------------------------------------------------------------
+
+  const availableCreamColors = useMemo(() => {
+    const currentCream = variants.creams?.find(
+      (cream) => cream.id === variantData.cream,
+    );
+    const currentCreamColors =
+      currentCream?.colors?.map((eachColor) => eachColor.color) || [];
+    const availableCreamColors = AVAILABLE_COLORS.filter((el) =>
+      currentCreamColors.includes(el.value),
+    );
+    const availableCreamColorsHex = availableCreamColors.map((el) => el.code);
+
+    return availableCreamColorsHex;
+  }, [variantData.cream, variants.creams]);
+
+  const availableTopEdgeColors = useMemo(() => {
+    const currentTopEdge = variants.topEdges?.find(
+      (topEdge) => topEdge.id === variantData.topEdge,
+    );
+    const currentTopEdgeColors =
+      currentTopEdge?.colors?.map((eachColor) => eachColor.color) || [];
+    const availableTopEdgeColors = AVAILABLE_COLORS.filter((el) =>
+      currentTopEdgeColors.includes(el.value),
+    );
+    const availableCreamColorsHex = availableTopEdgeColors.map((el) => el.code);
+
+    return availableCreamColorsHex;
+  }, [variantData.topEdge, variants.topEdges]);
+
+  const availableBottomEdgeColors = useMemo(() => {
+    const currentBottomEdge = variants.bottomEdges?.find(
+      (bottomEdge) => bottomEdge.id === variantData.bottomEdge,
+    );
+    const currentBottomEdgeColors =
+      currentBottomEdge?.colors?.map((eachColor) => eachColor.color) || [];
+    const availableBottomEdgeColors = AVAILABLE_COLORS.filter((el) =>
+      currentBottomEdgeColors.includes(el.value),
+    );
+    const availableBottomEdgeColorsHex = availableBottomEdgeColors.map(
+      (el) => el.code,
+    );
+
+    return availableBottomEdgeColorsHex;
+  }, [variantData.bottomEdge, variants.bottomEdges]);
+
+  // Handle reset color when variant changes ----------------------------------------------------------------------
+
+  useEffect(() => {
+    setVariantColorData((prev) => ({
+      ...prev,
+      creamColor: "#ffffff",
+    }));
+  }, [variantData.cream]);
+
+  useEffect(() => {
+    setVariantColorData((prev) => ({
+      ...prev,
+      topEdgeColor: "#ffffff",
+    }));
+  }, [variantData.topEdge]);
+
+  useEffect(() => {
+    setVariantColorData((prev) => ({
+      ...prev,
+      bottomEdgeColor: "#ffffff",
+    }));
+  }, [variantData.bottomEdge]);
 
   // ----------------------------------------------------------------------
 
@@ -273,29 +369,34 @@ export function CustomCakeModal({
   const renderCream = (
     <>
       <VariantContainer title="เลือกครีม">
-        {variants?.creams?.map((el, index) => (
-          <div
-            key={el.id}
-            className=" flex flex-col items-center justify-center gap-2"
-          >
-            <label className=" w-fit">
-              <input
-                type="radio"
-                name="cream"
-                value={el.id}
-                onChange={updateVariantData}
-                defaultChecked={index === 0}
-              />
-              <img src={el?.image || "/placeholder-image.png"} alt={el.name} />
-            </label>
-            <VariantLabelContainer name={el.name} />
-          </div>
-        ))}
+        {variants?.creams?.map((el, index) => {
+          const image = el?.colors?.find(
+            (eachColor) => eachColor.color === "WHITE",
+          )?.image;
+          return (
+            <div
+              key={el.id}
+              className=" flex flex-col items-center justify-center gap-2"
+            >
+              <label className=" w-fit">
+                <input
+                  type="radio"
+                  name="cream"
+                  value={el.id}
+                  onChange={updateVariantData}
+                  defaultChecked={index === 0}
+                />
+                <img src={image || "/placeholder-image.png"} alt={el.name} />
+              </label>
+              <VariantLabelContainer name={el.name} />
+            </div>
+          );
+        })}
       </VariantContainer>
 
       <VariantColorContainer title="เลือกสีครีม">
         <Circle
-          colors={availableColors}
+          colors={availableCreamColors}
           color={variantColorData.creamColor}
           onChange={(color) => {
             setVariantColorData((prev) => ({
@@ -311,23 +412,28 @@ export function CustomCakeModal({
   const renderTopEdge = (
     <>
       <VariantContainer title="เลือกขอบบน">
-        {variants?.topEdges?.map((el) => (
-          <div
-            key={el.id}
-            className=" flex flex-col flex-wrap items-center justify-center gap-2"
-          >
-            <label className=" w-fit">
-              <input
-                type="radio"
-                name="topEdge"
-                value={el.id}
-                onChange={updateVariantData}
-              />
-              <img src={el?.image || "/placeholder-image.png"} alt={el.name} />
-            </label>
-            <VariantLabelContainer name={el.name} />
-          </div>
-        ))}
+        {variants?.topEdges?.map((el: IVariant) => {
+          const image = el?.colors?.find(
+            (eachColor) => eachColor.color === "WHITE",
+          )?.image;
+          return (
+            <div
+              key={el.id}
+              className=" flex flex-col flex-wrap items-center justify-center gap-2"
+            >
+              <label className=" w-fit">
+                <input
+                  type="radio"
+                  name="topEdge"
+                  value={el.id}
+                  onChange={updateVariantData}
+                />
+                <img src={image || "/placeholder-image.png"} alt={el.name} />
+              </label>
+              <VariantLabelContainer name={el.name} />
+            </div>
+          );
+        })}
         <div className=" flex flex-col items-center justify-center gap-2">
           <label className=" w-fit">
             <input
@@ -349,7 +455,7 @@ export function CustomCakeModal({
       {variantData?.topEdge !== "none" && (
         <VariantColorContainer title="เลือกสีขอบบน">
           <Circle
-            colors={availableColors}
+            colors={availableTopEdgeColors}
             color={variantColorData.topEdgeColor}
             onChange={(color) => {
               setVariantColorData((prev) => ({
@@ -404,23 +510,28 @@ export function CustomCakeModal({
   const renderBottomEdge = (
     <>
       <VariantContainer title="เลือกขอบล่าง">
-        {variants?.bottomEdges?.map((el) => (
-          <div
-            key={el.id}
-            className=" flex flex-col items-center justify-center gap-2"
-          >
-            <label className=" w-fit">
-              <input
-                type="radio"
-                name="bottomEdge"
-                value={el.id}
-                onChange={updateVariantData}
-              />
-              <img src={el?.image || "/placeholder-image.png"} alt={el.name} />
-            </label>
-            <VariantLabelContainer name={el.name} />
-          </div>
-        ))}
+        {variants?.bottomEdges?.map((el) => {
+          const image = el?.colors?.find(
+            (eachColor) => eachColor.color === "WHITE",
+          )?.image;
+          return (
+            <div
+              key={el.id}
+              className=" flex flex-col items-center justify-center gap-2"
+            >
+              <label className=" w-fit">
+                <input
+                  type="radio"
+                  name="bottomEdge"
+                  value={el.id}
+                  onChange={updateVariantData}
+                />
+                <img src={image || "/placeholder-image.png"} alt={el.name} />
+              </label>
+              <VariantLabelContainer name={el.name} />
+            </div>
+          );
+        })}
         <div className=" flex flex-col items-center justify-center gap-2">
           <label className=" w-fit">
             <input
@@ -442,7 +553,7 @@ export function CustomCakeModal({
       {variantData?.bottomEdge !== "none" && (
         <VariantColorContainer title="เลือกสีขอบล่าง">
           <Circle
-            colors={availableColors}
+            colors={availableBottomEdgeColors}
             color={variantColorData.bottomEdgeColor}
             onChange={(color) => {
               setVariantColorData((prev) => ({
@@ -476,6 +587,22 @@ export function CustomCakeModal({
           <VariantLabelContainer name={el.name} />
         </div>
       ))}
+      <div className=" flex flex-col items-center justify-center gap-2">
+        <label className=" w-fit">
+          <input
+            type="radio"
+            name="surface"
+            value="none"
+            onChange={updateVariantData}
+            defaultChecked
+          />
+          <img
+            src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=="
+            alt="not select"
+          />
+        </label>
+        <VariantLabelContainer name="ไม่เลือก" />
+      </div>
     </VariantContainer>
   );
 

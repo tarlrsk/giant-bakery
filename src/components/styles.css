@@ -1,3 +1,19 @@
+.w-color-circle-point {
+  border: 1px solid
+    hsl(
+      var(--nextui-divider) /
+        var(--nextui-divider-opacity, var(--tw-bg-opacity))
+    );
+}
+
+.w-color-circle > [title="#ffffff"] > div {
+  background-color: rgb(209 213 219) !important;
+}
+
+.w-color-circle-point > div {
+  background-color: rgb(243 244 246) !important;
+}
+
 [type="radio"] {
   position: absolute;
   opacity: 0;
@@ -16,7 +32,6 @@
 
 /* CHECKED STYLES */
 [type="radio"]:checked + img {
-  margin-top: 16px;
   border: 0px;
   outline: 4px solid #de8f2c;
 }
@@ -31,7 +46,6 @@
 }
 
 [type="radio"]:checked[value="none"] + img {
-  margin-top: 16px;
   border: 0px;
   outline: 4px solid #de8f2c;
 }

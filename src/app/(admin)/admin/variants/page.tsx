@@ -40,7 +40,7 @@ const VARIANT_TYPE = [
 const COLOR_CUSTOMIZABLE_VARIANT_TYPES = ["CREAM", "TOP_EDGE", "BOTTOM_EDGE"];
 
 export const AVAILABLE_COLORS = [
-  { value: "WHITE", label: "ขาว", code: "#FFFFFF" },
+  { value: "WHITE", label: "ขาว", code: "#ffffff" },
   { value: "PURPLE", label: "ม่วง", code: "#7758a9" },
   { value: "RED", label: "แดง", code: "#aa2639" },
   { value: "DARK_RED", label: "แดงคริสมาสต์", code: "#c30000" },
