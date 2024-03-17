@@ -36,11 +36,11 @@ const columns = [
     label: "ยอดชำระ",
   },
   {
-    key: "paymentType",
+    key: "displayPaymentType",
     label: "ประเภทการชำระ",
   },
   {
-    key: "status",
+    key: "displayStatus",
     label: "สถานะคำสั่งซื้อ",
   },
 ];
@@ -57,11 +57,11 @@ export default function OrdersPage() {
 
   const classNames = useMemo(
     () => ({
-      wrapper: ["max-h-[382px]", "max-w-3xl"],
+      // wrapper: ["max-h-[382px]", "max-w-3xl"],
       th: [
         "bg-transparent",
         "font-medium",
-        "text-sm md:text-xl",
+        "text-xs md:text-medium",
         "border-b",
         "border-divider",
         "px-3 py-4 md:py-4",
@@ -86,25 +86,20 @@ export default function OrdersPage() {
 
   const formattedItems = items?.map((item) => ({
     ...item,
-    paymentType:
+    displayPaymentType:
       item.paymentType === "SINGLE"
         ? ("ชำระเต็มจำนวน" as any)
         : ("จ่ายมัดจำ" as any),
-    status: getStatus(item as unknown as IOrderDetail),
+    displayStatus: getStatus(item as unknown as IOrderDetail),
   }));
 
   return (
-    <>
-      <div className="px-40 font-semibold text-4xl pt-20 pb-10">
+    <div className="container">
+      <div className=" pb-6 pt-12 text-2xl font-semibold md:pb-10 md:pt-20 md:text-4xl">
         ออเดอร์ของฉัน
       </div>
-      <div className="px-40 pb-20">
-        <Table
-          radius="lg"
-          removeWrapper
-          selectionMode="single"
-          classNames={classNames}
-        >
+      <div className=" pb-20">
+        <Table radius="lg" classNames={classNames}>
           <TableHeader columns={columns}>
             {(column) => (
               <TableColumn key={column.key}>{column.label}</TableColumn>
@@ -112,13 +107,25 @@ export default function OrdersPage() {
           </TableHeader>
           <TableBody emptyContent={"ไม่มีออเดอร์"} items={formattedItems}>
             {(item) => (
-              <TableRow key={item.id}>
+              <TableRow
+                key={item.id}
+                onClick={() => {
+                  router.push(`orders/${item.id}`);
+                }}
+                className=" hover:bg-gray-100 "
+              >
                 {(columnKey) => (
                   <TableCell
-                    className="text-md py-8 hover:cursor-pointer"
-                    onClick={() => {
-                      router.push(`orders/${item.id}`);
-                    }}
+                    className={`py-2 text-xs hover:cursor-pointer md:py-8 md:text-medium ${
+                      columnKey === "displayStatus" &&
+                      (item.status === "PENDING_PAYMENT1" ||
+                        item.status === "PENDING_PAYMENT2") &&
+                      "text-yellow-600"
+                    } ${
+                      columnKey === "displayStatus" &&
+                      item.status === "COMPLETED" &&
+                      "text-green-600"
+                    } ${item.isCancelled && "!text-red-600"}`}
                   >
                     {columnKey === "orderedAt"
                       ? formatDate(item.orderedAt.toString())
@@ -130,6 +137,6 @@ export default function OrdersPage() {
           </TableBody>
         </Table>
       </div>
-    </>
+    </div>
   );
 }

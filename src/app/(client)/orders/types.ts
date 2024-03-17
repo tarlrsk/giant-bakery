@@ -31,6 +31,8 @@ export function getStatus(item: IOrderDetail): string {
               status = "ส่งมอบสำเร็จ";
               break;
           }
+          break;
+
         case "INSTALLMENT":
           switch (item?.status) {
             case "PENDING_PAYMENT1":
@@ -73,9 +75,10 @@ export function getStatus(item: IOrderDetail): string {
               break;
 
             case "COMPLETED":
-              status = "จัดส่งไปยัง InterExpress แล้ว";
+              status = "จัดส่งไปยัง InterExpress";
               break;
           }
+          break;
         case "INSTALLMENT":
           switch (item?.status) {
             case "PENDING_PAYMENT1":
@@ -95,7 +98,7 @@ export function getStatus(item: IOrderDetail): string {
               break;
 
             case "COMPLETED":
-              status = "จัดส่งไปยัง InterExpress แล้ว";
+              status = "จัดส่งไปยัง InterExpress";
               break;
           }
       }

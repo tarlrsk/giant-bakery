@@ -568,7 +568,7 @@ export default function CheckoutPage() {
               isRequired
             />
 
-            <div className=" flex gap-4">
+            <div className="flex gap-4">
               <Input
                 value={zipCode}
                 onValueChange={(e: string) => {
@@ -610,7 +610,7 @@ export default function CheckoutPage() {
                   <AutocompleteItem
                     key={subDistrict.value}
                     value={subDistrict.label}
-                    className=" rounded-sm"
+                    className={` rounded-sm ${ibm.className}`}
                   >
                     {subDistrict.label}
                   </AutocompleteItem>
@@ -632,7 +632,7 @@ export default function CheckoutPage() {
                 {(district: { value: number; label: string }) => (
                   <AutocompleteItem
                     key={district.label}
-                    className=" rounded-sm"
+                    className={` rounded-sm ${ibm.className}`}
                   >
                     {district.label}
                   </AutocompleteItem>
