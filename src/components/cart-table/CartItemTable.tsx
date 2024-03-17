@@ -1,8 +1,7 @@
 "use client";
 
-import toast from "react-hot-toast";
-import React, { useMemo } from "react";
 import { ICartItem } from "@/app/(client)/cart/types";
+import React, { useMemo, useState, useEffect } from "react";
 
 import {
   User,
@@ -30,7 +29,7 @@ type Props = {
     itemId: string,
     type: "CUSTOMER" | "GUEST",
     quantity: number,
-    action: "increase" | "decrease" | "remove",
+    action: "increase" | "decrease" | "remove" | "replace",
   ) => Promise<any>;
 };
 
@@ -42,134 +41,15 @@ export default function CartItemTable({
   items,
   onUpdateCartItem,
 }: Props) {
-  const renderCell = React.useCallback(
-    (item: ICartItem, columnKey: React.Key) => {
-      switch (columnKey) {
-        case "name":
-          return (
-            <User
-              avatarProps={{
-                radius: "md",
-                className: "w-14 h-14 md:w-20 md:h-20 md:text-large",
-                src:
-                  item.type === "SNACK_BOX"
-                    ? item.packageType === "PAPER_BAG"
-                      ? "/paper-bag.jpeg"
-                      : "/snack-box.png"
-                    : item.image,
-              }}
-              classNames={{
-                name: "text-sm md:text-lg font-medium",
-                description: "text-xs md:text-base font-normal",
-              }}
-              description={item?.description || ""}
-              name={item.name}
-              className=" gap-6 pl-3"
-            >
-              {item.name}
-            </User>
-          );
-
-        case "price":
-          return (
-            <div className="justify-center text-center">{`฿${item.pricePer}`}</div>
-          );
-
-        case "amount":
-          return (
-            <div className="flex flex-row items-center gap-1 justify-center">
-              <Button
-                isIconOnly
-                size="sm"
-                radius="md"
-                className="bg-transparent"
-                onPress={async () => {
-                  try {
-                    await onUpdateCartItem(
-                      userId,
-                      item.itemId,
-                      userType,
-                      item.quantity,
-                      "decrease",
-                    ).then(
-                      (res) =>
-                        !res.response.success &&
-                        toast.error("กรุณาลองใหม่อีกครั้ง"),
-                    );
-                  } catch (err) {
-                    console.error(err);
-                  }
-                }}
-              >
-                <MinusIcon />
-              </Button>
-              <div className=" border   max-w-12 min-w-12 px-1 text-center overflow-auto text-ellipsis rounded-sm">
-                {item.quantity}
-              </div>
-              <Button
-                isIconOnly
-                size="sm"
-                radius="md"
-                className="bg-transparent"
-                onPress={async () => {
-                  await onUpdateCartItem(
-                    userId,
-                    item.itemId,
-                    userType,
-                    item.quantity,
-                    "increase",
-                  ).then(
-                    (res) =>
-                      !res.response.success &&
-                      toast.error("กรุณาลองใหม่อีกครั้ง"),
-                  );
-                }}
-              >
-                <AddIcon />
-              </Button>
-            </div>
-          );
-
-        case "total":
-          return (
-            <div className="flex flex-row items-center gap-1 justify-end pr-3">
-              {`฿${item.price}`}
-              <Button
-                isIconOnly
-                size="sm"
-                radius="md"
-                className="bg-transparent pb-1.5"
-                onPress={async () => {
-                  await onUpdateCartItem(
-                    userId,
-                    item.itemId,
-                    userType,
-                    item.quantity,
-                    "remove",
-                  ).then(
-                    (res) =>
-                      !res?.response?.success &&
-                      toast.error("กรุณาลองใหม่อีกครั้ง"),
-                  );
-                }}
-              >
-                <DeleteIcon />
-              </Button>
-            </div>
-          );
-        default:
-          return "";
-      }
-    },
-    [onUpdateCartItem, userId, userType],
-  );
+  const [tempItems, setTempItems] = useState(items);
 
   const classNames = useMemo(
     () => ({
+      wrapper: ["p-0"],
       th: [
         "bg-primaryT-lighter",
         "font-medium",
-        "text-sm md:text-base",
+        "text-xs md:text-base",
         "border-b",
         "border-divider",
         "px-3 py-4 md:py-4 md:px-8",
@@ -192,8 +72,86 @@ export default function CartItemTable({
     [],
   );
 
+  const handleTempQuantityChange = (itemId: string, newQuantity: number) => {
+    const updatedItems = tempItems.map((item) => {
+      if (item.itemId === itemId) {
+        return { ...item, quantity: newQuantity };
+      }
+      return item;
+    });
+    setTempItems(updatedItems);
+  };
+
+  const handleDecrease = async (itemId: string, currentQuantity: number) => {
+    try {
+      await onUpdateCartItem(
+        userId,
+        itemId,
+        userType,
+        currentQuantity,
+        "decrease",
+      );
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleIncrease = async (itemId: string, currentQuantity: number) => {
+    try {
+      await onUpdateCartItem(
+        userId,
+        itemId,
+        userType,
+        currentQuantity,
+        "increase",
+      );
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleQualityChange = async (
+    itemId: string,
+    currentQuantity: number,
+  ) => {
+    try {
+      await onUpdateCartItem(
+        userId,
+        itemId,
+        userType,
+        currentQuantity,
+        "replace",
+      );
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleRemove = async (itemId: string, currentQuantity: number) => {
+    try {
+      await onUpdateCartItem(
+        userId,
+        itemId,
+        userType,
+        currentQuantity,
+        "remove",
+      );
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    setTempItems(items);
+  }, [items]);
+
   return (
-    <Table radius="sm" removeWrapper classNames={classNames}>
+    <Table
+      radius="sm"
+      onKeyDown={(e) => e.stopPropagation()}
+      onClick={(e) => e.stopPropagation()}
+      classNames={classNames}
+    >
       <TableHeader>
         <TableColumn className="text-primaryT-darker" key="name">
           สินค้า
@@ -211,19 +169,103 @@ export default function CartItemTable({
         <TableColumn
           key="total"
           align="end"
-          className=" text-end text-primaryT-darker"
+          className=" text-center text-primaryT-darker md:text-end"
         >
           ราคารวม
         </TableColumn>
       </TableHeader>
-      <TableBody emptyContent={"ไม่พบสินค้าในตะกร้า"} items={items}>
-        {(item) => (
-          <TableRow key={item.itemId}>
-            {(columnKey) => (
-              <TableCell>{renderCell(item, columnKey)}</TableCell>
-            )}
-          </TableRow>
-        )}
+      <TableBody
+        onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => e.stopPropagation()}
+        emptyContent={"ไม่พบสินค้าในตะกร้า"}
+      >
+        {tempItems.map((item) => {
+          return (
+            <TableRow
+              onClick={(e) => e.stopPropagation()}
+              onKeyDown={(e) => e.stopPropagation()}
+              key={item.itemId}
+            >
+              <TableCell>
+                <User
+                  avatarProps={{
+                    radius: "md",
+                    className:
+                      " bg-transparent border-1 w-10 h-10 md:w-20 md:h-20",
+                    src:
+                      item.type === "SNACK_BOX"
+                        ? item.packageType === "PAPER_BAG"
+                          ? "/paper-bag.jpeg"
+                          : "/snack-box.png"
+                        : item.image,
+                  }}
+                  classNames={{
+                    name: "text-xs md:text-lg",
+                    description: "text-xs md:text-base font-normal",
+                  }}
+                  description={item?.description || ""}
+                  name={item.name}
+                  className=" md:gap-6 md:pl-3"
+                >
+                  {item.name}
+                </User>
+              </TableCell>
+              <TableCell>
+                <div className="justify-center text-center text-xs md:text-lg">{`฿${item.pricePer}`}</div>
+              </TableCell>
+              <TableCell>
+                <div className="flex flex-row items-center justify-center gap-2 text-xs md:text-lg">
+                  <MinusIcon
+                    onClick={() => handleDecrease(item.itemId, item.quantity)}
+                    className="h-full w-3 cursor-pointer rounded-sm hover:bg-gray-100 md:invisible md:w-7"
+                  />
+
+                  <input
+                    type="text"
+                    value={item.quantity.toString()}
+                    aria-label="quantity"
+                    maxLength={3}
+                    onKeyDown={(e) => e.stopPropagation()}
+                    onBlur={(e) =>
+                      handleQualityChange(item.itemId, Number(e.target.value))
+                    }
+                    onChange={(e) => {
+                      const re = /^[0-9\b]+$/;
+
+                      if (e.target.value === "" || re.test(e.target.value)) {
+                        handleTempQuantityChange(
+                          item.itemId,
+                          Number(e.target.value),
+                        );
+                      }
+                    }}
+                    className="relative w-6 items-center rounded-sm border-1 bg-opacity-0 text-center text-xs md:w-12 md:text-lg"
+                  />
+
+                  <AddIcon
+                    onClick={() => handleIncrease(item.itemId, item.quantity)}
+                    className="h-full w-3 cursor-pointer rounded-sm hover:bg-gray-100 md:invisible md:w-7"
+                  />
+                </div>
+              </TableCell>
+              <TableCell>
+                <div className="flex flex-row items-center justify-end gap-0 text-xs md:gap-1 md:pr-3 md:text-lg">
+                  {`฿${item.price}`}
+                  <Button
+                    isIconOnly
+                    size="sm"
+                    radius="md"
+                    className="bg-transparent pb-1.5"
+                    aria-label="remove button"
+                    onPress={() => handleRemove(item.itemId, item.quantity)}
+                  >
+                    <DeleteIcon />
+                  </Button>
+                </div>
+              </TableCell>
+            </TableRow>
+          );
+        })}
       </TableBody>
     </Table>
   );

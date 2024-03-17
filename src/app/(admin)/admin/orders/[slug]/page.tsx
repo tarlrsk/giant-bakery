@@ -7,6 +7,7 @@ import useSWRMutation from "swr/mutation";
 import { adminFetcher } from "@/utils/axios";
 import { OrderStatus } from "@prisma/client";
 import { formatDate } from "@/lib/formatDate";
+import Check from "@mui/icons-material/Check";
 import { IOrderDetail } from "@/app/(client)/orders/types";
 import React, { useMemo, useState, useEffect } from "react";
 import UpdateOrderDialog from "@/components/admin/dialog/UpdateOrderDialog";
@@ -18,13 +19,17 @@ import {
   Paper,
   Stack,
   Button,
+  styled,
   Divider,
   Stepper,
   Backdrop,
   StepLabel,
   Typography,
   CardContent,
+  StepConnector,
+  StepIconProps,
   CircularProgress,
+  stepConnectorClasses,
 } from "@mui/material";
 
 // ----------------------------------------------------------------------
@@ -106,6 +111,67 @@ async function sendCancelOrderRequest(
   }
 }
 
+const QontoConnector = styled(StepConnector)(({ theme }) => ({
+  [`&.${stepConnectorClasses.alternativeLabel}`]: {
+    top: 10,
+    left: "calc(-50% + 16px)",
+    right: "calc(50% + 16px)",
+  },
+  [`&.${stepConnectorClasses.active}`]: {
+    [`& .${stepConnectorClasses.line}`]: {
+      borderColor: theme.palette.primary.main,
+    },
+  },
+  [`&.${stepConnectorClasses.completed}`]: {
+    [`& .${stepConnectorClasses.line}`]: {
+      borderColor: theme.palette.primary.main,
+    },
+  },
+  [`& .${stepConnectorClasses.line}`]: {
+    borderColor:
+      theme.palette.mode === "dark" ? theme.palette.grey[800] : "#eaeaf0",
+    borderTopWidth: 3,
+    borderRadius: 1,
+  },
+}));
+
+const QontoStepIconRoot = styled("div")<{ ownerState: { active?: boolean } }>(
+  ({ theme, ownerState }) => ({
+    color: theme.palette.mode === "dark" ? theme.palette.grey[700] : "#eaeaf0",
+    display: "flex",
+    height: 22,
+    alignItems: "center",
+    ...(ownerState.active && {
+      color: theme.palette.primary.main,
+    }),
+    "& .QontoStepIcon-completedIcon": {
+      color: theme.palette.primary.main,
+      zIndex: 1,
+      fontSize: 18,
+    },
+    "& .QontoStepIcon-circle": {
+      width: 8,
+      height: 8,
+      borderRadius: "50%",
+      backgroundColor: "currentColor",
+    },
+  }),
+);
+
+function QontoStepIcon(props: StepIconProps) {
+  const { active, completed, className } = props;
+
+  return (
+    <QontoStepIconRoot ownerState={{ active }} className={className}>
+      {completed ? (
+        <Check className="QontoStepIcon-completedIcon" />
+      ) : (
+        <div className="QontoStepIcon-circle" />
+      )}
+    </QontoStepIconRoot>
+  );
+}
+
 // ----------------------------------------------------------------------
 
 export default function OrderDetail({ params }: { params: { slug: string } }) {
@@ -131,6 +197,7 @@ export default function OrderDetail({ params }: { params: { slug: string } }) {
   const [isOpenUpdate, setIsOpenUpdate] = useState(false);
   const [isOpenCancel, setIsOpenCancel] = useState(false);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const orderDetail: IOrderDetail = orderData?.data || {};
 
   async function handleUpdateOrder() {
@@ -295,13 +362,16 @@ function OrderDetailCard({ data }: OrderProps) {
 
     if (data?.receivedVia === "DELIVERY") {
       stepsArray.pop();
-      stepsArray.push("จัดส่งไปยัง InterExpress แล้ว");
+      stepsArray.push("จัดส่งไปยัง InterExpress");
     }
 
     const status = getStatus(data);
     const activeStepIndex = stepsArray.indexOf(status);
-    setActiveStep(activeStepIndex !== -1 ? activeStepIndex : 0);
-
+    if (data.status === "COMPLETED") {
+      setActiveStep(activeStepIndex !== -1 ? activeStepIndex + 1 : 0);
+    } else {
+      setActiveStep(activeStepIndex !== -1 ? activeStepIndex : 0);
+    }
     setSteps(stepsArray);
   }, [data, data?.paymentType, data?.receivedVia]);
 
@@ -318,10 +388,14 @@ function OrderDetailCard({ data }: OrderProps) {
           activeStep={activeStep}
           alternativeLabel
           sx={{ px: 20, pt: 2.5, pb: 2 }}
+          connector={<QontoConnector />}
         >
           {steps.map((label, index) => (
             <Step key={label}>
-              <StepLabel error={data?.isCancelled && index === activeStep}>
+              <StepLabel
+                StepIconComponent={QontoStepIcon}
+                error={data?.isCancelled && index === activeStep}
+              >
                 {data?.isCancelled && index === activeStep
                   ? "ออเดอร์ถูกยกเลิก"
                   : label}
@@ -592,9 +666,11 @@ function getStatus(item: IOrderDetail): string {
               break;
 
             case "COMPLETED":
-              status = "จัดส่งไปยัง InterExpress แล้ว";
+              status = "จัดส่งไปยัง InterExpress";
               break;
           }
+          break;
+
         case "INSTALLMENT":
           switch (item?.status) {
             case "PENDING_PAYMENT1":
@@ -614,7 +690,7 @@ function getStatus(item: IOrderDetail): string {
               break;
 
             case "COMPLETED":
-              status = "จัดส่งไปยัง InterExpress แล้ว";
+              status = "จัดส่งไปยัง InterExpress";
               break;
           }
       }

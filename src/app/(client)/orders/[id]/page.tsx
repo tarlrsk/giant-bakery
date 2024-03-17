@@ -7,23 +7,28 @@ import { fetcher } from "@/utils/axios";
 import useSWRMutation from "swr/mutation";
 import { useRouter } from "next/navigation";
 import { formatDate } from "@/lib/formatDate";
+import Check from "@mui/icons-material/Check";
 import React, { useState, useEffect } from "react";
+import getCurrentUser from "@/actions/userActions";
 import {
   Box,
   Card,
   Step,
   Stack,
+  styled,
   Divider,
   Stepper,
   StepLabel,
   Typography,
   CardContent,
+  StepConnector,
+  StepIconProps,
+  stepConnectorClasses,
 } from "@mui/material";
 
 import { Button } from "@nextui-org/react";
 
 import { getStatus, IOrderDetail } from "../types";
-import getCurrentUser from "@/actions/userActions";
 
 // ----------------------------------------------------------------------
 
@@ -73,6 +78,67 @@ async function sendCheckoutRequest(
   }
 }
 
+const QontoConnector = styled(StepConnector)(({ theme }) => ({
+  [`&.${stepConnectorClasses.alternativeLabel}`]: {
+    top: 10,
+    left: "calc(-50% + 16px)",
+    right: "calc(50% + 16px)",
+  },
+  [`&.${stepConnectorClasses.active}`]: {
+    [`& .${stepConnectorClasses.line}`]: {
+      borderColor: theme.palette.primary.main,
+    },
+  },
+  [`&.${stepConnectorClasses.completed}`]: {
+    [`& .${stepConnectorClasses.line}`]: {
+      borderColor: theme.palette.primary.main,
+    },
+  },
+  [`& .${stepConnectorClasses.line}`]: {
+    borderColor:
+      theme.palette.mode === "dark" ? theme.palette.grey[800] : "#eaeaf0",
+    borderTopWidth: 3,
+    borderRadius: 1,
+  },
+}));
+
+const QontoStepIconRoot = styled("div")<{ ownerState: { active?: boolean } }>(
+  ({ theme, ownerState }) => ({
+    color: theme.palette.mode === "dark" ? theme.palette.grey[700] : "#eaeaf0",
+    display: "flex",
+    height: 22,
+    alignItems: "center",
+    ...(ownerState.active && {
+      color: theme.palette.primary.main,
+    }),
+    "& .QontoStepIcon-completedIcon": {
+      color: theme.palette.primary.main,
+      zIndex: 1,
+      fontSize: 18,
+    },
+    "& .QontoStepIcon-circle": {
+      width: 8,
+      height: 8,
+      borderRadius: "50%",
+      backgroundColor: "currentColor",
+    },
+  }),
+);
+
+function QontoStepIcon(props: StepIconProps) {
+  const { active, completed, className } = props;
+
+  return (
+    <QontoStepIconRoot ownerState={{ active }} className={className}>
+      {completed ? (
+        <Check className="QontoStepIcon-completedIcon" />
+      ) : (
+        <div className="QontoStepIcon-circle" />
+      )}
+    </QontoStepIconRoot>
+  );
+}
+
 // ----------------------------------------------------------------------
 
 export default function OrderDetail({ params }: { params: { id: string } }) {
@@ -105,7 +171,7 @@ export default function OrderDetail({ params }: { params: { id: string } }) {
   };
 
   return (
-    <div className={`relative px-40 py-20`}>
+    <div className="container relative py-10 md:py-20">
       <Box>
         <Stack
           direction="row"
@@ -113,7 +179,7 @@ export default function OrderDetail({ params }: { params: { id: string } }) {
           alignItems="center"
           sx={{ mb: 2, width: 1 }}
         >
-          <Typography variant="h5" fontWeight={400}>
+          <Typography variant="h6" fontWeight={400}>
             {`ออเดอร์ #${item?.orderId?.replace(/-/g, "") || ""}`}
           </Typography>
         </Stack>
@@ -137,7 +203,7 @@ export default function OrderDetail({ params }: { params: { id: string } }) {
             >
               <Button
                 size="lg"
-                radius="sm"
+                radius="md"
                 color="secondary"
                 onClick={handlePayPayment}
                 isLoading={isMutatingCheckoutOrder}
@@ -171,12 +237,16 @@ function OrderDetailCard({ item }: OrderProps) {
 
     if (item?.receivedVia === "DELIVERY") {
       stepsArray.pop();
-      stepsArray.push("จัดส่งไปยัง InterExpress แล้ว");
+      stepsArray.push("จัดส่งไปยัง InterExpress");
     }
 
     const status = getStatus(item);
     const activeStepIndex = stepsArray.indexOf(status);
-    setActiveStep(activeStepIndex !== -1 ? activeStepIndex : 0);
+    if (item.status === "COMPLETED") {
+      setActiveStep(activeStepIndex !== -1 ? activeStepIndex + 1 : 0);
+    } else {
+      setActiveStep(activeStepIndex !== -1 ? activeStepIndex : 0);
+    }
 
     setSteps(stepsArray);
   }, [item, item?.paymentType, item?.receivedVia]);
@@ -193,11 +263,15 @@ function OrderDetailCard({ item }: OrderProps) {
           color="success"
           activeStep={activeStep}
           alternativeLabel
-          sx={{ px: 20, pt: 2.5, pb: 2 }}
+          sx={{ px: { xs: 0, md: 6 }, pt: 2.5, pb: 2 }}
+          connector={<QontoConnector />}
         >
           {steps.map((label, index) => (
             <Step key={label}>
-              <StepLabel error={item?.isCancelled && index === activeStep}>
+              <StepLabel
+                StepIconComponent={QontoStepIcon}
+                error={item?.isCancelled && index === activeStep}
+              >
                 {item?.isCancelled && index === activeStep
                   ? "ออเดอร์ถูกยกเลิก"
                   : label}
@@ -207,7 +281,7 @@ function OrderDetailCard({ item }: OrderProps) {
         </Stepper>
       </CardContent>
       {item?.remark && (
-        <CardContent sx={{ px: 6 }}>
+        <CardContent sx={{ px: { xs: 2, md: 6 } }}>
           <Stack spacing={1} direction="row" justifyContent="space-between">
             <Stack direction="column">Remark</Stack>
             <Stack direction="column" justifyContent="end">
@@ -217,7 +291,7 @@ function OrderDetailCard({ item }: OrderProps) {
         </CardContent>
       )}
       <Divider />
-      <CardContent sx={{ px: 6 }}>
+      <CardContent sx={{ px: { xs: 2, md: 6 } }}>
         <Typography fontWeight={500} variant="body1" sx={{ mt: 1, mb: 2 }}>
           รายการสินค้า
         </Typography>
@@ -283,8 +357,13 @@ function OrderHeaderCard({ item }: OrderProps) {
           ข้อมูลออเดอร์
         </Typography>
       </Box>
-      <CardContent sx={{ px: 6 }}>
-        <Stack direction="row" justifyContent="space-between" sx={{ width: 1 }}>
+      <CardContent sx={{ px: { xs: 2, md: 6 }, pb: { md: "16px !important" } }}>
+        <Stack
+          direction={{ md: "row", sm: "column" }}
+          justifyContent="space-between"
+          sx={{ width: 1 }}
+          spacing={{ xs: 1.5, md: 0 }}
+        >
           <Stack direction="column" spacing={0.5}>
             <Typography color="grey.800">เลขออเดอร์</Typography>
             <Typography fontWeight={500}>
@@ -292,33 +371,107 @@ function OrderHeaderCard({ item }: OrderProps) {
             </Typography>
           </Stack>
 
-          <Stack direction="column" spacing={0.5}>
+          <Stack
+            direction="column"
+            spacing={0.5}
+            sx={{ display: { xs: "none", md: "block" } }}
+          >
             <Typography color="grey.800">วันที่สั่งออเดอร์</Typography>
             <Typography fontWeight={500}>
               {formatDate(item?.orderedAt?.toString())}
             </Typography>
           </Stack>
 
-          <Stack direction="column" spacing={0.5}>
-            <Typography color="grey.800">สถานะออเดอร์</Typography>
-            <Typography fontWeight={500}>{status}</Typography>
-          </Stack>
-
-          <Stack direction="column" spacing={0.5}>
+          <Stack
+            direction="column"
+            spacing={0.5}
+            sx={{ display: { xs: "none", md: "block" } }}
+          >
             <Typography color="grey.800">ตัวเลือกการชำระเงิน</Typography>
-            <Typography
-              color={
-                item?.paymentType === "SINGLE" ? "success.main" : "primary"
-              }
-              fontWeight={500}
-            >
+            <Typography fontWeight={500}>
               {item?.paymentType === "SINGLE" ? "ชำระเต็มจำนวน" : "ชำระมัดจำ"}
             </Typography>
           </Stack>
 
-          <Stack direction="column" spacing={0.5}>
+          <Stack
+            direction="column"
+            spacing={0.5}
+            sx={{ display: { xs: "none", md: "block" } }}
+          >
+            <Typography color="grey.800">สถานะออเดอร์</Typography>
+            <Typography
+              color={
+                item?.isCancelled
+                  ? "rgb(220 38 38 / var(--tw-text-opacity))"
+                  : item?.status === "COMPLETED"
+                    ? "rgb(22 163 74 / var(--tw-text-opacity))"
+                    : item?.status === "PENDING_PAYMENT1" ||
+                        item?.status === "PENDING_PAYMENT2"
+                      ? "rgb(202 138 4 / var(--tw-text-opacity))"
+                      : "primary"
+              }
+              fontWeight={500}
+            >
+              {item.isCancelled ? "ถูกยกเลิก" : status}
+            </Typography>
+          </Stack>
+
+          <Stack
+            direction="column"
+            spacing={0.5}
+            sx={{ display: { xs: "none", md: "block" } }}
+          >
             <Typography color="grey.800">ยอดรวม</Typography>
             <Typography fontWeight={500}>฿{item?.totalPrice}</Typography>
+          </Stack>
+
+          {/* Mobile */}
+
+          <Stack
+            direction="row"
+            sx={{ display: { xs: "flex", md: "none" } }}
+            spacing={11}
+          >
+            <Stack direction="column" spacing={0.5}>
+              <Typography color="grey.800">วันที่สั่งออเดอร์</Typography>
+              <Typography fontWeight={500}>
+                {formatDate(item?.orderedAt?.toString())}
+              </Typography>
+            </Stack>
+            <Stack
+              direction="column"
+              spacing={0.5}
+              sx={{ display: { xs: "block", md: "none" } }}
+            >
+              <Typography color="grey.800">สถานะออเดอร์</Typography>
+              <Typography fontWeight={500}>{status}</Typography>
+            </Stack>
+          </Stack>
+
+          <Stack
+            direction="row"
+            sx={{ display: { xs: "flex", md: "none" } }}
+            spacing={6.75}
+          >
+            <Stack direction="column" spacing={0.5}>
+              <Typography color="grey.800">ตัวเลือกการชำระเงิน</Typography>
+              <Typography
+                color={
+                  item?.paymentType === "SINGLE" ? "success.main" : "primary"
+                }
+                fontWeight={500}
+              >
+                {item?.paymentType === "SINGLE" ? "ชำระเต็มจำนวน" : "ชำระมัดจำ"}
+              </Typography>
+            </Stack>
+            <Stack
+              direction="column"
+              spacing={0.5}
+              sx={{ display: { xs: "block", md: "none" } }}
+            >
+              <Typography color="grey.800">ยอดรวม</Typography>
+              <Typography fontWeight={500}>฿{item?.totalPrice}</Typography>
+            </Stack>
           </Stack>
         </Stack>
       </CardContent>
@@ -336,25 +489,52 @@ function AddressCard({ item }: OrderProps) {
           }`}
         </Typography>
       </Box>
-      <CardContent sx={{ px: 6 }}>
+      <CardContent sx={{ px: { xs: 2, md: 6 }, pb: { md: "16px !important" } }}>
         <Stack
-          direction="row"
+          direction={{ md: "row", sm: "column" }}
           justifyContent={
             item?.receivedVia === "DELIVERY" ? "space-between" : "start"
           }
-          spacing={item?.receivedVia === "DELIVERY" ? 0 : 8}
+          spacing={item?.receivedVia === "DELIVERY" ? { xs: 1.5, md: 0 } : 8}
           sx={{ width: 1 }}
         >
-          <Stack direction="column" spacing={0.5}>
+          <Stack
+            direction="column"
+            spacing={0.5}
+            sx={{ display: { xs: "none", md: "flex" } }}
+          >
             <Typography color="grey.800">ชื่อผู้รับ</Typography>
             <Typography fontWeight={500}>
               {`${item?.firstName} ${item?.lastName}` ?? "-"}
             </Typography>
           </Stack>
 
-          <Stack direction="column" spacing={0.5}>
+          <Stack
+            direction="column"
+            spacing={0.5}
+            sx={{ display: { xs: "none", md: "flex" } }}
+          >
             <Typography color="grey.800">เบอร์โทรศัพท์</Typography>
             <Typography fontWeight={500}>{item?.phone ?? "-"}</Typography>
+          </Stack>
+
+          {/* Mobile */}
+          <Stack
+            direction="row"
+            spacing={12}
+            sx={{ display: { xs: "flex", md: "none" } }}
+          >
+            <Stack direction="column" spacing={0.5}>
+              <Typography color="grey.800">ชื่อผู้รับ</Typography>
+              <Typography fontWeight={500}>
+                {`${item?.firstName} ${item?.lastName}` ?? "-"}
+              </Typography>
+            </Stack>
+
+            <Stack direction="column" spacing={0.5}>
+              <Typography color="grey.800">เบอร์โทรศัพท์</Typography>
+              <Typography fontWeight={500}>{item?.phone ?? "-"}</Typography>
+            </Stack>
           </Stack>
 
           {item?.receivedVia === "DELIVERY" && (
@@ -366,32 +546,90 @@ function AddressCard({ item }: OrderProps) {
                 </Typography>
               </Stack>
 
-              <Stack direction="column" spacing={0.5}>
+              <Stack
+                direction="column"
+                spacing={0.5}
+                sx={{ display: { xs: "none", md: "flex" } }}
+              >
                 <Typography color="grey.800">อำเภอ</Typography>
                 <Typography fontWeight={500}>
                   {item?.address?.district ?? "-"}
                 </Typography>
               </Stack>
 
-              <Stack direction="column" spacing={0.5}>
+              <Stack
+                direction="column"
+                spacing={0.5}
+                sx={{ display: { xs: "none", md: "flex" } }}
+              >
                 <Typography color="grey.800">ตำบล</Typography>
                 <Typography fontWeight={500}>
                   {item?.address?.subdistrict ?? "-"}
                 </Typography>
               </Stack>
 
-              <Stack direction="column" spacing={0.5}>
+              <Stack
+                direction="column"
+                spacing={0.5}
+                sx={{ display: { xs: "none", md: "flex" } }}
+              >
                 <Typography color="grey.800">จังหวัด</Typography>
                 <Typography fontWeight={500}>
                   {item?.address?.province ?? "-"}
                 </Typography>
               </Stack>
 
-              <Stack direction="column" spacing={0.5}>
+              <Stack
+                direction="column"
+                spacing={0.5}
+                sx={{ display: { xs: "none", md: "flex" } }}
+              >
                 <Typography color="grey.800">รหัสไปรษณีย์</Typography>
                 <Typography fontWeight={500}>
                   {item?.address?.postcode ?? "-"}
                 </Typography>
+              </Stack>
+
+              {/* Mobile */}
+
+              <Stack
+                direction="row"
+                spacing={10.25}
+                sx={{ display: { xs: "flex", md: "none" } }}
+              >
+                <Stack direction="column" spacing={0.5}>
+                  <Typography color="grey.800">อำเภอ</Typography>
+                  <Typography fontWeight={500}>
+                    {item?.address?.district ?? "-"}
+                  </Typography>
+                </Stack>
+
+                <Stack direction="column" spacing={0.5}>
+                  <Typography color="grey.800">ตำบล</Typography>
+                  <Typography fontWeight={500}>
+                    {item?.address?.subdistrict ?? "-"}
+                  </Typography>
+                </Stack>
+              </Stack>
+
+              <Stack
+                direction="row"
+                spacing={14}
+                sx={{ display: { xs: "flex", md: "none" } }}
+              >
+                <Stack direction="column" spacing={0.5}>
+                  <Typography color="grey.800">จังหวัด</Typography>
+                  <Typography fontWeight={500}>
+                    {item?.address?.province ?? "-"}
+                  </Typography>
+                </Stack>
+
+                <Stack direction="column" spacing={0.5}>
+                  <Typography color="grey.800">รหัสไปรษณีย์</Typography>
+                  <Typography fontWeight={500}>
+                    {item?.address?.postcode ?? "-"}
+                  </Typography>
+                </Stack>
               </Stack>
             </>
           )}
