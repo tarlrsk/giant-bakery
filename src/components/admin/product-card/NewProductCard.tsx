@@ -59,7 +59,8 @@ export default function NewProductCard({ onClose }: Props) {
     },
   });
 
-  const { createProductTrigger, createProductIsLoading } = useAdmin();
+  const { createProductTrigger, createProductIsLoading } =
+    useAdmin().useProductAdmin();
 
   const { enqueueSnackbar } = useSnackbar();
 

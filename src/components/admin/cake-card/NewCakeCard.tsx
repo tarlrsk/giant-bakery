@@ -40,7 +40,7 @@ export default function NewCakeCard({ onClose }: Props) {
     },
   });
 
-  const { createCakeTrigger, createCakeIsLoading } = useAdmin();
+  const { createCakeTrigger, createCakeIsLoading } = useAdmin().useCakeAdmin();
 
   const { watch, setValue, handleSubmit, reset } = methods;
   const values = watch();

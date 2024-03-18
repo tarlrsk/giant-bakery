@@ -40,7 +40,7 @@ export default function EditCakeCard({ data, onClose }: Props) {
     cakesMutate,
     deleteCakeTrigger,
     deleteCakeIsLoading,
-  } = useAdmin(data);
+  } = useAdmin(data).useCakeAdmin();
 
   const { watch, setValue, handleSubmit } = methods;
   const values = watch();

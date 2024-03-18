@@ -5,10 +5,10 @@ import toast from "react-hot-toast";
 import { fetcher } from "@/utils/axios";
 import apiPaths from "@/utils/api-path";
 import Circle from "@uiw/react-color-circle";
+import { AVAILABLE_COLORS } from "@/utils/constant";
 import { IBM_Plex_Sans_Thai } from "next/font/google";
 import React, { useMemo, useState, useEffect } from "react";
 import { addCustomCakeToCart } from "@/actions/cartActions";
-import { AVAILABLE_COLORS } from "@/app/(admin)/admin/variants/page";
 
 import {
   Modal,

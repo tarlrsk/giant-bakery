@@ -5,6 +5,7 @@ import { LoadingButton } from "@mui/lab";
 import { useForm } from "react-hook-form";
 import { Upload } from "@/components/upload";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { AVAILABLE_COLORS } from "@/utils/constant";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { GridRowSelectionModel } from "@mui/x-data-grid";
 import { RHFUpload } from "@/components/hook-form/rhf-upload";
@@ -38,18 +39,6 @@ const VARIANT_TYPE = [
 ];
 
 const COLOR_CUSTOMIZABLE_VARIANT_TYPES = ["CREAM", "TOP_EDGE", "BOTTOM_EDGE"];
-
-export const AVAILABLE_COLORS = [
-  { value: "WHITE", label: "ขาว", code: "#ffffff" },
-  { value: "PURPLE", label: "ม่วง", code: "#7758a9" },
-  { value: "RED", label: "แดง", code: "#aa2639" },
-  { value: "DARK_RED", label: "แดงคริสมาสต์", code: "#c30000" },
-  { value: "ORANGE", label: "ส้ม", code: "#F48c08" },
-  { value: "YELLO_LEMON", label: "เหลืองมะนาว", code: "#e6e007" },
-  { value: "DARK_GREEN", label: "เขียวแก่", code: "#2f5e1e" },
-  { value: "GREEN_APPLE", label: "เขียวแอปเปิ้ล", code: "#80c06d" },
-  { value: "BLUE", label: "ฟ้า", code: "#5997bc" },
-];
 
 // ----------------------------------------------------------------------
 
@@ -570,6 +559,6 @@ export default function AdminVariant() {
 
 // ----------------------------------------------------------------------
 
-export function hasColor(variantType: string) {
+function hasColor(variantType: string) {
   return COLOR_CUSTOMIZABLE_VARIANT_TYPES.includes(variantType);
 }
