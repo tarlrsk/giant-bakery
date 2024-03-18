@@ -1,11 +1,13 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 import useSWR from "swr";
+import toast from "react-hot-toast";
 import { fetcher } from "@/utils/axios";
 import apiPaths from "@/utils/api-path";
 import Circle from "@uiw/react-color-circle";
 import { IBM_Plex_Sans_Thai } from "next/font/google";
 import React, { useMemo, useState, useEffect } from "react";
+import { addCustomCakeToCart } from "@/actions/cartActions";
 import { AVAILABLE_COLORS } from "@/app/(admin)/admin/variants/page";
 
 import {
@@ -143,15 +145,19 @@ export function CustomCakeModal({
     bottomEdgeColor: "#ffffff",
   });
 
+  const { addCustomCakeToCart: addCustomCakeToCartUrl } = apiPaths();
+
   const [creamImage, setCreamImage] = useState("");
   const [topEdgeImage, setTopEdgeImage] = useState("");
   const [bottomEdgeImage, setBottomEdgeImage] = useState("");
   const [decorationImage, setDecorationImage] = useState("");
   const [surfaceImage, setSurfaceImage] = useState("");
 
-  const [selectedPound, setSelectedPound] = useState("1");
+  const [selectedPound, setSelectedPound] = useState("");
   const [selectedBase, setSelectedBase] = useState("");
   const [selectedFilling, setSelectedFilling] = useState("");
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const updateVariantData = (e: React.ChangeEvent<HTMLInputElement>) => {
     setVariantData({
@@ -159,6 +165,76 @@ export function CustomCakeModal({
       [e.target.name]: e.target.value,
     });
   };
+
+  async function handleAddToCart() {
+    const { cream, topEdge, decoration, bottomEdge, surface } = variantData;
+
+    const { creamColor, topEdgeColor, bottomEdgeColor } = variantColorData;
+
+    let creamId = cream;
+    let topEdgeId = topEdge === "none" ? "" : topEdge;
+    let bottomEdgeId = bottomEdge === "none" ? "" : bottomEdge;
+
+    const selectedCream = variants.creams?.find((el) => el.id === cream) || "";
+    const selectedTopEdge =
+      variants.topEdges?.find((el) => el.id === topEdge) || "";
+    const selectedBottomEdge =
+      variants.bottomEdges?.find((el) => el.id === bottomEdge) || "";
+
+    if (selectedCream && creamColor) {
+      const creamColorValue = getColorValue(creamColor);
+
+      const selectedCreamColorId =
+        selectedCream?.colors?.find((el) => el.color === creamColorValue)?.id ||
+        "";
+
+      creamId = selectedCreamColorId;
+    }
+
+    if (selectedTopEdge && topEdgeColor) {
+      const topEdgeColorValue = getColorValue(topEdgeColor);
+
+      const selectedTopEdgeColorId =
+        selectedTopEdge?.colors?.find((el) => el.color === topEdgeColorValue)
+          ?.id || "";
+
+      topEdgeId = selectedTopEdgeColorId;
+    }
+
+    if (selectedBottomEdge && bottomEdgeColor) {
+      const bottomEdgeColorValue = getColorValue(bottomEdgeColor);
+
+      const selectedBottomEdgeColorId =
+        selectedBottomEdge?.colors?.find(
+          (el) => el.color === bottomEdgeColorValue,
+        )?.id || "";
+
+      bottomEdgeId = selectedBottomEdgeColorId;
+    }
+
+    const requestBody = {
+      sizeId: selectedPound,
+      baseId: selectedBase,
+      fillingId: selectedFilling,
+      creamId: creamId,
+      topEdgeId: topEdgeId,
+      bottomEdgeId: bottomEdgeId,
+      decorationId: decoration,
+      surfaceId: surface,
+      cakeMessage: "",
+      quantity: 1,
+    };
+
+    setIsLoading(true);
+    try {
+      await addCustomCakeToCart(addCustomCakeToCartUrl(), requestBody);
+      toast.success("ใส่ตะกร้าสำเร็จ");
+    } catch (error) {
+      console.error(error);
+      toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
+    }
+    setIsLoading(false);
+  }
 
   useEffect(() => {
     if (Object.keys(variants).length === 0) return;
@@ -169,6 +245,7 @@ export function CustomCakeModal({
       decoration: "",
       surface: "",
     });
+    setSelectedPound(variants?.sizes[0]?.id || "");
     setSelectedBase(variants?.bases[0]?.id || "");
     setSelectedFilling(variants?.fillings[0]?.id || "");
   }, [variants]);
@@ -177,7 +254,7 @@ export function CustomCakeModal({
 
   useEffect(() => {
     if (!variantData.cream) return;
-    const currentCream = variants.creams.find(
+    const currentCream = variants.creams?.find(
       (el) => el.id === variantData.cream,
     );
 
@@ -196,7 +273,7 @@ export function CustomCakeModal({
 
   useEffect(() => {
     if (!variantData.topEdge) return;
-    const currentTopEdge = variants.topEdges.find(
+    const currentTopEdge = variants.topEdges?.find(
       (el) => el.id === variantData.topEdge,
     );
     if (!currentTopEdge) return setTopEdgeImage("");
@@ -214,7 +291,7 @@ export function CustomCakeModal({
 
   useEffect(() => {
     if (!variantData.bottomEdge) return;
-    const currentBottomEdge = variants.bottomEdges.find(
+    const currentBottomEdge = variants.bottomEdges?.find(
       (el) => el.id === variantData.bottomEdge,
     );
     if (!currentBottomEdge) return setBottomEdgeImage("");
@@ -328,7 +405,7 @@ export function CustomCakeModal({
       >
         <Divider />
         {variants?.sizes?.map((el) => (
-          <Radio key={el.id} value={el.name}>
+          <Radio key={el.id} value={el.id}>
             {`${el.name} ปอนด์`}
           </Radio>
         ))}
@@ -648,9 +725,11 @@ export function CustomCakeModal({
                 />
                 <div className=" flex h-95p flex-col">
                   <h6 className=" text-3xl text-primaryT-main">
-                    {selectedPound === "1"
+                    {selectedPound ===
+                    variants?.sizes?.find((el) => el?.name === "1")?.id
                       ? "฿342"
-                      : selectedPound === "2"
+                      : selectedPound ===
+                          variants?.sizes?.find((el) => el?.name === "2")?.id
                         ? "฿684"
                         : "฿1,026"}
                   </h6>
@@ -698,9 +777,10 @@ export function CustomCakeModal({
                       size="lg"
                       color="secondary"
                       type="submit"
-                      isDisabled
+                      onClick={() => handleAddToCart()}
+                      isLoading={isLoading}
                     >
-                      สินค้าหมด
+                      ใส่ตะกร้า
                     </Button>
                   </div>
                 </div>
@@ -711,4 +791,10 @@ export function CustomCakeModal({
       </ModalContent>
     </Modal>
   );
+}
+
+// ----------------------------------------------------------------------
+
+function getColorValue(colorHex: string) {
+  return AVAILABLE_COLORS.find((color) => color.code === colorHex)?.value;
 }

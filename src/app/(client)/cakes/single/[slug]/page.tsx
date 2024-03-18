@@ -58,7 +58,7 @@ export default function CakeDetail({ params }: CakeDetailParams) {
     setIsLoading(true);
     try {
       await addItemToCart(addRefreshmentToCart(), item.id, counter);
-      toast.success("ใส่ตระก้าสำเร็จ");
+      toast.success("ใส่ตะกร้าสำเร็จ");
     } catch (error) {
       console.error(error);
       toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");

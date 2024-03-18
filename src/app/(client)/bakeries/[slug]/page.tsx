@@ -83,7 +83,7 @@ export default function BakeryDetail({ params }: BakeryDetailParams) {
 
     try {
       await triggerAddToCart(body);
-      toast.success("ใส่ตระก้าสำเร็จ");
+      toast.success("ใส่ตะกร้าสำเร็จ");
       router.push("/cart");
     } catch (error) {
       console.error(error);
