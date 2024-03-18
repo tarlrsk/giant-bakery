@@ -594,8 +594,6 @@ export async function PUT(req: NextRequest,) {
             isDeleted: false,
           },
           data: {
-            name: name,
-            isActive: isActive,
             imageFileName: imageFileName,
             imagePath: imagePath,
             color: color,
@@ -604,6 +602,16 @@ export async function PUT(req: NextRequest,) {
         if (variant.imagePath) {
           variant.image = await getFileUrl(variant.imagePath);
         }
+        await prisma.masterCakeCream.updateMany({
+          where: {
+            name: variant.name,
+            isDeleted: false,
+          },
+          data: {
+            name: name,
+            isActive: isActive,
+          }
+        })
         break;
       case VariantType.TOP_EDGE:
         variant = (await prisma.masterCakeTopEdge.update({
@@ -612,8 +620,6 @@ export async function PUT(req: NextRequest,) {
             isDeleted: false,
           },
           data: {
-            name: name,
-            isActive: isActive,
             imageFileName: imageFileName,
             imagePath: imagePath,
             color: color,
@@ -622,6 +628,16 @@ export async function PUT(req: NextRequest,) {
         if (variant.imagePath) {
           variant.image = await getFileUrl(variant.imagePath);
         }
+        await prisma.masterCakeTopEdge.updateMany({
+          where: {
+            name: variant.name,
+            isDeleted: false,
+          },
+          data: {
+            name: name,
+            isActive: isActive,
+          }
+        })
         break;
       case VariantType.BOTTOM_EDGE:
         variant = (await prisma.masterCakeBottomEdge.update({
@@ -630,8 +646,6 @@ export async function PUT(req: NextRequest,) {
             isDeleted: false,
           },
           data: {
-            name: name,
-            isActive: isActive,
             imageFileName: imageFileName,
             imagePath: imagePath,
             color: color,
@@ -640,6 +654,16 @@ export async function PUT(req: NextRequest,) {
         if (variant.imagePath) {
           variant.image = await getFileUrl(variant.imagePath);
         }
+        await prisma.masterCakeBottomEdge.updateMany({
+          where: {
+            name: variant.name,
+            isDeleted: false,
+          },
+          data: {
+            name: name,
+            isActive: isActive,
+          }
+        })
         break;
       case VariantType.DECORATION:
         variant = (await prisma.masterCakeDecoration.update({
