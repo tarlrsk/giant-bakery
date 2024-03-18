@@ -190,7 +190,7 @@ export default function CartItemTable({
               <TableCell>
                 {item.itemType === "CUSTOM_CAKE" ? (
                   <div className="flex flex-row items-center gap-2 md:gap-6 md:pl-3">
-                    <div className=" relative h-36 w-20 md:h-20">
+                    <div className=" relative h-10 w-10 rounded-sm border-1 md:h-20 md:w-20">
                       {item.cream?.image && (
                         <Image
                           src={item.cream.image}
