@@ -17,7 +17,9 @@ export default function CakePage() {
         <div className="px-6 pb-20 ">
           <PoundCakeItemsContainer limitItems={4} />
         </div>
-        <CustomCakeContainer />
+        <div className="px-6 pb-20 ">
+          <CustomCakeContainer />
+        </div>
       </Suspense>
     </section>
   );

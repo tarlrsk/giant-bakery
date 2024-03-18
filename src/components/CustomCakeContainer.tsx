@@ -22,6 +22,7 @@ import {
 
 import "./styles.css";
 import { IVariant } from "./modal/types";
+import { CloseIcon } from "./icons/CloseIcon";
 
 // ----------------------------------------------------------------------
 
@@ -97,17 +98,21 @@ export default function CustomCakeContainer() {
   const variants: IVariantData = data?.response?.data || {};
 
   return (
-    <div className="relative">
-      <div className="px-6">
-        <Button color="secondary" onPress={onOpen}>
-          เค้กจัดเอง
-        </Button>
-        <CustomCakeModal
-          variants={variants}
-          isOpen={isOpen}
-          onOpenChange={onOpenChange}
-        />
+    <div className=" flex flex-col items-center gap-5 py-16 md:px-36">
+      <div className=" text-3xl md:text-5xl">ออกแบบเค้กเอง</div>
+      <div className=" max-w-3xl text-center text-medium font-normal leading-normal md:text-xl md:leading-9">
+        ยังไม่เจอเค้กที่ถูกใจ? ยังไม่เจอหน้าตาเค้กที่ใช่?
+        ลองออกแบบเค้กด้วยจนเองผ่าน Cukedoh
+        ที่เราได้คัดรูปแบบเค้กยอดความนิยมโดยการเลือกตัวเลือกที่คุณถูกใจได้เลย
       </div>
+      <Button size="lg" radius="md" color="secondary" onPress={onOpen}>
+        เริ่มออกแบบเค้กเอง
+      </Button>
+      <CustomCakeModal
+        variants={variants}
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+      />
     </div>
   );
 }
@@ -696,11 +701,91 @@ export function CustomCakeModal({
       <ModalContent>
         {(onClose) => (
           <>
+            {/* Mobile Cake */}
             <div
-              className={`relative grid grid-cols-3 overflow-hidden ${ibm.className}`}
+              className={`relative grid grid-rows-2 overflow-hidden md:grid-cols-3 md:grid-rows-none ${ibm.className}`}
             >
+              <div className="relative block p-6 md:hidden">
+                <Divider
+                  orientation="vertical"
+                  className=" absolute left-0 top-0"
+                />
+                <div className=" flex h-95p flex-col">
+                  <div className=" flex flex-row items-center justify-between">
+                    <h6 className=" text-3xl text-primaryT-main">
+                      {selectedPound ===
+                      variants?.sizes?.find((el) => el?.name === "1")?.id
+                        ? "฿342"
+                        : selectedPound ===
+                            variants?.sizes?.find((el) => el?.name === "2")?.id
+                          ? "฿684"
+                          : "฿1,026"}
+                    </h6>
+                    <Button
+                      isIconOnly
+                      radius="full"
+                      className=" bg-gray-100"
+                      onClick={() => onClose()}
+                    >
+                      <CloseIcon width={20} height={20} color="gray" />
+                    </Button>
+                  </div>
+                  <div className=" flex flex-1 items-center justify-center">
+                    <div className=" relative flex h-2/3 w-2/3 items-center justify-center p-5">
+                      {creamImage && (
+                        <img
+                          className="absolute z-10 w-full"
+                          alt={variantData.bottomEdge}
+                          src={creamImage}
+                        />
+                      )}
+                      {topEdgeImage && (
+                        <img
+                          className="absolute z-20 w-full"
+                          alt={variantData.bottomEdge}
+                          src={topEdgeImage}
+                        />
+                      )}
+                      {decorationImage && (
+                        <img
+                          className="absolute z-30 w-full"
+                          alt={variantData.decoration}
+                          src={decorationImage}
+                        />
+                      )}
+                      {bottomEdgeImage && (
+                        <img
+                          className="absolute z-40 w-full"
+                          alt={variantData.bottomEdge}
+                          src={bottomEdgeImage}
+                        />
+                      )}
+                      {surfaceImage && (
+                        <img
+                          className="absolute z-50 w-full"
+                          alt={variantData.surface}
+                          src={surfaceImage}
+                        />
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-center">
+                    <Button
+                      size="lg"
+                      color="secondary"
+                      type="submit"
+                      onClick={() => handleAddToCart()}
+                      isLoading={isLoading}
+                      className=" z-50"
+                    >
+                      ใส่ตะกร้า
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
               {/* Left-hand side */}
-              <div className=" relative col-span-1 overflow-y-scroll p-6">
+              <div className="relative overflow-y-scroll p-6 md:col-span-1 ">
                 <h6 className=" text-3xl">เค้กแต่งเอง</h6>
 
                 <div className=" my-5 flex flex-col gap-8">
@@ -717,34 +802,45 @@ export function CustomCakeModal({
                   {variants?.surfaces?.length > 0 && renderSurface}
                 </div>
               </div>
-              <div className="relative col-span-2 p-6">
-                {/* Right-hand side */}
+
+              {/* (Desktop Cake) Right-hand side */}
+              <div className="relative col-span-2 hidden p-6 md:block">
                 <Divider
                   orientation="vertical"
                   className=" absolute left-0 top-0"
                 />
                 <div className=" flex h-95p flex-col">
-                  <h6 className=" text-3xl text-primaryT-main">
-                    {selectedPound ===
-                    variants?.sizes?.find((el) => el?.name === "1")?.id
-                      ? "฿342"
-                      : selectedPound ===
-                          variants?.sizes?.find((el) => el?.name === "2")?.id
-                        ? "฿684"
-                        : "฿1,026"}
-                  </h6>
+                  <div className=" flex flex-row items-center justify-between">
+                    <h6 className=" text-3xl text-primaryT-main">
+                      {selectedPound ===
+                      variants?.sizes?.find((el) => el?.name === "1")?.id
+                        ? "฿342"
+                        : selectedPound ===
+                            variants?.sizes?.find((el) => el?.name === "2")?.id
+                          ? "฿684"
+                          : "฿1,026"}
+                    </h6>
+                    <Button
+                      isIconOnly
+                      radius="full"
+                      className=" bg-gray-100"
+                      onClick={() => onClose()}
+                    >
+                      <CloseIcon width={20} height={20} color="gray" />
+                    </Button>
+                  </div>
                   <div className=" flex flex-1 items-center justify-center">
                     <div className=" relative flex h-2/3 w-2/3 items-center justify-center p-5">
                       {creamImage && (
                         <img
-                          className="absolute z-30 w-full"
+                          className="absolute z-10 w-full"
                           alt={variantData.bottomEdge}
                           src={creamImage}
                         />
                       )}
                       {topEdgeImage && (
                         <img
-                          className="absolute z-30 w-full"
+                          className="absolute z-20 w-full"
                           alt={variantData.bottomEdge}
                           src={topEdgeImage}
                         />
@@ -758,14 +854,14 @@ export function CustomCakeModal({
                       )}
                       {bottomEdgeImage && (
                         <img
-                          className="absolute z-30 w-full"
+                          className="absolute z-40 w-full"
                           alt={variantData.bottomEdge}
                           src={bottomEdgeImage}
                         />
                       )}
                       {surfaceImage && (
                         <img
-                          className="absolute z-30 w-full"
+                          className="absolute z-50 w-full"
                           alt={variantData.surface}
                           src={surfaceImage}
                         />
@@ -779,6 +875,7 @@ export function CustomCakeModal({
                       type="submit"
                       onClick={() => handleAddToCart()}
                       isLoading={isLoading}
+                      className=" z-50"
                     >
                       ใส่ตะกร้า
                     </Button>
