@@ -9,6 +9,7 @@ import { calculateShippingFee } from "@/lib/interExpress";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { checkoutCartValidateSchema } from "@/lib/validationSchema";
 import { prismaCustomerAddress } from "@/persistence/customerAddress";
+import { CalGeneralDiscount, CalSnackBoxDiscount } from "@/lib/discount";
 import {
   Order,
   Prisma,
@@ -20,7 +21,6 @@ import {
   OrderCustomerCake,
   OrderSnackBoxRefreshment,
 } from "@prisma/client";
-import { CalGeneralDiscount, CalSnackBoxDiscount } from "@/lib/discount";
 
 type LineItem = {
   price_data: {

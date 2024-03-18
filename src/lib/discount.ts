@@ -1,5 +1,5 @@
-import { Discount, DiscountType } from "@prisma/client";
 import { prisma } from "./prisma";
+import { Discount, DiscountType } from "@prisma/client";
 
 type Discounts = {
     id: string;

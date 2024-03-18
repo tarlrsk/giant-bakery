@@ -12,11 +12,12 @@ export async function POST(req: NextRequest) {
       return responseWrapper(400, null, validation.error.format());
     }
 
-    const { condition, pct, type, isActive } = body;
+    const { conditionValue, description, pct, type, isActive } = body;
 
     const newDiscount = await prisma.discount.create({
       data: {
-        condition,
+        description,
+        conditionValue,
         pct,
         type,
         isActive,
