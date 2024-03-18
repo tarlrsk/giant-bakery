@@ -67,18 +67,8 @@ export async function GET(req: NextRequest) {
     const response = {
       items: cartData.response.data.items,
       subTotal: cartData.response.data.subTotal,
-      // TODO DISCOUNTS
-      discounts: [
-        {
-          name: "ร้านกำลังอยู่ในช่วงพัฒนา ลดให้เลย 10 บาท",
-          discount: 10,
-        },
-        {
-          name: "พอดีเป็นคนใจดีน่ะ ลดให้เลย 10 บาท",
-          discount: 10,
-        },
-      ],
-      totalDiscount: 20,
+      discounts: cartData.response.data.discount,
+      totalDiscount: cartData.response.data.totalDiscount,
       shippingFee: 0,
     } as TotalPriceResponse;
 

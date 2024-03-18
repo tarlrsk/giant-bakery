@@ -6,12 +6,9 @@ import { responseWrapper } from "@/utils/api-response-wrapper";
 import {
   MasterCakeSize,
   MasterCakeBase,
-  MasterCakeCream,
   MasterCakeFilling,
-  MasterCakeTopEdge,
   MasterCakeSurface,
   MasterCakeDecoration,
-  MasterCakeBottomEdge,
 } from "@prisma/client";
 
 export const revalidate = 0;

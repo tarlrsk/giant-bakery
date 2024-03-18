@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { NextRequest } from "next/server";
 import { prismaOrder } from "@/persistence/order";
 import { OrderStatus, PaymentMethod } from "@prisma/client";
+import { prismaRefreshment } from "@/persistence/refreshment";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 
 const stripe: Stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
@@ -31,6 +32,39 @@ export async function POST(req: NextRequest) {
 
         switch (paymentIntent.metadata.orderStatus) {
           case OrderStatus.PENDING_PAYMENT1:
+            const order = await prismaOrder().getOrderById(orderId)
+            if (!order) {
+              return responseWrapper(404, null, `Order with ID ${orderId} is not found.`)
+            }
+            const dbRefreshments = await prismaRefreshment().getAllRefreshments()
+            for (let refreshment of order.orderRefreshment) {
+              if (refreshment.id) {
+                const dbRefreshment = dbRefreshments.find(r => r.id === refreshment.id)
+                if (!dbRefreshment) {
+                  return responseWrapper(500, null, "Something went wrong with order refreshment.")
+                }
+                dbRefreshment.currQty -= refreshment.quantity
+                await prismaRefreshment().updateRefreshment(
+                  refreshment.id,
+                  dbRefreshment,
+                )
+              }
+            }
+            for (let snackBox of order.orderSnackBox) {
+              for (let refreshment of snackBox.refreshments) {
+                if (refreshment.id) {
+                  const dbRefreshment = dbRefreshments.find(r => r.id === refreshment.id)
+                  if (!dbRefreshment) {
+                    return responseWrapper(500, null, "Something went wrong with order refreshment.")
+                  }
+                  dbRefreshment.currQty -= 1
+                  await prismaRefreshment().updateRefreshment(
+                    refreshment.id,
+                    dbRefreshment,
+                  )
+                }
+              }
+            }
             await prismaOrder().updateOrderById(orderId, {
               status: OrderStatus.PENDING_ORDER,
               payment: {
