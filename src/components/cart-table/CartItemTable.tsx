@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { ICartItem } from "@/app/(client)/cart/types";
 import React, { useMemo, useState, useEffect } from "react";
 
@@ -187,28 +188,76 @@ export default function CartItemTable({
               key={item.itemId}
             >
               <TableCell>
-                <User
-                  avatarProps={{
-                    radius: "md",
-                    className:
-                      " bg-transparent border-1 w-10 h-10 md:w-20 md:h-20",
-                    src:
-                      item.type === "SNACK_BOX"
-                        ? item.packageType === "PAPER_BAG"
-                          ? "/paper-bag.jpeg"
-                          : "/snack-box.png"
-                        : item.image,
-                  }}
-                  classNames={{
-                    name: "text-xs md:text-lg",
-                    description: "text-xs md:text-base font-normal",
-                  }}
-                  description={item?.description || ""}
-                  name={item.name}
-                  className=" md:gap-6 md:pl-3"
-                >
-                  {item.name}
-                </User>
+                {item.itemType === "CUSTOM_CAKE" ? (
+                  <div className="flex flex-row items-center gap-2 md:gap-6 md:pl-3">
+                    <div className=" relative h-36 w-20 md:h-20">
+                      {item.cream?.image && (
+                        <Image
+                          src={item.cream.image}
+                          alt={item?.name}
+                          fill
+                          className=" z-10 object-cover"
+                        />
+                      )}
+                      {item.topEdge?.image && (
+                        <Image
+                          src={item.topEdge.image}
+                          alt={item?.name}
+                          fill
+                          className=" z-20 object-cover"
+                        />
+                      )}
+                      {item.decoration?.image && (
+                        <Image
+                          src={item.decoration.image}
+                          alt={item?.name}
+                          fill
+                          className=" z-30 object-cover"
+                        />
+                      )}
+                      {item.bottomEdge?.image && (
+                        <Image
+                          src={item.bottomEdge.image}
+                          alt={item?.name}
+                          fill
+                          className=" z-40 object-cover"
+                        />
+                      )}
+                      {item.surface?.image && (
+                        <Image
+                          src={item.surface.image}
+                          alt={item?.name}
+                          fill
+                          className=" z-50 object-cover"
+                        />
+                      )}
+                    </div>
+                    <div className="text-xs md:text-lg">เค้กออกแบบเอง</div>
+                  </div>
+                ) : (
+                  <User
+                    avatarProps={{
+                      radius: "md",
+                      className:
+                        " bg-transparent border-1 w-10 h-10 md:w-20 md:h-20",
+                      src:
+                        item.type === "SNACK_BOX"
+                          ? item.packageType === "PAPER_BAG"
+                            ? "/paper-bag.jpeg"
+                            : "/snack-box.png"
+                          : item.image,
+                    }}
+                    classNames={{
+                      name: "text-xs md:text-lg",
+                      description: "text-xs md:text-base font-normal",
+                    }}
+                    description={item?.description || ""}
+                    name={item.name}
+                    className=" md:gap-6 md:pl-3"
+                  >
+                    {item.name}
+                  </User>
+                )}
               </TableCell>
               <TableCell>
                 <div className="justify-center text-center text-xs md:text-lg">{`฿${item.pricePer}`}</div>
