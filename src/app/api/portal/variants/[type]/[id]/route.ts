@@ -258,9 +258,9 @@ export async function DELETE(_req: NextRequest, { params }: GetVariantById) {
           );
         }
 
-        variant = (await prisma.masterCakeCream.update({
+        variant = (await prisma.masterCakeCream.updateMany({
           where: {
-            id: id,
+            name: variant.name,
             isDeleted: false,
           },
           data: {
@@ -289,9 +289,9 @@ export async function DELETE(_req: NextRequest, { params }: GetVariantById) {
           );
         }
 
-        variant = (await prisma.masterCakeTopEdge.update({
+        variant = (await prisma.masterCakeTopEdge.updateMany({
           where: {
-            id: id,
+            name: variant.name,
             isDeleted: false,
           },
           data: {
@@ -319,9 +319,9 @@ export async function DELETE(_req: NextRequest, { params }: GetVariantById) {
           );
         }
 
-        variant = (await prisma.masterCakeBottomEdge.update({
+        variant = (await prisma.masterCakeBottomEdge.updateMany({
           where: {
-            id: id,
+            name: variant.name,
             isDeleted: false,
           },
           data: {
