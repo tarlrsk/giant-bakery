@@ -20,6 +20,7 @@ import {
   OrderCustomerCake,
   OrderSnackBoxRefreshment,
 } from "@prisma/client";
+import { CalGeneralDiscount, CalSnackBoxDiscount } from "@/lib/discount";
 
 type LineItem = {
   price_data: {
@@ -95,7 +96,7 @@ export async function POST(req: NextRequest) {
     // MAP LineItems
     // TODO Check STOCK
     const lineItems = [] as LineItem[];
-    for (var cartItem of cart?.items) {
+    for (var cartItem of cart.items) {
       switch (cartItem.type) {
         case "PRESET_CAKE":
           if (!cartItem.customerCake || !cartItem.customerCake.cake) {
@@ -163,7 +164,7 @@ export async function POST(req: NextRequest) {
           break;
         case "SNACK_BOX":
           if (!cartItem.snackBox) {
-            return responseWrapper(409, null, "Snack Box is missing snackbox.");
+            return responseWrapper(409, null, "Snack Box is missing snack box.");
           }
           var image: string[] = [];
           if (cartItem.snackBox.imagePath) {
@@ -185,7 +186,8 @@ export async function POST(req: NextRequest) {
     }
 
     // TODO DISCOUNT
-    let totalDiscount = 20;
+    let snackBoxQty = 0;
+    let snackBoxTotalPrice = 0;
 
     // CREATE ORDER ITEMS
     let subTotal = 0 as number;
@@ -254,15 +256,15 @@ export async function POST(req: NextRequest) {
               id: cartItem.customerCake.sizeId!
             }
           })
-          if (!size){
-            return responseWrapper(404,null,"Size is not found.")
+          if (!size) {
+            return responseWrapper(404, null, "Size is not found.")
           }
-    
+
           let weight = 0.0
           let height = 0.0
           let length = 0.0
           let width = 0.0
-          switch(size.name){
+          switch (size.name) {
             case "1":
               weight = 100
               height = 100
@@ -282,7 +284,7 @@ export async function POST(req: NextRequest) {
               width = 100
               break;
           }
-          
+
           let description = [
             cartItem.customerCake.size?.name || null,
             cartItem.customerCake.base?.name || null,
@@ -415,11 +417,25 @@ export async function POST(req: NextRequest) {
             snackBoxId: cartItem.snackBox.id,
             orderId: "",
           });
+
+          snackBoxQty += cartItem.quantity;
+          snackBoxTotalPrice += cartItem.quantity * cartItem.snackBox.price;
           break;
       }
     }
 
-    // TODO Decrease quantity
+    // CALCULATE DISCOUNT
+    let totalDiscount = 0
+    const generalDiscount = await CalGeneralDiscount(subTotal)
+    if (generalDiscount) {
+      totalDiscount += generalDiscount.discount
+    }
+
+    const snackBoxDiscount = await CalSnackBoxDiscount(snackBoxQty, snackBoxTotalPrice)
+    if (snackBoxDiscount) {
+      totalDiscount += snackBoxDiscount.discount
+    }
+
     // CREATE ORDER
     order = await prismaOrder().createOrder({
       status: OrderStatus.PENDING_PAYMENT1,
@@ -529,8 +545,14 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    if (paymentType == PaymentType.INSTALLMENT) {
-      totalDiscount += subTotal - totalDiscount + shippingFee;
+    if (paymentType == PaymentType.INSTALLMENT && totalDiscount == 0) {
+      return responseWrapper(
+        400,
+        null,
+        "Unable to proceed at this time as the installment conditions have not been met."
+      )
+    } else if (paymentType == PaymentType.INSTALLMENT) {
+      totalDiscount += (subTotal - totalDiscount + shippingFee) / 2;
     }
 
     const session = await createStripeSession(

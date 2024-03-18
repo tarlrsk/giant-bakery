@@ -133,8 +133,11 @@ export async function POST(req: NextRequest) {
     );
 
     let snackBoxPrice = 0;
-    for (var refreshment of refreshments) {
-      snackBoxPrice += refreshment.price;
+    for (var refreshmentId of refreshmentIds) {
+      let refreshment = refreshments.find(r => r.id == refreshmentId)
+      if (refreshment) {
+        snackBoxPrice += refreshment.price;
+      }
     }
 
     if (existingItem) {
