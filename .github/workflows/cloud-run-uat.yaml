@@ -13,7 +13,7 @@ on:
       - uat
 
 jobs:
-  Cloud-Run-Build-&-Deploy:
+  Google-Cloud-Run-Build-&-Deploy:
     runs-on: ubuntu-latest
     environment:
       name: 'UAT'
