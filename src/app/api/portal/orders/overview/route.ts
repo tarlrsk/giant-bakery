@@ -3,6 +3,8 @@ import { NextRequest } from "next/server";
 import { OrderStatus } from "@prisma/client";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 
+export const revalidate = 0;
+
 type overview = {
   totalOrder: number;
   todayOrder: number;
