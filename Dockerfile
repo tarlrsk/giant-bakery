@@ -12,6 +12,7 @@ COPY . .
 # Install production dependencies.
 # If you add a package-lock.json, speed your build by switching to 'npm ci'.
 RUN npm install
+RUN npx prisma generate
 RUN npm run build
 
 
