@@ -56,7 +56,7 @@ jobs:
           --platform "managed" \
           --quiet
           
-  Vercel-Build-&-Deploy:
+  Vercel-Build-And-Deploy:
     runs-on: ubuntu-latest
     environment: Production
     steps:

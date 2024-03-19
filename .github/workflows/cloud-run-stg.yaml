@@ -55,8 +55,8 @@ jobs:
           --image gcr.io/$PROJECT_ID/$REPO_NAME:$GITHUB_SHA \
           --platform "managed" \
           --quiet
-          
-  Vercel-Build-&-Deploy:
+
+  Vercel-Build-And-Deploy:
     runs-on: ubuntu-latest
     environment:
       name: 'Staging'
