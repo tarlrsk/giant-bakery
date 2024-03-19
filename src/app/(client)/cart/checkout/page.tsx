@@ -38,6 +38,7 @@ import {
   AutocompleteItem,
 } from "@nextui-org/react";
 
+import { ICartItem } from "../types";
 import { ibm } from "../../providers";
 
 // ----------------------------------------------------------------------
@@ -233,15 +234,7 @@ export default function CheckoutPage() {
   } = paths();
 
   const [checkoutDetail, setCheckoutDetail] = useState<{
-    items: {
-      name: string;
-      description: string;
-      image: string;
-      itemId: string;
-      price: number;
-      pricePer: number;
-      quantity: number;
-    }[];
+    items: ICartItem[];
     subTotal: number;
     discounts: { name: string; discount: number }[];
     totalDiscount: number;
@@ -801,20 +794,20 @@ export default function CheckoutPage() {
   return (
     <div className="container px-6 py-20">
       <div className="flex h-full  w-full flex-col items-center justify-start gap-6">
-        <div className="w-full md:container md:mx-auto md:px-36 ">
+        <div className="container w-full md:mx-auto  ">
           <h1 className="mb-4 text-left text-2xl font-medium md:text-3xl">
             ดำเนินการชำระเงิน
           </h1>
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 lg:grid-cols-2">
             <CheckoutSummaryTable
-              className="md:hidden"
+              className="w-full lg:hidden"
               checkoutDetail={checkoutDetail}
             />
 
             <div>
               <Accordion
                 variant="splitted"
-                className="max-w-xl !px-0"
+                className="!px-0"
                 selectedKeys={selectedKeys}
                 disabledKeys={ACCORDION_KEYS.filter(
                   (key) => key > selectedKeys[0],
@@ -835,7 +828,7 @@ export default function CheckoutPage() {
             </div>
 
             <CheckoutSummaryTable
-              className="hidden md:block"
+              className="hidden lg:block"
               checkoutDetail={checkoutDetail}
             />
 

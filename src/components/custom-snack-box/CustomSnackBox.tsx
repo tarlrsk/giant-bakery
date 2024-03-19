@@ -108,6 +108,10 @@ export default function CustomSnackBox() {
 
   const { selectedPackaging, selectedDrinkOption } = values;
 
+  const totalPrice = useMemo(() => {
+    return selectedItems.reduce((prev, curr) => prev + curr.price, 0);
+  }, [selectedItems]);
+
   const itemAmount = useMemo(() => {
     return selectedItems.reduce((prev, curr) => prev + curr.quantity, 0);
   }, [selectedItems]);
@@ -230,7 +234,10 @@ export default function CustomSnackBox() {
     const body = {
       packageType: selectedPackaging as IPackaging,
       beverage: selectedDrinkOption as IDrinkOption,
-      refreshmentIds: selectedItems.map((item) => item.id),
+      refreshmentIds: selectedItems.flatMap((item) => {
+        let tempArr = new Array(item.quantity).fill(0);
+        return tempArr.map((el) => item.id);
+      }),
       quantity: snackBoxQty,
     };
 
@@ -355,10 +362,7 @@ export default function CustomSnackBox() {
             />
 
             {selectedItems.length > 0 && (
-              <div className="px-4 py-2 text-sm font-medium">{`ราคารวมกล่องละ ${selectedItems.reduce(
-                (prev, curr) => prev + curr.price,
-                0,
-              )} บาท`}</div>
+              <div className="px-4 py-2 text-sm font-medium">{`ราคารวมกล่องละ ${totalPrice} บาท`}</div>
             )}
           </div>
         </PopoverContent>
@@ -385,7 +389,11 @@ export default function CustomSnackBox() {
         <Tab key="bakeries" title="เบเกอรี่" />
         <Tab key="cakes" title="เค้ก" />
       </Tabs>
-      <div className="overflow-y-auto pb-4">
+      <div
+        className={`overflow-y-auto pb-4 ${
+          currentPage === 2 && "md:min-h-[284px] md:min-w-[824px]"
+        }`}
+      >
         {selectedTab === "bakeries" && (
           <CustomBakeryItems
             cols={4}
@@ -396,8 +404,6 @@ export default function CustomSnackBox() {
 
         {selectedTab === "cakes" && (
           <CustomCakeItems
-            cols={4}
-            size="sm"
             type="CAKE"
             onClick={(selected) => onAddItem(selected)}
           />
@@ -486,7 +492,7 @@ export default function CustomSnackBox() {
           {selectedItems.map((item, index) => (
             <div key={index} className=" relative h-14 w-14">
               <Image
-                src={(item?.image as string) ?? "/placeholder-image.jpeg"}
+                src={(item?.image as string) ?? "/placeholder.svg"}
                 alt={item?.name}
                 fill
                 className=" rounded-sm border-1 border-primaryT-darker object-cover"
@@ -519,7 +525,7 @@ export default function CustomSnackBox() {
             </p>
           </div>
           <h1 className="text-2xl font-semibold leading-normal text-secondaryT-main">
-            162 บาท
+            {`${totalPrice} บาท`}
           </h1>
         </div>
 
@@ -576,11 +582,16 @@ export default function CustomSnackBox() {
   );
 
   return (
-    <div className="relative pb-8 md:px-36 ">
-      <div className="flex max-w-screen-lg flex-col pb-10 text-2xl font-normal md:text-4xl">
-        ชุดเบรกจัดเอง
+    <div className="relative flex w-full flex-col items-center gap-6 pb-8 ">
+      <p className=" text-3xl md:text-5xl">ออกแบบชุดเบรกเอง</p>
+      <div className=" max-w-3xl text-center text-medium font-normal leading-normal md:text-xl md:leading-9">
+        ยังไม่เจอเค้กที่ถูกใจ? ยังไม่เจอหน้าตาเค้กที่ใช่?
+        ลองออกแบบเค้กด้วยจนเองผ่าน Cukedoh
+        ที่เราได้คัดรูปแบบเค้กยอดความนิยมโดยการเลือกตัวเลือกที่คุณถูกใจได้เลย
       </div>
-      <div className="flex  max-h-unit-9xl max-w-screen-lg flex-col gap-4 rounded-sm border border-primaryT-darker p-6 md:h-auto">
+      <div
+        className={`flex max-h-unit-9xl  max-w-screen-lg flex-col gap-4 rounded-sm border-1.5 border-primaryT-darker p-6 md:h-auto`}
+      >
         <div className="relative flex items-center justify-between">
           {currentPage === 1 && renderPackageHeader}
           {currentPage === 2 && renderSnackHeader}

@@ -63,6 +63,7 @@ export async function addPresetCakeToCartAction(
     });
 
     revalidateTag("cart");
+
     const data = await res.json();
 
     if (!data.response.success) throw new Error(data.response.error);

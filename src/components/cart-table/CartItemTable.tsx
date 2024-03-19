@@ -190,7 +190,7 @@ export default function CartItemTable({
               <TableCell>
                 {item.itemType === "CUSTOM_CAKE" ? (
                   <div className="flex flex-row items-center gap-2 md:gap-6 md:pl-3">
-                    <div className=" relative h-10 w-10 rounded-sm border-1 md:h-20 md:w-20">
+                    <div className=" relative h-10 w-10 flex-none rounded-sm border-1 md:h-20 md:w-20">
                       {item.cream?.image && (
                         <Image
                           src={item.cream.image}
@@ -232,28 +232,38 @@ export default function CartItemTable({
                         />
                       )}
                     </div>
-                    <div className="text-xs md:text-lg">เค้กออกแบบเอง</div>
+                    <div className=" flex flex-col">
+                      <div className="text-base md:text-lg">เค้กออกแบบเอง</div>
+                      <div className="text-xs text-gray-400  md:text-sm">
+                        {getCustomCakeVariantsString(item)}
+                      </div>
+                    </div>
                   </div>
                 ) : (
                   <User
                     avatarProps={{
                       radius: "md",
                       className:
-                        " bg-transparent border-1 w-10 h-10 md:w-20 md:h-20",
-                      src:
-                        item.type === "SNACK_BOX"
-                          ? item.packageType === "PAPER_BAG"
-                            ? "/paper-bag.jpeg"
-                            : "/snack-box.png"
-                          : item.image,
+                        " bg-transparent relative h-10 w-10 rounded-sm border-1 md:h-20 md:w-20 flex-none",
+                      src: isCustomSnackBox(item)
+                        ? item.packageType === "PAPER_BAG"
+                          ? "/paper-bag.jpeg"
+                          : item.packageType === "SNACK_BOX_M"
+                            ? "/snack-box-m.png"
+                            : "/snack-box-s.png"
+                        : item.image,
                     }}
                     classNames={{
                       name: "text-xs md:text-lg",
-                      description: "text-xs md:text-base font-normal",
+                      description: "text-xs md:text-sm font-normal",
                     }}
-                    description={item?.description || ""}
-                    name={item.name}
-                    className=" md:gap-6 md:pl-3"
+                    description={
+                      isCustomSnackBox(item)
+                        ? getCustomSnackBoxItemsString(item)
+                        : ""
+                    }
+                    name={isCustomSnackBox(item) ? "ชุดเบรกจัดเอง" : item.name}
+                    className=" w-full justify-start md:gap-6 md:pl-3"
                   >
                     {item.name}
                   </User>
@@ -318,4 +328,44 @@ export default function CartItemTable({
       </TableBody>
     </Table>
   );
+}
+
+// ----------------------------------------------------------------------
+
+export function isCustomSnackBox(item: ICartItem) {
+  return item.itemType === "SNACK_BOX" && item.type === "CUSTOM";
+}
+
+export function getCustomSnackBoxItemsString(item: ICartItem) {
+  const mappedRefreshments = item?.refreshments?.map(
+    (el) => el?.refreshment?.name || "",
+  );
+  const countMap: { [key: string]: number } = {};
+
+  // Count occurrences of each item
+  mappedRefreshments?.forEach((item) => {
+    if (countMap[item]) {
+      countMap[item]++;
+    } else {
+      countMap[item] = 1;
+    }
+  });
+
+  // Format the output
+  const output: string[] = [];
+  for (const item in countMap) {
+    if (Object.prototype.hasOwnProperty.call(countMap, item)) {
+      output.push(`${item} x${countMap[item]}`);
+    }
+  }
+
+  return output.join(", ");
+}
+
+export function getCustomCakeVariantsString(item: ICartItem) {
+  const base = item.base.name;
+  const filling = item.filling.name;
+  const pound = item.size.name;
+
+  return `ขนาด ${pound} ปอนด์, เนื้อเค้กรส${base}, ไส้${filling}`;
 }

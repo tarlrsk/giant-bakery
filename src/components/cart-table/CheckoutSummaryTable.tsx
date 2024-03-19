@@ -5,7 +5,6 @@ import React, { useMemo } from "react";
 import { ICartItem } from "@/app/(client)/cart/types";
 
 import {
-  User,
   Table,
   TableRow,
   TableBody,
@@ -14,20 +13,18 @@ import {
   TableColumn,
 } from "@nextui-org/react";
 
+import {
+  isCustomSnackBox,
+  getCustomCakeVariantsString,
+  getCustomSnackBoxItemsString,
+} from "./CartItemTable";
+
 // ----------------------------------------------------------------------
 
 type Props = {
   checkoutDetail:
     | {
-        items: {
-          name: string;
-          description: string;
-          image: string;
-          itemId: string;
-          price: number;
-          pricePer: number;
-          quantity: number;
-        }[];
+        items: ICartItem[];
         subTotal: number;
         discounts: { name: string; discount: number }[];
         totalDiscount: number;
@@ -52,7 +49,7 @@ export default function CheckoutSummaryTable({
 
   const classNames = useMemo(
     () => ({
-      wrapper: ["max-w-lg", "rounded-sm"],
+      wrapper: ["rounded-sm"],
       th: [
         "bg-transparent",
         "font-normal",
@@ -71,24 +68,29 @@ export default function CheckoutSummaryTable({
       switch (columnKey) {
         case "name":
           if (item.name === null) return;
-          if (!!item?.image) {
+          if (!!item?.image || item.type === "CUSTOM") {
             return (
-              <User
-                avatarProps={{
-                  radius: "md",
-                  className: "w-10 h-10 md:w-14 md:h-14 md:text-large",
-                  src: item.image,
-                }}
-                classNames={{
-                  name: "text-sm md:text-base",
-                  description: "text-xs md:text-sm",
-                }}
-                description={item.description}
-                name={`${item?.quantity ? `x${item.quantity}` : ""} ${
-                  item.name
-                }`}
-                className=" gap-4"
-              />
+              <div className=" flex flex-col gap-0">
+                <div className="text-sm md:text-base">
+                  {`${item?.quantity ? `x${item.quantity}` : "ss"} ${
+                    item.itemType === "CUSTOM_CAKE"
+                      ? "เค้กออกแบบเอง"
+                      : isCustomSnackBox(item)
+                        ? "ชุดเบรกจัดเอง"
+                        : item.name
+                  }`}
+                </div>
+                {item.itemType === "CUSTOM_CAKE" && (
+                  <div className="text-xs text-gray-400  md:text-sm">
+                    {getCustomCakeVariantsString(item)}
+                  </div>
+                )}
+                {isCustomSnackBox(item) && (
+                  <div className="text-xs text-gray-400  md:text-sm">
+                    {getCustomSnackBoxItemsString(item)}
+                  </div>
+                )}
+              </div>
             );
           } else {
             return (

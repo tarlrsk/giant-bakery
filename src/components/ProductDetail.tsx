@@ -27,7 +27,7 @@ export default function ProductDetail({
     <div className="relative flex flex-col items-center justify-center gap-10 text-center md:flex-row md:gap-36 md:text-left">
       <div className=" relative h-72 w-72 md:h-96 md:w-96">
         <Image
-          src={(item?.image as string) ?? "/placeholder-image.jpeg"}
+          src={(item?.image as string) ?? "/placeholder.svg"}
           alt={item?.name}
           fill
           className=" object-cover"

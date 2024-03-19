@@ -27,7 +27,7 @@ export default function BestSellerItems({ onClick, ...other }: Props) {
 
   return (
     <div
-      className={`grid grid-cols-2 md:grid-cols-4 gap-5 md:gap-10 justify-center items-center mx-auto`}
+      className={`mx-auto grid grid-cols-2 items-center justify-center gap-5 md:grid-cols-2 md:gap-10 lg:grid-cols-3 2xl:grid-cols-4`}
       {...other}
     >
       {Object.values(items)?.map((item: any) => (
@@ -35,7 +35,6 @@ export default function BestSellerItems({ onClick, ...other }: Props) {
           key={item.id}
           item={item}
           onClick={() => {
-            console.log("ho");
             router.push(`/bakeries/${item.name}?id=${item.id}`);
           }}
         />

@@ -12,30 +12,34 @@ type IFeatureItem = {
   btnLabel: string;
   align: "left" | "right";
   className?: string;
+  link: string;
 };
 
 const FEATURE_ITEMS: IFeatureItem[] = [
   {
     title: "เบเกอรี่อบใหม่ทุกวัน",
-    desc: "เบเกอรี่แสนอร่อยคุณภาพสูงไร้ไขมันทรานส์ ไม่มีวัตถุกันเสียทำสดใหม่ทุกวัน การันตรีด้วยคุณภาพมากกว่า 35 ปีสั่งได้ 24 ชั่วโมงสำหรับจัด Break งานประชุม",
+    desc: "เบเกอรี่แสนอร่อยคุณภาพสูงไร้ไขมันทรานส์ ไม่มีวัตถุกันเสียทำสดใหม่ทุกวัน การันตรีด้วยคุณภาพมากกว่า 18 ปี",
     btnLabel: "สั่งเลย",
     align: "left",
     image: "/home-croissant.webp",
+    link: "/bakeries?category=",
   },
   {
     title: "ชุดเบรกเลือกได้",
-    desc: "เบเกอรี่แสนอร่อยคุณภาพสูงไร้ไขมันทรานส์ ไม่มีวัตถุกันเสียทำสดใหม่ทุกวัน การันตรีด้วยคุณภาพมากกว่า 35 ปีสั่งได้ 24 ชั่วโมงสำหรับจัด Break งานประชุม",
+    desc: "สร้างความประทับใจด้วยการสร้างสรรชุดเบรกที่เป็นเอกลักษณ์สำหรับงานประชุมหรืออีเว้นด้วยตัวคุณเอง",
     btnLabel: "จัดชุดเบรก",
     align: "right",
     image: "/home-snack-box.png",
+    link: "/snack-boxes",
   },
   {
     title: "เค้กแต่งเอง",
-    desc: "เบเกอรี่แสนอร่อยคุณภาพสูงไร้ไขมันทรานส์ ไม่มีวัตถุกันเสียทำสดใหม่ทุกวัน การันตรีด้วยคุณภาพมากกว่า 35 ปีสั่งได้ 24 ชั่วโมงสำหรับจัด Break งานประชุม",
+    desc: "ออกแบบเค้กได้ด้วยตนเอง ไม่เหมือนใคร ด้วยหน้าตาและส่วนประกอบเค้กยอดนิยมที่ได้คัดสรรมาแล้วให้คุณโดยเฉพาะ",
     btnLabel: "แต่งเค้ก",
     align: "left",
     image: "/home-cake.png",
     className: " mb-32",
+    link: "/cakes",
   },
 ];
 
@@ -73,6 +77,7 @@ export default function Home() {
               btnLabel={item.btnLabel}
               align={item.align}
               image={item.image}
+              link={item.link}
               className={item.className}
             />
           ))}

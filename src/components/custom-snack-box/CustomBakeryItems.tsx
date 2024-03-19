@@ -43,10 +43,7 @@ export default function CustomBakeryItems({
 
   return (
     <div
-      // className={`grid grid-cols-${cols} gap-${
-      //   size === "sm" ? "4 pb-2" : "10"
-      // } justify-center `}
-      className="mx-auto grid grid-cols-2 items-center justify-center gap-4 pb-2 md:grid-cols-4 md:gap-5"
+      className={`mx-auto grid grid-cols-2 items-center justify-center gap-5 md:grid-cols-3 md:gap-10 2xl:grid-cols-4`}
       {...other}
     >
       {Object.values(items)?.map((item: any) => (

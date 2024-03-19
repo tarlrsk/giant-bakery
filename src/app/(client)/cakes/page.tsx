@@ -11,14 +11,16 @@ export default function CakePage() {
     <section>
       <TitleSection title="เค้ก" />
       <Suspense>
-        <div className="px-6 pb-20 ">
-          <SingleCakeItemsContainer limitItems={4} />
-        </div>
-        <div className="px-6 pb-20 ">
-          <PoundCakeItemsContainer limitItems={4} />
-        </div>
-        <div className="px-6 pb-20 ">
-          <CustomCakeContainer />
+        <div className=" container">
+          <div className="pb-20 ">
+            <SingleCakeItemsContainer />
+          </div>
+          <div className="pb-20 ">
+            <PoundCakeItemsContainer />
+          </div>
+          <div className="pb-20 ">
+            <CustomCakeContainer />
+          </div>
         </div>
       </Suspense>
     </section>

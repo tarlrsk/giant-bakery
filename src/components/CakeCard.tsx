@@ -16,60 +16,18 @@ type Props = {
   onClick?: () => void;
 };
 
-// type IAddSnackBoxToCart = {
-//   userId: string;
-//   type: "MEMBER" | "GUEST";
-//   snackBoxId: string;
-//   quantity: number;
-// };
-
-// async function sendAddSnackBoxRequest(
-//   url: string,
-//   { arg }: { arg: IAddSnackBoxToCart },
-// ) {
-//   await fetch(url, {
-//     method: "POST",
-//     body: JSON.stringify(arg),
-//   }).then((res) => res.json());
-// }
-
 // ----------------------------------------------------------------------
 
 export default function CakeCard({ item, onClick, size = "md" }: Props) {
-  // TODO : ADD CAKE TO CART
-  //   const { addPresetSnackBoxToCart, addCustomSnackBoxToCart } = apiPaths();
-
-  //   const { trigger: triggerAddToCart, isMutating: isMutatingAddToCart } =
-  //     useSWRMutation(addPresetSnackBoxToCart(), sendAddSnackBoxRequest);
-
-  //   async function handleAddToCart(itemId: string) {
-  //     const currentUser = await getCurrentUser();
-
-  //     const body: IAddSnackBoxToCart = {
-  //       userId: currentUser?.id || "",
-  //       type: currentUser?.role === "CUSTOMER" ? "MEMBER" : "GUEST",
-  //       snackBoxId: itemId,
-  //       quantity: 1,
-  //     };
-
-  //     try {
-  //       await triggerAddToCart(body);
-  //       toast.success("ใส่ตะกร้าสำเร็จ");
-  //     } catch (error) {
-  //       console.error(error);
-  //       toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
-  //     }
-  //   }
-
   return (
     <Card
-      className={` bg-white pb-1 md:pb-2 w-44 md:w-unit-80 rounded-md shadow-md hover:cursor-pointer h-full items-center`}
+      className=" h-full w-44 items-center rounded-md bg-white pb-1 shadow-md hover:cursor-pointer md:w-unit-80 md:pb-2"
       isPressable
       onPress={onClick}
     >
-      <div className=" relative w-full h-36 md:h-64">
+      <div className=" relative h-36 w-full md:h-64">
         <Image
-          src={(item?.image as string) ?? "/placeholder-image.jpeg"}
+          src={(item?.image as string) ?? "/placeholder.svg"}
           alt={item?.name}
           fill
           className=" object-cover"
@@ -77,23 +35,23 @@ export default function CakeCard({ item, onClick, size = "md" }: Props) {
       </div>
 
       <article
-        className={`flex flex-col flex-wrap text-pretty p-6 gap-${
+        className={`text-pretty flex flex-col flex-wrap p-6 gap-${
           size === "sm" ? "1" : "2 items-center"
         }`}
       >
         <p
-          className={`text-primaryT-darker truncate text-lg md:text-xl font-normal max-w-full`}
+          className={`max-w-full truncate text-lg font-normal text-primaryT-darker md:text-xl`}
         >
           {item?.name}
         </p>
 
-        <p className={`text-secondaryT-main text-lg md:text-xl font-semibold`}>
+        <p className={`text-lg font-semibold text-secondaryT-main md:text-xl`}>
           ฿{item?.price?.toFixed(0) ?? 0}
         </p>
         <Button
           size={size}
           onClick={onClick}
-          className={`bg-secondaryT-main items-center text-white text-md rounded-sm px-12`}
+          className={`text-md items-center rounded-sm bg-secondaryT-main px-12 text-white`}
         >
           ใส่ตะกร้า
         </Button>

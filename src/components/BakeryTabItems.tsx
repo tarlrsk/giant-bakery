@@ -50,7 +50,7 @@ export default function BakeryTabItems() {
   };
 
   return (
-    <div className="flex flex-wrap flex-col justify-center items-center gap-10 md:gap-20">
+    <div className="flex flex-col flex-wrap items-center justify-center gap-10 md:gap-20">
       <Tabs
         variant={"underlined"}
         aria-label="Tabs"
@@ -71,11 +71,11 @@ export default function BakeryTabItems() {
           <Tab
             key={item.key}
             title={item.title}
-            className="flex justify-center items-center text-center text-xl md:text-2xl font-semibold md:w-28 md:mx-8"
+            className="flex items-center justify-center text-center text-xl font-semibold md:mx-8 md:w-28 md:text-2xl"
           />
         ))}
       </Tabs>
-      <div className=" pb-16 md:pb-32 mx-8">
+      <div className=" mx-8 pb-16 md:pb-32">
         <BakeryItems cols={4} category={bakeryCategory} />
       </div>
     </div>
@@ -105,7 +105,7 @@ function BakeryItems({
 
   return (
     <div
-      className="grid grid-cols-2 md:grid-cols-4 gap-5 md:gap-10 justify-center items-center mx-auto"
+      className={`mx-auto grid grid-cols-2 items-center justify-center gap-5 md:grid-cols-2 md:gap-10 lg:grid-cols-3 2xl:grid-cols-4`}
       {...other}
     >
       {Object.values(items)?.map((item: any) => (

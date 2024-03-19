@@ -34,24 +34,24 @@ export default function RefreshmentCard({ item, onClick }: Props) {
 
   return (
     <Card
-      className=" bg-white pb-1 md:pb-2 w-44 md:w-unit-80 rounded-md shadow-md hover:cursor-pointer h-full items-center"
+      className=" h-full w-44 items-center rounded-md bg-white pb-1 shadow-md hover:cursor-pointer md:w-unit-80 md:pb-2"
       isPressable
       onPress={onClick}
     >
-      <div className=" relative w-full h-36 md:h-64">
+      <div className=" relative h-36 w-full md:h-64">
         <Image
-          src={(item?.image as string) ?? "/placeholder-image.jpeg"}
+          src={(item?.image as string) ?? "/placeholder.svg"}
           alt={item?.name}
           fill
           className=" object-cover"
         />
       </div>
-      <div className="flex flex-col flex-wrap text-pretty p-4 md:p-6 gap-2 md:gap-3 items-center">
-        <p className="text-primaryT-darker truncate text-lg md:text-xl font-normal max-w-full">
+      <div className="text-pretty flex flex-col flex-wrap items-center gap-2 p-4 md:gap-3 md:p-6">
+        <p className="max-w-full truncate text-lg font-normal text-primaryT-darker md:text-xl">
           {item?.name}
         </p>
 
-        <p className="text-secondaryT-main text-lg md:text-xl font-semibold">
+        <p className="text-lg font-semibold text-secondaryT-main md:text-xl">
           ฿{item?.price?.toFixed(2) ?? 0}
         </p>
         <Button
@@ -60,7 +60,7 @@ export default function RefreshmentCard({ item, onClick }: Props) {
           onClick={() => {
             handleAddToCart(item?.id);
           }}
-          className="bg-secondaryT-main items-center text-white text-md rounded-sm px-12"
+          className="text-md items-center rounded-sm bg-secondaryT-main px-12 text-white"
         >
           ใส่ตะกร้า
         </Button>

@@ -9,8 +9,8 @@ export default function CakePoundPage() {
     <section>
       <TitleSection title="เค้กปอนด์" />
       <Suspense>
-        <div className="pb-20 px-6 text-center md:text-left">
-          <PoundCakeItems limitItems={4} isPoundCakePage />
+        <div className=" container pb-20 text-center md:text-left">
+          <PoundCakeItems isPoundCakePage />
         </div>
       </Suspense>
     </section>

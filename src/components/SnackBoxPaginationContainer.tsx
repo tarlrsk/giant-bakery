@@ -31,7 +31,7 @@ type SnackBoxCardProps = {
 
 export default function SnackBoxPaginationContainer() {
   return (
-    <div className="relative pb-8 md:px-36">
+    <div className="relative pb-8">
       <div className="text-2xl font-normal md:text-4xl">ชุดเบรกจัดให้</div>
       <SnackBoxItems cols={4} />
     </div>
@@ -63,10 +63,10 @@ function SnackBoxItems({ cols, onClick, ...other }: SnackBoxItemsProps) {
   return (
     <>
       <div
-        className="mx-auto grid grid-cols-2 items-center justify-center gap-5 md:grid-cols-4 md:gap-10"
+        className={`mx-auto grid grid-cols-2 items-center justify-center gap-5 md:grid-cols-2 md:gap-10 lg:grid-cols-3 2xl:grid-cols-4`}
         {...other}
       >
-        {Object.values(displayItems)?.map((item: any) => (
+        {items?.map((item: any) => (
           <SnackBoxCard
             key={item.id}
             item={item}
@@ -118,7 +118,7 @@ function SnackBoxCard({ item, onClick, size = "md" }: SnackBoxCardProps) {
     >
       <div className=" relative h-36 w-full md:h-64">
         <Image
-          src={(item?.image as string) ?? "/placeholder-image.jpeg"}
+          src={(item?.image as string) ?? "/placeholder.svg"}
           alt={item?.name}
           fill
           className=" object-cover"

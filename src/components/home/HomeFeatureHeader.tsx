@@ -38,7 +38,7 @@ export default function HomeFeatureHeader({ title, desc, btnLabel }: Props) {
       whileInView="onscreen"
       viewport={{ once: true }}
     >
-      <div className="relative flex flex-col-reverse items-center justify-between text-center md:flex-row  md:text-left">
+      <div className="relative flex flex-col-reverse items-center justify-between text-center md:mt-10 md:flex-row md:text-left  2xl:mt-0">
         <div className="flex max-w-2xl flex-col items-center justify-center gap-4 md:items-start md:gap-6">
           <h1 className=" text-4xl font-semibold !leading-snug  md:text-5xl">
             {title}
