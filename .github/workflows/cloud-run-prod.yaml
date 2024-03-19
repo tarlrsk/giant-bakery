@@ -10,13 +10,13 @@ env:
 on:
   push:
     branches:
-      - develop
+      - main
 
 jobs:
   Build-and-Deploy:
     runs-on: ubuntu-latest
     environment:
-      name: 'Staging'
+      name: 'Production'
     steps:
       - uses: actions/checkout@v4
 
@@ -36,7 +36,7 @@ jobs:
 
       - name: Pull Vercel Environment Information
         run: |
-          vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+          vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
           mv .vercel/.env.preview.local .env
 
       - name: Build and tag the docker image
