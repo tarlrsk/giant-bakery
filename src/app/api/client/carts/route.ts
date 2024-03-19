@@ -39,7 +39,22 @@ const CartInclude = {
 
 async function deleteItem(cartItem: any, itemId: string) {
   switch (cartItem.type) {
-    case "CAKE":
+    case "CUSTOM_CAKE":
+      if (!cartItem.customerCakeId) {
+        return responseWrapper(
+          500,
+          null,
+          `Something went wrong with custom cake item.`,
+        );
+      }
+      await prisma.customerCake.delete({
+        where: {
+          id: cartItem.customerCakeId,
+        },
+      });
+      break;
+
+    case "PRESET_CAKE":
       if (!cartItem.customerCakeId) {
         return responseWrapper(
           500,
