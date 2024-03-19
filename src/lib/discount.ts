@@ -26,7 +26,7 @@ export async function CalGeneralDiscount(subTotal: number): Promise<Discounts | 
         result = {
             id: achieveDiscount.id,
             name: `${achieveDiscount.description} ส่วนลด ${achieveDiscount.pct}%`,
-            discount: achieveDiscount.pct / 100 * subTotal
+            discount: Math.round(achieveDiscount.pct / 100 * subTotal)
         }
     }
     return result
@@ -51,7 +51,7 @@ export async function CalSnackBoxDiscount(snackBoxQty: number, snackBoxTotalPric
         result = {
             id: achieveDiscount.id,
             name: `${achieveDiscount.description} ส่วนลด ${achieveDiscount.pct}%`,
-            discount: achieveDiscount.pct / 100 * snackBoxTotalPrice
+            discount: Math.round(achieveDiscount.pct / 100 * snackBoxTotalPrice)
         }
     }
     return result

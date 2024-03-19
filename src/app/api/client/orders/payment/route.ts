@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { OrderStatus } from "@prisma/client";
+import { OrderStatus, PaymentType } from "@prisma/client";
 import { prismaUser } from "@/persistence/user";
 import { prismaOrder } from "@/persistence/order";
 import { createStripeSessionPayment2 } from "@/lib/stripe";
@@ -86,6 +86,9 @@ export async function POST(req: NextRequest) {
 
       discount = order.discountPrice;
       shippingFee = order.shippingFee;
+      if (order.paymentType == PaymentType.INSTALLMENT) {
+        discount += (order.subTotalPrice - discount + shippingFee) / 2
+      }
     } else if (order.status == OrderStatus.PENDING_PAYMENT2) {
       let remaining = order.totalPrice;
       for (let payment of order.payment) {
