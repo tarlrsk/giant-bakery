@@ -50,7 +50,7 @@ jobs:
       - name: Deploy
         run: |-
           gcloud run deploy $REPO_NAME \
-          --allow-unauthenticated
+          --allow-unauthenticated \
           --region $REGION \
           --image gcr.io/$PROJECT_ID/$REPO_NAME:$GITHUB_SHA \
           --platform "managed" \
