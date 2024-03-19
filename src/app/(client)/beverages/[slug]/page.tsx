@@ -81,7 +81,7 @@ export default function BeverageDetail({ params }: BeverageDetailParams) {
     setIsLoading(true);
     try {
       await addItemToCart(addRefreshmentToCart(), item.id, counter);
-      toast.success("ใส่ตระก้าสำเร็จ");
+      toast.success("ใส่ตะกร้าสำเร็จ");
       router.push("/cart");
     } catch (error) {
       console.error(error);

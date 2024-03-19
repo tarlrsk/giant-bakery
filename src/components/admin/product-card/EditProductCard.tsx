@@ -94,7 +94,7 @@ export default function EditProductCard({ data, isLoading, onClose }: Props) {
     resolver: zodResolver(createUpdateProductSchema),
     defaultValues: { ...data, image: data.image },
   });
-  const { productsMutate } = useAdmin(data);
+  const { productsMutate } = useAdmin(data).useProductAdmin();
 
   const { updateProduct, deleteProduct } = apiPaths();
 

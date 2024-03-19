@@ -36,6 +36,8 @@ const apiPaths = () => {
   const addCustomSnackBoxToCart = () =>
     createClientUrl(`carts/custom-snack-box`);
 
+  const addCustomCakeToCart = () => createClientUrl("carts/custom-cakes/");
+
   const addCakeToCart = () => createClientUrl(`carts/cakes`);
 
   // Bakery
@@ -120,14 +122,11 @@ const apiPaths = () => {
   // Variants
   const getVariantAdmin = () => createAdminUrl("variants");
   const createVariantAdmin = () => createAdminUrl("variants");
-  const updateVariantAdmin = (
-    type: "CREAM" | "TOP_EDGE" | "BOTTOM_EDGE" | "DECORATION" | "SURFACE",
-    string: string,
-  ) => createAdminUrl(`variants/${type}/${string}`);
+  const updateVariantAdmin = () => createAdminUrl("variants");
   const deleteVariantAdmin = (
     type: "CREAM" | "TOP_EDGE" | "BOTTOM_EDGE" | "DECORATION" | "SURFACE",
-    string: string,
-  ) => createAdminUrl(`variants/${type}/${string}`);
+    id: string,
+  ) => createAdminUrl(`variants/${type}/${id}`);
 
   // Orders
   const getOrdersOverview = () => createAdminUrl("orders/overview");
@@ -144,6 +143,7 @@ const apiPaths = () => {
     addRefreshmentToCart,
     addPresetSnackBoxToCart,
     addCustomSnackBoxToCart,
+    addCustomCakeToCart,
     addCakeToCart,
     getBakeries,
     getBakeryBySlug,
