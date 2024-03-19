@@ -14,6 +14,8 @@ on:
 jobs:
   Build:
     runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/heads/develop') && 'Staging' || github.event_name == 'push' && startsWith(github.ref, 'refs/heads/uat') && 'UAT' || 'Preview' }}
     steps:
       - uses: actions/checkout@v4
 
