@@ -15,12 +15,10 @@ import PresetCakeModal from "./modal/PresetCakeModal";
 // ----------------------------------------------------------------------
 
 type PoundCakeItemsContainerProps = {
-  limitItems: number;
   isPoundCakePage?: boolean;
 };
 
 type PoundCakeItemsProps = {
-  cols: number;
   onClick?: (selected: any) => void;
   isPoundCakePage?: boolean;
 };
@@ -28,28 +26,24 @@ type PoundCakeItemsProps = {
 // ----------------------------------------------------------------------
 
 export default function PoundCakeItemsContainer({
-  limitItems,
   isPoundCakePage = false,
 }: PoundCakeItemsContainerProps) {
   const router = useRouter();
 
   return (
-    <div className="relative">
-      <div className="pb-8 md:px-36">
-        <div className=" flex flex-row items-center justify-between pb-10 text-2xl font-normal  md:text-4xl">
-          เค้กสำเร็จรูป (ปอนด์)
-          {!isPoundCakePage && (
-            <div
-              className=" cursor-pointer text-lg font-semibold text-secondaryT-main md:text-xl"
-              onClick={() => router.push("/cakes/pound")}
-            >
-              {`ดูทั้งหมด >`}
-            </div>
-          )}
-          {/* <CustomCakeContainer /> */}
-        </div>
-        <PoundCakeItems cols={4} isPoundCakePage={isPoundCakePage} />
+    <div className=" relative pb-8">
+      <div className=" flex flex-row items-center justify-between pb-10 text-2xl font-normal  md:text-4xl">
+        เค้กสำเร็จรูป (ปอนด์)
+        {!isPoundCakePage && (
+          <div
+            className=" cursor-pointer text-lg font-semibold text-secondaryT-main md:text-xl"
+            onClick={() => router.push("/cakes/pound")}
+          >
+            {`ดูทั้งหมด >`}
+          </div>
+        )}
       </div>
+      <PoundCakeItems isPoundCakePage={isPoundCakePage} />
     </div>
   );
 }
@@ -57,7 +51,6 @@ export default function PoundCakeItemsContainer({
 // ----------------------------------------------------------------------
 
 function PoundCakeItems({
-  cols,
   onClick,
   isPoundCakePage = false,
   ...other
@@ -76,15 +69,14 @@ function PoundCakeItems({
 
   const items: Cake[] = data?.response?.data || [];
 
-  const [currentPage, setCurrentPage] = useState(1);
+  // const [currentPage, setCurrentPage] = useState(1);
 
-  const cakeCount = items.length;
-
-  const itemsPerPage = 4;
-  const pageSize = Math.ceil(cakeCount / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const displayItems = items.slice(startIndex, endIndex);
+  // const itemsPerPage = 4;
+  // const cakeCount = items.length;
+  // const pageSize = Math.ceil(cakeCount / itemsPerPage);
+  // const startIndex = (currentPage - 1) * itemsPerPage;
+  // const endIndex = startIndex + itemsPerPage;
+  const displayItems = isPoundCakePage ? items.slice(0, 5) : items;
 
   const handleCardClick = (id: string, itemName: string) => {
     if (isPoundCakePage) {
@@ -104,10 +96,10 @@ function PoundCakeItems({
   return (
     <>
       <div
-        className="mx-auto grid grid-cols-2 items-center justify-center gap-5 md:grid-cols-4 md:gap-10"
+        className={`mx-auto grid grid-cols-2 items-center justify-center gap-5 md:grid-cols-2 md:gap-10 lg:grid-cols-3 2xl:grid-cols-4`}
         {...other}
       >
-        {Object.values(displayItems)?.map((item: Cake) => (
+        {displayItems?.map((item: Cake) => (
           <CakeCard
             key={item.id}
             item={item}

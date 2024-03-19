@@ -106,7 +106,6 @@ export default function NewSnackBoxCard({ options, onClose }: Props) {
 
       for (const { value } of memoizedItems) {
         if (value !== null) {
-          console.log("value", value);
           bodyFormData.append("refreshmentIds", value);
         }
       }

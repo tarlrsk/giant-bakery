@@ -71,8 +71,8 @@ async function ItemCartView() {
           ))}
         </div>
       )}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-6">
-        <div className="md:col-span-4 ">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-6">
+        <div className="lg:col-span-4 ">
           <CartItemTable
             userId={currentUser?.id || ""}
             userType={(currentUser?.role as "CUSTOMER" | "GUEST") || "GUEST"}
@@ -80,7 +80,7 @@ async function ItemCartView() {
             onUpdateCartItem={updateCartItem}
           />
         </div>
-        <div className="md:col-span-2">
+        <div className="lg:col-span-2">
           <CartSummaryTable
             subTotal={cartData.subTotal}
             discounts={cartData.discounts}

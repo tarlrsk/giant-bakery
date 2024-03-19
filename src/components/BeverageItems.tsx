@@ -29,7 +29,7 @@ export default function BeverageItems({ cols, ...other }: Props) {
 
   return (
     <div
-      className="grid grid-cols-2 md:grid-cols-4 gap-5 md:gap-10 justify-center items-center mx-auto"
+      className={`mx-auto grid grid-cols-2 items-center justify-center gap-5 md:grid-cols-2 md:gap-10 lg:grid-cols-3 2xl:grid-cols-4`}
       {...other}
     >
       {Object.values(items)?.map((item: Refreshment) => (

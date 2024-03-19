@@ -106,7 +106,7 @@ export default function Navbar({
       <NavbarContent>
         <NavbarMenuToggle
           aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-          className="sm:hidden"
+          className="md:hidden"
         />
         <NavbarBrand>
           <Image
@@ -120,7 +120,10 @@ export default function Navbar({
         </NavbarBrand>
       </NavbarContent>
 
-      <NavbarContent className="hidden gap-14 sm:flex" justify="center">
+      <NavbarContent
+        className="hidden gap-6 md:inline-flex lg:gap-14"
+        justify="center"
+      >
         {NAV_ITEMS.map((item, index) => (
           <NavbarItem
             key={index}

@@ -26,7 +26,11 @@ export async function getSession() {
 
 export async function signUp(body: ISignUpRequest) {
   try {
-    const cookieId = cookies().get("next-auth.csrf-token")?.value as string;
+    // next-auth.csrf-token for Local and __Host-next-auth.csrf-token for Deployed Environment
+    const cookieId =
+      cookies().get("next-auth.csrf-token")?.value ||
+      cookies().get("__Host-next-auth.csrf-token")?.value ||
+      "";
     const { signUp } = paths();
 
     const res = await fetch(signUp(), {
@@ -47,8 +51,7 @@ export default async function getCurrentUser() {
     const session = await getSession();
 
     if (!session?.user?.email) {
-      // next-auth.csrf-token for Local
-      // __Host-next-auth.csrf-token for Deployed Environment
+      // next-auth.csrf-token for Local and __Host-next-auth.csrf-token for Deployed Environment
       const cookieId =
         cookies().get("next-auth.csrf-token")?.value ||
         cookies().get("__Host-next-auth.csrf-token")?.value ||

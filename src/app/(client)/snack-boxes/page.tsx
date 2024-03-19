@@ -9,11 +9,13 @@ export default function SnackBoxPage() {
   return (
     <section>
       <TitleSection title={"ชุดเบรก"} />
-      <div className="px-6 pb-20 ">
-        <SnackBoxPaginationContainer />
-      </div>
-      <div className="px-6 pb-20 ">
-        <CustomSnackBox />
+      <div className=" container">
+        <div className="pb-20 ">
+          <SnackBoxPaginationContainer />
+        </div>
+        <div className="pb-20 ">
+          <CustomSnackBox />
+        </div>
       </div>
     </section>
   );

@@ -468,7 +468,7 @@ export function CustomCakeModal({
                   onChange={updateVariantData}
                   defaultChecked={index === 0}
                 />
-                <img src={image || "/placeholder-image.png"} alt={el.name} />
+                <img src={image || "/placeholder.svg"} alt={el.name} />
               </label>
               <VariantLabelContainer name={el.name} />
             </div>
@@ -510,7 +510,7 @@ export function CustomCakeModal({
                   value={el.id}
                   onChange={updateVariantData}
                 />
-                <img src={image || "/placeholder-image.png"} alt={el.name} />
+                <img src={image || "/placeholder.svg"} alt={el.name} />
               </label>
               <VariantLabelContainer name={el.name} />
             </div>
@@ -565,7 +565,7 @@ export function CustomCakeModal({
               value={el.id}
               onChange={updateVariantData}
             />
-            <img src={el?.image || "/placeholder-image.png"} alt={el.name} />
+            <img src={el?.image || "/placeholder.svg"} alt={el.name} />
           </label>
           <VariantLabelContainer name={el.name} />
         </div>
@@ -608,7 +608,7 @@ export function CustomCakeModal({
                   value={el.id}
                   onChange={updateVariantData}
                 />
-                <img src={image || "/placeholder-image.png"} alt={el.name} />
+                <img src={image || "/placeholder.svg"} alt={el.name} />
               </label>
               <VariantLabelContainer name={el.name} />
             </div>
@@ -664,7 +664,7 @@ export function CustomCakeModal({
               onChange={updateVariantData}
               defaultChecked={index === 0}
             />
-            <img src={el?.image || "/placeholder-image.png"} alt={el.name} />
+            <img src={el?.image || "/placeholder.svg"} alt={el.name} />
           </label>
           <VariantLabelContainer name={el.name} />
         </div>

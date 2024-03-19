@@ -2,7 +2,7 @@
 
 import useSWR from "swr";
 import React from "react";
-import { useState } from "react";
+// import { useState } from "react";
 import apiPaths from "@/utils/api-path";
 import { fetcher } from "@/utils/axios";
 import { useRouter } from "next/navigation";
@@ -15,24 +15,17 @@ import RefreshmentCard from "./RefreshmentCard";
 // ----------------------------------------------------------------------
 
 type SingleCakeItemsContainerProps = {
-  limitItems?: number;
   isSingleCakePage?: boolean;
-};
-
-type RefreshmentCakeItemsProps = {
-  cols: number;
-  limitItems?: number;
 };
 
 // ----------------------------------------------------------------------
 
 export default function SingleCakeItemsContainer({
-  limitItems,
   isSingleCakePage = false,
 }: SingleCakeItemsContainerProps) {
   const router = useRouter();
   return (
-    <div className="relative pb-8 md:px-36">
+    <div className="relative pb-8">
       <div className="flex flex-row items-center justify-between pb-10">
         <div className="text-2xl font-normal md:text-4xl">
           เค้กสำเร็จรูป (ชิ้น)
@@ -46,7 +39,7 @@ export default function SingleCakeItemsContainer({
           </div>
         )}
       </div>
-      <RefreshmentCakeItems limitItems={limitItems} cols={4} />
+      <RefreshmentCakeItems isSingleCakePage={isSingleCakePage} />
     </div>
   );
 }
@@ -54,39 +47,38 @@ export default function SingleCakeItemsContainer({
 // ----------------------------------------------------------------------
 
 function RefreshmentCakeItems({
-  cols,
-  limitItems,
+  isSingleCakePage,
   ...other
-}: RefreshmentCakeItemsProps) {
+}: SingleCakeItemsContainerProps) {
   const router = useRouter();
 
   const { getBakeries } = apiPaths();
 
   const { data } = useSWR(
-    `${getBakeries("CAKE", limitItems?.toString() || "")}`,
+    `${getBakeries("CAKE", isSingleCakePage ? "" : "4")}`,
     fetcher,
   );
 
   const items: Refreshment[] = data?.response?.data || [];
 
-  const [currentPage, setCurrentPage] = useState(1);
+  // const [currentPage, setCurrentPage] = useState(1);
 
-  const cakeCount = items.length;
+  // const cakeCount = items.length;
 
-  const itemsPerPage = 4;
-  const pageSize = Math.ceil(cakeCount / itemsPerPage);
+  // const itemsPerPage = 4;
+  // const pageSize = Math.ceil(cakeCount / itemsPerPage);
 
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const displayItems = items.slice(startIndex, endIndex);
+  // const startIndex = (currentPage - 1) * itemsPerPage;
+  // const endIndex = startIndex + itemsPerPage;
+  // const displayItems = items.slice(startIndex, endIndex);
 
   return (
     <>
       <div
-        className="mx-auto grid grid-cols-2 items-center justify-center gap-5 md:grid-cols-4 md:gap-10"
+        className={`mx-auto grid grid-cols-2 items-center justify-center gap-5 md:grid-cols-2 md:gap-10 lg:grid-cols-3 2xl:grid-cols-4`}
         {...other}
       >
-        {Object.values(displayItems)?.map((item: any) => (
+        {items?.map((item: any) => (
           <RefreshmentCard
             key={item.id}
             item={item}

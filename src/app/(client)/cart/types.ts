@@ -15,6 +15,7 @@ export interface ICartCakeVariants {
 }
 
 export interface ICartSnackBox {
+  refreshment?: ICartSnackBox;
   id: string;
   name: string;
   description: string;

@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { motion, Variants } from "framer-motion";
 
 import { Button } from "@nextui-org/react";
@@ -30,6 +31,7 @@ type Props = {
   align: "left" | "right";
   className?: string;
   image: string;
+  link: string;
 };
 
 type FeatureContentProps = Omit<Props, "align" | "image">;
@@ -42,6 +44,7 @@ export default function HomeFeatureContent({
   btnLabel,
   align,
   image,
+  link,
   className,
 }: Props) {
   const alignmentClassNames =
@@ -57,7 +60,12 @@ export default function HomeFeatureContent({
     >
       <motion.div variants={animationVariants}>
         <div className={alignmentClassNames}>
-          <FeatureContent title={title} desc={desc} btnLabel={btnLabel} />
+          <FeatureContent
+            title={title}
+            desc={desc}
+            btnLabel={btnLabel}
+            link={link}
+          />
 
           <Image
             className=" h-full max-w-xs md:max-w-sm lg:max-w-md xl:max-w-lg 2xl:max-w-xl"
@@ -78,7 +86,8 @@ export default function HomeFeatureContent({
 
 // ----------------------------------------------------------------------
 
-function FeatureContent({ title, desc, btnLabel }: FeatureContentProps) {
+function FeatureContent({ title, desc, btnLabel, link }: FeatureContentProps) {
+  const router = useRouter();
   return (
     <div
       className={`flex max-w-2xl flex-col items-center justify-center gap-4 md:items-start md:gap-6`}
@@ -94,7 +103,12 @@ function FeatureContent({ title, desc, btnLabel }: FeatureContentProps) {
       <p className="relative text-center text-xl font-normal leading-relaxed text-black md:text-left">
         {desc}
       </p>
-      <Button className=" relative h-12 w-36 rounded-full bg-secondaryT-main text-lg font-semibold text-white md:text-xl">
+      <Button
+        onClick={() => {
+          router.push(link);
+        }}
+        className=" relative h-12 w-36 rounded-full bg-secondaryT-main text-lg font-semibold text-white md:text-xl"
+      >
         {btnLabel}
       </Button>
     </div>

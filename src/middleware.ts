@@ -30,8 +30,8 @@ export default withAuth(
     )
       return NextResponse.redirect(req.nextUrl.origin);
 
-    console.log(req.method);
-    console.log(req.url);
+    // console.log(req.method);
+    // console.log(req.url);
   },
   {
     callbacks: {
