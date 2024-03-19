@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
         (item.customerCake?.sizeId === sizeId ||
           (item.customerCake?.sizeId === null && sizeId === "")) &&
         (item.customerCake?.fillingId === fillingId ||
-          (item.customerCake?.fillingId === null && fillingId === "")) 
+          (item.customerCake?.fillingId === null && fillingId === ""))
     );
 
     const existingItemsIndex = cart.items.findIndex(
@@ -142,7 +142,7 @@ export async function POST(req: NextRequest) {
         data: {
           items: {
             create: {
-              type: CartItemType.CUSTOM_CAKE,
+              type: CartItemType.PRESET_CAKE,
               quantity: quantity,
               customerCake: {
                 create: {
