@@ -7,8 +7,8 @@ env:
   REGION: asia-southeast1
   REPO_NAME: cukedoh-stg
 
-# on:
-#   push:
+on:
+  push:
 #     branches:
 #       - develop
 
