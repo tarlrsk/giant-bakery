@@ -86,7 +86,7 @@ export default function AuthModal({ isOpen, onOpenChange }: Props) {
           <ModalBody>
             <div>เข้าสู่ระบบด้วยบัญชี</div>
             <div className="flex items-center gap-2">
-              <SocialButtons
+              {/* <SocialButtons
                 type="facebook"
                 isLoading={isLoadingFacebookAuth}
                 onClick={() =>
@@ -97,7 +97,7 @@ export default function AuthModal({ isOpen, onOpenChange }: Props) {
                     onError,
                   )
                 }
-              />
+              /> */}
               <SocialButtons
                 type="google"
                 isLoading={isLoadingGoogleAuth}

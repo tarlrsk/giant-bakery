@@ -31,7 +31,7 @@ export default function PoundCakeItemsContainer({
   const router = useRouter();
 
   return (
-    <div className=" relative pb-8">
+    <div className=" pb-8">
       <div className=" flex flex-row items-center justify-between pb-10 text-2xl font-normal  md:text-4xl">
         เค้กสำเร็จรูป (ปอนด์)
         {!isPoundCakePage && (

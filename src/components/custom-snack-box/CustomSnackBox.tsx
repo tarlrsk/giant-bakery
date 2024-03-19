@@ -585,9 +585,7 @@ export default function CustomSnackBox() {
     <div className="relative flex w-full flex-col items-center gap-6 pb-8 ">
       <p className=" text-3xl md:text-5xl">ออกแบบชุดเบรกเอง</p>
       <div className=" max-w-3xl text-center text-medium font-normal leading-normal md:text-xl md:leading-9">
-        ยังไม่เจอเค้กที่ถูกใจ? ยังไม่เจอหน้าตาเค้กที่ใช่?
-        ลองออกแบบเค้กด้วยจนเองผ่าน Cukedoh
-        ที่เราได้คัดรูปแบบเค้กยอดความนิยมโดยการเลือกตัวเลือกที่คุณถูกใจได้เลย
+        ยังไม่เจอชุดเบรกที่ถูกใจ? ลองจัดสรรชุดเบรกที่เป็นเอกลักษณ์ด้วยตัวคุณเอง
       </div>
       <div
         className={`flex max-h-unit-9xl  max-w-screen-lg flex-col gap-4 rounded-sm border-1.5 border-primaryT-darker p-6 md:h-auto`}
