@@ -1,4 +1,4 @@
-name: Cloud Run Deployment Staging
+name: Deployment Staging
 
 env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
