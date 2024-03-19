@@ -12,13 +12,13 @@ export default function CakePage() {
       <TitleSection title="เค้ก" />
       <Suspense>
         <div className=" container">
-          <div className="pb-20 ">
+          <div className="mb-20 ">
             <SingleCakeItemsContainer />
           </div>
-          <div className="pb-20 ">
+          <div className="mb-20 ">
             <PoundCakeItemsContainer />
           </div>
-          <div className="pb-20 ">
+          <div className="mb-20 ">
             <CustomCakeContainer />
           </div>
         </div>

@@ -5,7 +5,7 @@ export default function Wave() {
   return (
     <div className="absolute left-0 top-0 h-full w-full">
       <Image
-        src={"curve.svg"}
+        src="/curve.svg"
         alt="curve"
         width={5000}
         height={100}

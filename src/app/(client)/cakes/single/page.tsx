@@ -9,7 +9,7 @@ export default function CakeSinglePage() {
     <section>
       <TitleSection title="เค้กชิ้น" />
       <Suspense>
-        <div className=" container pb-20 text-center md:text-left">
+        <div className=" container mb-20 text-center md:text-left">
           <SingleCakeItemsContainer isSingleCakePage />
         </div>
       </Suspense>
