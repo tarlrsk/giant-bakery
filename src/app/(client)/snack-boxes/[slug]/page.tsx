@@ -60,7 +60,7 @@ export default function SnackBoxDetailPage({ params }: Props) {
     setIsLoading(true);
     try {
       await addItemToCart(addPresetSnackBoxToCart(), item.id, counter);
-      toast.success("ใส่ตระก้าสำเร็จ");
+      toast.success("ใส่ตะกร้าสำเร็จ");
       router.push("/cart");
     } catch (error) {
       console.error(error);
@@ -70,7 +70,7 @@ export default function SnackBoxDetailPage({ params }: Props) {
   }
 
   return (
-    <div className="flex w-auto h-auto items-center justify-center p-[9.1rem]">
+    <div className="flex h-auto w-auto items-center justify-center p-[9.1rem]">
       <SnackBoxDetail
         item={item}
         counter={counter}
