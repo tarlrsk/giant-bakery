@@ -21,12 +21,12 @@ jobs:
       - uses: actions/checkout@v4
 
       - id: "auth"
-        uses: "google-github-actions/auth@v0"
+        uses: "google-github-actions/auth@v2"
         with:
           credentials_json: "${{ secrets.CLOUD_RUN_SERVICE_ACCOUNT }}"
 
       - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v0
+        uses: google-github-actions/setup-gcloud@v2
 
       - name: Authorize Docker push
         run: gcloud auth configure-docker
@@ -50,6 +50,7 @@ jobs:
       - name: Deploy
         run: |-
           gcloud run deploy $REPO_NAME \
+          --allow-unauthenticated
           --region $REGION \
           --image gcr.io/$PROJECT_ID/$REPO_NAME:$GITHUB_SHA \
           --platform "managed" \
