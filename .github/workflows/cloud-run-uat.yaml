@@ -5,18 +5,18 @@ env:
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
   PROJECT_ID: ${{ secrets.CLOUD_RUN_PROJECT_NAME }}
   REGION: asia-southeast1
-  REPO_NAME: cukedoh-stg
+  REPO_NAME: cukedoh-uat
 
-# on:
-#   push:
-#     branches:
-#       - develop
+on:
+  push:
+    branches:
+      - uat
 
 jobs:
   Build & Deploy:
     runs-on: ubuntu-latest
     environment:
-      name: 'Staging'
+      name: 'UAT'
     steps:
       - uses: actions/checkout@v4
 
