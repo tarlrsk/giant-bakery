@@ -1,14 +1,10 @@
 import { prisma } from "@/lib/prisma";
-import { bucket } from "@/lib/gcs/gcs";
 import { NextRequest } from "next/server";
 import { validate as isValidUUID } from "uuid";
 import { VariantType } from "@/enum/variantType";
-import { parseBoolean } from "@/lib/parseBoolean";
 import { getFileUrl } from "@/lib/gcs/getFileUrl";
-import { formatFileDate } from "@/lib/formatFileDate";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import {
-  variantValidationSchema,
   variantByTypeValidateSchema,
 } from "@/lib/validationSchema";
 

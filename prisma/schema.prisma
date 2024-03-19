@@ -521,14 +521,15 @@ model Payment {
 }
 
 model Discount {
-  id        String       @id @default(uuid())
-  condition String
-  pct       String // percentage
-  type      DiscountType
-  isActive  Boolean
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
-  order     Order[]
+  id             String       @id @default(uuid())
+  description    String
+  conditionValue Int
+  pct            Float // percentage
+  type           DiscountType
+  isActive       Boolean
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  order          Order[]
 }
 
 // Enum -----------------------------------------------------------------------------------
