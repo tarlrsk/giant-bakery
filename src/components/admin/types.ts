@@ -121,7 +121,7 @@ export const createUpdateSnackBoxSchema = z.object({
 export const createUpdateVariantSchema = z.object({
   image: z.any().refine(
     (files) => {
-      if (typeof files === "string") {
+      if (typeof files === "string" || files === null) {
         return true; // No need to validate if image is already a string
       } else {
         return (files?.size <= MAX_FILE_SIZE &&

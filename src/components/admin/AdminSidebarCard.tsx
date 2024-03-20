@@ -18,10 +18,10 @@ export default function AdminSidebarCard() {
   const data = ordersOverviewData?.data || null;
 
   const orderData = [
-    { label: "Orders Today", value: data?.todayOrder || 0 },
-    { label: "Pending Orders", value: data?.pendingOrder || 0 },
-    { label: "Delivered Orders", value: data?.completedOrder || 0 },
-    { label: "Cancelled Orders", value: data?.cancelledOrder || 0 },
+    { label: "ออเดอร์วันนี้", value: data?.todayOrder || 0 },
+    { label: "รอยืนยันออเดอร์", value: data?.pendingOrder || 0 },
+    { label: "ออเดอร์เสร็จสิ้น", value: data?.completedOrder || 0 },
+    { label: "ออเดอร์ที่ถูกยกเลิก", value: data?.cancelledOrder || 0 },
   ];
 
   return (
@@ -36,7 +36,7 @@ export default function AdminSidebarCard() {
       <Box sx={{ m: 4, color: "white" }}>
         <Stack direction="column" spacing={5}>
           <Typography variant="body1" color="primary.200" fontWeight="600">
-            Overview
+            ภาพรวมร้านค้า
           </Typography>
           {orderData.map((data) => (
             <Stack key={data.label} direction="column" spacing={1}>
