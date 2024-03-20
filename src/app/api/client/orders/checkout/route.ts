@@ -5,11 +5,11 @@ import { prismaUser } from "@/persistence/user";
 import { getFileUrl } from "@/lib/gcs/getFileUrl";
 import { prismaOrder } from "@/persistence/order";
 import { createStripeSession } from "@/lib/stripe";
-import { calculateBoxQuantity, calculateShippingFee } from "@/lib/interExpress";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { checkoutCartValidateSchema } from "@/lib/validationSchema";
 import { prismaCustomerAddress } from "@/persistence/customerAddress";
 import { CalGeneralDiscount, CalSnackBoxDiscount } from "@/lib/discount";
+import { calculateBoxQuantity, calculateShippingFee } from "@/lib/interExpress";
 import {
   Order,
   Prisma,
@@ -181,11 +181,10 @@ export async function POST(req: NextRequest) {
       include: { refreshments: true };
     }>[];
 
-
     const itemSizes: {
-      volume: number,
-      weight: number,
-    }[] = []
+      volume: number;
+      weight: number;
+    }[] = [];
 
     for (var cartItem of cart?.items) {
       switch (cartItem.type) {
@@ -233,9 +232,12 @@ export async function POST(req: NextRequest) {
           subTotal += cartItem.customerCake.price * cartItem.quantity;
           for (let i = 0; i < cartItem.quantity; i++) {
             itemSizes.push({
-              volume: cartItem.customerCake.cake.width * cartItem.customerCake.cake.height * cartItem.customerCake.cake.length,
+              volume:
+                cartItem.customerCake.cake.width *
+                cartItem.customerCake.cake.height *
+                cartItem.customerCake.cake.length,
               weight: cartItem.customerCake.cake.weight,
-            })
+            });
           }
           break;
         case "CUSTOM_CAKE":
@@ -337,7 +339,7 @@ export async function POST(req: NextRequest) {
             itemSizes.push({
               volume: width * height * length,
               weight: weight,
-            })
+            });
           }
           break;
         case "REFRESHMENT":
@@ -373,9 +375,12 @@ export async function POST(req: NextRequest) {
 
           for (let i = 0; i < cartItem.quantity; i++) {
             itemSizes.push({
-              volume: cartItem.refreshment.width * cartItem.refreshment.height * cartItem.refreshment.length,
+              volume:
+                cartItem.refreshment.width *
+                cartItem.refreshment.height *
+                cartItem.refreshment.length,
               weight: cartItem.refreshment.weight,
-            })
+            });
           }
           subTotal += cartItem.refreshment.price * cartItem.quantity;
 
@@ -434,7 +439,7 @@ export async function POST(req: NextRequest) {
               qtyPerUnit: refreshment.refreshment.qtyPerUnit,
               refreshmentId: refreshment.refreshment.id,
             });
-            weight += refreshment.refreshment.weight
+            weight += refreshment.refreshment.weight;
           }
 
           orderSnackBoxes.push({
@@ -457,7 +462,7 @@ export async function POST(req: NextRequest) {
             itemSizes.push({
               volume: width * height * length,
               weight: weight,
-            })
+            });
           }
           snackBoxQty += cartItem.quantity;
           snackBoxTotalPrice += cartItem.quantity * cartItem.snackBox.price;
@@ -491,7 +496,7 @@ export async function POST(req: NextRequest) {
         return responseWrapper(404, null, `Address is not found`);
       }
 
-      const boxes = await calculateBoxQuantity(itemSizes)
+      const boxes = await calculateBoxQuantity(itemSizes);
       shippingFee = await calculateShippingFee(address, boxes);
       cFirstName = address.cFirstName;
       cLastName = address.cLastName;
@@ -617,9 +622,10 @@ export async function POST(req: NextRequest) {
 
     // EXTRACT ORDERED DATE.
     const orderedDate = order.orderedAt;
-    const day = orderedDate.getDate().toString().padStart(2, "0");
-    const month = (orderedDate.getMonth() + 1).toString().padStart(2, "0");
-    const year = orderedDate.getFullYear().toString();
+    const parsedDate = new Date(orderedDate);
+    const year = parsedDate.getFullYear();
+    const month = String(parsedDate.getMonth() + 1).padStart(2, "0");
+    const day = String(parsedDate.getDate()).padStart(2, "0");
 
     // CHECK RUNNING NUMBER. IF NEW DATE RESET, ELSE INCREMENT.
     const currentDate = new Date();
@@ -641,10 +647,11 @@ export async function POST(req: NextRequest) {
 
     if (
       lastTrackingNumber &&
-      lastTrackingNumber.orderedAt.getDate() === currentDay
+      lastTrackingNumber.orderedAt.getDate() === currentDay &&
+      lastTrackingNumber.orderNo
     ) {
       const lastRunningNumber = parseInt(
-        lastTrackingNumber.orderNo?.slice(-4) as string,
+        lastTrackingNumber.orderNo.slice(-4),
         10,
       );
       runningNumber = (lastRunningNumber % 10000) + 1;
