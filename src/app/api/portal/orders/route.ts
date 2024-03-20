@@ -31,7 +31,7 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    if (status == OrderStatus.COMPLETED) {
+    if (status === OrderStatus.COMPLETED) {
       await prismaOrder().updateOrderById(orderId, {
         status: status,
         trackingNo: trackingNo,
