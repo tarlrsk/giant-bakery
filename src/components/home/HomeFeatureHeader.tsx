@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { motion, Variants } from "framer-motion";
 
 import { Button } from "@nextui-org/react";
@@ -32,6 +33,7 @@ type Props = {
 // ----------------------------------------------------------------------
 
 export default function HomeFeatureHeader({ title, desc, btnLabel }: Props) {
+  const router = useRouter();
   return (
     <motion.div
       initial="offscreen"
@@ -46,7 +48,10 @@ export default function HomeFeatureHeader({ title, desc, btnLabel }: Props) {
           <p className=" text-center text-xl font-normal leading-relaxed  md:text-left">
             {desc}
           </p>
-          <Button className="  h-12 w-36 rounded-full bg-secondaryT-main text-lg font-semibold text-white md:text-xl">
+          <Button
+            onClick={() => router.push("/bakeries?category=")}
+            className="  h-12 w-36 rounded-full bg-secondaryT-main text-lg font-semibold text-white md:text-xl"
+          >
             {btnLabel}
           </Button>
         </div>

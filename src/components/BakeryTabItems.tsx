@@ -71,11 +71,11 @@ export default function BakeryTabItems() {
           <Tab
             key={item.key}
             title={item.title}
-            className="flex items-center justify-center text-center text-xl font-semibold md:mx-8 md:w-28 md:text-2xl"
+            className="flex items-center justify-center text-center text-xl font-medium md:mx-8 md:w-28 md:text-2xl"
           />
         ))}
       </Tabs>
-      <div className=" mx-8 pb-16 md:pb-32">
+      <div className=" mx-8 min-h-[316px] pb-16 md:pb-32">
         <BakeryItems cols={4} category={bakeryCategory} />
       </div>
     </div>
@@ -95,13 +95,21 @@ function BakeryItems({
 
   const { getBakeries } = apiPaths();
 
-  const { data } = useSWR(
+  const { data, isLoading } = useSWR(
     `${getBakeries(category as IBakeryCategory, amount)}`,
     fetcher,
     { revalidateOnFocus: false },
   );
 
   const items: Refreshment[] = data?.response?.data || [];
+
+  if (items?.length === 0 && !isLoading) {
+    return (
+      <div className=" my-16 rounded-sm bg-primaryT-lighter px-10 py-4 text-center text-xl">
+        ยังไม่มีสินค้าขณะนี้
+      </div>
+    );
+  }
 
   return (
     <div
