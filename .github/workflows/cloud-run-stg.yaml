@@ -13,10 +13,31 @@ on:
       - develop
 
 jobs:
+  Migrate-Database:
+    runs-on: ubuntu-latest
+    environment:
+      name: 'Staging'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Vercel CLI & Prisma
+        run: |
+          yarn global add vercel@latest 
+          yarn add prisma -D
+
+      - name: Pull Vercel Environment Information
+        run: |
+          vercel pull --yes --environment=preview --git-branch=${{ vars.BRANCH }} --token=${{ secrets.VERCEL_TOKEN }}
+          mv .vercel/.env.preview.local .env
+
+      - name: Migrate Deploy
+        run: yarn prisma migrate deploy
+    
   Google-Cloud-Run-Build-and-Deploy:
     runs-on: ubuntu-latest
     environment:
       name: 'Staging'
+    needs: Migrate-Database
     steps:
       - uses: actions/checkout@v4
 
@@ -81,6 +102,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: 'Staging'
+    needs: Migrate-Database
     steps:
       - uses: actions/checkout@v4
 

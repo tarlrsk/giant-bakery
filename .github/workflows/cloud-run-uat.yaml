@@ -1,4 +1,4 @@
-name: Deployment Staging
+name: Deployment UAT
 
 env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
@@ -13,25 +13,46 @@ on:
       - uat
 
 jobs:
+  Migrate-Database:
+    runs-on: ubuntu-latest
+    environment:
+      name: "UAT"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Vercel CLI & Prisma
+        run: |
+          yarn global add vercel@latest 
+          yarn add prisma -D
+
+      - name: Pull Vercel Environment Information
+        run: |
+          vercel pull --yes --environment=preview --git-branch=${{ vars.BRANCH }} --token=${{ secrets.VERCEL_TOKEN }}
+          mv .vercel/.env.preview.local .env
+
+      - name: Migrate Deploy
+        run: yarn prisma migrate deploy
+
   Google-Cloud-Run-Build-and-Deploy:
     runs-on: ubuntu-latest
     environment:
-      name: 'UAT'
+      name: "UAT"
+    needs: Migrate-Database
     steps:
       - uses: actions/checkout@v4
 
       - id: "auth"
-        uses: "google-github-actions/auth@v0"
+        uses: "google-github-actions/auth@v2"
         with:
           credentials_json: "${{ secrets.CLOUD_RUN_SERVICE_ACCOUNT }}"
 
       - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v0
+        uses: google-github-actions/setup-gcloud@2
 
       - name: Authorize Docker push
         run: gcloud auth configure-docker
 
-      - name: 'Create env file'
+      - name: "Create env file"
         run: |
           touch .env
           echo FACEBOOK_CLIENT_ID="${{ secrets.FACEBOOK_CLIENT_ID }}" >> .env
@@ -79,7 +100,8 @@ jobs:
   Vercel-Build-and-Deploy:
     runs-on: ubuntu-latest
     environment:
-      name: 'UAT'
+      name: "UAT"
+    needs: Migrate-Database
     steps:
       - uses: actions/checkout@v4
 
