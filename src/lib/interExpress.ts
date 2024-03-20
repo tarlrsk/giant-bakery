@@ -36,29 +36,15 @@ type Shipment = {
   BoxDetails: BoxDetails[];
 };
 
-type Box = {
-  ServiceId: number;
-  ServiceControlId: number;
-  TemperatureTypeId: number;
-  TemperatureControlId: number;
-  PackageCount: number;
-  boxSize: string;
-  boxDesc: string;
-  Weight: number;
-  Width: number;
-  Length: number;
-  Height: number;
-};
-
-const boxes: Box[] = [
+const boxes: BoxDetails[] = [
   {
     ServiceId: 2,
     ServiceControlId: 5,
     TemperatureTypeId: 1,
     TemperatureControlId: 2,
     PackageCount: 1,
-    boxSize: "S1",
-    boxDesc: "≤ 5 กก. หรือ ≤ 7,500 ลบ.ซม.",
+    boxSize: "A2",
+    boxDesc: "≤ 20 กก. หรือ ≤ 35,000 ลบ.ซม.",
     Weight: 0,
     Width: 25,
     Length: 20,
@@ -70,56 +56,61 @@ const boxes: Box[] = [
     TemperatureTypeId: 2,
     TemperatureControlId: 2,
     PackageCount: 1,
-    boxSize: "S2",
-    boxDesc: "≤ 10 กก. หรือ ≤ 15,000 ลบ.ซม.",
-    Weight: 5,
-    Width: 23,
-    Length: 30,
-    Height: 20,
-  },
-];
+    boxSize: "B2",
+    boxDesc: "≤ 30 กก. หรือ ≤ 65,000 ลบ.ซม.",
+    Weight: 35,
+    Width: 40,
+    Length: 45,
+    Height: 20
+  }
+]
 
 type ItemDetail = {
   volume: number;
   weight: number;
 };
 
-export async function calculateBoxQuantity(
-  itemDetails: ItemDetail[],
-): Promise<Box[]> {
-  let currentBoxSize = "S1";
-  let volumeLeft = 7500;
-  let weightLeft = 500;
-  let resultBoxes: Box[] = [];
-  let itemLeft = itemDetails.length;
+export async function calculateBoxQuantity(itemDetails: ItemDetail[]): Promise<BoxDetails[]> {
+  let currentBoxSize = "A2"
+  let volumeLeft = 50000
+  let weightLeft = 25000
+  let resultBoxes: BoxDetails[] = []
+  let itemLeft = itemDetails.length
   for (let item of itemDetails) {
-    itemLeft -= 1;
-    if (volumeLeft >= item.volume && weightLeft >= item.weight) {
-      // IF THERE IS SPACE LEFT
-      volumeLeft -= item.volume;
-      weightLeft -= item.weight;
-      if ((itemLeft = 0)) {
-        // IF THIS IS LAST ITEM
-        let box = boxes.find((b) => b.boxSize === currentBoxSize);
+    console.log(item)
+    itemLeft -= 1
+    if (volumeLeft >= item.volume && weightLeft >= item.weight) { // IF THERE IS SPACE LEFT
+      volumeLeft -= item.volume
+      weightLeft -= item.weight
+      if (itemLeft === 0) { // IF THIS IS LAST ITEM
+        let box = boxes.find(b => b.boxSize === currentBoxSize)
         if (box) {
           resultBoxes.push(box);
         }
       }
-    } else {
-      // NO SPACE LEFT
-      if (currentBoxSize === "S1") {
-        currentBoxSize = "S2"; // UP SIZE IF IT IS THE SMALLEST
-        volumeLeft += 7500;
-        weightLeft += 500;
-      } else if (currentBoxSize === "S2" && itemLeft > 0) {
-        // ADD MORE BOX IF IT IS THE LARGEST
-        let box = boxes.find((b) => b.boxSize === "S2");
+    } else { // NO SPACE LEFT
+      if (currentBoxSize === "A2") {
+        currentBoxSize = "B2" // UP SIZE IF IT IS THE SMALLEST
+        volumeLeft += 15000
+        weightLeft += 5000
+        if (volumeLeft >= item.volume && weightLeft >= item.weight) { // IF THERE IS SPACE LEFT
+          volumeLeft -= item.volume
+          weightLeft -= item.weight
+          if (itemLeft === 0) { // IF THIS IS LAST ITEM
+            let box = boxes.find(b => b.boxSize === currentBoxSize)
+            if (box) {
+              resultBoxes.push(box)
+            }
+          }
+        }
+      } else if (currentBoxSize === "B2") { // ADD MORE BOX IF IT IS THE LARGEST
+        let box = boxes.find(b => b.boxSize === currentBoxSize)
         if (box) {
           resultBoxes.push(box);
         }
-        currentBoxSize = "S1";
-        volumeLeft = 7500;
-        weightLeft = 500;
+        currentBoxSize = "A2"
+        volumeLeft = 50000
+        weightLeft = 25000
       }
     }
   }
@@ -128,6 +119,7 @@ export async function calculateBoxQuantity(
 
 export async function calculateShippingFee(
   address: CustomerAddress,
+  requestBoxes: BoxDetails[],
 ): Promise<number> {
   let shippingFee = 0;
   const { getInterExpressLocation, getPrice } = apiPaths();
@@ -171,21 +163,7 @@ export async function calculateShippingFee(
     ItmsDistrictCode: filterDesData.subDistricts.districtCodeItms,
     PostalCode: address.postcode,
     PaymentCode: "CR",
-    BoxDetails: [
-      {
-        ServiceId: 2,
-        ServiceControlId: 5,
-        TemperatureTypeId: 1,
-        TemperatureControlId: 2,
-        PackageCount: 1,
-        boxSize: "S1",
-        boxDesc: "≤ 5 กก. หรือ ≤ 7,500 ลบ.ซม.",
-        Weight: 0,
-        Width: 25,
-        Length: 20,
-        Height: 15,
-      },
-    ],
+    BoxDetails: requestBoxes,
   } as Shipment;
 
   // Fetch InterExpress Get Price API

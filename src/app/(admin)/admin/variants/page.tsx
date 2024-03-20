@@ -63,6 +63,8 @@ export default function AdminVariant() {
     variantsMutate,
     deleteVariantTrigger,
     deleteVariantIsLoading,
+    removeVariantColorImageIsLoading,
+    removeVariantColorImageTrigger,
   } = useAdmin().useVariantAdmin(
     filteredRows?.find((row: IVariant) => row.id === rowSelectionModel[0]),
   );
@@ -223,12 +225,23 @@ export default function AdminVariant() {
       } else {
         bodyFormData.append("id", selectedRow?.id ?? "");
       }
+
       bodyFormData.append("color", color);
 
       if (hasColor(type) && !editedColorId) {
         await createVariantTrigger(bodyFormData);
       } else {
-        await updateVariantTrigger(bodyFormData);
+        if (hasColor(type) && editedColorId && !image) {
+          // variant already has color and remove image
+          await removeVariantColorImageTrigger(
+            JSON.stringify({
+              id: editedColorId,
+              type: type,
+            }),
+          );
+        } else {
+          await updateVariantTrigger(bodyFormData);
+        }
       }
 
       variantsMutate();
@@ -512,7 +525,11 @@ export default function AdminVariant() {
             size="large"
             variant="contained"
             type="submit"
-            loading={updateVariantIsLoading || createVariantIsLoading}
+            loading={
+              updateVariantIsLoading ||
+              createVariantIsLoading ||
+              removeVariantColorImageIsLoading
+            }
           >
             อัพเดทตัวเลือกเค้ก
           </LoadingButton>

@@ -69,6 +69,7 @@ export default function useAdmin(
     deleteVariantAdmin,
     getOrders,
     getOrderById,
+    removeVariantColorImage,
   } = apiPaths();
 
   const useProductAdmin = () => {
@@ -183,6 +184,11 @@ export default function useAdmin(
     } = useSWRMutation(createVariantAdmin(), createItem);
 
     const {
+      trigger: removeVariantColorImageTrigger,
+      isMutating: removeVariantColorImageIsLoading,
+    } = useSWRMutation(removeVariantColorImage(), updateItem);
+
+    const {
       trigger: deleteVariantTrigger,
       isMutating: deleteVariantIsLoading,
     } = useSWRMutation(
@@ -202,6 +208,8 @@ export default function useAdmin(
       variantsData,
       variantsMutate,
       variantsIsLoading,
+      removeVariantColorImageTrigger,
+      removeVariantColorImageIsLoading,
       updateVariantTrigger,
       updateVariantIsLoading,
       createVariantTrigger,
