@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { fCurrency } from "@/utils/format";
 import { ICartItem } from "@/app/(client)/cart/types";
 import React, { useMemo, useState, useEffect } from "react";
 
@@ -146,6 +147,8 @@ export default function CartItemTable({
     setTempItems(items);
   }, [items]);
 
+  console.log(tempItems);
+
   return (
     <Table
       radius="sm"
@@ -272,7 +275,9 @@ export default function CartItemTable({
                 )}
               </TableCell>
               <TableCell>
-                <div className="justify-center text-center text-xs md:text-lg">{`฿${item.pricePer}`}</div>
+                <div className="justify-center text-center text-xs md:text-lg">{`฿${fCurrency(
+                  item.pricePer,
+                )}`}</div>
               </TableCell>
               <TableCell>
                 <div className="flex flex-row items-center justify-center gap-2 text-xs md:text-lg">
@@ -311,7 +316,7 @@ export default function CartItemTable({
               </TableCell>
               <TableCell>
                 <div className="flex flex-row items-center justify-end gap-0 text-xs md:gap-1 md:pr-3 md:text-lg">
-                  {`฿${item.price}`}
+                  {`฿${fCurrency(item.price)}`}
                   <Button
                     isIconOnly
                     size="sm"
