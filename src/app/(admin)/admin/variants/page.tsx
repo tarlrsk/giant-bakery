@@ -10,8 +10,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { GridRowSelectionModel } from "@mui/x-data-grid";
 import { RHFUpload } from "@/components/hook-form/rhf-upload";
 import FormProvider from "@/components/hook-form/form-provider";
+import React, { useState, useEffect, useCallback } from "react";
 import DeleteDialog from "@/components/admin/dialog/DeleteDialog";
-import React, { useMemo, useState, useEffect, useCallback } from "react";
 import VariantDataGrid from "@/components/admin/data-grid/VariantDataGird";
 import { RHFSelect, RHFSwitch, RHFTextField } from "@/components/hook-form";
 import { IVariant, createUpdateVariantSchema } from "@/components/admin/types";
@@ -83,9 +83,6 @@ export default function AdminVariant() {
 
   const editVariantMethods = useForm<IVariant>({
     resolver: zodResolver(createUpdateVariantSchema),
-    defaultValues: useMemo(() => {
-      return { ...selectedRow, editedColorId: "" };
-    }, [selectedRow]),
   });
 
   const toggleNewDrawer = (newOpen: boolean) => () => {
@@ -172,6 +169,7 @@ export default function AdminVariant() {
       setRowSelectionModel([]);
       setOpenEditDrawer(false);
       setIsOpenDelete(false);
+      resetEditVariant();
       enqueueSnackbar(`ตัวเลือกเค้ก ${selectedRow?.name || ""} ถูกลบแล้ว`, {
         variant: "success",
       });
@@ -207,6 +205,10 @@ export default function AdminVariant() {
   const onSubmitEdit = handleSubmitEdit(async (data) => {
     try {
       const { image, name, isActive, type, color } = data;
+      if (color === "WHITE" && !image) {
+        enqueueSnackbar("ไม่สามารถลบรูปสีขาวได้", { variant: "error" });
+        return;
+      }
       const bodyFormData = new FormData();
       bodyFormData.append("name", name);
       if (typeof image !== "string" && image) {
@@ -221,10 +223,9 @@ export default function AdminVariant() {
       } else {
         bodyFormData.append("id", selectedRow?.id ?? "");
       }
+      bodyFormData.append("color", color);
 
       if (hasColor(type) && !editedColorId) {
-        bodyFormData.append("color", color);
-
         await createVariantTrigger(bodyFormData);
       } else {
         await updateVariantTrigger(bodyFormData);
@@ -313,7 +314,7 @@ export default function AdminVariant() {
       (el) => el.color === editVariantColor,
     );
 
-    if (!foundColor && hasColor(editVariantType || "")) {
+    if (!foundColor && hasColor(selectedRow?.type || "")) {
       setValueEditVariant("editedColorId", "");
       setValueEditVariant("image", null);
       return;
@@ -323,7 +324,7 @@ export default function AdminVariant() {
       setValueEditVariant("editedColorId", foundColor.id);
       setValueEditVariant("image", foundColor.image);
     }
-  }, [editVariantColor, editVariantType, selectedRow, setValueEditVariant]);
+  }, [editVariantColor, selectedRow, setValueEditVariant]);
 
   const DrawerAddVariant = (
     <Box
@@ -460,7 +461,7 @@ export default function AdminVariant() {
               variant="outlined"
               onClick={() => setIsOpenDelete(true)}
             >
-              ลบสินค้า
+              ลบตัวเลือก
             </Button>
           </Stack>
           <Stack direction="row" alignItems="center" spacing={1}>
@@ -471,23 +472,37 @@ export default function AdminVariant() {
                 label="สีของตัวเลือกเค้ก"
                 required
               >
-                {AVAILABLE_COLORS.map((option) => (
-                  <MenuItem key={option.value} value={option.value}>
-                    <Stack direction="row" alignItems="center" spacing={1}>
-                      <Box
-                        sx={{
-                          minWidth: 20,
-                          minHeight: 20,
-                          bgcolor: `${option.code}`,
-                          borderRadius: "100%",
-                          border: "1px solid",
-                          borderColor: theme.palette.divider,
-                        }}
-                      />
-                      <Typography>{option.label}</Typography>
-                    </Stack>
-                  </MenuItem>
-                ))}
+                {AVAILABLE_COLORS.map((option) => {
+                  const currentColorObject = selectedRow?.colors?.find(
+                    (el) => el.color === option.value,
+                  );
+
+                  return (
+                    <MenuItem key={option.value} value={option.value}>
+                      <Stack direction="row" alignItems="center" spacing={1}>
+                        <Box
+                          sx={{
+                            minWidth: 20,
+                            minHeight: 20,
+                            bgcolor: `${option.code}`,
+                            borderRadius: "100%",
+                            border: "1px solid",
+                            borderColor: theme.palette.divider,
+                          }}
+                        />
+                        <Typography
+                          color={
+                            currentColorObject?.image
+                              ? "text.primary"
+                              : "text.disabled"
+                          }
+                        >
+                          {option.label}
+                        </Typography>
+                      </Stack>
+                    </MenuItem>
+                  );
+                })}
               </RHFSelect>
             )}
             <RHFTextField name="name" label="ชื่อตัวเลือกเค้ก" required />

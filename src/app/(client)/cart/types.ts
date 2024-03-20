@@ -54,6 +54,7 @@ export interface ICartItem {
   name: string;
   type: string;
   itemId: string;
+  cakeMessage?: string;
   itemType: string;
   quantity: number;
   image: string;

@@ -368,6 +368,8 @@ export function getCakeStaticVariantsString(item: ICartItem) {
   const base = item.base?.name || "";
   const filling = item.filling?.name || "";
   const pound = item.size?.name || "";
-
+  if (item?.itemType === "CUSTOM_CAKE" && item?.cakeMessage) {
+    return `${pound} ปอนด์, เนื้อเค้ก${base}, ไส้${filling}, ข้อความ: ${item?.cakeMessage}`;
+  }
   return `${pound} ปอนด์, เนื้อเค้ก${base}, ไส้${filling}`;
 }
