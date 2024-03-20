@@ -232,6 +232,7 @@ export async function APIgetCartItems(userId: string | null | undefined) {
     // PREPARING DISCOUNT SNACK BOX
     let snackBoxQty = 0;
     let snackBoxTotalPrice = 0;
+    let generalTotalPrice = 0;
 
     responseCart.cartId = cart.id;
     responseCart.type = cart.type;
@@ -257,6 +258,7 @@ export async function APIgetCartItems(userId: string | null | undefined) {
             responseItem.image = await getFileUrl(responseItem.cake.imagePath);
           }
 
+          generalTotalPrice += responseItem.price
           delete responseItem.cake;
 
           break;
@@ -300,6 +302,7 @@ export async function APIgetCartItems(userId: string | null | undefined) {
             );
           }
 
+          generalTotalPrice += responseItem.price
           delete responseItem.cake;
 
           break;
@@ -314,6 +317,7 @@ export async function APIgetCartItems(userId: string | null | undefined) {
           ) {
             responseItem.image = await getFileUrl(responseItem.imagePath);
           }
+          generalTotalPrice += responseItem.price
           break;
         case "SNACK_BOX":
           baseResponse.pricePer = item.snackBox?.price || 0;
@@ -348,7 +352,7 @@ export async function APIgetCartItems(userId: string | null | undefined) {
 
       // CALCULATE DISCOUNT
       let totalDiscount = 0;
-      const generalDiscount = await CalGeneralDiscount(responseCart.subTotal);
+      const generalDiscount = await CalGeneralDiscount(generalTotalPrice);
       if (generalDiscount) {
         totalDiscount += generalDiscount.discount;
         responseCart.discounts.push({
@@ -369,7 +373,7 @@ export async function APIgetCartItems(userId: string | null | undefined) {
         });
       }
 
-      responseCart.suggestDiscounts = await FindSuggestDiscounts(snackBoxQty, responseCart.subTotal)
+      responseCart.suggestDiscounts = await FindSuggestDiscounts(snackBoxQty, generalTotalPrice)
       responseCart.totalDiscount = totalDiscount;
       responseCart.total = responseCart.subTotal - responseCart.totalDiscount;
     }

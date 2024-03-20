@@ -169,9 +169,10 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // TODO DISCOUNT
+    // PREPARING DISCOUNT CALCULATE
     let snackBoxQty = 0;
     let snackBoxTotalPrice = 0;
+    let generalTotal = 0;
 
     // CREATE ORDER ITEMS
     let subTotal = 0 as number;
@@ -211,7 +212,7 @@ export async function POST(req: NextRequest) {
             height: cartItem.customerCake.cake.height,
             length: cartItem.customerCake.cake.length,
             width: cartItem.customerCake.cake.width,
-            orderId: "1234",
+            orderId: "",
             cakeType: cartItem.customerCake.type,
             customerCakeId: cartItem.customerCake.id,
             cakeId: cartItem.customerCake.cakeId,
@@ -230,6 +231,7 @@ export async function POST(req: NextRequest) {
           });
 
           subTotal += cartItem.customerCake.price * cartItem.quantity;
+          generalTotal += cartItem.customerCake.price * cartItem.quantity;
           for (let i = 0; i < cartItem.quantity; i++) {
             itemSizes.push({
               volume:
@@ -315,7 +317,7 @@ export async function POST(req: NextRequest) {
             height: height,
             length: length,
             width: width,
-            orderId: "1234",
+            orderId: "",
             cakeType: cartItem.customerCake.type,
             customerCakeId: cartItem.customerCake.id,
             cakeId: cartItem.customerCake.cakeId,
@@ -333,6 +335,7 @@ export async function POST(req: NextRequest) {
             cakeMessage: cartItem.customerCake.cakeMessage,
           });
 
+          generalTotal += cartItem.customerCake.price * cartItem.quantity;
           subTotal += cartItem.customerCake.price * cartItem.quantity;
 
           for (let i = 0; i < cartItem.quantity; i++) {
@@ -383,7 +386,7 @@ export async function POST(req: NextRequest) {
             });
           }
           subTotal += cartItem.refreshment.price * cartItem.quantity;
-
+          generalTotal += cartItem.refreshment.price * cartItem.quantity;
           break;
         case "SNACK_BOX":
           if (!cartItem.snackBox) {
@@ -464,6 +467,7 @@ export async function POST(req: NextRequest) {
               weight: weight,
             });
           }
+          subTotal += cartItem.quantity * cartItem.snackBox.price;
           snackBoxQty += cartItem.quantity;
           snackBoxTotalPrice += cartItem.quantity * cartItem.snackBox.price;
           break;
@@ -472,7 +476,7 @@ export async function POST(req: NextRequest) {
 
     // CALCULATE DISCOUNT
     let totalDiscount = 0;
-    const generalDiscount = await CalGeneralDiscount(subTotal);
+    const generalDiscount = await CalGeneralDiscount(generalTotal);
     if (generalDiscount) {
       totalDiscount += generalDiscount.discount;
     }
@@ -507,7 +511,11 @@ export async function POST(req: NextRequest) {
       phoneNo = phone;
     }
 
+    console.log(orderCustomCakes)
+    console.log(orderRefreshments)
+    console.log(orderSnackBoxes)
     // CREATE ORDER
+    console.log(subTotal)
     order = await prismaOrder().createOrder({
       status: OrderStatus.PENDING_PAYMENT1,
       paymentType: paymentType,
