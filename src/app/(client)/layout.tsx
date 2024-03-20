@@ -4,6 +4,7 @@ import apiPaths from "@/utils/api-path";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import getCurrentUser from "@/actions/userActions";
+import { permanentRedirect } from "next/navigation";
 import { IBM_Plex_Sans_Thai } from "next/font/google";
 
 import "./globals.css";
@@ -38,6 +39,10 @@ export default async function Layout({
     if (!data?.response?.success) return null;
     return data;
   });
+
+  if (currentUser?.role === "ADMIN") {
+    permanentRedirect(`/admin/orders`); // Navigate to admin page
+  }
 
   const cart = cartData?.response?.data?.items || [];
   return (

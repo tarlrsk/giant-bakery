@@ -382,6 +382,7 @@ model Order {
   userId     String
   remark     String?
   trackingNo String?
+  orderNo    String?
 
   // Address
   cFirstName       String

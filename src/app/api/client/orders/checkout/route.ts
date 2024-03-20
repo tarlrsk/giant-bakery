@@ -164,7 +164,11 @@ export async function POST(req: NextRequest) {
           break;
         case "SNACK_BOX":
           if (!cartItem.snackBox) {
-            return responseWrapper(409, null, "Snack Box is missing snack box.");
+            return responseWrapper(
+              409,
+              null,
+              "Snack Box is missing snack box.",
+            );
           }
           var image: string[] = [];
           if (cartItem.snackBox.imagePath) {
@@ -184,6 +188,7 @@ export async function POST(req: NextRequest) {
           break;
       }
     }
+    console.log(lineItems)
 
     // TODO DISCOUNT
     let snackBoxQty = 0;
@@ -253,35 +258,35 @@ export async function POST(req: NextRequest) {
 
           const size = await prisma.masterCakeSize.findFirst({
             where: {
-              id: cartItem.customerCake.sizeId!
-            }
-          })
+              id: cartItem.customerCake.sizeId!,
+            },
+          });
           if (!size) {
-            return responseWrapper(404, null, "Size is not found.")
+            return responseWrapper(404, null, "Size is not found.");
           }
 
-          let weight = 0.0
-          let height = 0.0
-          let length = 0.0
-          let width = 0.0
+          let weight = 0.0;
+          let height = 0.0;
+          let length = 0.0;
+          let width = 0.0;
           switch (size.name) {
             case "1":
-              weight = 100
-              height = 100
-              length = 100
-              width = 100
+              weight = 100;
+              height = 100;
+              length = 100;
+              width = 100;
               break;
             case "2":
-              weight = 100
-              height = 100
-              length = 100
-              width = 100
+              weight = 100;
+              height = 100;
+              length = 100;
+              width = 100;
               break;
             case "3":
-              weight = 100
-              height = 100
-              length = 100
-              width = 100
+              weight = 100;
+              height = 100;
+              length = 100;
+              width = 100;
               break;
           }
 
@@ -297,7 +302,9 @@ export async function POST(req: NextRequest) {
             cartItem.customerCake.bottomEdge?.color || null,
             cartItem.customerCake.decoration?.name || null,
             cartItem.customerCake.surface?.name || null,
-          ].filter(Boolean).join(', ');
+          ]
+            .filter(Boolean)
+            .join(", ");
 
           orderCustomCakes.push({
             id: "",
@@ -425,15 +432,18 @@ export async function POST(req: NextRequest) {
     }
 
     // CALCULATE DISCOUNT
-    let totalDiscount = 0
-    const generalDiscount = await CalGeneralDiscount(subTotal)
+    let totalDiscount = 0;
+    const generalDiscount = await CalGeneralDiscount(subTotal);
     if (generalDiscount) {
-      totalDiscount += generalDiscount.discount
+      totalDiscount += generalDiscount.discount;
     }
 
-    const snackBoxDiscount = await CalSnackBoxDiscount(snackBoxQty, snackBoxTotalPrice)
+    const snackBoxDiscount = await CalSnackBoxDiscount(
+      snackBoxQty,
+      snackBoxTotalPrice,
+    );
     if (snackBoxDiscount) {
-      totalDiscount += snackBoxDiscount.discount
+      totalDiscount += snackBoxDiscount.discount;
     }
 
     // CREATE ORDER
@@ -545,15 +555,69 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // DETERMINE PAYMENT TYPE LETTER.
+    const paymentTypeLetter =
+      order.paymentType === PaymentType.SINGLE ? "F" : "D";
+
+    // EXTRACT ORDERED DATE.
+    const orderedDate = order.orderedAt;
+    const day = orderedDate.getDate().toString().padStart(2, "0");
+    const month = (orderedDate.getMonth() + 1).toString().padStart(2, "0");
+    const year = orderedDate.getFullYear().toString();
+
+    // CHECK RUNNING NUMBER. IF NEW DATE RESET, ELSE INCREMENT.
+    const currentDate = new Date();
+    const currentDay = currentDate.getDate();
+    const lastTrackingNumber = await prisma.order.findFirst({
+      where: {
+        orderedAt: {
+          gte: new Date(
+            currentDate.getFullYear(),
+            currentDate.getMonth(),
+            currentDate.getDate(),
+          ),
+        },
+      },
+      orderBy: { orderedAt: "desc" },
+    });
+
+    let runningNumber;
+
+    if (
+      lastTrackingNumber &&
+      lastTrackingNumber.orderedAt.getDate() === currentDay
+    ) {
+      const lastRunningNumber = parseInt(
+        lastTrackingNumber.trackingNo?.slice(-4) as string,
+        10,
+      );
+      runningNumber = (lastRunningNumber % 10000) + 1;
+    } else {
+      runningNumber = 1;
+    }
+
+    // FORMAT RUNNING NUMBER TO HAVE 0s IN FRONT.
+    const formattedRunningNumber = runningNumber.toString().padStart(4, "0");
+
+    // CREATE TRACKING NUMBER.
+    const trackingNumber = `${paymentTypeLetter}${day}${month}${year}${formattedRunningNumber}`;
+
+    // UPDATE ORDER TRACKING NUMBER.
+    await prisma.order.update({
+      where: { id: order.id },
+      data: { orderNo: trackingNumber },
+    });
+
     if (paymentType == PaymentType.INSTALLMENT && totalDiscount == 0) {
       return responseWrapper(
         400,
         null,
-        "Unable to proceed at this time as the installment conditions have not been met."
-      )
+        "Unable to proceed at this time as the installment conditions have not been met.",
+      );
     } else if (paymentType == PaymentType.INSTALLMENT) {
       totalDiscount += (subTotal - totalDiscount + shippingFee) / 2;
     }
+    console.log(totalDiscount)
 
     const session = await createStripeSession(
       userId,
