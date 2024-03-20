@@ -227,6 +227,24 @@ export async function DELETE(
       },
     });
 
+    await prisma.cartItem.deleteMany({
+      where: {
+        refreshmentId: id,
+      },
+    });
+
+    await prisma.cartItem.deleteMany({
+      where: {
+        snackBox: {
+          refreshments: {
+            some: {
+              refreshmentId: id,
+            },
+          },
+        },
+      },
+    });
+
     revalidatePath(paths.bakeryList());
     revalidatePath(paths.beverageList());
     revalidatePath(paths.cakeList());

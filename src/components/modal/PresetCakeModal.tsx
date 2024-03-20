@@ -116,16 +116,15 @@ export default function PresetCakeModal({ slug, isOpen, onOpenChange }: Props) {
   }, [isOpen, variants?.sizes]);
   return (
     <Modal
-      size="4xl"
       hideCloseButton
       isOpen={isOpen}
       onOpenChange={onOpenChange}
-      className="bg-background-lightGrey"
+      className="max-w-screen-[860px] max-h-75 bg-background-lightGrey"
       classNames={{ body: `${ibm.className}` }}
     >
       <ModalContent>
         {(onClose) => (
-          <ModalBody>
+          <ModalBody className=" overflow-auto">
             <div className="flex flex-col gap-5 p-4 md:flex-row md:gap-20">
               <div className=" flex flex-col gap-4">
                 <div className=" flex flex-row items-center justify-between">
