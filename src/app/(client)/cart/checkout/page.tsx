@@ -248,10 +248,17 @@ export default function CheckoutPage() {
     fetcher,
   );
   const { data: checkoutData } = useSWR(
-    currentUser?.id &&
-      (selectedAddressId || selectedDeliveryOption === "PICK_UP")
+    currentUser?.id && (selectedAddressId || selectedDeliveryOption)
       ? getCheckoutDetail(selectedAddressId, currentUser.id)
       : null,
+    fetcher,
+  );
+
+  const { trigger, isMutating } = useSWRMutation(
+    getCheckoutDetail(
+      selectedDeliveryOption === "PICK_UP" ? "" : selectedAddressId,
+      currentUser?.id,
+    ),
     fetcher,
   );
 
@@ -262,16 +269,15 @@ export default function CheckoutPage() {
   }, [checkoutData]);
 
   useEffect(() => {
-    if (selectedDeliveryOption === "PICK_UP") {
-      setCheckoutDetail(
-        (prev) =>
-          prev && {
-            ...prev,
-            shippingFee: 0,
-          },
-      );
+    async function getCurrenCheckoutDetail() {
+      const res = await trigger();
+      const data = res?.response?.data;
+      setCheckoutDetail(data);
     }
-  }, [selectedAddressId, selectedDeliveryOption]);
+    if (currentUser) {
+      getCurrenCheckoutDetail();
+    }
+  }, [currentUser, selectedDeliveryOption, trigger, selectedAddressId]);
 
   const {
     trigger: triggerCreateCustomerAddress,
