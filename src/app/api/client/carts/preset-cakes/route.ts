@@ -135,6 +135,17 @@ export async function POST(req: NextRequest) {
         include: CartInclude.items.include,
       });
     } else {
+      const size = await prisma.masterCakeSize.findFirst({
+        where: {
+          id: sizeId
+        }
+      })
+      if (!size) {
+        return responseWrapper(404, null, "Size is not found.")
+      }
+
+      // CUSTOM CAKE PRICE CALCULATION
+      let price = Number(size.name) * 342
       cart = await prisma.cart.update({
         where: {
           id: cart.id,
@@ -147,7 +158,7 @@ export async function POST(req: NextRequest) {
               customerCake: {
                 create: {
                   name: cake.name,
-                  price: cake.price,
+                  price: price,
                   isActive: true,
                   type: CakeType.PRESET,
                   size: {

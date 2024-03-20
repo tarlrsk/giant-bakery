@@ -37,7 +37,6 @@ jobs:
           echo FACEBOOK_CLIENT_ID="${{ secrets.FACEBOOK_CLIENT_ID }}" >> .env
           echo FACEBOOK_CLIENT_SECRET="${{ secrets.FACEBOOK_CLIENT_SECRET }}" >> .env
           echo GCS_CLIENT_EMAIL="${{ secrets.GCS_CLIENT_EMAIL }}" >> .env
-          echo GCS_PRIVATE_KEY="${{ secrets.GCS_PRIVATE_KEY }}" >> .env
           echo GCS_PROJECT_ID="${{ secrets.CLOUD_RUN_PROJECT_NAME }}" >> .env
           echo GOOGLE_CLIENT_ID="${{ secrets.GOOGLE_CLIENT_ID }}" >> .env
           echo GOOGLE_CLIENT_SECRET="${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
@@ -53,6 +52,13 @@ jobs:
           echo STRIPE_SECRET_KEY="${{ secrets.STRIPE_SECRET_KEY }}" >> .env
           echo STRIPE_WEBHOOK_SECRET="${{ secrets.STRIPE_WEBHOOK_SECRET }}" >> .env
           cat .env
+      
+      - name: Create GCP Credentials
+        id: create-gcp-json
+        uses: jsdaniell/create-json@v1.2.3
+        with:
+          name: "gcp-service-account.json"
+          json: ${{ secrets.GCP_SERVICE_ACCOUNT_JSON }}
 
       - name: Build and tag the docker image
         run: |-
