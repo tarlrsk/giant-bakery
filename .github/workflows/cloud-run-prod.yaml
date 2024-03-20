@@ -13,10 +13,31 @@ on:
       - main
 
 jobs:
+  Migrate-Database:
+    runs-on: ubuntu-latest
+    environment:
+      name: 'Production'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Vercel CLI
+        run: yarn global add vercel@latest
+
+      - name: Pull Vercel Environment Information
+        run: |
+          vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+          mv .vercel/.env* .env
+
+      - name: Yarn Build Test
+        run: |
+          npm install -g yarn
+          yarn prisma migrate deploy
+
   Google-Cloud-Run-Build-and-Deploy:
     runs-on: ubuntu-latest
     environment:
       name: 'Production'
+    needs: Migrate-Database
     steps:
       - uses: actions/checkout@v4
 

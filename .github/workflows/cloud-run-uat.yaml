@@ -1,4 +1,4 @@
-name: Deployment Staging
+name: Deployment UAT
 
 env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
@@ -13,15 +13,36 @@ on:
       - uat
 
 jobs:
-  Google-Cloud-Run-Build-and-Deploy:
+  Migrate-Database:
     runs-on: ubuntu-latest
     environment:
       name: 'UAT'
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install Vercel CLI
+        run: yarn global add vercel@latest
+
+      - name: Pull Vercel Environment Information
+        run: |
+          vercel pull --yes --environment=preview --git-branch=${{ vars.BRANCH }} --token=${{ secrets.VERCEL_TOKEN }}
+          mv .vercel/.env.preview.local .env
+
+      - name: Yarn Build Test
+        run: |
+          npm install -g yarn
+          yarn prisma migrate deploy
+
+  Google-Cloud-Run-Build-and-Deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: 'UAT'
+    needs: Migrate-Database
+    steps:
+      - uses: actions/checkout@v4
+
       - id: "auth"
-        uses: "google-github-actions/auth@v0"
+        uses: "google-github-actions/auth@v2"
         with:
           credentials_json: "${{ secrets.CLOUD_RUN_SERVICE_ACCOUNT }}"
 
