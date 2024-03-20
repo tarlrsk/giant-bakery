@@ -585,10 +585,11 @@ export async function POST(req: NextRequest) {
 
     if (
       lastTrackingNumber &&
-      lastTrackingNumber.orderedAt.getDate() === currentDay
+      lastTrackingNumber.orderedAt.getDate() === currentDay &&
+      lastTrackingNumber.orderNo
     ) {
       const lastRunningNumber = parseInt(
-        lastTrackingNumber.orderNo?.slice(-4) as string,
+        lastTrackingNumber.orderNo.slice(-4),
         10,
       );
       runningNumber = (lastRunningNumber % 10000) + 1;
