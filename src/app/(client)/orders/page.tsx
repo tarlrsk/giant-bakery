@@ -125,7 +125,7 @@ export default function OrdersPage() {
                       columnKey === "displayStatus" &&
                       item.status === "COMPLETED" &&
                       "text-green-600"
-                    } ${item.isCancelled && "!text-red-600"}`}
+                    } `}
                   >
                     {columnKey === "orderedAt"
                       ? formatDate(item.orderedAt.toString())
