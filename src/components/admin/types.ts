@@ -121,7 +121,6 @@ export const createUpdateSnackBoxSchema = z.object({
 export const createUpdateVariantSchema = z.object({
   image: z.any().refine(
     (files) => {
-      console.log(files);
       if (typeof files === "string" || files === null) {
         return true; // No need to validate if image is already a string
       } else {
@@ -130,8 +129,6 @@ export const createUpdateVariantSchema = z.object({
       }
     },
     (val) => {
-      console.log(val);
-
       if (val === undefined || val === null) {
         return { message: "โปรดใส่รูปภาพ" };
       } else if (val?.size > MAX_FILE_SIZE) {

@@ -67,8 +67,6 @@ export default function AdminVariant() {
     filteredRows?.find((row: IVariant) => row.id === rowSelectionModel[0]),
   );
 
-  console.log(variants);
-
   const filterMethods = useForm({
     defaultValues: { search: "", variantType: "all", status: "all" },
   });
@@ -113,10 +111,7 @@ export default function AdminVariant() {
     watch: watchEditVariant,
     reset: resetEditVariant,
     handleSubmit: handleSubmitEdit,
-    formState: { errors },
   } = editVariantMethods;
-
-  console.log("errors", errors);
 
   const {
     isActive: isActiveNewVariant,
