@@ -69,6 +69,7 @@ const stepsSinglePayment = [
   "รอรับออเดอร์",
   "กำลังเตรียมออเดอร์",
   "รอส่งมอบสินค้า",
+  "กำลังเตรียมจัดส่ง",
   "ส่งมอบสำเร็จ",
 ];
 
@@ -77,6 +78,7 @@ const stepsDepositPayment = [
   "รอรับออเดอร์",
   "กำลังเตรียมออเดอร์",
   "รอชำระเงินที่เหลือ",
+  "กำลังเตรียมจัดส่ง",
   "รอส่งมอบสินค้า",
   "ส่งมอบสำเร็จ",
 ];
@@ -165,18 +167,26 @@ const QontoStepIconRoot = styled("div")<{ ownerState: { active?: boolean } }>(
       borderRadius: "50%",
       backgroundColor: "currentColor",
     },
+    "& .QontoStepIcon-circle.error": {
+      width: 8,
+      height: 8,
+      borderRadius: "50%",
+      backgroundColor: theme.palette.error.main,
+    },
   }),
 );
 
 function QontoStepIcon(props: StepIconProps) {
-  const { active, completed, className } = props;
+  const { active, completed, className, error } = props;
 
   return (
     <QontoStepIconRoot ownerState={{ active }} className={className}>
       {completed ? (
         <Check className="QontoStepIcon-completedIcon" />
+      ) : error ? (
+        <div className="QontoStepIcon-circle error" />
       ) : (
-        <div className="QontoStepIcon-circle" />
+        <div className="QontoStepIcon-circle " />
       )}
     </QontoStepIconRoot>
   );
@@ -397,10 +407,13 @@ function OrderDetailCard({ data }: OrderProps) {
 
     if (data?.receivedVia === "DELIVERY") {
       const awaitingPickUpIndex = stepsArray.indexOf("รอส่งมอบสินค้า");
-      stepsArray.splice(awaitingPickUpIndex, 1); // 2nd parameter means remove one item only
+      stepsArray.splice(awaitingPickUpIndex, 1);
 
       stepsArray.pop();
       stepsArray.push("จัดส่งไปยัง InterExpress");
+    } else {
+      const onPackingUpIndex = stepsArray.indexOf("กำลังเตรียมจัดส่ง");
+      stepsArray.splice(onPackingUpIndex, 1);
     }
 
     const status = getStatus(data);
