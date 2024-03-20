@@ -37,6 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: 'Staging'
+    needs: Migrate-Database
     steps:
       - uses: actions/checkout@v4
 
@@ -101,6 +102,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: 'Staging'
+    needs: Migrate-Database
     steps:
       - uses: actions/checkout@v4
 

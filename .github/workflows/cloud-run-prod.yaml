@@ -101,6 +101,7 @@ jobs:
   Vercel-Build-and-Deploy:
     runs-on: ubuntu-latest
     environment: Production
+    needs: Migrate-Database
     steps:
       - uses: actions/checkout@v4
 
