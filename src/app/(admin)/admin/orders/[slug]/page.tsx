@@ -329,6 +329,11 @@ export default function OrderDetail({ params }: { params: { slug: string } }) {
         <Typography variant="h5" fontWeight={400}>
           ข้อมูลออเดอร์
         </Typography>
+        {orderDetail?.trackingNo && (
+          <Typography variant="h6" fontWeight={400}>
+            {`Tracking Number: ${orderDetail?.trackingNo}`}
+          </Typography>
+        )}
       </Stack>
       <Stack direction="column" spacing={2}>
         <OrderHeaderCard data={orderDetail} />

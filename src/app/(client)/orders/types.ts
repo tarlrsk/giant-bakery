@@ -152,6 +152,7 @@ export type IOrderDetail = {
     province: string;
     postcode: string;
   } | null;
+  trackingNo: string;
 };
 
 type Item = {
