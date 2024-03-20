@@ -82,11 +82,11 @@ model CartItem {
   id                  String             @id @default(uuid())
   quantity            Int
   type                CartItemType
-  customerCakeId      String?            @unique
+  customerCakeId      String?
   customerCake        CustomerCake?      @relation(fields: [customerCakeId], references: [id], onDelete: Cascade)
-  refreshmentId       String?            @unique
+  refreshmentId       String?
   refreshment         Refreshment?       @relation(fields: [refreshmentId], references: [id], onDelete: Cascade)
-  snackBoxId          String?            @unique
+  snackBoxId          String?
   snackBox            SnackBox?          @relation(fields: [snackBoxId], references: [id], onDelete: Cascade)
   cartId              String
   cart                Cart               @relation(fields: [cartId], references: [id], onDelete: Cascade)
@@ -323,7 +323,7 @@ model Refreshment {
   unitType      String               @default("กล่อง")
   qtyPerUnit    Int                  @default(1)
 
-  CartItem                 CartItem?
+  CartItem                 CartItem[]
   SnackBoxRefreshment      SnackBoxRefreshment[]
   orderRefreshment         OrderRefreshment[]
   orderSnackBoxRefreshment OrderSnackBoxRefreshment[]
@@ -349,7 +349,7 @@ model SnackBox {
   type          SnackBoxType          @default(CUSTOM)
   packageType   SnackBoxPackageType   @default(SNACK_BOX_S)
   beverage      SnackBoxBeverage      @default(NONE)
-  cartItems     CartItem?
+  cartItems     CartItem[]
   refreshments  SnackBoxRefreshment[]
   orderSnackBox OrderSnackBox[]
 }
