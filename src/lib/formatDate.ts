@@ -1,6 +1,7 @@
 export const formatDate = function getCurrentDateFormatted(
   dateString: string,
 ): string {
+  if (!dateString) return "-";
   const parsedDate = new Date(dateString);
 
   const year = parsedDate.getFullYear();

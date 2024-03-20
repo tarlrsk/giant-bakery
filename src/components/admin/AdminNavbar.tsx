@@ -1,8 +1,8 @@
 "use client";
 
 import _ from "lodash";
-import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useState, useEffect } from "react";
 import LayersIcon from "@mui/icons-material/Layers";
 import { useRouter, usePathname } from "next/navigation";
 import Inventory2Icon from "@mui/icons-material/Inventory2";
@@ -54,7 +54,9 @@ export default function AdminNavbar() {
   const pathname = usePathname();
   const router = useRouter();
   const { onSignOut } = useAuth();
-  const activeLink = _.capitalize(pathname.split("/").slice(-1)[0]);
+  const activeLink = pathname.includes("orders")
+    ? "orders"
+    : _.capitalize(pathname.split("/").slice(-1)[0]);
   const [currentPage, setCurrentPage] = useState(activeLink.toLowerCase());
 
   const handleChange = (event: React.SyntheticEvent, page: string) => {

@@ -2,6 +2,7 @@ import Image from "next/image";
 import toast from "react-hot-toast";
 import React, { useState } from "react";
 import apiPaths from "@/utils/api-path";
+import { fCurrency } from "@/utils/format";
 import { Cake, Refreshment } from "@prisma/client";
 import { addItemToCart } from "@/actions/cartActions";
 
@@ -52,7 +53,7 @@ export default function RefreshmentCard({ item, onClick }: Props) {
         </p>
 
         <p className="text-lg font-semibold text-secondaryT-main md:text-xl">
-          ฿{item?.price?.toFixed(2) ?? 0}
+          ฿{fCurrency(Number(item?.price?.toFixed(2)) || 0)}
         </p>
         <Button
           size="md"

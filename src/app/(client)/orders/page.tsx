@@ -24,7 +24,7 @@ import { getStatus, IOrderDetail } from "./types";
 
 const columns = [
   {
-    key: "id",
+    key: "orderNo",
     label: "หมายเลขออเดอร์",
   },
   {
@@ -129,7 +129,7 @@ export default function OrdersPage() {
                   >
                     {columnKey === "orderedAt"
                       ? formatDate(item.orderedAt.toString())
-                      : getKeyValue(item, columnKey)}
+                      : getKeyValue(item, columnKey) || "-"}
                   </TableCell>
                 )}
               </TableRow>

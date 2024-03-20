@@ -9,7 +9,7 @@ import {
 // ----------------------------------------------------------------------
 
 export function getStatus(item: IOrderDetail): string {
-  let status = "";
+  let status = "-";
   switch (item?.receivedVia) {
     case "PICK_UP":
       switch (item?.paymentType) {
@@ -25,6 +25,10 @@ export function getStatus(item: IOrderDetail): string {
 
             case "ON_PROCESS":
               status = "กำลังเตรียมออเดอร์";
+              break;
+
+            case "AWAITING_PICKUP":
+              status = "รอส่งมอบสินค้า";
               break;
 
             case "COMPLETED":
@@ -51,10 +55,15 @@ export function getStatus(item: IOrderDetail): string {
               status = "รอชำระเงินที่เหลือ";
               break;
 
+            case "AWAITING_PICKUP":
+              status = "รอส่งมอบสินค้า";
+              break;
+
             case "COMPLETED":
               status = "ส่งมอบสำเร็จ";
               break;
           }
+          break;
       }
       break;
 
@@ -74,6 +83,10 @@ export function getStatus(item: IOrderDetail): string {
               status = "กำลังเตรียมออเดอร์";
               break;
 
+            case "ON_PACKING_PROCESS":
+              status = "กำลังเตรียมจัดส่ง";
+              break;
+
             case "COMPLETED":
               status = "จัดส่งไปยัง InterExpress";
               break;
@@ -97,10 +110,15 @@ export function getStatus(item: IOrderDetail): string {
               status = "รอชำระเงินที่เหลือ";
               break;
 
+            case "ON_PACKING_PROCESS":
+              status = "กำลังเตรียมจัดส่ง";
+              break;
+
             case "COMPLETED":
               status = "จัดส่งไปยัง InterExpress";
               break;
           }
+          break;
       }
   }
 
@@ -109,6 +127,7 @@ export function getStatus(item: IOrderDetail): string {
 
 export type IOrderDetail = {
   orderId: string;
+  orderNo: string;
   firstName: string;
   lastName: string;
   phone: string;

@@ -1,13 +1,8 @@
 "use client";
 
+import { Card } from "@mui/material";
 import { Dispatch, SetStateAction } from "react";
-import { Box, Card, Typography } from "@mui/material";
-import {
-  DataGrid,
-  GridColDef,
-  GridRenderCellParams,
-  GridRowSelectionModel,
-} from "@mui/x-data-grid";
+import { DataGrid, GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
 
 import { ICakeRow } from "../types";
 import commonDataGrid from "./CommonDataGrid";
@@ -30,43 +25,6 @@ export default function CakeDataGrid({
 }: Props) {
   const { isActiveColumn, updatedAtColumn } = commonDataGrid();
   const columns: GridColDef[] = [
-    {
-      field: "type",
-      headerName: "ชนิดเค้ก",
-      flex: 1,
-      renderCell: (params: GridRenderCellParams<any>) => {
-        let text;
-        switch (params.value) {
-          case "PRESET":
-            text = "สำเร็จรูป";
-            break;
-          case "CUSTOM":
-            text = "กำหนดเอง";
-            break;
-          default:
-            text = "";
-            break;
-        }
-        return (
-          <>
-            <Box
-              width={6}
-              height={52}
-              sx={{
-                backgroundColor: "secondary.main",
-                position: "absolute",
-                left: 0,
-                visibility:
-                  params.id === rowSelectionModel[0] ? "visible" : "hidden",
-              }}
-            />
-            <Typography variant="body2" fontFamily="IBM Plex Sans Thai" ml={1}>
-              {text}
-            </Typography>
-          </>
-        );
-      },
-    },
     { field: "name", headerName: "ชื่อเค้ก", flex: 1 },
     isActiveColumn,
     updatedAtColumn,
