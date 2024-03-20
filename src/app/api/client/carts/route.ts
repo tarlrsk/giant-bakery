@@ -5,7 +5,7 @@ import { getFileUrl } from "@/lib/gcs/getFileUrl";
 import { CartType, SnackBoxType } from "@prisma/client";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { updateQtyCartValidateSchema } from "@/lib/validationSchema";
-import { CalGeneralDiscount, CalSnackBoxDiscount } from "@/lib/discount";
+import { CalGeneralDiscount, CalSnackBoxDiscount, FindSuggestDiscounts } from "@/lib/discount";
 
 const CartInclude = {
   items: {
@@ -212,6 +212,7 @@ export async function APIgetCartItems(userId: string | null | undefined) {
       userId: null as string | null,
       type: null as CartType | null,
       subTotal: 0,
+      suggestDiscounts: [] as string[],
       discounts: [] as any,
       totalDiscount: 0,
       total: 0,
@@ -365,6 +366,7 @@ export async function APIgetCartItems(userId: string | null | undefined) {
         })
       }
 
+      responseCart.suggestDiscounts = await FindSuggestDiscounts(snackBoxQty, responseCart.subTotal)
       responseCart.totalDiscount = totalDiscount;
       responseCart.total = responseCart.subTotal - responseCart.totalDiscount;
     }
