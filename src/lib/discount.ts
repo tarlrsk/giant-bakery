@@ -37,7 +37,7 @@ export async function FindSuggestGeneralDiscount(subTotal: number): Promise<stri
         }
     }
     if (suggestDiscount) {
-        return `${suggestDiscount.description} ส่วนลด ${suggestDiscount.pct}%`
+        return `${suggestDiscount.description} (ยกเว้นชุดเบรก) ได้รับส่วนลด ${suggestDiscount.pct}%`
     }
     return null
 }
@@ -59,7 +59,7 @@ export async function FindSuggestSnackBoxDiscount(snackBoxQty: number): Promise<
         }
     }
     if (suggestDiscount) {
-        return `${suggestDiscount.description} ส่วนลด ${suggestDiscount.pct}%`
+        return `สั่งชุดเบรกครบ ${suggestDiscount.conditionValue} ได้รับส่วนลด ${suggestDiscount.pct}%`
     }
     return null
 }
