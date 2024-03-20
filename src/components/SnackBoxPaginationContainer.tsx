@@ -31,7 +31,7 @@ type SnackBoxCardProps = {
 
 export default function SnackBoxPaginationContainer() {
   return (
-    <div className="relative pb-8">
+    <div className="relative min-h-[300px] pb-8">
       <div className="text-2xl font-normal md:text-4xl">ชุดเบรกจัดให้</div>
       <SnackBoxItems cols={4} />
     </div>
@@ -45,7 +45,7 @@ function SnackBoxItems({ cols, onClick, ...other }: SnackBoxItemsProps) {
 
   const { getPresetSnackBox } = apiPaths();
 
-  const { data } = useSWR(getPresetSnackBox(), fetcher);
+  const { data, isLoading } = useSWR(getPresetSnackBox(), fetcher);
 
   const items: SnackBox[] = data?.response?.data || [];
 
@@ -59,6 +59,14 @@ function SnackBoxItems({ cols, onClick, ...other }: SnackBoxItemsProps) {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const displayItems = items.slice(startIndex, endIndex);
+
+  if (items?.length === 0 && !isLoading) {
+    return (
+      <div className=" mx-auto my-16 w-fit rounded-sm bg-primaryT-lighter px-10 py-4 text-center text-xl">
+        ยังไม่มีสินค้าขณะนี้
+      </div>
+    );
+  }
 
   return (
     <>

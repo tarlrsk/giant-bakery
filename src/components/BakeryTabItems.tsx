@@ -71,7 +71,7 @@ export default function BakeryTabItems() {
           <Tab
             key={item.key}
             title={item.title}
-            className="flex items-center justify-center text-center text-xl font-semibold md:mx-8 md:w-28 md:text-2xl"
+            className="flex items-center justify-center text-center text-xl font-medium md:mx-8 md:w-28 md:text-2xl"
           />
         ))}
       </Tabs>
@@ -106,7 +106,7 @@ function BakeryItems({
   if (items?.length === 0 && !isLoading) {
     return (
       <div className=" my-16 rounded-sm bg-primaryT-lighter px-10 py-4 text-center text-xl">
-        ขออภัย ยังไม่มีสินค้าขณะนี้
+        ยังไม่มีสินค้าขณะนี้
       </div>
     );
   }

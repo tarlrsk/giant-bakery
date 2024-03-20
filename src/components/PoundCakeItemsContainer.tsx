@@ -31,7 +31,7 @@ export default function PoundCakeItemsContainer({
   const router = useRouter();
 
   return (
-    <div className=" pb-8">
+    <div className="relative min-h-[300px] pb-8">
       <div className=" flex flex-row items-center justify-between pb-10 text-2xl font-normal  md:text-4xl">
         เค้กสำเร็จรูป (ปอนด์)
         {!isPoundCakePage && (
@@ -63,7 +63,7 @@ function PoundCakeItems({
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
-  const { data } = useSWR(getCakes("PRESET"), fetcher, {
+  const { data, isLoading } = useSWR(getCakes("PRESET"), fetcher, {
     revalidateOnFocus: false,
   });
 
@@ -92,6 +92,14 @@ function PoundCakeItems({
     setSelectedCakeName(itemName);
     onOpen();
   };
+
+  if (items?.length === 0 && !isLoading) {
+    return (
+      <div className=" mx-auto my-16 w-fit rounded-sm bg-primaryT-lighter px-10 py-4 text-center text-xl">
+        ยังไม่มีสินค้าขณะนี้
+      </div>
+    );
+  }
 
   return (
     <>
