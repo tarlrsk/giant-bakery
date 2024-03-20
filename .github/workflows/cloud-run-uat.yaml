@@ -20,8 +20,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Vercel CLI
-        run: yarn global add vercel@latest
+      - name: Install Vercel CLI & Prisma
+        run: |
+          yarn global add vercel@latest
+          yarn add prisma -D
 
       - name: Pull Vercel Environment Information
         run: |
@@ -29,10 +31,7 @@ jobs:
           mv .vercel/.env.preview.local .env
 
       - name: Migrate Deploy
-        run: |
-          npm install -g yarn
-          yarn add prisma -D
-          yarn prisma migrate deploy
+        run: yarn prisma migrate deploy
 
   Google-Cloud-Run-Build-and-Deploy:
     runs-on: ubuntu-latest
