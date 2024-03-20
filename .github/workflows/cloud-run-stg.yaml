@@ -37,7 +37,7 @@ jobs:
           echo FACEBOOK_CLIENT_ID="${{ secrets.FACEBOOK_CLIENT_ID }}" >> .env
           echo FACEBOOK_CLIENT_SECRET="${{ secrets.FACEBOOK_CLIENT_SECRET }}" >> .env
           echo GCS_CLIENT_EMAIL="${{ secrets.GCS_CLIENT_EMAIL }}" >> .env
-          echo GCS_PRIVATE_KEY=${{ secrets.GCS_PRIVATE_KEY }} >> .env
+          echo GCS_PRIVATE_KEY="${{ secrets.GCS_PRIVATE_KEY }}" >> .env
           echo GCS_PROJECT_ID="${{ secrets.CLOUD_RUN_PROJECT_NAME }}" >> .env
           echo GOOGLE_CLIENT_ID="${{ secrets.GOOGLE_CLIENT_ID }}" >> .env
           echo GOOGLE_CLIENT_SECRET="${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
