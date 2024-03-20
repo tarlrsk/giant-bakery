@@ -633,13 +633,20 @@ export async function POST(req: NextRequest) {
     // CHECK RUNNING NUMBER. IF NEW DATE RESET, ELSE INCREMENT.
     const currentDate = new Date();
     const currentDay = currentDate.getDate();
-    const lastTrackingNumber = await prisma.order.findFirst({
+
+    // Find the last order for the current day
+    const lastOrder = await prisma.order.findFirst({
       where: {
         orderedAt: {
           gte: new Date(
             currentDate.getFullYear(),
             currentDate.getMonth(),
-            currentDate.getDate(),
+            currentDay,
+          ),
+          lt: new Date(
+            currentDate.getFullYear(),
+            currentDate.getMonth(),
+            currentDay + 1,
           ),
         },
       },
@@ -648,15 +655,10 @@ export async function POST(req: NextRequest) {
 
     let runningNumber;
 
-    if (
-      lastTrackingNumber &&
-      lastTrackingNumber.orderedAt.getDate() === currentDay &&
-      lastTrackingNumber.orderNo
-    ) {
-      const lastRunningNumber = parseInt(
-        lastTrackingNumber.orderNo.slice(-4),
-        10,
-      );
+    if (lastOrder && lastOrder.orderNo) {
+      // Extract the running number from the last order number
+      const lastRunningNumber = parseInt(lastOrder.orderNo.slice(-4), 10);
+      // Increment the running number
       runningNumber = (lastRunningNumber % 10000) + 1;
     } else {
       runningNumber = 1;
