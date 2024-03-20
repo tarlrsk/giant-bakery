@@ -16,7 +16,7 @@ jobs:
   Migrate-Database:
     runs-on: ubuntu-latest
     environment:
-      name: 'UAT'
+      name: "UAT"
     steps:
       - uses: actions/checkout@v4
 
@@ -36,8 +36,7 @@ jobs:
   Google-Cloud-Run-Build-and-Deploy:
     runs-on: ubuntu-latest
     environment:
-      name: 'UAT'
-    needs: Migrate-Database
+      name: "UAT"
     needs: Migrate-Database
     steps:
       - uses: actions/checkout@v4
@@ -53,7 +52,7 @@ jobs:
       - name: Authorize Docker push
         run: gcloud auth configure-docker
 
-      - name: 'Create env file'
+      - name: "Create env file"
         run: |
           touch .env
           echo FACEBOOK_CLIENT_ID="${{ secrets.FACEBOOK_CLIENT_ID }}" >> .env
@@ -101,7 +100,7 @@ jobs:
   Vercel-Build-and-Deploy:
     runs-on: ubuntu-latest
     environment:
-      name: 'UAT'
+      name: "UAT"
     needs: Migrate-Database
     steps:
       - uses: actions/checkout@v4
