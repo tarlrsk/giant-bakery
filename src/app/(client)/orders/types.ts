@@ -27,6 +27,10 @@ export function getStatus(item: IOrderDetail): string {
               status = "กำลังเตรียมออเดอร์";
               break;
 
+            case "AWAITING_PICKUP":
+              status = "รอส่งมอบสินค้า";
+              break;
+
             case "COMPLETED":
               status = "ส่งมอบสำเร็จ";
               break;
@@ -49,6 +53,10 @@ export function getStatus(item: IOrderDetail): string {
 
             case "PENDING_PAYMENT2":
               status = "รอชำระเงินที่เหลือ";
+              break;
+
+            case "AWAITING_PICKUP":
+              status = "รอส่งมอบสินค้า";
               break;
 
             case "COMPLETED":

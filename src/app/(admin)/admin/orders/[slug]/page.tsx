@@ -68,7 +68,7 @@ const stepsSinglePayment = [
   "รอชำระเงิน",
   "รอรับออเดอร์",
   "กำลังเตรียมออเดอร์",
-  "กำลังเตรียมจัดส่ง",
+  "รอส่งมอบสินค้า",
   "ส่งมอบสำเร็จ",
 ];
 
@@ -77,7 +77,7 @@ const stepsDepositPayment = [
   "รอรับออเดอร์",
   "กำลังเตรียมออเดอร์",
   "รอชำระเงินที่เหลือ",
-  "กำลังเตรียมจัดส่ง",
+  "รอส่งมอบสินค้า",
   "ส่งมอบสำเร็จ",
 ];
 
@@ -217,9 +217,11 @@ export default function OrderDetail({ params }: { params: { slug: string } }) {
 
   async function handleUpdateOrder() {
     try {
+      if (!orderDetail?.status) return;
+
       await triggerUpdateOrder({
         orderId: slug,
-        status: orderDetail?.status || "PENDING_ORDER",
+        status: orderDetail.status,
         trackingNo,
       });
 
@@ -263,6 +265,15 @@ export default function OrderDetail({ params }: { params: { slug: string } }) {
               text = "ยืนยันการส่งมอบออเดอร์เสร็จสิ้น";
             }
             break;
+
+          case "ON_PACKING_PROCESS":
+            setIsTrackingRequired(true);
+            text = "ยืนยันการเตรียมจัดส่งเสร็จสิ้น";
+            break;
+
+          case "AWAITING_PICKUP":
+            text = "ยืนยันการส่งมอบสินค้า";
+            break;
         }
         break;
       case "INSTALLMENT":
@@ -281,6 +292,16 @@ export default function OrderDetail({ params }: { params: { slug: string } }) {
             } else {
               text = "ยืนยันส่งมอบออเดอร์เสร็จสิ้น";
             }
+            break;
+
+          case "ON_PACKING_PROCESS":
+            if (orderDetail.receivedVia === "DELIVERY") {
+              setIsTrackingRequired(true);
+              text = "ยืนยันการเตรียมจัดส่ง";
+            }
+            break;
+          case "AWAITING_PICKUP":
+            text = "ยืนยันการส่งมอบสินค้า";
             break;
         }
         break;
@@ -505,9 +526,7 @@ function OrderHeaderCard({ data }: OrderProps) {
       <Stack direction="row" justifyContent="space-between" sx={{ width: 1 }}>
         <Stack direction="column" spacing={0.5}>
           <Typography color="grey.800">เลขออเดอร์</Typography>
-          <Typography fontWeight={500}>
-            {data?.orderId?.replace(/-/g, "") || "-"}
-          </Typography>
+          <Typography fontWeight={500}>{data?.orderNo || "-"}</Typography>
         </Stack>
 
         <Stack direction="column" spacing={0.5}>
@@ -651,6 +670,9 @@ function getStatus(item: IOrderDetail | undefined): string {
             case "ON_PROCESS":
               status = "กำลังเตรียมออเดอร์";
               break;
+            case "AWAITING_PICKUP":
+              status = "รอส่งมอบสินค้า";
+              break;
 
             case "COMPLETED":
               status = "ส่งมอบสำเร็จ";
@@ -674,6 +696,9 @@ function getStatus(item: IOrderDetail | undefined): string {
 
             case "PENDING_PAYMENT2":
               status = "รอชำระเงินที่เหลือ";
+              break;
+            case "AWAITING_PICKUP":
+              status = "รอส่งมอบสินค้า";
               break;
 
             case "COMPLETED":
