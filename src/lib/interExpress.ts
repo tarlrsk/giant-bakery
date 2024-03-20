@@ -77,7 +77,6 @@ export async function calculateBoxQuantity(itemDetails: ItemDetail[]): Promise<B
   let resultBoxes: BoxDetails[] = []
   let itemLeft = itemDetails.length
   for (let item of itemDetails) {
-    console.log(item)
     itemLeft -= 1
     if (volumeLeft >= item.volume && weightLeft >= item.weight) { // IF THERE IS SPACE LEFT
       volumeLeft -= item.volume
