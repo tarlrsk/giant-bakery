@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import apiPaths from "@/utils/api-path";
 import { fetcher } from "@/utils/axios";
 import useSWRMutation from "swr/mutation";
+import { fCurrency } from "@/utils/format";
 import { useRouter } from "next/navigation";
 import { formatDate } from "@/lib/formatDate";
 import Check from "@mui/icons-material/Check";
@@ -33,6 +34,12 @@ import { getStatus, IOrderDetail } from "../types";
 // ----------------------------------------------------------------------
 
 type RowProps = {
+  product?: {
+    name: string;
+    description?: string;
+    price: number;
+    quantity?: number;
+  };
   name: string;
   description?: string;
   price: number;
@@ -193,7 +200,7 @@ export default function OrderDetail({ params }: { params: { id: string } }) {
           sx={{ mb: 2, width: 1 }}
         >
           <Typography variant="h6" fontWeight={400}>
-            {`ออเดอร์ #${item?.orderNo?.replace(/-/g, "") || ""}`}
+            {`ออเดอร์ #${item?.orderNo || ""}`}
           </Typography>
         </Stack>
 
@@ -337,8 +344,8 @@ function OrderDetailCard({ item }: OrderProps) {
 }
 
 function ProductRow({
+  product,
   name,
-  description,
   price,
   quantity,
   isDiscount = false,
@@ -346,15 +353,18 @@ function ProductRow({
   return (
     <Stack direction="row" justifyContent="space-between">
       <Stack direction="column">
-        <Typography>
-          {name} {description ? `(${description})` : ""}
-        </Typography>
+        <Typography>{name}</Typography>
+        {product?.description && (
+          <Typography color="grey.600">{product?.description}</Typography>
+        )}
         {quantity && (
           <Typography color="grey.600">{`จำนวน: ${quantity}`}</Typography>
         )}
       </Stack>
       <Stack direction="column" justifyContent="end">
-        <Typography>{`${isDiscount ? "-" : ""}${price} บาท`}</Typography>
+        <Typography>{`${
+          isDiscount ? `-${fCurrency(price) || "0"} ` : fCurrency(price)
+        } บาท`}</Typography>
       </Stack>
     </Stack>
   );
@@ -380,7 +390,7 @@ function OrderHeaderCard({ item }: OrderProps) {
           <Stack direction="column" spacing={0.5}>
             <Typography color="grey.800">เลขออเดอร์</Typography>
             <Typography fontWeight={500}>
-              {item?.orderNo?.replace(/-/g, "") || ""}
+              {item?.orderNo ? item?.orderNo?.replace(/-/g, "") : "-"}
             </Typography>
           </Stack>
 
@@ -402,7 +412,11 @@ function OrderHeaderCard({ item }: OrderProps) {
           >
             <Typography color="grey.800">ตัวเลือกการชำระเงิน</Typography>
             <Typography fontWeight={500}>
-              {item?.paymentType === "SINGLE" ? "ชำระเต็มจำนวน" : "ชำระมัดจำ"}
+              {item?.paymentType
+                ? item.paymentType === "SINGLE"
+                  ? "ชำระเต็มจำนวน"
+                  : "ชำระมัดจำ"
+                : "-"}
             </Typography>
           </Stack>
 
@@ -435,7 +449,9 @@ function OrderHeaderCard({ item }: OrderProps) {
             sx={{ display: { xs: "none", md: "block" } }}
           >
             <Typography color="grey.800">ยอดรวม</Typography>
-            <Typography fontWeight={500}>฿{item?.totalPrice}</Typography>
+            <Typography fontWeight={500}>
+              {item?.totalPrice ? `฿${fCurrency(item?.totalPrice)}` : "-"}
+            </Typography>
           </Stack>
 
           {/* Mobile */}
@@ -483,7 +499,9 @@ function OrderHeaderCard({ item }: OrderProps) {
               sx={{ display: { xs: "block", md: "none" } }}
             >
               <Typography color="grey.800">ยอดรวม</Typography>
-              <Typography fontWeight={500}>฿{item?.totalPrice}</Typography>
+              <Typography fontWeight={500}>
+                {item?.totalPrice ? `฿${item?.totalPrice}` : "-"}
+              </Typography>
             </Stack>
           </Stack>
         </Stack>
@@ -518,7 +536,7 @@ function AddressCard({ item }: OrderProps) {
           >
             <Typography color="grey.800">ชื่อผู้รับ</Typography>
             <Typography fontWeight={500}>
-              {`${item?.firstName} ${item?.lastName}` ?? "-"}
+              {`${item?.firstName || "-"} ${item?.lastName || ""}` ?? "-"}
             </Typography>
           </Stack>
 

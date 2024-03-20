@@ -129,7 +129,7 @@ export default function OrdersPage() {
                   >
                     {columnKey === "orderedAt"
                       ? formatDate(item.orderedAt.toString())
-                      : getKeyValue(item, columnKey)}
+                      : getKeyValue(item, columnKey) || "-"}
                   </TableCell>
                 )}
               </TableRow>

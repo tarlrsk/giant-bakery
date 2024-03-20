@@ -9,7 +9,7 @@ import {
 // ----------------------------------------------------------------------
 
 export function getStatus(item: IOrderDetail): string {
-  let status = "";
+  let status = "-";
   switch (item?.receivedVia) {
     case "PICK_UP":
       switch (item?.paymentType) {

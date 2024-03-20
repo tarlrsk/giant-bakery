@@ -31,6 +31,7 @@ type OrderResponse = {
   receivedVia: "PICK_UP" | "DELIVERY";
   paymentType: "SINGLE" | "INSTALLMENT";
   email: string;
+  orderNo: string;
   subTotalPrice: 12.5;
   discountPrice: 20;
   shippingFee: 130;
@@ -84,6 +85,7 @@ export default function AdminOrder() {
     return (
       orders?.data?.map((order: OrderResponse) => ({
         id: order.id,
+        orderNo: order.orderNo,
         customer: `${order.cFirstName} ${order.cLastName}`,
         phone: order.phone,
         paymentType: order.paymentType,
