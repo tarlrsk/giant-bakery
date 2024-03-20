@@ -19,6 +19,7 @@ type GetOrderById = {
 
 type OrderDetail = {
   orderId: string;
+  orderNo: string;
   firstName: string;
   lastName: string;
   phone: string;
@@ -82,6 +83,7 @@ export async function GET(req: NextRequest, { params }: GetOrderById) {
 
     const data: OrderDetail = {
       orderId: order.id,
+      orderNo: order.orderNo as string,
       firstName: order.cFirstName,
       lastName: order.cLastName,
       phone: order.phone ? order.phone : "",
