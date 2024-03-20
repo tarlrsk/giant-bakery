@@ -13,7 +13,6 @@ import {
 
 export const revalidate = 0;
 
-
 type color = {
   id: string;
   color: string | null;
@@ -75,17 +74,17 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    const creams = (await prisma.masterCakeCream.findMany({
+    const creams = await prisma.masterCakeCream.findMany({
       where: {
         isDeleted: false,
       },
-    }));
-    const gbCreams: colorVariant[] = []
+    });
+    const gbCreams: colorVariant[] = [];
     for (let variant of creams) {
       if (variant.imagePath) {
         variant.image = await getFileUrl(variant.imagePath);
       }
-      const existing = gbCreams.find(c => c.name == variant.name)
+      const existing = gbCreams.find((c) => c.name === variant.name);
       if (!existing) {
         let mapping: colorVariant = {
           id: variant.id,
@@ -96,40 +95,43 @@ export async function GET(req: NextRequest) {
           updatedAt: variant.updatedAt,
           isDeleted: variant.isDeleted,
           deletedAt: variant.deletedAt,
-          type: VariantType.CREAM
-        }
+          type: VariantType.CREAM,
+        };
         mapping.colors.push({
           id: variant.id,
           color: variant.color,
           image: variant.image,
-        })
-        gbCreams.push(mapping)
+        });
+        gbCreams.push(mapping);
       } else {
         existing.colors.push({
           id: variant.id,
           color: variant.color,
           image: variant.image,
-        })
-        if ((variant.updatedAt ?? variant.createdAt) > (existing.updatedAt ?? existing.createdAt)) {
-          existing.updatedAt = variant.updatedAt
-          existing.isActive = variant.isActive
+        });
+        if (
+          (variant.updatedAt ?? variant.createdAt) >
+          (existing.updatedAt ?? existing.createdAt)
+        ) {
+          existing.updatedAt = variant.updatedAt;
+          existing.isActive = variant.isActive;
         }
       }
     }
-    variants.creams = gbCreams
+    variants.creams = gbCreams;
 
-    const topEdge = (await prisma.masterCakeTopEdge.findMany({
+    const topEdge = await prisma.masterCakeTopEdge.findMany({
       where: {
         isDeleted: false,
       },
-    }));
+    });
 
-    const gbTopEdge: colorVariant[] = []
+    const gbTopEdge: colorVariant[] = [];
     for (let variant of topEdge) {
       if (variant.imagePath) {
         variant.image = await getFileUrl(variant.imagePath);
       }
-      const existing = gbTopEdge.find(c => c.name == variant.name)
+      const existing = gbTopEdge.find((c) => c.name === variant.name);
       if (!existing) {
         let mapping: colorVariant = {
           id: variant.id,
@@ -140,40 +142,43 @@ export async function GET(req: NextRequest) {
           updatedAt: variant.updatedAt,
           isDeleted: variant.isDeleted,
           deletedAt: variant.deletedAt,
-          type: VariantType.TOP_EDGE
-        }
+          type: VariantType.TOP_EDGE,
+        };
         mapping.colors.push({
           id: variant.id,
           color: variant.color,
           image: variant.image,
-        })
-        gbTopEdge.push(mapping)
+        });
+        gbTopEdge.push(mapping);
       } else {
         existing.colors.push({
           id: variant.id,
           color: variant.color,
           image: variant.image,
-        })
-        if ((variant.updatedAt ?? variant.createdAt) > (existing.updatedAt ?? existing.createdAt)) {
-          existing.updatedAt = variant.updatedAt
-          existing.isActive = variant.isActive
+        });
+        if (
+          (variant.updatedAt ?? variant.createdAt) >
+          (existing.updatedAt ?? existing.createdAt)
+        ) {
+          existing.updatedAt = variant.updatedAt;
+          existing.isActive = variant.isActive;
         }
       }
     }
-    variants.topEdges = gbTopEdge
+    variants.topEdges = gbTopEdge;
 
-    const bottomEdge = (await prisma.masterCakeBottomEdge.findMany({
+    const bottomEdge = await prisma.masterCakeBottomEdge.findMany({
       where: {
         isDeleted: false,
       },
-    }))
+    });
 
-    const gbBottomEdge: colorVariant[] = []
+    const gbBottomEdge: colorVariant[] = [];
     for (let variant of bottomEdge) {
       if (variant.imagePath) {
         variant.image = await getFileUrl(variant.imagePath);
       }
-      const existing = gbBottomEdge.find(c => c.name == variant.name)
+      const existing = gbBottomEdge.find((c) => c.name === variant.name);
       if (!existing) {
         let mapping: colorVariant = {
           id: variant.id,
@@ -184,27 +189,30 @@ export async function GET(req: NextRequest) {
           updatedAt: variant.updatedAt,
           isDeleted: variant.isDeleted,
           deletedAt: variant.deletedAt,
-          type: VariantType.BOTTOM_EDGE
-        }
+          type: VariantType.BOTTOM_EDGE,
+        };
         mapping.colors.push({
           id: variant.id,
           color: variant.color,
           image: variant.image,
-        })
-        gbBottomEdge.push(mapping)
+        });
+        gbBottomEdge.push(mapping);
       } else {
         existing.colors.push({
           id: variant.id,
           color: variant.color,
           image: variant.image,
-        })
-        if ((variant.updatedAt ?? variant.createdAt) > (existing.updatedAt ?? existing.createdAt)) {
-          existing.updatedAt = variant.updatedAt
-          existing.isActive = variant.isActive
+        });
+        if (
+          (variant.updatedAt ?? variant.createdAt) >
+          (existing.updatedAt ?? existing.createdAt)
+        ) {
+          existing.updatedAt = variant.updatedAt;
+          existing.isActive = variant.isActive;
         }
       }
     }
-    variants.bottomEdges = gbBottomEdge
+    variants.bottomEdges = gbBottomEdge;
 
     variants.decorations = await prisma.masterCakeDecoration.findMany({
       where: {

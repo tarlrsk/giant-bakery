@@ -102,7 +102,7 @@ export async function GET(req: NextRequest, { params }: GetOrderById) {
       address: null,
     };
 
-    if (order.receivedVia == ReceivedVia.DELIVERY) {
+    if (order.receivedVia === ReceivedVia.DELIVERY) {
       data.address = {
         address: order.address!,
         district: order.district!,
@@ -122,10 +122,10 @@ export async function GET(req: NextRequest, { params }: GetOrderById) {
         pricePer: cake.pricePer,
         subItem: [],
         description: "",
-        type: "PRESET_CAKE"
+        type: "PRESET_CAKE",
       };
-      if(cake.cakeType == "CUSTOM"){
-        item.type = "CUSTOM_CAKE"
+      if (cake.cakeType === "CUSTOM") {
+        item.type = "CUSTOM_CAKE";
       }
       if (cake.size) {
         item.subItem.push(cake.size);
@@ -148,7 +148,7 @@ export async function GET(req: NextRequest, { params }: GetOrderById) {
       if (cake.surface) {
         item.subItem.push(cake.surface);
       }
-      item.description = item.subItem.join(', ');
+      item.description = item.subItem.join(", ");
       items.push(item);
     }
 
@@ -181,7 +181,7 @@ export async function GET(req: NextRequest, { params }: GetOrderById) {
         item.subItem.push(refreshment.name);
       }
 
-      item.description = item.subItem.join(', ');
+      item.description = item.subItem.join(", ");
     }
 
     data.items = items;

@@ -32,36 +32,53 @@ export async function POST(req: NextRequest) {
 
         switch (paymentIntent.metadata.orderStatus) {
           case OrderStatus.PENDING_PAYMENT1:
-            const order = await prismaOrder().getOrderById(orderId)
+            const order = await prismaOrder().getOrderById(orderId);
             if (!order) {
-              return responseWrapper(404, null, `Order with ID ${orderId} is not found.`)
+              return responseWrapper(
+                404,
+                null,
+                `Order with ID ${orderId} is not found.`,
+              );
             }
-            const dbRefreshments = await prismaRefreshment().getAllRefreshments()
+            const dbRefreshments =
+              await prismaRefreshment().getAllRefreshments();
             for (let refreshment of order.orderRefreshment) {
               if (refreshment.refreshmentId) {
-                let dbRefreshment = dbRefreshments.find(r => r.id == refreshment.refreshmentId)
+                let dbRefreshment = dbRefreshments.find(
+                  (r) => r.id === refreshment.refreshmentId,
+                );
                 if (!dbRefreshment) {
-                  return responseWrapper(500, null, "Something went wrong with order refreshment.")
+                  return responseWrapper(
+                    500,
+                    null,
+                    "Something went wrong with order refreshment.",
+                  );
                 }
-                dbRefreshment.currQty -= refreshment.quantity
+                dbRefreshment.currQty -= refreshment.quantity;
                 await prismaRefreshment().updateRefreshment(
                   refreshment.refreshmentId,
                   dbRefreshment,
-                )
+                );
               }
             }
             for (let snackBox of order.orderSnackBox) {
               for (let refreshment of snackBox.refreshments) {
                 if (refreshment.refreshmentId) {
-                  let dbRefreshment = dbRefreshments.find(r => r.id == refreshment.refreshmentId)
+                  let dbRefreshment = dbRefreshments.find(
+                    (r) => r.id === refreshment.refreshmentId,
+                  );
                   if (!dbRefreshment) {
-                    return responseWrapper(500, null, "Something went wrong with order snack-box.")
+                    return responseWrapper(
+                      500,
+                      null,
+                      "Something went wrong with order snack-box.",
+                    );
                   }
-                  dbRefreshment.currQty -= 1
+                  dbRefreshment.currQty -= 1;
                   await prismaRefreshment().updateRefreshment(
                     refreshment.refreshmentId,
                     dbRefreshment,
-                  )
+                  );
                 }
               }
             }
