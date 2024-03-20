@@ -2,9 +2,8 @@ import { NextResponse } from "next/server";
 import { withAuth, NextRequestWithAuth } from "next-auth/middleware";
 
 const allowedOrigins = [
-  "https://cukedoh.vercel.app",
-  "https://cukedoh-uat.vercel.app",
-  "https://cukedoh-stg.vercel.app",
+  "https://cukedoh-uat-dsxjfk7lhq-as.a.run.app/",
+  "https://cukedoh-stg-dsxjfk7lhq-as.a.run.app/",
   "http://localhost:3000",
 ];
 
