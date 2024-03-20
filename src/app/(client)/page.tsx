@@ -58,10 +58,10 @@ export default function Home() {
 
         <div className="relative flex h-auto flex-col items-center justify-center gap-8 py-28 md:gap-16">
           <div className="relative flex flex-col items-center justify-center gap-4 md:gap-10 ">
-            <h1 className="text-5xl font-semibold">สินค้าขายดี</h1>
-            <p className="text-2xl font-normal">
+            <h1 className="text-5xl font-semibold">สินค้าแนะนำ</h1>
+            {/* <p className="text-2xl font-normal">
               สินค้าที่ขายดีที่สุดตลอดปี 2023
-            </p>
+            </p> */}
           </div>
           <div className="flex-wrap-custom flex justify-center gap-20">
             <BestSellerItems />

@@ -32,7 +32,9 @@ type SnackBoxCardProps = {
 export default function SnackBoxPaginationContainer() {
   return (
     <div className="relative min-h-[300px] pb-8">
-      <div className="text-2xl font-normal md:text-4xl">ชุดเบรกจัดให้</div>
+      <div className="pb-10 text-2xl font-normal md:text-4xl">
+        ชุดเบรกจัดให้
+      </div>
       <SnackBoxItems cols={4} />
     </div>
   );

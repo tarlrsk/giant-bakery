@@ -32,34 +32,34 @@ export default function SnackBoxDetail({
         height={420}
       />
 
-      <div className="relative flex flex-col w-auto gap-8">
+      <div className="relative flex w-auto flex-col gap-8">
         <div className="relative flex flex-col gap-4">
           <div className="relative flex flex-col gap-5">
-            <h1 className="font-semibold text-4xl leading-normal">
+            <h1 className="text-4xl font-semibold leading-normal">
               {item?.name}
             </h1>
-            <p className="font-normal text-xl">{item?.description}</p>
+            <p className="text-xl font-normal">{item?.description}</p>
           </div>
           <div className="relative flex gap-6">
             <div className="relative flex gap-2">
-              <h2 className="font-semibold text-xl">น้ำหนัก:</h2>
-              <p className="font-normal text-xl">{item?.weight}</p>
+              <h2 className="text-xl font-semibold">น้ำหนัก:</h2>
+              <p className="text-xl font-normal">{item?.weight}</p>
             </div>
             <div className="relative flex gap-2">
-              <h2 className="font-semibold text-xl">ประกอบด้วย:</h2>
-              <p className="font-normal text-xl"></p>
+              <h2 className="text-xl font-semibold">ประกอบด้วย:</h2>
+              <p className="text-xl font-normal"></p>
             </div>
           </div>
-          <div className="font-semibold text-4xl leading-normal">
-            ฿{item?.price?.toFixed(2) ?? 0}
+          <div className="text-4xl font-semibold leading-normal">
+            ฿{item?.price?.toFixed(0) ?? 0}
           </div>
         </div>
 
         <div className="relative flex gap-10">
-          <div className="relative flex border-1 rounded-[8px] border-black">
+          <div className="relative flex rounded-[8px] border-1 border-black">
             <Button
               onClick={onDecrement}
-              className="relative h-auto items-center bg-opacity-0 text-black text-2xl font-medium rounded-l-[8px] py-3"
+              className="relative h-auto items-center rounded-l-[8px] bg-opacity-0 py-3 text-2xl font-medium text-black"
             >
               -
             </Button>
@@ -68,17 +68,17 @@ export default function SnackBoxDetail({
               value={counter}
               onChange={onChange}
               size={counter.toString().length}
-              className="relative h-auto items-center bg-opacity-0 text-center text-black text-2xl font-medium py-3"
+              className="relative h-auto items-center bg-opacity-0 py-3 text-center text-2xl font-medium text-black"
             />
             <Button
               onClick={onIncrement}
-              className="relative h-auto items-center bg-opacity-0 text-black text-2xl font-medium rounded-r-[8px] py-3"
+              className="relative h-auto items-center rounded-r-[8px] bg-opacity-0 py-3 text-2xl font-medium text-black"
             >
               +
             </Button>
           </div>
           <Button
-            className="relative h-auto bg-secondaryT-main items-center text-white text-2xl font-medium rounded-[8px] px-8 py-3"
+            className="relative h-auto items-center rounded-[8px] bg-secondaryT-main px-8 py-3 text-2xl font-medium text-white"
             isLoading={isLoading}
             onClick={onClick}
           >
