@@ -511,12 +511,42 @@ export async function POST(req: NextRequest) {
       phoneNo = phone;
     }
 
+
+    // DETERMINE PAYMENT TYPE LETTER.
+    const paymentTypeLetter =
+      paymentType.paymentType === PaymentType.SINGLE ? "F" : "D";
+
+    // EXTRACT ORDERED DATE.
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+
+    // Set the time to the beginning of the day (00:00:00)
+    today.setHours(0, 0, 0, 0);
+    const count = await prisma.order.count({
+      where: {
+        orderedAt: {
+          gte: today, // Greater than or equal to today
+        },
+      },
+    });
+
+    let runningNumber = count + 1
+
+    // FORMAT RUNNING NUMBER TO HAVE 0s IN FRONT.
+    const formattedRunningNumber = runningNumber.toString().padStart(4, "0");
+
+    // CREATE TRACKING NUMBER.
+    const trackingNumber = `${paymentTypeLetter}${day}${month}${year}${formattedRunningNumber}`;
+
     // CREATE ORDER
     order = await prismaOrder().createOrder({
       status: OrderStatus.PENDING_PAYMENT1,
       paymentType: paymentType,
       receivedVia: receivedVia,
       email: email,
+      orderNo: trackingNumber,
       subTotalPrice: subTotal,
       discountPrice: totalDiscount,
       shippingFee: shippingFee,
@@ -618,62 +648,6 @@ export async function POST(req: NextRequest) {
           },
         })),
       },
-    });
-
-    // DETERMINE PAYMENT TYPE LETTER.
-    const paymentTypeLetter =
-      order.paymentType === PaymentType.SINGLE ? "F" : "D";
-
-    // EXTRACT ORDERED DATE.
-    const orderedDate = order.orderedAt;
-    const year = orderedDate.getFullYear();
-    const month = String(orderedDate.getMonth() + 1).padStart(2, "0");
-    const day = String(orderedDate.getDate()).padStart(2, "0");
-
-    // CHECK RUNNING NUMBER. IF NEW DATE RESET, ELSE INCREMENT.
-    const currentDate = new Date();
-    const currentDay = currentDate.getDate();
-
-    // Find the last order for the current day
-    const lastOrder = await prisma.order.findFirst({
-      where: {
-        orderedAt: {
-          gte: new Date(
-            currentDate.getFullYear(),
-            currentDate.getMonth(),
-            currentDay,
-          ),
-          lt: new Date(
-            currentDate.getFullYear(),
-            currentDate.getMonth(),
-            currentDay + 1,
-          ),
-        },
-      },
-      orderBy: { orderedAt: "desc" },
-    });
-
-    let runningNumber;
-
-    if (lastOrder && lastOrder.orderNo) {
-      // Extract the running number from the last order number
-      const lastRunningNumber = parseInt(lastOrder.orderNo.slice(-4), 10);
-      // Increment the running number
-      runningNumber = (lastRunningNumber % 10000) + 1;
-    } else {
-      runningNumber = 1;
-    }
-
-    // FORMAT RUNNING NUMBER TO HAVE 0s IN FRONT.
-    const formattedRunningNumber = runningNumber.toString().padStart(4, "0");
-
-    // CREATE TRACKING NUMBER.
-    const trackingNumber = `${paymentTypeLetter}${day}${month}${year}${formattedRunningNumber}`;
-
-    // UPDATE ORDER TRACKING NUMBER.
-    await prisma.order.update({
-      where: { id: order.id },
-      data: { orderNo: trackingNumber },
     });
 
     if (paymentType === PaymentType.INSTALLMENT && totalDiscount === 0) {
