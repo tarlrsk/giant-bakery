@@ -45,10 +45,10 @@ const boxes: BoxDetails[] = [
     PackageCount: 1,
     boxSize: "A2",
     boxDesc: "≤ 20 กก. หรือ ≤ 35,000 ลบ.ซม.",
-    Weight: 0,
-    Width: 25,
-    Length: 20,
-    Height: 15,
+    Weight: 15,
+    Width: 35,
+    Length: 40,
+    Height: 25,
   },
   {
     ServiceId: 2,
@@ -58,10 +58,10 @@ const boxes: BoxDetails[] = [
     PackageCount: 1,
     boxSize: "B2",
     boxDesc: "≤ 30 กก. หรือ ≤ 65,000 ลบ.ซม.",
-    Weight: 35,
+    Weight: 25,
     Width: 40,
     Length: 45,
-    Height: 20
+    Height: 35,
   }
 ]
 
@@ -157,7 +157,7 @@ export async function calculateShippingFee(
     destPostCode: address.postcode,
     destZoneId: filterDesData.zoneDesc.id,
     ItmsCustomerId: "0000000000000",
-    ItmsDcCode: filterDesData.subDistricts.dcCodeItms,
+    ItmsDcCode: filterOsgData.subDistricts.dcCodeItms,
     ItmsProvinceCode: filterDesData.subDistricts.provinceCodeItms,
     ItmsDistrictCode: filterDesData.subDistricts.districtCodeItms,
     PostalCode: address.postcode,
@@ -171,6 +171,7 @@ export async function calculateShippingFee(
     headers: new Headers({ "content-type": "application/json" }),
     body: JSON.stringify(getPriceBody),
   });
+
   const getPriceData = await getPriceRes.json();
   shippingFee = getPriceData.reduce(
     (sum: any, box: any) => sum + box.totalRate,

@@ -292,6 +292,20 @@ export async function DELETE(_req: NextRequest, { params }: GetCakeByIdProps) {
       },
     });
 
+    const customerCakes = await prisma.customerCake.findMany({
+      where: {
+        cakeId: id,
+      }
+    })
+
+    await prisma.cartItem.deleteMany({
+      where: {
+        customerCakeId: {
+          in: customerCakes.map(customerCake => customerCake.id)
+        }
+      }
+    })
+
     revalidatePath(paths.cakeList());
 
     return responseWrapper(200, null, null);
