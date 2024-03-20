@@ -28,7 +28,7 @@ jobs:
           vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
           mv .vercel/.env* .env
 
-      - name: Yarn Build Test
+      - name: Migrate Deploy
         run: |
           npm install -g yarn
           yarn
