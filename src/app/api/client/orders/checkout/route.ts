@@ -5,11 +5,11 @@ import { prismaUser } from "@/persistence/user";
 import { getFileUrl } from "@/lib/gcs/getFileUrl";
 import { prismaOrder } from "@/persistence/order";
 import { createStripeSession } from "@/lib/stripe";
-import { calculateShippingFee } from "@/lib/interExpress";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { checkoutCartValidateSchema } from "@/lib/validationSchema";
 import { prismaCustomerAddress } from "@/persistence/customerAddress";
 import { CalGeneralDiscount, CalSnackBoxDiscount } from "@/lib/discount";
+import { calculateBoxQuantity, calculateShippingFee } from "@/lib/interExpress";
 import {
   Order,
   Prisma,
@@ -61,26 +61,6 @@ export async function POST(req: NextRequest) {
     const user = await prismaUser().getUserById(userId);
     if (!user) {
       return responseWrapper(404, null, `User not found.`);
-    }
-
-    let cFirstName = user.firstName;
-    let cLastName = user.lastName;
-    let phoneNo = user.phone;
-    let address: CustomerAddress | null = null;
-    let shippingFee = 0;
-    if (receivedVia === ReceivedVia.DELIVERY) {
-      address = await prismaCustomerAddress().getUserAddressById(addressId);
-      if (!address) {
-        return responseWrapper(404, null, `Address is not found`);
-      }
-      shippingFee = await calculateShippingFee(address);
-      cFirstName = address.cFirstName;
-      cLastName = address.cLastName;
-      phoneNo = address.phone;
-    } else {
-      cFirstName = firstName;
-      cLastName = lastName;
-      phoneNo = phone;
     }
 
     const cart = await prismaCart().getCartByUserId(userId);
@@ -188,7 +168,6 @@ export async function POST(req: NextRequest) {
           break;
       }
     }
-    console.log(lineItems);
 
     // TODO DISCOUNT
     let snackBoxQty = 0;
@@ -201,6 +180,11 @@ export async function POST(req: NextRequest) {
     const orderSnackBoxes = [] as Prisma.OrderSnackBoxGetPayload<{
       include: { refreshments: true };
     }>[];
+
+    const itemSizes: {
+      volume: number;
+      weight: number;
+    }[] = [];
 
     for (var cartItem of cart?.items) {
       switch (cartItem.type) {
@@ -246,6 +230,15 @@ export async function POST(req: NextRequest) {
           });
 
           subTotal += cartItem.customerCake.price * cartItem.quantity;
+          for (let i = 0; i < cartItem.quantity; i++) {
+            itemSizes.push({
+              volume:
+                cartItem.customerCake.cake.width *
+                cartItem.customerCake.cake.height *
+                cartItem.customerCake.cake.length,
+              weight: cartItem.customerCake.cake.weight,
+            });
+          }
           break;
         case "CUSTOM_CAKE":
           if (!cartItem.customerCake) {
@@ -265,28 +258,29 @@ export async function POST(req: NextRequest) {
             return responseWrapper(404, null, "Size is not found.");
           }
 
-          let weight = 0.0;
-          let height = 0.0;
-          let length = 0.0;
-          let width = 0.0;
+          // MOCK UP CUSTOM CAKE SIZE
+          var weight = 0.0;
+          var height = 0.0;
+          var length = 0.0;
+          var width = 0.0;
           switch (size.name) {
             case "1":
-              weight = 100;
-              height = 100;
-              length = 100;
-              width = 100;
+              weight = 200;
+              height = 20;
+              length = 20;
+              width = 20;
               break;
             case "2":
-              weight = 100;
-              height = 100;
-              length = 100;
-              width = 100;
+              weight = 300;
+              height = 20;
+              length = 20;
+              width = 20;
               break;
             case "3":
-              weight = 100;
-              height = 100;
-              length = 100;
-              width = 100;
+              weight = 400;
+              height = 20;
+              length = 20;
+              width = 20;
               break;
           }
 
@@ -340,6 +334,13 @@ export async function POST(req: NextRequest) {
           });
 
           subTotal += cartItem.customerCake.price * cartItem.quantity;
+
+          for (let i = 0; i < cartItem.quantity; i++) {
+            itemSizes.push({
+              volume: width * height * length,
+              weight: weight,
+            });
+          }
           break;
         case "REFRESHMENT":
           if (!cartItem.refreshment) {
@@ -372,6 +373,15 @@ export async function POST(req: NextRequest) {
             refreshmentId: cartItem.refreshment.id,
           });
 
+          for (let i = 0; i < cartItem.quantity; i++) {
+            itemSizes.push({
+              volume:
+                cartItem.refreshment.width *
+                cartItem.refreshment.height *
+                cartItem.refreshment.length,
+              weight: cartItem.refreshment.weight,
+            });
+          }
           subTotal += cartItem.refreshment.price * cartItem.quantity;
 
           break;
@@ -382,6 +392,29 @@ export async function POST(req: NextRequest) {
               null,
               "SnackBox Item missing snack box",
             );
+          }
+
+          // MOCK UP SNACK BOX SIZE
+          var weight = 0.0;
+          var height = 0.0;
+          var length = 0.0;
+          var width = 0.0;
+          switch (cartItem.snackBox.packageType) {
+            case "PAPER_BAG":
+              weight = 200;
+              height = 20;
+              length = 20;
+              break;
+            case "SNACK_BOX_S":
+              weight = 300;
+              height = 20;
+              length = 20;
+              break;
+            case "SNACK_BOX_M":
+              weight = 400;
+              height = 20;
+              length = 20;
+              break;
           }
 
           var orderSnackBoxRefreshment = [] as OrderSnackBoxRefreshment[];
@@ -406,6 +439,7 @@ export async function POST(req: NextRequest) {
               qtyPerUnit: refreshment.refreshment.qtyPerUnit,
               refreshmentId: refreshment.refreshment.id,
             });
+            weight += refreshment.refreshment.weight;
           }
 
           orderSnackBoxes.push({
@@ -424,7 +458,12 @@ export async function POST(req: NextRequest) {
             snackBoxId: cartItem.snackBox.id,
             orderId: "",
           });
-
+          for (let i = 0; i < cartItem.quantity; i++) {
+            itemSizes.push({
+              volume: width * height * length,
+              weight: weight,
+            });
+          }
           snackBoxQty += cartItem.quantity;
           snackBoxTotalPrice += cartItem.quantity * cartItem.snackBox.price;
           break;
@@ -444,6 +483,28 @@ export async function POST(req: NextRequest) {
     );
     if (snackBoxDiscount) {
       totalDiscount += snackBoxDiscount.discount;
+    }
+
+    let cFirstName = user.firstName;
+    let cLastName = user.lastName;
+    let phoneNo = user.phone;
+    let address: CustomerAddress | null = null;
+    let shippingFee = 0;
+    if (receivedVia == ReceivedVia.DELIVERY) {
+      address = await prismaCustomerAddress().getUserAddressById(addressId);
+      if (!address) {
+        return responseWrapper(404, null, `Address is not found`);
+      }
+
+      const boxes = await calculateBoxQuantity(itemSizes);
+      shippingFee = await calculateShippingFee(address, boxes);
+      cFirstName = address.cFirstName;
+      cLastName = address.cLastName;
+      phoneNo = address.phone;
+    } else {
+      cFirstName = firstName;
+      cLastName = lastName;
+      phoneNo = phone;
     }
 
     // CREATE ORDER
@@ -561,9 +622,10 @@ export async function POST(req: NextRequest) {
 
     // EXTRACT ORDERED DATE.
     const orderedDate = order.orderedAt;
-    const day = orderedDate.getDate().toString().padStart(2, "0");
-    const month = (orderedDate.getMonth() + 1).toString().padStart(2, "0");
-    const year = orderedDate.getFullYear().toString();
+    const parsedDate = new Date(orderedDate);
+    const year = parsedDate.getFullYear();
+    const month = String(parsedDate.getMonth() + 1).padStart(2, "0");
+    const day = String(parsedDate.getDate()).padStart(2, "0");
 
     // CHECK RUNNING NUMBER. IF NEW DATE RESET, ELSE INCREMENT.
     const currentDate = new Date();
@@ -585,10 +647,11 @@ export async function POST(req: NextRequest) {
 
     if (
       lastTrackingNumber &&
-      lastTrackingNumber.orderedAt.getDate() === currentDay
+      lastTrackingNumber.orderedAt.getDate() === currentDay &&
+      lastTrackingNumber.orderNo
     ) {
       const lastRunningNumber = parseInt(
-        lastTrackingNumber.orderNo?.slice(-4) as string,
+        lastTrackingNumber.orderNo.slice(-4),
         10,
       );
       runningNumber = (lastRunningNumber % 10000) + 1;
@@ -617,7 +680,6 @@ export async function POST(req: NextRequest) {
     } else if (paymentType === PaymentType.INSTALLMENT) {
       totalDiscount += (subTotal - totalDiscount + shippingFee) / 2;
     }
-    console.log(totalDiscount);
 
     const session = await createStripeSession(
       userId,

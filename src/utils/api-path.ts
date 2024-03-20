@@ -137,6 +137,8 @@ const apiPaths = () => {
   const updateOrder = () => createAdminUrl("orders/status/plus-one");
   const cancelOrder = () => createAdminUrl("orders/status/cancel");
 
+  const removeVariantColorImage = () => createAdminUrl("variants/color");
+
   return {
     signUp,
     getCart,
@@ -171,6 +173,7 @@ const apiPaths = () => {
 
     // Admin
     getProducts,
+    removeVariantColorImage,
     createProduct,
     updateProduct,
     deleteProduct,
