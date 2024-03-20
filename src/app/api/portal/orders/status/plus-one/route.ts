@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { prismaOrder } from "@/persistence/order";
-import { OrderStatus, PaymentType } from "@prisma/client";
 import { responseWrapper } from "@/utils/api-response-wrapper";
+import { OrderStatus, PaymentType, ReceivedVia } from "@prisma/client";
 
 export async function GET(_req: NextRequest) {
   try {
@@ -31,53 +31,117 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    if (order.paymentType == PaymentType.SINGLE) {
-      switch (order.status) {
-        case OrderStatus.PENDING_PAYMENT1:
-          await prismaOrder().updateOrderById(orderId, {
-            status: OrderStatus.PENDING_ORDER,
-          });
-          break;
-        case OrderStatus.PENDING_ORDER:
-          await prismaOrder().updateOrderById(orderId, {
-            status: OrderStatus.ON_PROCESS,
-          });
-          break;
-        case OrderStatus.ON_PROCESS:
-          await prismaOrder().updateOrderById(orderId, {
-            status: OrderStatus.COMPLETED,
-            trackingNo: trackingNo,
-          });
-          break;
+    if (order.receivedVia === ReceivedVia.PICK_UP) {
+      if (order.paymentType === PaymentType.SINGLE) {
+        switch (order.status) {
+          case OrderStatus.PENDING_PAYMENT1:
+            await prismaOrder().updateOrderById(orderId, {
+              status: OrderStatus.PENDING_ORDER,
+            });
+            break;
+          case OrderStatus.PENDING_ORDER:
+            await prismaOrder().updateOrderById(orderId, {
+              status: OrderStatus.ON_PROCESS,
+            });
+            break;
+          case OrderStatus.ON_PROCESS:
+            await prismaOrder().updateOrderById(orderId, {
+              status: OrderStatus.AWAITING_PICKUP,
+              trackingNo: trackingNo,
+            });
+            break;
+          case OrderStatus.AWAITING_PICKUP:
+            await prismaOrder().updateOrderById(orderId, {
+              status: OrderStatus.COMPLETED,
+              trackingNo: trackingNo,
+            });
+            break;
+        }
+      } else {
+        switch (order.status) {
+          case OrderStatus.PENDING_PAYMENT1:
+            await prismaOrder().updateOrderById(orderId, {
+              status: OrderStatus.PENDING_ORDER,
+            });
+            break;
+          case OrderStatus.PENDING_ORDER:
+            await prismaOrder().updateOrderById(orderId, {
+              status: OrderStatus.ON_PROCESS,
+            });
+            break;
+          case OrderStatus.ON_PROCESS:
+            await prismaOrder().updateOrderById(orderId, {
+              status: OrderStatus.PENDING_PAYMENT2,
+            });
+            break;
+          case OrderStatus.PENDING_PAYMENT2:
+            await prismaOrder().updateOrderById(orderId, {
+              status: OrderStatus.AWAITING_PICKUP,
+            });
+            break;
+          case OrderStatus.AWAITING_PICKUP:
+            await prismaOrder().updateOrderById(orderId, {
+              status: OrderStatus.COMPLETED,
+              trackingNo: trackingNo,
+            });
+            break;
+        }
       }
     } else {
-      switch (order.status) {
-        case OrderStatus.PENDING_PAYMENT1:
-          await prismaOrder().updateOrderById(orderId, {
-            status: OrderStatus.PENDING_ORDER,
-          });
-          break;
-        case OrderStatus.PENDING_ORDER:
-          await prismaOrder().updateOrderById(orderId, {
-            status: OrderStatus.ON_PROCESS,
-          });
-          break;
-        case OrderStatus.ON_PROCESS:
-          await prismaOrder().updateOrderById(orderId, {
-            status: OrderStatus.PENDING_PAYMENT2,
-          });
-          break;
-        case OrderStatus.PENDING_PAYMENT2:
-          await prismaOrder().updateOrderById(orderId, {
-            status: OrderStatus.ON_PACKING_PROCESS,
-          });
-          break;
-        case OrderStatus.ON_PACKING_PROCESS:
-          await prismaOrder().updateOrderById(orderId, {
-            status: OrderStatus.COMPLETED,
-            trackingNo: trackingNo,
-          });
-          break;
+      if (order.paymentType === PaymentType.SINGLE) {
+        switch (order.status) {
+          case OrderStatus.PENDING_PAYMENT1:
+            await prismaOrder().updateOrderById(orderId, {
+              status: OrderStatus.PENDING_ORDER,
+            });
+            break;
+          case OrderStatus.PENDING_ORDER:
+            await prismaOrder().updateOrderById(orderId, {
+              status: OrderStatus.ON_PROCESS,
+            });
+            break;
+          case OrderStatus.ON_PROCESS:
+            await prismaOrder().updateOrderById(orderId, {
+              status: OrderStatus.ON_PACKING_PROCESS,
+              trackingNo: trackingNo,
+            });
+            break;
+          case OrderStatus.ON_PACKING_PROCESS:
+            await prismaOrder().updateOrderById(orderId, {
+              status: OrderStatus.COMPLETED,
+              trackingNo: trackingNo,
+            });
+            break;
+        }
+      } else {
+        switch (order.status) {
+          case OrderStatus.PENDING_PAYMENT1:
+            await prismaOrder().updateOrderById(orderId, {
+              status: OrderStatus.PENDING_ORDER,
+            });
+            break;
+          case OrderStatus.PENDING_ORDER:
+            await prismaOrder().updateOrderById(orderId, {
+              status: OrderStatus.ON_PROCESS,
+            });
+            break;
+          case OrderStatus.ON_PROCESS:
+            await prismaOrder().updateOrderById(orderId, {
+              status: OrderStatus.PENDING_PAYMENT2,
+            });
+            break;
+          case OrderStatus.PENDING_PAYMENT2:
+            await prismaOrder().updateOrderById(orderId, {
+              status: OrderStatus.ON_PACKING_PROCESS,
+            });
+            break;
+          case OrderStatus.ON_PACKING_PROCESS:
+            await prismaOrder().updateOrderById(orderId, {
+              status: OrderStatus.COMPLETED,
+              trackingNo: trackingNo,
+            });
+            break;
+        }
       }
     }
 
