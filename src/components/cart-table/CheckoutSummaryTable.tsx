@@ -15,7 +15,7 @@ import {
 
 import {
   isCustomSnackBox,
-  getCustomCakeVariantsString,
+  getCakeStaticVariantsString,
   getCustomSnackBoxItemsString,
 } from "./CartItemTable";
 
@@ -80,11 +80,12 @@ export default function CheckoutSummaryTable({
                         : item.name
                   }`}
                 </div>
-                {item.itemType === "CUSTOM_CAKE" && (
-                  <div className="text-xs text-gray-400  md:text-sm">
-                    {getCustomCakeVariantsString(item)}
-                  </div>
-                )}
+                {item.itemType === "CUSTOM_CAKE" ||
+                  (item.itemType === "PRESET_CAKE" && (
+                    <div className="text-xs text-gray-400  md:text-sm">
+                      {getCakeStaticVariantsString(item)}
+                    </div>
+                  ))}
                 {isCustomSnackBox(item) && (
                   <div className="text-xs text-gray-400  md:text-sm">
                     {getCustomSnackBoxItemsString(item)}

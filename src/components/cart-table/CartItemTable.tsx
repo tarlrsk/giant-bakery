@@ -235,7 +235,7 @@ export default function CartItemTable({
                     <div className=" flex flex-col">
                       <div className="text-base md:text-lg">เค้กออกแบบเอง</div>
                       <div className="text-xs text-gray-400  md:text-sm">
-                        {getCustomCakeVariantsString(item)}
+                        {getCakeStaticVariantsString(item)}
                       </div>
                     </div>
                   </div>
@@ -260,7 +260,9 @@ export default function CartItemTable({
                     description={
                       isCustomSnackBox(item)
                         ? getCustomSnackBoxItemsString(item)
-                        : ""
+                        : item.itemType === "PRESET_CAKE"
+                          ? getCakeStaticVariantsString(item)
+                          : ""
                     }
                     name={isCustomSnackBox(item) ? "ชุดเบรกจัดเอง" : item.name}
                     className=" w-full justify-start md:gap-6 md:pl-3"
@@ -362,10 +364,10 @@ export function getCustomSnackBoxItemsString(item: ICartItem) {
   return output.join(", ");
 }
 
-export function getCustomCakeVariantsString(item: ICartItem) {
-  const base = item.base.name;
-  const filling = item.filling.name;
-  const pound = item.size.name;
+export function getCakeStaticVariantsString(item: ICartItem) {
+  const base = item.base?.name || "";
+  const filling = item.filling?.name || "";
+  const pound = item.size?.name || "";
 
-  return `ขนาด ${pound} ปอนด์, เนื้อเค้กรส${base}, ไส้${filling}`;
+  return `${pound} ปอนด์, เนื้อเค้ก${base}, ไส้${filling}`;
 }
