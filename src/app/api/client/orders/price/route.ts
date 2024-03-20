@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import apiPaths from "@/utils/api-path";
 import { NextRequest } from "next/server";
-import { calculateShippingFee } from "@/lib/interExpress";
+import { calculateBoxQuantity, calculateShippingFee } from "@/lib/interExpress";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 
 type BoxDetails = {
@@ -87,7 +87,108 @@ export async function GET(req: NextRequest) {
         );
       }
 
-      response.shippingFee = await calculateShippingFee(address);
+      const itemSizes: {
+        volume: number,
+        weight: number,
+      }[] = []
+
+      for (let cartItem of response.items) {
+        switch (cartItem.itemType) {
+          case "PRESET_CAKE":
+            const cake = await prisma.cake.findFirst({
+              where: {
+                id: cartItem.cakeId
+              }
+            })
+            if (cake) {
+              for (let i = 0; i < cartItem.quantity; i++) {
+                itemSizes.push({
+                  volume: cake.width * cake.height * cake.length,
+                  weight: cake.weight,
+                })
+              }
+            }
+            break;
+
+          case "CUSTOM_CAKE":
+            var weight = 0.0;
+            var height = 0.0;
+            var length = 0.0;
+            var width = 0.0;
+            switch (cartItem.size.name) {
+              case "1":
+                weight = 200;
+                height = 20;
+                length = 20;
+                width = 20;
+                break;
+              case "2":
+                weight = 300;
+                height = 20;
+                length = 20;
+                width = 20;
+                break;
+              case "3":
+                weight = 400;
+                height = 20;
+                length = 20;
+                width = 20;
+                break;
+            }
+            for (let i = 0; i < cartItem.quantity; i++) {
+              itemSizes.push({
+                volume: width * height * length,
+                weight: weight,
+              })
+            }
+            break;
+
+          case "REFRESHMENT":
+            for (let i = 0; i < cartItem.quantity; i++) {
+              itemSizes.push({
+                volume: cartItem.width * cartItem.height * cartItem.length,
+                weight: cartItem.weight,
+              })
+            }
+            break;
+
+          case "SNACK_BOX":
+            var weight = 0.0;
+            var height = 0.0;
+            var length = 0.0;
+            var width = 0.0;
+            switch (cartItem.packageType) {
+              case "PAPER_BAG":
+                weight = 200;
+                height = 20;
+                length = 20;
+                break;
+              case "SNACK_BOX_S":
+                weight = 300;
+                height = 20;
+                length = 20;
+                break;
+              case "SNACK_BOX_M":
+                weight = 400;
+                height = 20;
+                length = 20;
+                break;
+            }
+            for (var refreshment of cartItem.refreshments) {
+              weight += refreshment.refreshment.weight
+            }
+            for (let i = 0; i < cartItem.quantity; i++) {
+              itemSizes.push({
+                volume: width * height * length,
+                weight: weight,
+              })
+            }
+            break;
+        }
+      }
+
+      const boxes = await calculateBoxQuantity(itemSizes)
+      response.shippingFee = await calculateShippingFee(address, boxes);
     }
 
     response.total =
