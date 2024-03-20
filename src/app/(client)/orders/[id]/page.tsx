@@ -210,6 +210,11 @@ export default function OrderDetail({ params }: { params: { id: string } }) {
           <Typography variant="h6" fontWeight={400}>
             {`ออเดอร์ #${item?.orderNo || ""}`}
           </Typography>
+          {item?.trackingNo && (
+            <Typography variant="h6" fontWeight={400}>
+              {`Tracking Number: ${item?.trackingNo}`}
+            </Typography>
+          )}
         </Stack>
 
         <Stack direction="column" spacing={2}>
@@ -326,6 +331,9 @@ function OrderDetailCard({ item }: OrderProps) {
       )}
       <Divider />
       <CardContent sx={{ px: { xs: 2, md: 6 } }}>
+        <Typography fontWeight={500} variant="body1" sx={{ mt: 1, mb: 2 }}>
+          {item?.trackingNo}
+        </Typography>
         <Typography fontWeight={500} variant="body1" sx={{ mt: 1, mb: 2 }}>
           รายการสินค้า
         </Typography>
