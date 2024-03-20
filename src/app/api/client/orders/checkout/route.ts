@@ -604,7 +604,7 @@ export async function POST(req: NextRequest) {
     // UPDATE ORDER TRACKING NUMBER.
     await prisma.order.update({
       where: { id: order.id },
-      data: { trackingNo: trackingNumber },
+      data: { orderNo: trackingNumber },
     });
 
     if (paymentType == PaymentType.INSTALLMENT && totalDiscount == 0) {
