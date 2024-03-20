@@ -27,7 +27,11 @@ export default function RHFTextField({
           value={field.value}
           onChange={(event) => {
             if (type === "number") {
-              field.onChange(event.target.value);
+              if (event.target.value === "") {
+                field.onChange("");
+              } else {
+                field.onChange(Number(event.target.value));
+              }
             } else {
               field.onChange(event.target.value);
             }
