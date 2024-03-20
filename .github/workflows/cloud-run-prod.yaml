@@ -22,8 +22,8 @@ jobs:
 
       - name: Install Vercel CLI & Prisma
         run: |
-        yarn global add vercel@latest 
-        yarn add prisma -D
+          yarn global add vercel@latest 
+          yarn add prisma -D
 
       - name: Pull Vercel Environment Information
         run: |
