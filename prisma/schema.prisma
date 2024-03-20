@@ -275,7 +275,7 @@ model CustomerCake {
   type        CakeType
 
   cakeId              String?
-  cake                Cake?                 @relation(fields: [cakeId], references: [id])
+  cake                Cake?                 @relation(fields: [cakeId], references: [id], onDelete: Cascade)
   orderCakes          OrderCustomerCake[]
   CartItems           CartItem[]
   size                MasterCakeSize?       @relation(fields: [sizeId], references: [id])

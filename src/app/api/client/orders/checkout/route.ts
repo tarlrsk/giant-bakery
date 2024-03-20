@@ -21,6 +21,7 @@ import {
   OrderCustomerCake,
   OrderSnackBoxRefreshment,
 } from "@prisma/client";
+import { AVAILABLE_COLORS } from "@/utils/constant";
 
 type LineItem = {
   price_data: {
@@ -35,6 +36,60 @@ type LineItem = {
 };
 
 var order = null as Order | null;
+
+function concatCustomCakeDescription(
+  customerCake: Prisma.CustomerCakeGetPayload<{
+    include: {
+      size: true;
+      base: true;
+      filling: true;
+      cream: true;
+      topEdge: true;
+      bottomEdge: true;
+      decoration: true;
+      surface: true;
+    };
+  }>,
+): string {
+  const description: string[] = [];
+  if (customerCake.size) {
+    description.push(`${customerCake.size.name} ปอนด์`);
+  }
+  if (customerCake.base) {
+    description.push(`เนื้อ${customerCake.base.name}`);
+  }
+  if (customerCake.filling) {
+    description.push(`ไส้${customerCake.filling.name}`);
+  }
+  if (customerCake.cream) {
+    description.push(
+      `${customerCake.cream.name} (${AVAILABLE_COLORS.find(
+        (el) => el.value === customerCake.cream?.color,
+      )?.label})`,
+    );
+  }
+  if (customerCake.topEdge) {
+    description.push(
+      `${customerCake.topEdge.name} (${AVAILABLE_COLORS.find(
+        (el) => el.value === customerCake.topEdge?.color,
+      )?.label})`,
+    );
+  }
+  if (customerCake.bottomEdge) {
+    description.push(
+      `${customerCake.bottomEdge.name} (${AVAILABLE_COLORS.find(
+        (el) => el.value === customerCake.bottomEdge?.color,
+      )?.label})`,
+    );
+  }
+  if (customerCake.decoration) {
+    description.push(`${customerCake.decoration.name}`);
+  }
+  if (customerCake.surface) {
+    description.push(`${customerCake.surface.name}`);
+  }
+  return description.join(", ");
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -286,27 +341,11 @@ export async function POST(req: NextRequest) {
               break;
           }
 
-          let description = [
-            cartItem.customerCake.size?.name || null,
-            cartItem.customerCake.base?.name || null,
-            cartItem.customerCake.filling?.name || null,
-            cartItem.customerCake.cream?.name || null,
-            cartItem.customerCake.cream?.color || null,
-            cartItem.customerCake.topEdge?.name || null,
-            cartItem.customerCake.topEdge?.color || null,
-            cartItem.customerCake.bottomEdge?.name || null,
-            cartItem.customerCake.bottomEdge?.color || null,
-            cartItem.customerCake.decoration?.name || null,
-            cartItem.customerCake.surface?.name || null,
-          ]
-            .filter(Boolean)
-            .join(", ");
-
           orderCustomCakes.push({
             id: "",
             name: cartItem.customerCake.name,
             quantity: cartItem.quantity,
-            description: description,
+            description: concatCustomCakeDescription(cartItem.customerCake),
             remark: null,
             imageFileName: null,
             imagePath: null,
@@ -511,7 +550,6 @@ export async function POST(req: NextRequest) {
       phoneNo = phone;
     }
 
-
     // DETERMINE PAYMENT TYPE LETTER.
     const paymentTypeLetter =
       paymentType.paymentType === PaymentType.SINGLE ? "F" : "D";
@@ -532,7 +570,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    let runningNumber = count + 1
+    let runningNumber = count + 1;
 
     // FORMAT RUNNING NUMBER TO HAVE 0s IN FRONT.
     const formattedRunningNumber = runningNumber.toString().padStart(4, "0");
@@ -565,6 +603,7 @@ export async function POST(req: NextRequest) {
         create: orderCustomCakes.map((cake) => ({
           name: cake.name,
           quantity: cake.quantity,
+          description: cake.description,
           remark: cake.remark,
           imageFileName: cake.imageFileName,
           imagePath: cake.imagePath,

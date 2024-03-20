@@ -245,6 +245,12 @@ export async function DELETE(
       },
     });
 
+    await prisma.cartItem.deleteMany({
+      where: {
+        snackBoxId: id,
+      },
+    });
+
     revalidatePath(paths.snackBoxList());
 
     return responseWrapper(200, null, null);
