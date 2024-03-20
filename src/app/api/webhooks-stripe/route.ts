@@ -38,28 +38,28 @@ export async function POST(req: NextRequest) {
             }
             const dbRefreshments = await prismaRefreshment().getAllRefreshments()
             for (let refreshment of order.orderRefreshment) {
-              if (refreshment.id) {
+              if (refreshment.refreshmentId) {
                 let dbRefreshment = dbRefreshments.find(r => r.id == refreshment.refreshmentId)
                 if (!dbRefreshment) {
                   return responseWrapper(500, null, "Something went wrong with order refreshment.")
                 }
                 dbRefreshment.currQty -= refreshment.quantity
                 await prismaRefreshment().updateRefreshment(
-                  refreshment.id,
+                  refreshment.refreshmentId,
                   dbRefreshment,
                 )
               }
             }
             for (let snackBox of order.orderSnackBox) {
               for (let refreshment of snackBox.refreshments) {
-                if (refreshment.id) {
+                if (refreshment.refreshmentId) {
                   let dbRefreshment = dbRefreshments.find(r => r.id == refreshment.refreshmentId)
                   if (!dbRefreshment) {
                     return responseWrapper(500, null, "Something went wrong with order snack-box.")
                   }
                   dbRefreshment.currQty -= 1
                   await prismaRefreshment().updateRefreshment(
-                    refreshment.id,
+                    refreshment.refreshmentId,
                     dbRefreshment,
                   )
                 }
