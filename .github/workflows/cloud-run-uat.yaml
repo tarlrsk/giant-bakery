@@ -116,4 +116,5 @@ jobs:
         run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Deploy Project Artifacts
+        continue-on-error: true
         run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}

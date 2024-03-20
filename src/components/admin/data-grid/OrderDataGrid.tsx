@@ -28,7 +28,7 @@ export default function OrderDataGrid({ rows, onRowClick }: Props) {
       renderCell: (params: GridRenderCellParams<any>) => {
         return (
           <Typography variant="body2" fontFamily="IBM Plex Sans Thai">
-            {params.value.replace(/-/g, "")}
+            {params.row?.orderNo || "-"}
           </Typography>
         );
       },

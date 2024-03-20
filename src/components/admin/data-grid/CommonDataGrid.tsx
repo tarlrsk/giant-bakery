@@ -82,7 +82,7 @@ export default function commonDataGrid() {
 
   const updatedAtColumn = {
     field: "updatedAt",
-    headerName: "เปลี่ยนแปลงล่าสุด",
+    headerName: "แก้ไขล่าสุด",
     flex: 1,
     renderCell: (params: GridRenderCellParams<any>) => {
       const date = new Date(params.value);

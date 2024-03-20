@@ -82,7 +82,7 @@ export default function PresetCakeModal({ slug, isOpen, onOpenChange }: Props) {
 
     try {
       await addPresetCakeToCartAction(addPresetCakeToCart(), body);
-      if (isOpen == true) {
+      if (isOpen === true) {
         onOpenChange();
       }
       toast.success("ใส่ตะกร้าสำเร็จ");

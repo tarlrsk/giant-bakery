@@ -4,6 +4,7 @@ import useSWR from "swr";
 import apiPaths from "@/utils/api-path";
 import { useSnackbar } from "notistack";
 import useSWRMutation from "swr/mutation";
+import { fCurrency } from "@/utils/format";
 import { adminFetcher } from "@/utils/axios";
 import { OrderStatus } from "@prisma/client";
 import { formatDate } from "@/lib/formatDate";
@@ -35,6 +36,13 @@ import {
 // ----------------------------------------------------------------------
 
 type RowProps = {
+  product?: {
+    name: string;
+    description?: string;
+    price: number;
+    quantity?: number;
+    type: string;
+  };
   name: string;
   description?: string;
   price: number;
@@ -53,13 +61,14 @@ type IDeleteOrderRequest = {
 };
 
 type OrderProps = {
-  data: IOrderDetail;
+  data: IOrderDetail | undefined;
 };
 
 const stepsSinglePayment = [
   "รอชำระเงิน",
   "รอรับออเดอร์",
   "กำลังเตรียมออเดอร์",
+  "รอส่งมอบสินค้า",
   "ส่งมอบสำเร็จ",
 ];
 
@@ -68,6 +77,7 @@ const stepsDepositPayment = [
   "รอรับออเดอร์",
   "กำลังเตรียมออเดอร์",
   "รอชำระเงินที่เหลือ",
+  "รอส่งมอบสินค้า",
   "ส่งมอบสำเร็จ",
 ];
 
@@ -197,14 +207,21 @@ export default function OrderDetail({ params }: { params: { slug: string } }) {
   const [isOpenUpdate, setIsOpenUpdate] = useState(false);
   const [isOpenCancel, setIsOpenCancel] = useState(false);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const orderDetail: IOrderDetail = orderData?.data || {};
+  const [orderDetail, setOrderDetail] = useState<IOrderDetail>();
+
+  useEffect(() => {
+    setOrderDetail({
+      ...orderData?.data,
+    });
+  }, [orderData]);
 
   async function handleUpdateOrder() {
     try {
-      const res = await triggerUpdateOrder({
+      if (!orderDetail?.status) return;
+
+      await triggerUpdateOrder({
         orderId: slug,
-        status: orderDetail?.status,
+        status: orderDetail.status,
         trackingNo,
       });
 
@@ -219,7 +236,7 @@ export default function OrderDetail({ params }: { params: { slug: string } }) {
 
   async function handleCancelOrder() {
     try {
-      const res = await triggerCancelOrder({
+      await triggerCancelOrder({
         orderId: slug,
       });
 
@@ -248,6 +265,15 @@ export default function OrderDetail({ params }: { params: { slug: string } }) {
               text = "ยืนยันการส่งมอบออเดอร์เสร็จสิ้น";
             }
             break;
+
+          case "ON_PACKING_PROCESS":
+            setIsTrackingRequired(true);
+            text = "ยืนยันการเตรียมจัดส่งเสร็จสิ้น";
+            break;
+
+          case "AWAITING_PICKUP":
+            text = "ยืนยันการส่งมอบสินค้า";
+            break;
         }
         break;
       case "INSTALLMENT":
@@ -258,7 +284,6 @@ export default function OrderDetail({ params }: { params: { slug: string } }) {
           case "ON_PROCESS":
             text = "ยืนยันการเตรียมออเดอร์เสร็จสิ้น";
             break;
-          // TODO: Change below to ON_PACKING_PROCESS
           case "PENDING_PAYMENT2":
             if (orderDetail.receivedVia === "DELIVERY") {
               setIsTrackingRequired(true);
@@ -266,6 +291,16 @@ export default function OrderDetail({ params }: { params: { slug: string } }) {
             } else {
               text = "ยืนยันส่งมอบออเดอร์เสร็จสิ้น";
             }
+            break;
+
+          case "ON_PACKING_PROCESS":
+            if (orderDetail.receivedVia === "DELIVERY") {
+              setIsTrackingRequired(true);
+              text = "ยืนยันการเตรียมจัดส่ง";
+            }
+            break;
+          case "AWAITING_PICKUP":
+            text = "ยืนยันการส่งมอบสินค้า";
             break;
         }
         break;
@@ -293,7 +328,7 @@ export default function OrderDetail({ params }: { params: { slug: string } }) {
         <OrderDetailCard data={orderDetail} />
       </Stack>
 
-      {orderDetail.status !== "COMPLETED" && !orderDetail?.isCancelled && (
+      {orderDetail?.status !== "COMPLETED" && !orderDetail?.isCancelled && (
         <Stack
           direction="row"
           justifyContent="end"
@@ -361,13 +396,16 @@ function OrderDetailCard({ data }: OrderProps) {
     }
 
     if (data?.receivedVia === "DELIVERY") {
+      const awaitingPickUpIndex = stepsArray.indexOf("รอส่งมอบสินค้า");
+      stepsArray.splice(awaitingPickUpIndex, 1); // 2nd parameter means remove one item only
+
       stepsArray.pop();
       stepsArray.push("จัดส่งไปยัง InterExpress");
     }
 
     const status = getStatus(data);
     const activeStepIndex = stepsArray.indexOf(status);
-    if (data.status === "COMPLETED") {
+    if (data?.status === "COMPLETED") {
       setActiveStep(activeStepIndex !== -1 ? activeStepIndex + 1 : 0);
     } else {
       setActiveStep(activeStepIndex !== -1 ? activeStepIndex : 0);
@@ -413,22 +451,30 @@ function OrderDetailCard({ data }: OrderProps) {
           {data?.items?.map((product: any, index: any) => (
             <ProductRow
               key={index}
+              product={product}
               name={product.name}
               price={product.price}
               quantity={product.quantity}
             />
           ))}
           <Stack spacing={1}>
-            <ProductRow name="ราคาสินค้า" price={data?.subTotalPrice} />
-            <ProductRow name="ค่าจัดส่ง" price={data?.shippingFee} />
-            <ProductRow name="ส่วนลด" price={data?.discountPrice} isDiscount />
+            <ProductRow name="ราคาสินค้า" price={data?.subTotalPrice || 0} />
+            <ProductRow name="ค่าจัดส่ง" price={data?.shippingFee || 0} />
+            <ProductRow
+              name="ส่วนลด"
+              price={data?.discountPrice || 0}
+              isDiscount
+            />
           </Stack>
-          <ProductRow name="ยอดการสั่งซื้อรวม" price={data?.totalPrice} />
+          <ProductRow name="ยอดการสั่งซื้อรวม" price={data?.totalPrice || 0} />
           {data?.paymentType === "INSTALLMENT" &&
             data?.status !== "COMPLETED" && (
               <Stack spacing={1}>
                 <ProductRow name="ชำระแล้วทั้งสิ้น" price={data?.paid} />
-                <ProductRow name="ยอดที่ต้องชำระ" price={data?.remaining} />
+                <ProductRow
+                  name="ยอดคงเหลือที่ต้องชำระ"
+                  price={data?.remaining}
+                />
               </Stack>
             )}
         </Stack>
@@ -439,23 +485,28 @@ function OrderDetailCard({ data }: OrderProps) {
 
 function ProductRow({
   name,
-  description,
   price,
   quantity,
+  product,
   isDiscount = false,
 }: RowProps) {
   return (
     <Stack direction="row" justifyContent="space-between">
       <Stack direction="column">
         <Typography>
-          {name} {description ? `(${description})` : ""}
+          {product?.type === "CUSTOM_CAKE" ? "เค้กออกแบบเอง" : name}
         </Typography>
+        {product?.description && (
+          <Typography color="grey.600">{product?.description}</Typography>
+        )}
         {quantity && (
           <Typography color="grey.600">{`จำนวน: ${quantity}`}</Typography>
         )}
       </Stack>
       <Stack direction="column" justifyContent="end">
-        <Typography>{`${isDiscount ? `-${price}` : price} บาท`}</Typography>
+        <Typography>{`${
+          isDiscount ? `-${fCurrency(price) || "0"} ` : fCurrency(price)
+        } บาท`}</Typography>
       </Stack>
     </Stack>
   );
@@ -477,21 +528,19 @@ function OrderHeaderCard({ data }: OrderProps) {
       <Stack direction="row" justifyContent="space-between" sx={{ width: 1 }}>
         <Stack direction="column" spacing={0.5}>
           <Typography color="grey.800">เลขออเดอร์</Typography>
-          <Typography fontWeight={500}>
-            {data?.orderId?.replace(/-/g, "") || ""}
-          </Typography>
+          <Typography fontWeight={500}>{data?.orderNo || "-"}</Typography>
         </Stack>
 
         <Stack direction="column" spacing={0.5}>
           <Typography color="grey.800">วันที่สั่งออเดอร์</Typography>
           <Typography fontWeight={500}>
-            {formatDate(data?.orderedAt?.toString())}
+            {formatDate(data?.orderedAt?.toString() || "")}
           </Typography>
         </Stack>
 
         <Stack direction="column" spacing={0.5}>
           <Typography color="grey.800">สถานะออเดอร์</Typography>
-          <Typography fontWeight={500}>{status}</Typography>
+          <Typography fontWeight={500}>{status || ""}</Typography>
         </Stack>
 
         <Stack direction="column" spacing={0.5}>
@@ -502,20 +551,26 @@ function OrderHeaderCard({ data }: OrderProps) {
             }
             fontWeight={500}
           >
-            {data?.paymentType === "SINGLE" ? "ชำระเต็มจำนวน" : "ชำระมัดจำ"}
+            {data?.paymentType
+              ? data.paymentType === "SINGLE"
+                ? "ชำระเต็มจำนวน"
+                : "ชำระมัดจำ"
+              : "-"}
           </Typography>
         </Stack>
 
         <Stack direction="column" spacing={0.5}>
           <Typography color="grey.800">ตัวเลือกการชำระเงิน</Typography>
           <Typography fontWeight={500}>
-            {data?.paymentMethod?.join(", ")}
+            {data?.paymentMethod?.join(", ") || "-"}
           </Typography>
         </Stack>
 
         <Stack direction="column" spacing={0.5}>
           <Typography color="grey.800">ยอดรวมที่ต้องชำระ</Typography>
-          <Typography fontWeight={500}>฿{data?.totalPrice}</Typography>
+          <Typography fontWeight={500}>
+            {data?.totalPrice ? `฿${fCurrency(data?.totalPrice)}` : "-"}
+          </Typography>
         </Stack>
       </Stack>
     </Paper>
@@ -544,13 +599,13 @@ function OrderAddressCard({ data }: OrderProps) {
           <Stack direction="column" spacing={0.5}>
             <Typography color="grey.800">ชื่อผู้รับ</Typography>
             <Typography fontWeight={500}>
-              {`${data?.firstName} ${data?.lastName}` ?? "-"}
+              {`${data?.firstName || "-"} ${data?.lastName || ""}`}
             </Typography>
           </Stack>
 
           <Stack direction="column" spacing={0.5}>
             <Typography color="grey.800">เบอร์โทรศัพท์</Typography>
-            <Typography fontWeight={500}>{data?.phone ?? "-"}</Typography>
+            <Typography fontWeight={500}>{data?.phone || "-"}</Typography>
           </Stack>
 
           {data?.receivedVia === "DELIVERY" && (
@@ -599,8 +654,8 @@ function OrderAddressCard({ data }: OrderProps) {
 
 // ----------------------------------------------------------------------
 
-function getStatus(item: IOrderDetail): string {
-  let status = "";
+function getStatus(item: IOrderDetail | undefined): string {
+  let status = "-";
   switch (item?.receivedVia) {
     case "PICK_UP":
       switch (item?.paymentType) {
@@ -616,6 +671,9 @@ function getStatus(item: IOrderDetail): string {
 
             case "ON_PROCESS":
               status = "กำลังเตรียมออเดอร์";
+              break;
+            case "AWAITING_PICKUP":
+              status = "รอส่งมอบสินค้า";
               break;
 
             case "COMPLETED":
@@ -640,6 +698,9 @@ function getStatus(item: IOrderDetail): string {
 
             case "PENDING_PAYMENT2":
               status = "รอชำระเงินที่เหลือ";
+              break;
+            case "AWAITING_PICKUP":
+              status = "รอส่งมอบสินค้า";
               break;
 
             case "COMPLETED":
@@ -665,6 +726,10 @@ function getStatus(item: IOrderDetail): string {
               status = "กำลังเตรียมออเดอร์";
               break;
 
+            case "ON_PACKING_PROCESS":
+              status = "กำลังเตรียมจัดส่ง";
+              break;
+
             case "COMPLETED":
               status = "จัดส่งไปยัง InterExpress";
               break;
@@ -689,10 +754,15 @@ function getStatus(item: IOrderDetail): string {
               status = "รอชำระเงินที่เหลือ";
               break;
 
+            case "ON_PACKING_PROCESS":
+              status = "กำลังเตรียมจัดส่ง";
+              break;
+
             case "COMPLETED":
               status = "จัดส่งไปยัง InterExpress";
               break;
           }
+          break;
       }
   }
 

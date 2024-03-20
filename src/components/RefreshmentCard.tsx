@@ -2,6 +2,7 @@ import Image from "next/image";
 import toast from "react-hot-toast";
 import React, { useState } from "react";
 import apiPaths from "@/utils/api-path";
+import { fCurrency } from "@/utils/format";
 import { Cake, Refreshment } from "@prisma/client";
 import { addItemToCart } from "@/actions/cartActions";
 
@@ -34,11 +35,11 @@ export default function RefreshmentCard({ item, onClick }: Props) {
 
   return (
     <Card
-      className=" h-full w-44 items-center rounded-md bg-white pb-1 shadow-md hover:cursor-pointer md:w-unit-80 md:pb-2"
+      className=" h-full items-center rounded-md bg-white pb-1 shadow-md hover:cursor-pointer md:w-unit-80 md:pb-2"
       isPressable
       onPress={onClick}
     >
-      <div className=" relative h-36 w-full md:h-64">
+      <div className=" relative h-32 w-full md:h-64">
         <Image
           src={(item?.image as string) ?? "/placeholder.svg"}
           alt={item?.name}
@@ -52,7 +53,7 @@ export default function RefreshmentCard({ item, onClick }: Props) {
         </p>
 
         <p className="text-lg font-semibold text-secondaryT-main md:text-xl">
-          ฿{item?.price?.toFixed(2) ?? 0}
+          ฿{fCurrency(Number(item?.price?.toFixed(2)) || 0)}
         </p>
         <Button
           size="md"
@@ -60,7 +61,7 @@ export default function RefreshmentCard({ item, onClick }: Props) {
           onClick={() => {
             handleAddToCart(item?.id);
           }}
-          className="text-md items-center rounded-sm bg-secondaryT-main px-12 text-white"
+          className="text-md items-center rounded-sm bg-secondaryT-main text-white sm:px-12"
         >
           ใส่ตะกร้า
         </Button>

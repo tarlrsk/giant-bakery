@@ -190,8 +190,8 @@ export default function NewProductCard({ onClose }: Props) {
               required
             />
             <RHFTextField
-              size="small"
               type="number"
+              size="small"
               name="price"
               label="ราคา (บาท)"
               sx={{ width: "50%" }}

@@ -119,7 +119,7 @@ export async function POST(req: NextRequest) {
           refreshmentIds.includes(refreshment.id),
         ) &&
         item.snackBox?.beverage === body.beverage &&
-        item.snackBox?.packageType == body.packageType,
+        item.snackBox?.packageType === body.packageType,
     );
 
     const existingItemIndex = cart.items.findIndex(
@@ -129,12 +129,12 @@ export async function POST(req: NextRequest) {
           refreshmentIds.includes(refreshment.id),
         ) &&
         item.snackBox?.beverage === body.beverage &&
-        item.snackBox?.packageType == body.packageType,
+        item.snackBox?.packageType === body.packageType,
     );
 
     let snackBoxPrice = 0;
     for (var refreshmentId of refreshmentIds) {
-      let refreshment = refreshments.find(r => r.id == refreshmentId)
+      let refreshment = refreshments.find((r) => r.id === refreshmentId);
       if (refreshment) {
         snackBoxPrice += refreshment.price;
       }

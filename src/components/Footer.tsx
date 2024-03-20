@@ -1,41 +1,66 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import Image from "next/image";
 
 import Iconify from "./icons/Iconify";
 import MapContainer from "./MapContainer";
 
+// ----------------------------------------------------------------------
+
 const FOOTER_ICONS = {
   facebook: (
-    <Iconify
-      icon="ic:baseline-facebook"
-      size={32}
-      className=" text-common-white"
-    />
+    <Link
+      href="https://www.wongnai.com/restaurants/416173YT-%E0%B9%83%E0%B8%88%E0%B9%81%E0%B8%AD%E0%B8%99%E0%B8%97%E0%B9%8C%E0%B9%80%E0%B8%9A%E0%B9%80%E0%B8%81%E0%B8%AD%E0%B8%A3%E0%B8%B5%E0%B9%88-%E0%B8%96%E0%B8%99%E0%B8%99%E0%B8%A8%E0%B8%B9%E0%B8%99%E0%B8%A2%E0%B9%8C%E0%B8%81%E0%B8%B2%E0%B8%A3%E0%B8%84%E0%B9%89%E0%B8%B2%E0%B8%AA%E0%B8%B2%E0%B8%A2-4"
+      target="_blank"
+    >
+      <Image
+        src="/wongnai-icon.png"
+        alt="wong nai icon"
+        width={32}
+        height={32}
+      />
+    </Link>
   ),
   instagram: (
-    <Iconify icon="iconoir:instagram" size={32} className="text-common-white" />
+    <Link
+      href="https://www.instagram.com/cukedoh_?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
+      target="_blank"
+    >
+      <Iconify
+        icon="skill-icons:instagram"
+        size={32}
+        className="text-common-white"
+      />
+    </Link>
   ),
   line: (
-    <Iconify
-      icon="mingcute:line-app-line"
-      size={32}
-      className="text-common-white"
-    />
+    <Link
+      href="https://www.instagram.com/cukedoh_?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
+      target="_blank"
+    >
+      <Iconify
+        icon="mingcute:line-app-line"
+        size={32}
+        className="text-common-white"
+      />
+    </Link>
   ),
-  telephone: <Iconify icon="bi:telephone" className="text-common-white" />,
+  telephone: <Iconify icon="bi:telephone-fill" className="text-common-white" />,
 };
+
+// ----------------------------------------------------------------------
 
 export default function Footer() {
   return (
     <div className="relative flex flex-col items-center justify-center gap-10 bg-primaryT-darker px-10 py-8 md:flex-row md:gap-16 md:px-24">
       <div className="relative inline-flex flex-col items-center gap-2">
         <Image src="/logo-white.png" width={250} height={64} alt="logo" />
-        <div className="relative inline-flex flex-[0_0_auto] items-start gap-7">
+        <div className="relative inline-flex flex-[0_0_auto] items-start gap-6">
           {FOOTER_ICONS["facebook"]}
           {FOOTER_ICONS["instagram"]}
-          {FOOTER_ICONS["line"]}
+          {/* {FOOTER_ICONS["line"]} */}
         </div>
       </div>
       <div className="relative inline-flex flex-col items-center gap-2 md:items-start">
