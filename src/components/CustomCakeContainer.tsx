@@ -85,7 +85,7 @@ const ibm = IBM_Plex_Sans_Thai({
 // ----------------------------------------------------------------------
 
 export default function CustomCakeContainer() {
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
 
   const { getVariants } = apiPaths();
 
@@ -111,6 +111,7 @@ export default function CustomCakeContainer() {
       <CustomCakeModal
         variants={variants}
         isOpen={isOpen}
+        onClose={onClose}
         onOpenChange={onOpenChange}
       />
     </div>
@@ -122,12 +123,14 @@ export default function CustomCakeContainer() {
 type CustomCakeModalProps = {
   variants: IVariantData;
   isOpen: boolean;
+  onClose: () => void;
   onOpenChange: () => void;
 };
 
 export function CustomCakeModal({
   variants,
   isOpen,
+  onClose,
   onOpenChange,
 }: CustomCakeModalProps) {
   const [variantData, setVariantData] = useState<{
@@ -170,6 +173,20 @@ export function CustomCakeModal({
       [e.target.name]: e.target.value,
     });
   };
+
+  function clearOptions() {
+    setCreamImage("");
+    setTopEdgeImage("");
+    setBottomEdgeImage("");
+    setDecorationImage("");
+    setSurfaceImage("");
+
+    setVariantColorData({
+      creamColor: "#ffffff",
+      topEdgeColor: "#ffffff",
+      bottomEdgeColor: "#ffffff",
+    });
+  }
 
   async function handleAddToCart() {
     const { cream, topEdge, decoration, bottomEdge, surface } = variantData;
@@ -234,6 +251,8 @@ export function CustomCakeModal({
     try {
       await addCustomCakeToCart(addCustomCakeToCartUrl(), requestBody);
       toast.success("ใส่ตะกร้าสำเร็จ");
+      onClose();
+      clearOptions();
     } catch (error) {
       console.error(error);
       toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
@@ -253,7 +272,7 @@ export function CustomCakeModal({
     setSelectedPound(variants?.sizes[0]?.id || "");
     setSelectedBase(variants?.bases[0]?.id || "");
     setSelectedFilling(variants?.fillings[0]?.id || "");
-  }, [variants]);
+  }, [variants, isOpen]);
 
   // ----------------------------------------------------------------------
 
