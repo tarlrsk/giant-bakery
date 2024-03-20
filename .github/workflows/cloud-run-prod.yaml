@@ -21,7 +21,9 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install Vercel CLI & Prisma
-        run: yarn global add vercel@latest prisma
+        run: |
+        yarn global add vercel@latest 
+        yarn add prisma -D
 
       - name: Pull Vercel Environment Information
         run: |
