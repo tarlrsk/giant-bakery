@@ -31,6 +31,7 @@ jobs:
       - name: Yarn Build Test
         run: |
           npm install -g yarn
+          yarn
           yarn prisma migrate deploy
     
   Google-Cloud-Run-Build-and-Deploy:
