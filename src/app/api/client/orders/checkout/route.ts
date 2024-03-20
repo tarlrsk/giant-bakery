@@ -511,11 +511,7 @@ export async function POST(req: NextRequest) {
       phoneNo = phone;
     }
 
-    console.log(orderCustomCakes)
-    console.log(orderRefreshments)
-    console.log(orderSnackBoxes)
     // CREATE ORDER
-    console.log(subTotal)
     order = await prismaOrder().createOrder({
       status: OrderStatus.PENDING_PAYMENT1,
       paymentType: paymentType,
