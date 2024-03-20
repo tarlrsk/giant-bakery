@@ -561,9 +561,10 @@ export async function POST(req: NextRequest) {
 
     // EXTRACT ORDERED DATE.
     const orderedDate = order.orderedAt;
-    const day = orderedDate.getDate().toString().padStart(2, "0");
-    const month = (orderedDate.getMonth() + 1).toString().padStart(2, "0");
-    const year = orderedDate.getFullYear().toString();
+    const parsedDate = new Date(orderedDate);
+    const year = parsedDate.getFullYear();
+    const month = String(parsedDate.getMonth() + 1).padStart(2, "0");
+    const day = String(parsedDate.getDate()).padStart(2, "0");
 
     // CHECK RUNNING NUMBER. IF NEW DATE RESET, ELSE INCREMENT.
     const currentDate = new Date();
