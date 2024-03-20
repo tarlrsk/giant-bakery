@@ -284,7 +284,6 @@ export default function OrderDetail({ params }: { params: { slug: string } }) {
           case "ON_PROCESS":
             text = "ยืนยันการเตรียมออเดอร์เสร็จสิ้น";
             break;
-          // TODO: Change below to ON_PACKING_PROCESS
           case "PENDING_PAYMENT2":
             if (orderDetail.receivedVia === "DELIVERY") {
               setIsTrackingRequired(true);
@@ -397,6 +396,9 @@ function OrderDetailCard({ data }: OrderProps) {
     }
 
     if (data?.receivedVia === "DELIVERY") {
+      const awaitingPickUpIndex = stepsArray.indexOf("รอส่งมอบสินค้า");
+      stepsArray.splice(awaitingPickUpIndex, 1); // 2nd parameter means remove one item only
+
       stepsArray.pop();
       stepsArray.push("จัดส่งไปยัง InterExpress");
     }

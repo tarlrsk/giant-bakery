@@ -63,7 +63,7 @@ const stepsDepositPayment = [
   "กำลังเตรียมออเดอร์",
   "รอชำระเงินที่เหลือ",
   "กำลังเตรียมจัดส่ง",
-
+  "รอส่งมอบสินค้า",
   "ส่งมอบสำเร็จ",
 ];
 
@@ -256,6 +256,9 @@ function OrderDetailCard({ item }: OrderProps) {
     }
 
     if (item?.receivedVia === "DELIVERY") {
+      const awaitingPickUpIndex = stepsArray.indexOf("รอส่งมอบสินค้า");
+      stepsArray.splice(awaitingPickUpIndex, 1); // 2nd parameter means remove one item only
+
       stepsArray.pop();
       stepsArray.push("จัดส่งไปยัง InterExpress");
     }
