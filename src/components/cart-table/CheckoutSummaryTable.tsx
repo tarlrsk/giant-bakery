@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import React, { useMemo } from "react";
+import { fCurrency } from "@/utils/format";
 import { ICartItem } from "@/app/(client)/cart/types";
 
 import {
@@ -110,9 +111,9 @@ export default function CheckoutSummaryTable({
               className={`text-end ${
                 item.itemId === "total" ? "font-medium" : ""
               }`}
-            >{`${item.itemId === "totalDiscount" ? "-" : ""}฿${
-              item.price
-            }`}</div>
+            >{`${item.itemId === "totalDiscount" ? "-" : ""}฿${fCurrency(
+              item.price,
+            )}`}</div>
           );
         default:
           return "";

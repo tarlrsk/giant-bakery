@@ -66,9 +66,9 @@ const boxes: BoxDetails[] = [
 ]
 
 type ItemDetail = {
-  volume: number,
-  weight: number,
-}
+  volume: number;
+  weight: number;
+};
 
 export async function calculateBoxQuantity(itemDetails: ItemDetail[]): Promise<BoxDetails[]> {
   let currentBoxSize = "A2"
@@ -83,13 +83,13 @@ export async function calculateBoxQuantity(itemDetails: ItemDetail[]): Promise<B
       volumeLeft -= item.volume
       weightLeft -= item.weight
       if (itemLeft === 0) { // IF THIS IS LAST ITEM
-        let box = boxes.find(b => b.boxSize == currentBoxSize)
+        let box = boxes.find(b => b.boxSize === currentBoxSize)
         if (box) {
-          resultBoxes.push(box)
+          resultBoxes.push(box);
         }
       }
     } else { // NO SPACE LEFT
-      if (currentBoxSize == "A2") {
+      if (currentBoxSize === "A2") {
         currentBoxSize = "B2" // UP SIZE IF IT IS THE SMALLEST
         volumeLeft += 15000
         weightLeft += 5000
@@ -97,16 +97,16 @@ export async function calculateBoxQuantity(itemDetails: ItemDetail[]): Promise<B
           volumeLeft -= item.volume
           weightLeft -= item.weight
           if (itemLeft === 0) { // IF THIS IS LAST ITEM
-            let box = boxes.find(b => b.boxSize == currentBoxSize)
+            let box = boxes.find(b => b.boxSize === currentBoxSize)
             if (box) {
               resultBoxes.push(box)
             }
           }
         }
-      } else if (currentBoxSize == "B2") { // ADD MORE BOX IF IT IS THE LARGEST
-        let box = boxes.find(b => b.boxSize == currentBoxSize)
+      } else if (currentBoxSize === "B2") { // ADD MORE BOX IF IT IS THE LARGEST
+        let box = boxes.find(b => b.boxSize === currentBoxSize)
         if (box) {
-          resultBoxes.push(box)
+          resultBoxes.push(box);
         }
         currentBoxSize = "A2"
         volumeLeft = 50000
@@ -114,7 +114,7 @@ export async function calculateBoxQuantity(itemDetails: ItemDetail[]): Promise<B
       }
     }
   }
-  return resultBoxes
+  return resultBoxes;
 }
 
 export async function calculateShippingFee(

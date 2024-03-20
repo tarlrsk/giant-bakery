@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
 
     const lineItems: LineItem[] = [];
 
-    if (order.status == OrderStatus.PENDING_PAYMENT1) {
+    if (order.status === OrderStatus.PENDING_PAYMENT1) {
       for (let cake of order.orderCake) {
         lineItems.push({
           price_data: {
@@ -86,10 +86,10 @@ export async function POST(req: NextRequest) {
 
       discount = order.discountPrice;
       shippingFee = order.shippingFee;
-      if (order.paymentType == PaymentType.INSTALLMENT) {
-        discount += (order.subTotalPrice - discount + shippingFee) / 2
+      if (order.paymentType === PaymentType.INSTALLMENT) {
+        discount += (order.subTotalPrice - discount + shippingFee) / 2;
       }
-    } else if (order.status == OrderStatus.PENDING_PAYMENT2) {
+    } else if (order.status === OrderStatus.PENDING_PAYMENT2) {
       let remaining = order.totalPrice;
       for (let payment of order.payment) {
         remaining = remaining - payment.amount;

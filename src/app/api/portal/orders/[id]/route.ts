@@ -17,6 +17,7 @@ type GetOrderById = {
 
 type OrderDetail = {
   orderId: string;
+  orderNo: string;
   firstName: string;
   lastName: string;
   phone: string;
@@ -46,7 +47,7 @@ type OrderDetail = {
 
 type Item = {
   name: string;
-  description: string,
+  description: string;
   quantity: number;
   type: CartItemType;
   price: number;
@@ -71,6 +72,7 @@ export async function GET(_req: NextRequest, { params }: GetOrderById) {
 
     const data: OrderDetail = {
       orderId: order.id,
+      orderNo: order.orderNo as string,
       firstName: order.cFirstName,
       lastName: order.cLastName,
       phone: order.phone ? order.phone : "",
@@ -92,7 +94,7 @@ export async function GET(_req: NextRequest, { params }: GetOrderById) {
       address: null,
     };
 
-    if (order.receivedVia == ReceivedVia.DELIVERY) {
+    if (order.receivedVia === ReceivedVia.DELIVERY) {
       data.address = {
         address: order.address!,
         district: order.district!,
@@ -112,10 +114,10 @@ export async function GET(_req: NextRequest, { params }: GetOrderById) {
         price: cake.price,
         pricePer: cake.pricePer,
         subItem: [],
-        type: "PRESET_CAKE"
+        type: "PRESET_CAKE",
       };
-      if(cake.cakeType == "CUSTOM"){
-        item.type = "CUSTOM_CAKE"
+      if (cake.cakeType === "CUSTOM") {
+        item.type = "CUSTOM_CAKE";
       }
       if (cake.size) {
         item.subItem.push(cake.size);
@@ -138,7 +140,7 @@ export async function GET(_req: NextRequest, { params }: GetOrderById) {
       if (cake.surface) {
         item.subItem.push(cake.surface);
       }
-      item.description = item.subItem.join(', ');
+      item.description = item.subItem.join(", ");
       items.push(item);
     }
 
@@ -150,7 +152,7 @@ export async function GET(_req: NextRequest, { params }: GetOrderById) {
         pricePer: refreshment.pricePer,
         subItem: [],
         type: CartItemType.REFRESHMENT,
-        description: ""
+        description: "",
       };
 
       items.push(item);
@@ -170,7 +172,7 @@ export async function GET(_req: NextRequest, { params }: GetOrderById) {
       for (let refreshment of snackBox.refreshments) {
         item.subItem.push(refreshment.name);
       }
-      item.description = item.subItem.join(', ');
+      item.description = item.subItem.join(", ");
     }
 
     data.items = items;

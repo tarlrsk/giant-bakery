@@ -64,7 +64,8 @@ export async function POST(req: NextRequest) {
     }
 
     const cart = await prismaCart().getCartByUserId(userId);
-    if (!cart || cart.items.length == 0) {
+
+    if (!cart || cart.items.length === 0) {
       return responseWrapper(
         404,
         null,
@@ -643,7 +644,7 @@ export async function POST(req: NextRequest) {
       lastTrackingNumber.orderedAt.getDate() === currentDay
     ) {
       const lastRunningNumber = parseInt(
-        lastTrackingNumber.trackingNo?.slice(-4) as string,
+        lastTrackingNumber.orderNo?.slice(-4) as string,
         10,
       );
       runningNumber = (lastRunningNumber % 10000) + 1;
@@ -663,13 +664,13 @@ export async function POST(req: NextRequest) {
       data: { orderNo: trackingNumber },
     });
 
-    if (paymentType == PaymentType.INSTALLMENT && totalDiscount == 0) {
+    if (paymentType === PaymentType.INSTALLMENT && totalDiscount === 0) {
       return responseWrapper(
         400,
         null,
         "Unable to proceed at this time as the installment conditions have not been met.",
       );
-    } else if (paymentType == PaymentType.INSTALLMENT) {
+    } else if (paymentType === PaymentType.INSTALLMENT) {
       totalDiscount += (subTotal - totalDiscount + shippingFee) / 2;
     }
 

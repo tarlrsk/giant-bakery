@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo } from "react";
+import { fCurrency } from "@/utils/format";
 
 import {
   Table,
@@ -73,7 +74,7 @@ export default function CartSummaryTable({
             ราคาสินค้า
           </TableCell>
           <TableCell className="relative mb-4 flex justify-end text-sm md:text-lg">
-            {`฿${subTotal}`}
+            {`฿${fCurrency(subTotal)}`}
           </TableCell>
         </TableRow>
         <TableRow key="2">
@@ -94,7 +95,7 @@ export default function CartSummaryTable({
           </TableCell>
           <TableCell className="relative mb-4 flex  justify-end text-sm md:text-lg">
             <div className=" flex flex-col">
-              <div> {`-฿${totalDiscount}`}</div>
+              <div> {`-฿${fCurrency(totalDiscount)}`}</div>
             </div>
           </TableCell>
         </TableRow>
@@ -103,7 +104,7 @@ export default function CartSummaryTable({
             ยอดรวม
           </TableCell>
           <TableCell className="relative flex h-full  justify-end text-lg font-medium text-secondaryT-main md:text-xl">
-            {`฿${total}`}
+            {`฿${fCurrency(total)}`}
           </TableCell>
         </TableRow>
       </TableBody>

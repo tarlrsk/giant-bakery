@@ -27,7 +27,7 @@ export default function AdminLogin() {
 
   const methods = useForm<SignInProps>({
     resolver: zodResolver(signInValidationSchema),
-    defaultValues: { email: "admin@gmail.com", password: "admin1234" },
+    defaultValues: { email: "", password: "" },
   });
 
   const { watch, handleSubmit } = methods;

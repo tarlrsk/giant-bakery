@@ -84,7 +84,7 @@ async function deleteItem(cartItem: any, itemId: string) {
           `Something went wrong with snack box item.`,
         );
       }
-      if (cartItem.type == SnackBoxType.CUSTOM) {
+      if (cartItem.type === SnackBoxType.CUSTOM) {
         await prisma.snackBox.delete({
           where: {
             id: cartItem.snackBoxId,
@@ -230,8 +230,8 @@ export async function APIgetCartItems(userId: string | null | undefined) {
     }
 
     // PREPARING DISCOUNT SNACK BOX
-    let snackBoxQty = 0
-    let snackBoxTotalPrice = 0
+    let snackBoxQty = 0;
+    let snackBoxTotalPrice = 0;
 
     responseCart.cartId = cart.id;
     responseCart.type = cart.type;
@@ -347,23 +347,26 @@ export async function APIgetCartItems(userId: string | null | undefined) {
       responseCart.discounts = [];
 
       // CALCULATE DISCOUNT
-      let totalDiscount = 0
-      const generalDiscount = await CalGeneralDiscount(responseCart.subTotal)
+      let totalDiscount = 0;
+      const generalDiscount = await CalGeneralDiscount(responseCart.subTotal);
       if (generalDiscount) {
-        totalDiscount += generalDiscount.discount
+        totalDiscount += generalDiscount.discount;
         responseCart.discounts.push({
           name: generalDiscount.name,
           discount: generalDiscount.discount,
-        })
+        });
       }
 
-      const snackBoxDiscount = await CalSnackBoxDiscount(snackBoxQty, snackBoxTotalPrice)
+      const snackBoxDiscount = await CalSnackBoxDiscount(
+        snackBoxQty,
+        snackBoxTotalPrice,
+      );
       if (snackBoxDiscount) {
-        totalDiscount += snackBoxDiscount.discount
+        totalDiscount += snackBoxDiscount.discount;
         responseCart.discounts.push({
           name: snackBoxDiscount.name,
           discount: snackBoxDiscount.discount,
-        })
+        });
       }
 
       responseCart.suggestDiscounts = await FindSuggestDiscounts(snackBoxQty, responseCart.subTotal)
