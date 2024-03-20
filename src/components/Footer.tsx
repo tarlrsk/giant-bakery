@@ -21,7 +21,6 @@ const FOOTER_ICONS = {
         width={32}
         height={32}
       />
-      {/* <Iconify icon="logos:facebook" size={32} className=" text-common-white" /> */}
     </Link>
   ),
   instagram: (
