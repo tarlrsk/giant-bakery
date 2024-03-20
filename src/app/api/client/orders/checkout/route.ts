@@ -188,6 +188,7 @@ export async function POST(req: NextRequest) {
           break;
       }
     }
+    console.log(lineItems)
 
     // TODO DISCOUNT
     let snackBoxQty = 0;
@@ -616,6 +617,7 @@ export async function POST(req: NextRequest) {
     } else if (paymentType == PaymentType.INSTALLMENT) {
       totalDiscount += (subTotal - totalDiscount + shippingFee) / 2;
     }
+    console.log(totalDiscount)
 
     const session = await createStripeSession(
       userId,

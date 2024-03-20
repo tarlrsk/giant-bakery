@@ -27,12 +27,21 @@ export const createStripeSession = async function (
   req: NextRequest,
   status: OrderStatus,
 ): Promise<Stripe.Response<Stripe.Checkout.Session>> {
-  // TODO DISCOUNT
-  const coupon = await stripe.coupons.create({
-    amount_off: discount * 100,
-    duration: "once",
-    currency: "thb",
-  });
+  let discountInput: {
+    coupon: string
+  }[] | undefined = undefined
+  if (discount != 0) {
+    const coupon = await stripe.coupons.create({
+      amount_off: discount * 100,
+      duration: "once",
+      currency: "thb",
+    });
+    discountInput = [
+      {
+        coupon: coupon.id
+      }
+    ]
+  }
 
   let origin = req.headers.get("origin");
   if (!origin) {
@@ -51,11 +60,7 @@ export const createStripeSession = async function (
       },
       quantity: item.quantity,
     })),
-    discounts: [
-      {
-        coupon: coupon.id,
-      },
-    ],
+    discounts: discountInput,
     shipping_options: [
       {
         shipping_rate_data: {
@@ -98,11 +103,21 @@ export const createStripeSessionPayment2 = async function (
     origin = baseUrl;
   }
 
-  const coupon = await stripe.coupons.create({
-    amount_off: discount * 100,
-    duration: "once",
-    currency: "thb",
-  });
+  let discountInput: {
+    coupon: string
+  }[] | undefined = undefined
+  if (discount != 0) {
+    const coupon = await stripe.coupons.create({
+      amount_off: discount * 100,
+      duration: "once",
+      currency: "thb",
+    });
+    discountInput = [
+      {
+        coupon: coupon.id
+      }
+    ]
+  }
 
   const session = await stripe.checkout.sessions.create({
     line_items: lineItems.map((item) => ({
@@ -116,11 +131,7 @@ export const createStripeSessionPayment2 = async function (
       },
       quantity: item.quantity,
     })),
-    discounts: [
-      {
-        coupon: coupon.id,
-      },
-    ],
+    discounts: discountInput,
     shipping_options: [
       {
         shipping_rate_data: {
