@@ -24,7 +24,7 @@ import { getStatus, IOrderDetail } from "./types";
 
 const columns = [
   {
-    key: "id",
+    key: "orderNo",
     label: "หมายเลขออเดอร์",
   },
   {

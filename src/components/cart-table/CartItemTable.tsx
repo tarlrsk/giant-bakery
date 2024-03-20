@@ -147,8 +147,6 @@ export default function CartItemTable({
     setTempItems(items);
   }, [items]);
 
-  console.log(tempItems);
-
   return (
     <Table
       radius="sm"

@@ -8,8 +8,8 @@ import useSWRMutation from "swr/mutation";
 import { useRouter } from "next/navigation";
 import { formatDate } from "@/lib/formatDate";
 import Check from "@mui/icons-material/Check";
-import React, { useState, useEffect } from "react";
 import getCurrentUser from "@/actions/userActions";
+import React, { useMemo, useState, useEffect } from "react";
 import {
   Box,
   Card,
@@ -44,12 +44,19 @@ type OrderProps = {
   item: IOrderDetail;
 };
 
-const stepsSinglePayment = ["รอชำระเงิน", "กำลังเตรียมออเดอร์", "ส่งมอบสำเร็จ"];
+const stepsSinglePayment = [
+  "รอชำระเงิน",
+  "กำลังเตรียมออเดอร์",
+  "กำลังเตรียมจัดส่ง",
+  "ส่งมอบสำเร็จ",
+];
 
 const stepsDepositPayment = [
   "รอชำระมัดจำ",
   "กำลังเตรียมออเดอร์",
   "รอชำระเงินที่เหลือ",
+  "กำลังเตรียมจัดส่ง",
+
   "ส่งมอบสำเร็จ",
 ];
 
@@ -150,7 +157,13 @@ export default function OrderDetail({ params }: { params: { id: string } }) {
 
   const { data } = useSWR(getClientOrderById(id), fetcher);
 
-  const item: IOrderDetail = data?.response?.data || {};
+  const item = useMemo<IOrderDetail>(() => {
+    return (
+      {
+        ...data?.response?.data,
+      } || {}
+    );
+  }, [data]);
 
   const { trigger: triggerCheckoutOrder, isMutating: isMutatingCheckoutOrder } =
     useSWRMutation(checkoutOrder(), sendCheckoutRequest);
@@ -180,7 +193,7 @@ export default function OrderDetail({ params }: { params: { id: string } }) {
           sx={{ mb: 2, width: 1 }}
         >
           <Typography variant="h6" fontWeight={400}>
-            {`ออเดอร์ #${item?.orderId?.replace(/-/g, "") || ""}`}
+            {`ออเดอร์ #${item?.orderNo?.replace(/-/g, "") || ""}`}
           </Typography>
         </Stack>
 
@@ -367,7 +380,7 @@ function OrderHeaderCard({ item }: OrderProps) {
           <Stack direction="column" spacing={0.5}>
             <Typography color="grey.800">เลขออเดอร์</Typography>
             <Typography fontWeight={500}>
-              {item?.orderId?.replace(/-/g, "") || ""}
+              {item?.orderNo?.replace(/-/g, "") || ""}
             </Typography>
           </Stack>
 

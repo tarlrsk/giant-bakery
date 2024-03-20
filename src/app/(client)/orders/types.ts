@@ -55,6 +55,7 @@ export function getStatus(item: IOrderDetail): string {
               status = "ส่งมอบสำเร็จ";
               break;
           }
+          break;
       }
       break;
 
@@ -72,6 +73,10 @@ export function getStatus(item: IOrderDetail): string {
 
             case "ON_PROCESS":
               status = "กำลังเตรียมออเดอร์";
+              break;
+
+            case "ON_PACKING_PROCESS":
+              status = "กำลังเตรียมจัดส่ง";
               break;
 
             case "COMPLETED":
@@ -97,10 +102,15 @@ export function getStatus(item: IOrderDetail): string {
               status = "รอชำระเงินที่เหลือ";
               break;
 
+            case "ON_PACKING_PROCESS":
+              status = "กำลังเตรียมจัดส่ง";
+              break;
+
             case "COMPLETED":
               status = "จัดส่งไปยัง InterExpress";
               break;
           }
+          break;
       }
   }
 
@@ -109,6 +119,7 @@ export function getStatus(item: IOrderDetail): string {
 
 export type IOrderDetail = {
   orderId: string;
+  orderNo: string;
   firstName: string;
   lastName: string;
   phone: string;

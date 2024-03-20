@@ -212,9 +212,6 @@ export default function OrderDetail({ params }: { params: { slug: string } }) {
   useEffect(() => {
     setOrderDetail({
       ...orderData?.data,
-      paymentType: "SINGLE",
-      receivedVia: "DELIVERY",
-      status: "COMPLETED",
     });
   }, [orderData]);
 
@@ -379,7 +376,6 @@ function OrderDetailCard({ data }: OrderProps) {
     }
 
     if (data?.receivedVia === "DELIVERY") {
-      console.log(stepsArray);
       stepsArray.pop();
       stepsArray.push("จัดส่งไปยัง InterExpress");
     }
