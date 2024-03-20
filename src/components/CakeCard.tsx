@@ -51,7 +51,7 @@ export default function CakeCard({ item, onClick, size = "md" }: Props) {
         <Button
           size={size}
           onClick={onClick}
-          className={`text-md items-center rounded-sm bg-secondaryT-main px-12 text-white`}
+          className="text-md items-center rounded-sm bg-secondaryT-main text-white sm:px-12"
         >
           ใส่ตะกร้า
         </Button>

@@ -138,7 +138,7 @@ function SnackBoxCard({ item, onClick, size = "md" }: SnackBoxCardProps) {
           onClick={() => {
             handleAddToCart(item?.id);
           }}
-          className="text-md items-center rounded-sm bg-secondaryT-main px-12 text-white"
+          className="text-md items-center rounded-sm bg-secondaryT-main text-white sm:px-12"
         >
           ใส่ตะกร้า
         </Button>

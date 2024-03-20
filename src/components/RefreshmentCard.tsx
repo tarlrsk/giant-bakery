@@ -34,11 +34,11 @@ export default function RefreshmentCard({ item, onClick }: Props) {
 
   return (
     <Card
-      className=" h-full w-44 items-center rounded-md bg-white pb-1 shadow-md hover:cursor-pointer md:w-unit-80 md:pb-2"
+      className=" h-full items-center rounded-md bg-white pb-1 shadow-md hover:cursor-pointer md:w-unit-80 md:pb-2"
       isPressable
       onPress={onClick}
     >
-      <div className=" relative h-36 w-full md:h-64">
+      <div className=" relative h-32 w-full md:h-64">
         <Image
           src={(item?.image as string) ?? "/placeholder.svg"}
           alt={item?.name}
@@ -60,7 +60,7 @@ export default function RefreshmentCard({ item, onClick }: Props) {
           onClick={() => {
             handleAddToCart(item?.id);
           }}
-          className="text-md items-center rounded-sm bg-secondaryT-main px-12 text-white"
+          className="text-md items-center rounded-sm bg-secondaryT-main text-white sm:px-12"
         >
           ใส่ตะกร้า
         </Button>

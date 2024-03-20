@@ -103,6 +103,10 @@ function BakeryItems({
 
   const items: Refreshment[] = data?.response?.data || [];
 
+  if (items?.length === 0) {
+    return <div>test</div>;
+  }
+
   return (
     <div
       className={`mx-auto grid grid-cols-2 items-center justify-center gap-5 md:grid-cols-2 md:gap-10 lg:grid-cols-3 2xl:grid-cols-4`}
