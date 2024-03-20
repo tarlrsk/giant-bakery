@@ -50,7 +50,7 @@ export default function EditSnackBoxCard({
     snackBoxMutate,
     deleteSnackBoxTrigger,
     deleteSnackBoxIsLoading,
-  } = useAdmin(data);
+  } = useAdmin(data).useSnackBoxAdmin();
   const initDataArray = Array.from(
     { length: data.refreshments.length },
     (_, index) => index,

@@ -6,28 +6,20 @@ import { Cake } from "@prisma/client";
 import { fetcher } from "@/utils/axios";
 import apiPaths from "@/utils/api-path";
 
-import CakeCard from "./CakeCard";
+import CustomItemCard from "./CustomItemCard";
 
 // ----------------------------------------------------------------------
 
 export type ICakeType = "PRESET" | "CUSTOM" | "CAKE";
 
 type Props = {
-  size?: "sm" | "md";
-  cols: number;
   type?: ICakeType;
   onClick: (selected: any) => void;
 };
 
 // ----------------------------------------------------------------------
 
-export default function CakePieceItems({
-  size = "md",
-  cols,
-  type,
-  onClick,
-  ...other
-}: Props) {
+export default function CustomCakeItems({ type, onClick, ...other }: Props) {
   const { getBakeries } = apiPaths();
 
   const { data } = useSWR(`${getBakeries("CAKE", "")}`, fetcher, {
@@ -37,22 +29,17 @@ export default function CakePieceItems({
   const items: Cake[] = data?.response?.data || [];
 
   return (
-    <>
-      <div
-        className={`grid grid-cols-${cols} gap-${
-          size === "sm" ? "4 pb-2" : "10"
-        } justify-center items-baseline`}
-        {...other}
-      >
-        {Object.values(items)?.map((item: Cake) => (
-          <CakeCard
-            key={item.id}
-            item={item}
-            size={size}
-            onClick={() => onClick(item)}
-          />
-        ))}
-      </div>
-    </>
+    <div
+      className={`mx-auto grid grid-cols-2 items-center justify-center gap-5 md:grid-cols-3 md:gap-10 2xl:grid-cols-4`}
+      {...other}
+    >
+      {Object.values(items)?.map((item: Cake) => (
+        <CustomItemCard
+          key={item.id}
+          item={item}
+          onClick={() => onClick(item)}
+        />
+      ))}
+    </div>
   );
 }

@@ -23,7 +23,8 @@ export default function AdminRefreshment() {
 
   const [selectedRow, setSelectedRow] = useState<IProductRow | null>(null);
 
-  const { productsData: products, productsIsLoading: isLoading } = useAdmin();
+  const { productsData: products, productsIsLoading: isLoading } =
+    useAdmin().useProductAdmin();
 
   const [filteredRows, setFilteredRows] = useState(products?.data || []);
 

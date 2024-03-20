@@ -1,19 +1,36 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest } from "next/server";
+import { VariantType } from "@/enum/variantType";
 import { getFileUrl } from "@/lib/gcs/getFileUrl";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import {
   MasterCakeSize,
   MasterCakeBase,
-  MasterCakeCream,
   MasterCakeFilling,
-  MasterCakeTopEdge,
   MasterCakeSurface,
   MasterCakeDecoration,
-  MasterCakeBottomEdge,
 } from "@prisma/client";
 
 export const revalidate = 0;
+
+
+type color = {
+  id: string;
+  color: string | null;
+  image: string | null;
+};
+
+type colorVariant = {
+  id: string;
+  name: string;
+  colors: color[];
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date | null;
+  isDeleted: boolean;
+  deletedAt: Date | null;
+  type: VariantType;
+};
 
 export async function GET(req: NextRequest) {
   try {
@@ -21,9 +38,9 @@ export async function GET(req: NextRequest) {
       sizes: MasterCakeSize[];
       bases: MasterCakeBase[];
       fillings: MasterCakeFilling[];
-      creams: MasterCakeCream[];
-      topEdges: MasterCakeTopEdge[];
-      bottomEdges: MasterCakeBottomEdge[];
+      creams: colorVariant[];
+      topEdges: colorVariant[];
+      bottomEdges: colorVariant[];
       decorations: MasterCakeDecoration[];
       surfaces: MasterCakeSurface[];
     } = {
@@ -58,41 +75,136 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    variants.creams = await prisma.masterCakeCream.findMany({
+    const creams = (await prisma.masterCakeCream.findMany({
       where: {
-        isActive: true,
         isDeleted: false,
       },
-    });
-    for (var variant of variants.creams) {
+    }));
+    const gbCreams: colorVariant[] = []
+    for (let variant of creams) {
       if (variant.imagePath) {
         variant.image = await getFileUrl(variant.imagePath);
       }
+      const existing = gbCreams.find(c => c.name == variant.name)
+      if (!existing) {
+        let mapping: colorVariant = {
+          id: variant.id,
+          name: variant.name,
+          colors: [],
+          isActive: variant.isActive,
+          createdAt: variant.createdAt,
+          updatedAt: variant.updatedAt,
+          isDeleted: variant.isDeleted,
+          deletedAt: variant.deletedAt,
+          type: VariantType.CREAM
+        }
+        mapping.colors.push({
+          id: variant.id,
+          color: variant.color,
+          image: variant.image,
+        })
+        gbCreams.push(mapping)
+      } else {
+        existing.colors.push({
+          id: variant.id,
+          color: variant.color,
+          image: variant.image,
+        })
+        if ((variant.updatedAt ?? variant.createdAt) > (existing.updatedAt ?? existing.createdAt)) {
+          existing.updatedAt = variant.updatedAt
+          existing.isActive = variant.isActive
+        }
+      }
     }
+    variants.creams = gbCreams
 
-    variants.topEdges = await prisma.masterCakeTopEdge.findMany({
+    const topEdge = (await prisma.masterCakeTopEdge.findMany({
       where: {
-        isActive: true,
         isDeleted: false,
       },
-    });
-    for (var variant of variants.topEdges) {
-      if (variant.imagePath) {
-        variant.image = await getFileUrl(variant.imagePath);
-      }
-    }
+    }));
 
-    variants.bottomEdges = await prisma.masterCakeBottomEdge.findMany({
-      where: {
-        isActive: true,
-        isDeleted: false,
-      },
-    });
-    for (variant of variants.bottomEdges) {
+    const gbTopEdge: colorVariant[] = []
+    for (let variant of topEdge) {
       if (variant.imagePath) {
         variant.image = await getFileUrl(variant.imagePath);
       }
+      const existing = gbTopEdge.find(c => c.name == variant.name)
+      if (!existing) {
+        let mapping: colorVariant = {
+          id: variant.id,
+          name: variant.name,
+          colors: [],
+          isActive: variant.isActive,
+          createdAt: variant.createdAt,
+          updatedAt: variant.updatedAt,
+          isDeleted: variant.isDeleted,
+          deletedAt: variant.deletedAt,
+          type: VariantType.TOP_EDGE
+        }
+        mapping.colors.push({
+          id: variant.id,
+          color: variant.color,
+          image: variant.image,
+        })
+        gbTopEdge.push(mapping)
+      } else {
+        existing.colors.push({
+          id: variant.id,
+          color: variant.color,
+          image: variant.image,
+        })
+        if ((variant.updatedAt ?? variant.createdAt) > (existing.updatedAt ?? existing.createdAt)) {
+          existing.updatedAt = variant.updatedAt
+          existing.isActive = variant.isActive
+        }
+      }
     }
+    variants.topEdges = gbTopEdge
+
+    const bottomEdge = (await prisma.masterCakeBottomEdge.findMany({
+      where: {
+        isDeleted: false,
+      },
+    }))
+
+    const gbBottomEdge: colorVariant[] = []
+    for (let variant of bottomEdge) {
+      if (variant.imagePath) {
+        variant.image = await getFileUrl(variant.imagePath);
+      }
+      const existing = gbBottomEdge.find(c => c.name == variant.name)
+      if (!existing) {
+        let mapping: colorVariant = {
+          id: variant.id,
+          name: variant.name,
+          colors: [],
+          isActive: variant.isActive,
+          createdAt: variant.createdAt,
+          updatedAt: variant.updatedAt,
+          isDeleted: variant.isDeleted,
+          deletedAt: variant.deletedAt,
+          type: VariantType.BOTTOM_EDGE
+        }
+        mapping.colors.push({
+          id: variant.id,
+          color: variant.color,
+          image: variant.image,
+        })
+        gbBottomEdge.push(mapping)
+      } else {
+        existing.colors.push({
+          id: variant.id,
+          color: variant.color,
+          image: variant.image,
+        })
+        if ((variant.updatedAt ?? variant.createdAt) > (existing.updatedAt ?? existing.createdAt)) {
+          existing.updatedAt = variant.updatedAt
+          existing.isActive = variant.isActive
+        }
+      }
+    }
+    variants.bottomEdges = gbBottomEdge
 
     variants.decorations = await prisma.masterCakeDecoration.findMany({
       where: {
@@ -100,7 +212,7 @@ export async function GET(req: NextRequest) {
         isDeleted: false,
       },
     });
-    for (var variant of variants.decorations) {
+    for (let variant of variants.decorations) {
       if (variant.imagePath) {
         variant.image = await getFileUrl(variant.imagePath);
       }
@@ -112,7 +224,7 @@ export async function GET(req: NextRequest) {
         isDeleted: false,
       },
     })) as any;
-    for (var variant of variants.surfaces) {
+    for (let variant of variants.surfaces) {
       if (variant.imagePath) {
         variant.image = await getFileUrl(variant.imagePath);
       }

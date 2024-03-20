@@ -38,6 +38,7 @@ import {
   AutocompleteItem,
 } from "@nextui-org/react";
 
+import { ICartItem } from "../types";
 import { ibm } from "../../providers";
 
 // ----------------------------------------------------------------------
@@ -233,15 +234,7 @@ export default function CheckoutPage() {
   } = paths();
 
   const [checkoutDetail, setCheckoutDetail] = useState<{
-    items: {
-      name: string;
-      description: string;
-      image: string;
-      itemId: string;
-      price: number;
-      pricePer: number;
-      quantity: number;
-    }[];
+    items: ICartItem[];
     subTotal: number;
     discounts: { name: string; discount: number }[];
     totalDiscount: number;
@@ -440,7 +433,7 @@ export default function CheckoutPage() {
       className="text-primaryT-darker"
     >
       <CustomForm>
-        <div className=" border p-4 mb-5">
+        <div className=" mb-5 border p-4">
           <RadioGroup
             value={selectedDeliveryOption}
             onValueChange={(selected) =>
@@ -452,15 +445,15 @@ export default function CheckoutPage() {
           >
             <CustomDeliveryRadio
               value="PICK_UP"
-              description="อำเภอเมือง จังหวัดระยอง"
-              className="max-w-none mt-1"
+              description="อำเภอเมือง จังหวัดระยอง (เปิดทุกวัน เวลา 9:00 - 21:00 น.)"
+              className="mt-1 max-w-none"
             >
               <span>สั่งและรับที่ร้าน</span>
               <span className=" absolute right-0">ฟรี</span>
               <Link
                 href="https://maps.app.goo.gl/u6KezpmEpqzyjUP6A"
                 target="_blank"
-                className=" absolute right-0 top-6 text-sm text-disabled underline z-10"
+                className=" absolute right-0 top-6 z-10 text-sm text-disabled underline"
               >
                 Google Maps
               </Link>
@@ -478,8 +471,8 @@ export default function CheckoutPage() {
         </div>
 
         {selectedDeliveryOption === "PICK_UP" && (
-          <div className="flex flex-col gap-4 mb-4">
-            <div className="flex flex-row justify-between items-center">
+          <div className="mb-4 flex flex-col gap-4">
+            <div className="flex flex-row items-center justify-between">
               <h3>ข้อมูลผู้รับสินค้า</h3>
             </div>
             <div className=" flex gap-4">
@@ -515,8 +508,8 @@ export default function CheckoutPage() {
         )}
 
         {selectedDeliveryOption === "DELIVERY" && (
-          <div className="flex flex-col gap-4 mb-4">
-            <div className="flex flex-row justify-between items-center">
+          <div className="mb-4 flex flex-col gap-4">
+            <div className="flex flex-row items-center justify-between">
               <h3>ข้อมูลผู้รับสินค้า</h3>
               {currentUserAddresses.length > 0 && (
                 <Button
@@ -568,7 +561,7 @@ export default function CheckoutPage() {
               isRequired
             />
 
-            <div className=" flex gap-4">
+            <div className="flex gap-4">
               <Input
                 value={zipCode}
                 onValueChange={(e: string) => {
@@ -610,7 +603,7 @@ export default function CheckoutPage() {
                   <AutocompleteItem
                     key={subDistrict.value}
                     value={subDistrict.label}
-                    className=" rounded-sm"
+                    className={` rounded-sm ${ibm.className}`}
                   >
                     {subDistrict.label}
                   </AutocompleteItem>
@@ -632,7 +625,7 @@ export default function CheckoutPage() {
                 {(district: { value: number; label: string }) => (
                   <AutocompleteItem
                     key={district.label}
-                    className=" rounded-sm"
+                    className={` rounded-sm ${ibm.className}`}
                   >
                     {district.label}
                   </AutocompleteItem>
@@ -733,7 +726,7 @@ export default function CheckoutPage() {
       <h3>วิธีการชำระเงิน</h3>
       <RadioGroup
         defaultValue="PROMPTPAY"
-        className="mt-1 mb-4"
+        className="mb-4 mt-1"
         classNames={{ wrapper: "md:flex-row" }}
         onValueChange={(selected) => {
           setSelectedPaymentMethod(selected as "PROMPTPAY" | "CARD");
@@ -744,7 +737,7 @@ export default function CheckoutPage() {
             <QRCodeIcon
               width={40}
               height={40}
-              className=" text-disabled group-data-[selected=true]:text-primaryT-main pb-0.5"
+              className=" pb-0.5 text-disabled group-data-[selected=true]:text-primaryT-main"
             />
             ชำระผ่าน QR Code
           </div>
@@ -754,7 +747,7 @@ export default function CheckoutPage() {
             <CreditCardIcon
               width={40}
               height={40}
-              className=" text-disabled group-data-[selected=true]:text-primaryT-main  pb-0.5"
+              className=" pb-0.5 text-disabled  group-data-[selected=true]:text-primaryT-main"
             />
             ชำระผ่านบัตร
           </div>
@@ -800,16 +793,21 @@ export default function CheckoutPage() {
 
   return (
     <div className="container px-6 py-20">
-      <div className="flex flex-col  h-full w-full justify-start items-center gap-6">
-        <div className="w-full md:container md:mx-auto md:px-36 ">
-          <h1 className="text-2xl md:text-3xl font-medium text-left mb-4">
+      <div className="flex h-full  w-full flex-col items-center justify-start gap-6">
+        <div className="container w-full md:mx-auto  ">
+          <h1 className="mb-4 text-left text-2xl font-medium md:text-3xl">
             ดำเนินการชำระเงิน
           </h1>
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid gap-4 lg:grid-cols-2">
+            <CheckoutSummaryTable
+              className="w-full lg:hidden"
+              checkoutDetail={checkoutDetail}
+            />
+
             <div>
               <Accordion
                 variant="splitted"
-                className="!px-0 max-w-xl"
+                className="!px-0"
                 selectedKeys={selectedKeys}
                 disabledKeys={ACCORDION_KEYS.filter(
                   (key) => key > selectedKeys[0],
@@ -829,7 +827,10 @@ export default function CheckoutPage() {
               </Accordion>
             </div>
 
-            <CheckoutSummaryTable checkoutDetail={checkoutDetail} />
+            <CheckoutSummaryTable
+              className="hidden lg:block"
+              checkoutDetail={checkoutDetail}
+            />
 
             <CustomAddressModal
               isOpen={isOpen}
@@ -895,7 +896,7 @@ const ConfirmButton = ({
       isLoading={isLoading}
       onClick={onClickButton}
       size="lg"
-      className=" text-lg rounded-xs"
+      className="rounded-xs text-medium md:text-lg"
       fullWidth
       type="submit"
     >
@@ -997,7 +998,7 @@ const CustomAddressModal = ({
       <ModalContent>
         {(onClose) => (
           <>
-            <ModalHeader className="flex flex-row gap-1 items-center justify-between">
+            <ModalHeader className="flex flex-row items-center justify-between gap-1">
               เลือกที่อยู่อื่น
               <Button
                 color="danger"

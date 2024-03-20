@@ -44,6 +44,7 @@ export default function SocialButtons({
       variant={type === "google" ? "bordered" : "flat"}
       className={SOCIAL_BUTTON_STYLES[type]}
       startContent={SOCIAL_ICONS[type]}
+      spinnerPlacement="end"
       onClick={onClick}
     >
       <span>{_.capitalize(type)}</span>

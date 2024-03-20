@@ -1,4 +1,4 @@
-import { IBakeryCategory } from "@/components/BakeryItems";
+import { IBakeryCategory } from "@/components/BakeryTabItems";
 
 export const baseUrl = process.env.NEXT_PUBLIC_URL as string;
 const interExpressUrl = process.env.NEXT_PUBLIC_INTER_EXPRESS_API as string;
@@ -36,7 +36,11 @@ const apiPaths = () => {
   const addCustomSnackBoxToCart = () =>
     createClientUrl(`carts/custom-snack-box`);
 
+  const addCustomCakeToCart = () => createClientUrl("carts/custom-cakes/");
+
   const addCakeToCart = () => createClientUrl(`carts/cakes`);
+
+  const addPresetCakeToCart = () => createClientUrl("carts/preset-cakes/");
 
   // Bakery
   const getBakeries = (category: IBakeryCategory, amount?: string) =>
@@ -120,14 +124,11 @@ const apiPaths = () => {
   // Variants
   const getVariantAdmin = () => createAdminUrl("variants");
   const createVariantAdmin = () => createAdminUrl("variants");
-  const updateVariantAdmin = (
-    type: "CREAM" | "TOP_EDGE" | "BOTTOM_EDGE" | "DECORATION" | "SURFACE",
-    string: string,
-  ) => createAdminUrl(`variants/${type}/${string}`);
+  const updateVariantAdmin = () => createAdminUrl("variants");
   const deleteVariantAdmin = (
     type: "CREAM" | "TOP_EDGE" | "BOTTOM_EDGE" | "DECORATION" | "SURFACE",
-    string: string,
-  ) => createAdminUrl(`variants/${type}/${string}`);
+    id: string,
+  ) => createAdminUrl(`variants/${type}/${id}`);
 
   // Orders
   const getOrdersOverview = () => createAdminUrl("orders/overview");
@@ -144,6 +145,8 @@ const apiPaths = () => {
     addRefreshmentToCart,
     addPresetSnackBoxToCart,
     addCustomSnackBoxToCart,
+    addCustomCakeToCart,
+    addPresetCakeToCart,
     addCakeToCart,
     getBakeries,
     getBakeryBySlug,

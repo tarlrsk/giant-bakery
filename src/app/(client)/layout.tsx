@@ -43,7 +43,7 @@ export default async function Layout({
   return (
     <ClientProviders>
       <div
-        className={`${ibm.className} flex flex-col h-screen justify-between`}
+        className={`${ibm.className} flex h-screen flex-col justify-between`}
       >
         <Navbar currentUser={currentUser} cart={cart} hasShadow={true} />
         <main>{children}</main>

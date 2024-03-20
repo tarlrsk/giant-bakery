@@ -36,7 +36,8 @@ interface IProductOption {
 
 export default function NewSnackBoxCard({ options, onClose }: Props) {
   const { enqueueSnackbar } = useSnackbar();
-  const { createSnackBoxTrigger, createSnackBoxIsLoading } = useAdmin();
+  const { createSnackBoxTrigger, createSnackBoxIsLoading } =
+    useAdmin().useSnackBoxAdmin();
   const [itemAmount, setItemAmount] = useState([0]);
   const [counter, setCounter] = useState(0);
   const methods = useForm({
@@ -105,7 +106,6 @@ export default function NewSnackBoxCard({ options, onClose }: Props) {
 
       for (const { value } of memoizedItems) {
         if (value !== null) {
-          console.log("value", value);
           bodyFormData.append("refreshmentIds", value);
         }
       }

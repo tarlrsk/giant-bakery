@@ -1,7 +1,11 @@
 "use client";
-import { Button, useDisclosure } from "@nextui-org/react";
 import React from "react";
+
+import { Button, useDisclosure } from "@nextui-org/react";
+
 import AuthModal from "./AuthModal";
+
+// ----------------------------------------------------------------------
 
 export default function CheckoutButtonModal() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -11,7 +15,7 @@ export default function CheckoutButtonModal() {
       <Button
         color="secondary"
         size="lg"
-        className=" font-medium text-xl rounded-none"
+        className=" mt-4 rounded-none text-lg font-medium md:text-xl"
         fullWidth
         onClick={onOpen}
       >

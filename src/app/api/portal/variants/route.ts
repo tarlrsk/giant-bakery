@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from "uuid";
 import { prisma } from "@/lib/prisma";
 import { bucket } from "@/lib/gcs/gcs";
 import { NextRequest } from "next/server";
+import { validate as isValidUUID } from "uuid";
 import { VariantType } from "@/enum/variantType";
 import { getFileUrl } from "@/lib/gcs/getFileUrl";
 import { parseBoolean } from "@/lib/parseBoolean";
@@ -14,6 +15,24 @@ import { variantValidationSchema } from "@/lib/validationSchema";
 type fileImage = {
   imageFileName: string;
   imagePath: string;
+};
+
+type color = {
+  id: string;
+  color: string | null;
+  image: string | null;
+};
+
+type colorVariant = {
+  id: string;
+  name: string;
+  colors: color[];
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date | null;
+  isDeleted: boolean;
+  deletedAt: Date | null;
+  type: VariantType;
 };
 
 async function uploadVariantFile(
@@ -52,6 +71,7 @@ export async function POST(req: NextRequest) {
     const type = formData.get("type") as VariantType;
     const isActive = parseBoolean(formData.get("isActive") as string);
     const image = formData.get("image") as File | null;
+    const color = formData.get("color") as string | null;
 
     const validation = variantValidationSchema.safeParse({
       name,
@@ -106,6 +126,10 @@ export async function POST(req: NextRequest) {
         }
         var imageFile = await uploadVariantFile(image, type, variantId);
 
+        if (!color) {
+          return responseWrapper(400, null, "Color is required")
+        }
+
         newVariant = (await prisma.masterCakeCream.create({
           data: {
             id: variantId,
@@ -113,6 +137,7 @@ export async function POST(req: NextRequest) {
             isActive: isActive,
             imageFileName: imageFile.imageFileName,
             imagePath: imageFile.imagePath,
+            color: color
           },
         })) as any;
 
@@ -125,6 +150,10 @@ export async function POST(req: NextRequest) {
         }
         var imageFile = await uploadVariantFile(image, type, variantId);
 
+        if (!color) {
+          return responseWrapper(400, null, "Color is required")
+        }
+
         newVariant = (await prisma.masterCakeTopEdge.create({
           data: {
             id: variantId,
@@ -132,6 +161,7 @@ export async function POST(req: NextRequest) {
             isActive: isActive,
             imageFileName: imageFile.imageFileName,
             imagePath: imageFile.imagePath,
+            color: color,
           },
         })) as any;
 
@@ -144,6 +174,10 @@ export async function POST(req: NextRequest) {
         }
         var imageFile = await uploadVariantFile(image, type, variantId);
 
+        if (!color) {
+          return responseWrapper(400, null, "Color is required")
+        }
+
         newVariant = (await prisma.masterCakeBottomEdge.create({
           data: {
             id: variantId,
@@ -151,6 +185,7 @@ export async function POST(req: NextRequest) {
             isActive: isActive,
             imageFileName: imageFile.imageFileName,
             imagePath: imageFile.imagePath,
+            color: color,
           },
         })) as any;
 
@@ -201,7 +236,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
     let variants: any[] = [];
 
@@ -209,47 +244,139 @@ export async function GET(req: NextRequest) {
       where: {
         isDeleted: false,
       },
-    })) as any;
-    for (var variant of creams) {
+    }));
+    const gbCreams: colorVariant[] = []
+    for (let variant of creams) {
       if (variant.imagePath) {
         variant.image = await getFileUrl(variant.imagePath);
       }
-      variant.type = VariantType.CREAM;
-      variants.push(variant);
+      const existing = gbCreams.find(c => c.name == variant.name)
+      if (!existing) {
+        let mapping: colorVariant = {
+          id: variant.id,
+          name: variant.name,
+          colors: [],
+          isActive: variant.isActive,
+          createdAt: variant.createdAt,
+          updatedAt: variant.updatedAt,
+          isDeleted: variant.isDeleted,
+          deletedAt: variant.deletedAt,
+          type: VariantType.CREAM
+        }
+        mapping.colors.push({
+          id: variant.id,
+          color: variant.color,
+          image: variant.image,
+        })
+        gbCreams.push(mapping)
+      } else {
+        existing.colors.push({
+          id: variant.id,
+          color: variant.color,
+          image: variant.image,
+        })
+        if ((variant.updatedAt ?? variant.createdAt) > (existing.updatedAt ?? existing.createdAt)) {
+          existing.updatedAt = variant.updatedAt
+          existing.isActive = variant.isActive
+        }
+      }
     }
+    variants.push(...gbCreams);
 
     const topEdge = (await prisma.masterCakeTopEdge.findMany({
       where: {
         isDeleted: false,
       },
-    })) as any;
-    for (var variant of topEdge) {
+    }));
+
+    const gbTopEdge: colorVariant[] = []
+    for (let variant of topEdge) {
       if (variant.imagePath) {
         variant.image = await getFileUrl(variant.imagePath);
       }
-      variant.type = VariantType.TOP_EDGE;
-      variants.push(variant);
+      const existing = gbTopEdge.find(c => c.name == variant.name)
+      if (!existing) {
+        let mapping: colorVariant = {
+          id: variant.id,
+          name: variant.name,
+          colors: [],
+          isActive: variant.isActive,
+          createdAt: variant.createdAt,
+          updatedAt: variant.updatedAt,
+          isDeleted: variant.isDeleted,
+          deletedAt: variant.deletedAt,
+          type: VariantType.TOP_EDGE
+        }
+        mapping.colors.push({
+          id: variant.id,
+          color: variant.color,
+          image: variant.image,
+        })
+        gbTopEdge.push(mapping)
+      } else {
+        existing.colors.push({
+          id: variant.id,
+          color: variant.color,
+          image: variant.image,
+        })
+        if ((variant.updatedAt ?? variant.createdAt) > (existing.updatedAt ?? existing.createdAt)) {
+          existing.updatedAt = variant.updatedAt
+          existing.isActive = variant.isActive
+        }
+      }
     }
+    variants.push(...gbTopEdge);
 
     const bottomEdge = (await prisma.masterCakeBottomEdge.findMany({
       where: {
         isDeleted: false,
       },
-    })) as any;
-    for (var variant of bottomEdge) {
+    }))
+
+    const gbBottomEdge: colorVariant[] = []
+    for (let variant of bottomEdge) {
       if (variant.imagePath) {
         variant.image = await getFileUrl(variant.imagePath);
       }
-      variant.type = VariantType.BOTTOM_EDGE;
-      variants.push(variant);
+      const existing = gbBottomEdge.find(c => c.name == variant.name)
+      if (!existing) {
+        let mapping: colorVariant = {
+          id: variant.id,
+          name: variant.name,
+          colors: [],
+          isActive: variant.isActive,
+          createdAt: variant.createdAt,
+          updatedAt: variant.updatedAt,
+          isDeleted: variant.isDeleted,
+          deletedAt: variant.deletedAt,
+          type: VariantType.BOTTOM_EDGE
+        }
+        mapping.colors.push({
+          id: variant.id,
+          color: variant.color,
+          image: variant.image,
+        })
+        gbBottomEdge.push(mapping)
+      } else {
+        existing.colors.push({
+          id: variant.id,
+          color: variant.color,
+          image: variant.image,
+        })
+        if ((variant.updatedAt ?? variant.createdAt) > (existing.updatedAt ?? existing.createdAt)) {
+          existing.updatedAt = variant.updatedAt
+          existing.isActive = variant.isActive
+        }
+      }
     }
+    variants.push(...gbBottomEdge);
 
     const decoration = (await prisma.masterCakeDecoration.findMany({
       where: {
         isDeleted: false,
       },
     })) as any;
-    for (var variant of decoration) {
+    for (let variant of decoration) {
       if (variant.imagePath) {
         variant.image = await getFileUrl(variant.imagePath);
       }
@@ -262,7 +389,7 @@ export async function GET(req: NextRequest) {
         isDeleted: false,
       },
     })) as any;
-    for (var variant of surface) {
+    for (let variant of surface) {
       if (variant.imagePath) {
         variant.image = await getFileUrl(variant.imagePath);
       }
@@ -271,6 +398,310 @@ export async function GET(req: NextRequest) {
     }
 
     return responseWrapper(200, variants, null);
+  } catch (err: any) {
+    return responseWrapper(500, null, err.message);
+  }
+}
+
+export async function PUT(req: NextRequest,) {
+  try {
+    const formData = await req.formData();
+    const id = formData.get("id") as string;
+    const name = formData.get("name") as string;
+    const type = formData.get("type") as string;
+    const isActive = parseBoolean(formData.get("isActive") as string);
+    const image = formData.get("image") as File | null;
+    const color = formData.get("color") as string | null;
+    if (!isValidUUID(id)) {
+      return responseWrapper(400, null, "Invalid uuid.");
+    }
+
+    let variant: any = null;
+
+    const validation = variantValidationSchema.safeParse({
+      name,
+      type,
+      isActive,
+    });
+
+    if (!validation.success) {
+      return responseWrapper(400, null, validation.error.message);
+    }
+
+    switch (type) {
+      case VariantType.SIZE:
+        variant = (await prisma.masterCakeSize.findFirst({
+          where: {
+            id: id,
+            isDeleted: false,
+          },
+        })) as any;
+
+        break;
+      case VariantType.BASE:
+        variant = (await prisma.masterCakeBase.findFirst({
+          where: {
+            id: id,
+            isDeleted: false,
+          },
+        })) as any;
+
+        break;
+      case VariantType.FILLING:
+        variant = (await prisma.masterCakeFilling.findFirst({
+          where: {
+            id: id,
+            isDeleted: false,
+          },
+        })) as any;
+
+        break;
+      case VariantType.CREAM:
+        variant = (await prisma.masterCakeCream.findFirst({
+          where: {
+            id: id,
+            isDeleted: false,
+          },
+        })) as any;
+        if (variant.imagePath) {
+          variant.image = await getFileUrl(variant.imagePath);
+        }
+        break;
+      case VariantType.TOP_EDGE:
+        variant = (await prisma.masterCakeTopEdge.findFirst({
+          where: {
+            id: id,
+            isDeleted: false,
+          },
+        })) as any;
+        if (variant.imagePath) {
+          variant.image = await getFileUrl(variant.imagePath);
+        }
+        break;
+      case VariantType.BOTTOM_EDGE:
+        variant = (await prisma.masterCakeBottomEdge.findFirst({
+          where: {
+            id: id,
+            isDeleted: false,
+          },
+        })) as any;
+        if (variant.imagePath) {
+          variant.image = await getFileUrl(variant.imagePath);
+        }
+        break;
+      case VariantType.DECORATION:
+        variant = (await prisma.masterCakeDecoration.findFirst({
+          where: {
+            id: id,
+            isDeleted: false,
+          },
+        })) as any;
+        if (variant.imagePath) {
+          variant.image = await getFileUrl(variant.imagePath);
+        }
+        break;
+      case VariantType.SURFACE:
+        variant = (await prisma.masterCakeSurface.findFirst({
+          where: {
+            id: id,
+            isDeleted: false,
+          },
+        })) as any;
+        if (variant.imagePath) {
+          variant.image = await getFileUrl(variant.imagePath);
+        }
+        break;
+    }
+
+    if (!variant) {
+      return responseWrapper(
+        404,
+        null,
+        `Variant with given id ${id} not found.`,
+      );
+    }
+
+    let imageFileName = variant.imageFileName as string;
+    let imagePath = variant.imagePath as string;
+
+    if (image) {
+      const oldImage = bucket.file(variant.imagePath as string);
+      await oldImage.delete();
+
+      const buffer = Buffer.from(await image.arrayBuffer());
+
+      const updatedImageFileName = `${formatFileDate(
+        new Date(Date.now()).toString(),
+      )}_${image.name.replace(/\s/g, "_")}`;
+
+      imagePath = `variants/${type}/${variant.id}/${updatedImageFileName}`;
+
+      const gcsFile = bucket.file(imagePath);
+
+      await gcsFile.save(buffer, {
+        metadata: {
+          contentType: image.type,
+        },
+      });
+
+      imageFileName = updatedImageFileName;
+    }
+
+    switch (type) {
+      case VariantType.SIZE:
+        variant = (await prisma.masterCakeSize.update({
+          where: {
+            id: id,
+            isDeleted: false,
+          },
+          data: {
+            name: name,
+            isActive: isActive,
+          },
+        })) as any;
+
+        break;
+      case VariantType.BASE:
+        variant = (await prisma.masterCakeBase.update({
+          where: {
+            id: id,
+            isDeleted: false,
+          },
+          data: {
+            name: name,
+            isActive: isActive,
+          },
+        })) as any;
+
+        break;
+      case VariantType.FILLING:
+        variant = (await prisma.masterCakeFilling.update({
+          where: {
+            id: id,
+            isDeleted: false,
+          },
+          data: {
+            name: name,
+            isActive: isActive,
+          },
+        })) as any;
+
+        break;
+      case VariantType.CREAM:
+        variant = (await prisma.masterCakeCream.update({
+          where: {
+            id: id,
+            isDeleted: false,
+          },
+          data: {
+            imageFileName: imageFileName,
+            imagePath: imagePath,
+            color: color,
+          },
+        })) as any;
+        if (variant.imagePath) {
+          variant.image = await getFileUrl(variant.imagePath);
+        }
+        await prisma.masterCakeCream.updateMany({
+          where: {
+            name: variant.name,
+            isDeleted: false,
+          },
+          data: {
+            name: name,
+            isActive: isActive,
+          }
+        })
+        break;
+      case VariantType.TOP_EDGE:
+        variant = (await prisma.masterCakeTopEdge.update({
+          where: {
+            id: id,
+            isDeleted: false,
+          },
+          data: {
+            imageFileName: imageFileName,
+            imagePath: imagePath,
+            color: color,
+          },
+        })) as any;
+        if (variant.imagePath) {
+          variant.image = await getFileUrl(variant.imagePath);
+        }
+        await prisma.masterCakeTopEdge.updateMany({
+          where: {
+            name: variant.name,
+            isDeleted: false,
+          },
+          data: {
+            name: name,
+            isActive: isActive,
+          }
+        })
+        break;
+      case VariantType.BOTTOM_EDGE:
+        variant = (await prisma.masterCakeBottomEdge.update({
+          where: {
+            id: id,
+            isDeleted: false,
+          },
+          data: {
+            imageFileName: imageFileName,
+            imagePath: imagePath,
+            color: color,
+          },
+        })) as any;
+        if (variant.imagePath) {
+          variant.image = await getFileUrl(variant.imagePath);
+        }
+        await prisma.masterCakeBottomEdge.updateMany({
+          where: {
+            name: variant.name,
+            isDeleted: false,
+          },
+          data: {
+            name: name,
+            isActive: isActive,
+          }
+        })
+        break;
+      case VariantType.DECORATION:
+        variant = (await prisma.masterCakeDecoration.update({
+          where: {
+            id: id,
+            isDeleted: false,
+          },
+          data: {
+            name: name,
+            isActive: isActive,
+            imageFileName: imageFileName,
+            imagePath: imagePath,
+          },
+        })) as any;
+        if (variant.imagePath) {
+          variant.image = await getFileUrl(variant.imagePath);
+        }
+        break;
+      case VariantType.SURFACE:
+        variant = (await prisma.masterCakeSurface.update({
+          where: {
+            id: id,
+            isDeleted: false,
+          },
+          data: {
+            name: name,
+            isActive: isActive,
+            imageFileName: imageFileName,
+            imagePath: imagePath,
+          },
+        })) as any;
+        if (variant.imagePath) {
+          variant.image = await getFileUrl(variant.imagePath);
+        }
+        break;
+    }
+
+    return responseWrapper(200, variant, null);
   } catch (err: any) {
     return responseWrapper(500, null, err.message);
   }

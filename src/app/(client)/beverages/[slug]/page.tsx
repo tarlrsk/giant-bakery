@@ -81,8 +81,7 @@ export default function BeverageDetail({ params }: BeverageDetailParams) {
     setIsLoading(true);
     try {
       await addItemToCart(addRefreshmentToCart(), item.id, counter);
-      toast.success("ใส่ตระก้าสำเร็จ");
-      router.push("/cart");
+      toast.success("ใส่ตะกร้าสำเร็จ");
     } catch (error) {
       console.error(error);
       toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
@@ -91,7 +90,7 @@ export default function BeverageDetail({ params }: BeverageDetailParams) {
   }
 
   return (
-    <div className="flex w-auto h-auto items-center justify-center p-[9.1rem]">
+    <div className="flex h-auto w-auto items-center justify-center p-36">
       <ProductDetail
         item={item}
         counter={counter}

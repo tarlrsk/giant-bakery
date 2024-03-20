@@ -1,20 +1,26 @@
 import React, { Suspense } from "react";
 import TitleSection from "@/components/TitleSection";
-import CakePaginationContainer from "@/components/CakePaginationContainer";
-import RefreshmentCakePaginationContainer from "@/components/RefreshmentCakePaginationContainer";
+import CustomCakeContainer from "@/components/CustomCakeContainer";
+import PoundCakeItemsContainer from "@/components/PoundCakeItemsContainer";
+import SingleCakeItemsContainer from "@/components/SingleCakeItemsContainer";
 
 // ----------------------------------------------------------------------
 
 export default function CakePage() {
   return (
     <section>
-      <TitleSection title={"เค้ก"} />
+      <TitleSection title="เค้ก" />
       <Suspense>
-        <div className="pb-20">
-          <RefreshmentCakePaginationContainer />
-        </div>
-        <div className="pb-20">
-          <CakePaginationContainer type="PRESET" />
+        <div className=" container">
+          <div className="mb-20 ">
+            <SingleCakeItemsContainer />
+          </div>
+          <div className="mb-20 ">
+            <PoundCakeItemsContainer />
+          </div>
+          <div className="mb-20 ">
+            <CustomCakeContainer />
+          </div>
         </div>
       </Suspense>
     </section>

@@ -5,6 +5,7 @@ import { getFileUrl } from "@/lib/gcs/getFileUrl";
 import { CartType, SnackBoxType } from "@prisma/client";
 import { responseWrapper } from "@/utils/api-response-wrapper";
 import { updateQtyCartValidateSchema } from "@/lib/validationSchema";
+import { CalGeneralDiscount, CalSnackBoxDiscount } from "@/lib/discount";
 
 const CartInclude = {
   items: {
@@ -38,7 +39,22 @@ const CartInclude = {
 
 async function deleteItem(cartItem: any, itemId: string) {
   switch (cartItem.type) {
-    case "CAKE":
+    case "CUSTOM_CAKE":
+      if (!cartItem.customerCakeId) {
+        return responseWrapper(
+          500,
+          null,
+          `Something went wrong with custom cake item.`,
+        );
+      }
+      await prisma.customerCake.delete({
+        where: {
+          id: cartItem.customerCakeId,
+        },
+      });
+      break;
+
+    case "PRESET_CAKE":
       if (!cartItem.customerCakeId) {
         return responseWrapper(
           500,
@@ -212,6 +228,10 @@ export async function APIgetCartItems(userId: string | null | undefined) {
       return responseWrapper(200, responseCart, null);
     }
 
+    // PREPARING DISCOUNT SNACK BOX
+    let snackBoxQty = 0
+    let snackBoxTotalPrice = 0
+
     responseCart.cartId = cart.id;
     responseCart.type = cart.type;
     responseCart.subTotal = 0;
@@ -224,7 +244,22 @@ export async function APIgetCartItems(userId: string | null | undefined) {
       };
       let responseItem: any;
       switch (item.type) {
-        case "CAKE":
+        case "PRESET_CAKE":
+          baseResponse.pricePer = item.customerCake?.price || 0;
+          responseItem = { ...baseResponse, ...item.customerCake };
+          responseItem.price = baseResponse.pricePer * item.quantity;
+          if (
+            responseItem.cake &&
+            responseItem.cake.imagePath &&
+            responseItem.cake.imagePath != ""
+          ) {
+            responseItem.image = await getFileUrl(responseItem.cake.imagePath);
+          }
+
+          delete responseItem.cake;
+
+          break;
+        case "CUSTOM_CAKE":
           baseResponse.pricePer = item.customerCake?.price || 0;
           responseItem = { ...baseResponse, ...item.customerCake };
           responseItem.price = baseResponse.pricePer * item.quantity;
@@ -297,6 +332,8 @@ export async function APIgetCartItems(userId: string | null | undefined) {
               }
             }
           }
+          snackBoxQty += item.quantity;
+          snackBoxTotalPrice += responseItem.price;
           break;
       }
       responseItem.itemId = item.id;
@@ -306,19 +343,29 @@ export async function APIgetCartItems(userId: string | null | undefined) {
       responseCart.items.push(responseItem);
       responseCart.subTotal += responseItem.price;
 
-      // TODO Discounts
-      responseCart.discounts = [
-        {
-          name: "ร้านกำลังอยู่ในช่วงพัฒนา ลดให้เลย 10 บาท",
-          discount: 10,
-        },
-        {
-          name: "พอดีเป็นคนใจดีน่ะ ลดให้เลย 10 บาท",
-          discount: 10,
-        },
-      ];
+      responseCart.discounts = [];
 
-      responseCart.totalDiscount = 20;
+      // CALCULATE DISCOUNT
+      let totalDiscount = 0
+      const generalDiscount = await CalGeneralDiscount(responseCart.subTotal)
+      if (generalDiscount) {
+        totalDiscount += generalDiscount.discount
+        responseCart.discounts.push({
+          name: generalDiscount.name,
+          discount: generalDiscount.discount,
+        })
+      }
+
+      const snackBoxDiscount = await CalSnackBoxDiscount(snackBoxQty, snackBoxTotalPrice)
+      if (snackBoxDiscount) {
+        totalDiscount += snackBoxDiscount.discount
+        responseCart.discounts.push({
+          name: snackBoxDiscount.name,
+          discount: snackBoxDiscount.discount,
+        })
+      }
+
+      responseCart.totalDiscount = totalDiscount;
       responseCart.total = responseCart.subTotal - responseCart.totalDiscount;
     }
 

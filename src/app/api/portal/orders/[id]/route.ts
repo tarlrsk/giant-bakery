@@ -46,6 +46,7 @@ type OrderDetail = {
 
 type Item = {
   name: string;
+  description: string,
   quantity: number;
   type: CartItemType;
   price: number;
@@ -106,12 +107,16 @@ export async function GET(_req: NextRequest, { params }: GetOrderById) {
     for (let cake of order.orderCake) {
       let item: Item = {
         name: cake.name,
+        description: "",
         quantity: cake.quantity,
         price: cake.price,
         pricePer: cake.pricePer,
         subItem: [],
-        type: CartItemType.CAKE,
+        type: "PRESET_CAKE"
       };
+      if(cake.cakeType == "CUSTOM"){
+        item.type = "CUSTOM_CAKE"
+      }
       if (cake.size) {
         item.subItem.push(cake.size);
       }
@@ -122,18 +127,18 @@ export async function GET(_req: NextRequest, { params }: GetOrderById) {
         item.subItem.push(cake.filling);
       }
       if (cake.cream) {
-        item.subItem.push(cake.cream);
+        item.subItem.push(cake.cream + `(${cake.creamColor})`);
       }
       if (cake.topEdge) {
-        item.subItem.push(cake.topEdge);
+        item.subItem.push(cake.topEdge + `(${cake.topEdgeColor})`);
       }
       if (cake.bottomEdge) {
-        item.subItem.push(cake.bottomEdge);
+        item.subItem.push(cake.bottomEdge + `(${cake.bottomEdgeColor})`);
       }
       if (cake.surface) {
         item.subItem.push(cake.surface);
       }
-      // TODO Color Cake
+      item.description = item.subItem.join(', ');
       items.push(item);
     }
 
@@ -145,6 +150,7 @@ export async function GET(_req: NextRequest, { params }: GetOrderById) {
         pricePer: refreshment.pricePer,
         subItem: [],
         type: CartItemType.REFRESHMENT,
+        description: ""
       };
 
       items.push(item);
@@ -153,6 +159,7 @@ export async function GET(_req: NextRequest, { params }: GetOrderById) {
     for (let snackBox of order.orderSnackBox) {
       let item: Item = {
         name: snackBox.name,
+        description: "",
         quantity: snackBox.quantity,
         price: snackBox.price,
         pricePer: snackBox.pricePer,
@@ -163,6 +170,7 @@ export async function GET(_req: NextRequest, { params }: GetOrderById) {
       for (let refreshment of snackBox.refreshments) {
         item.subItem.push(refreshment.name);
       }
+      item.description = item.subItem.join(', ');
     }
 
     data.items = items;

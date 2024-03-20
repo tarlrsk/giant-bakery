@@ -8,35 +8,15 @@ import { Refreshment } from "@prisma/client";
 
 import RefreshmentCard from "./RefreshmentCard";
 
+// ----------------------------------------------------------------------
+
 type Props = {
-  size?: "sm" | "md";
   cols: number;
-  onClick?: (selected: any) => void;
 };
 
-type IAddRefreshmentToCart = {
-  userId: string;
-  type: "CUSTOMER" | "GUEST";
-  refreshmentId: string;
-  quantity: number;
-};
+// ----------------------------------------------------------------------
 
-async function sendAddSnackBoxRequest(
-  url: string,
-  { arg }: { arg: IAddRefreshmentToCart },
-) {
-  await fetch(url, {
-    method: "POST",
-    body: JSON.stringify(arg),
-  }).then((res) => res.json());
-}
-
-export default function BeverageItems({
-  size = "md",
-  cols,
-  onClick,
-  ...other
-}: Props) {
+export default function BeverageItems({ cols, ...other }: Props) {
   const router = useRouter();
 
   const { getBeverages } = apiPaths();
@@ -49,21 +29,14 @@ export default function BeverageItems({
 
   return (
     <div
-      className={`grid grid-cols-${cols} gap-${
-        size === "sm" ? "4 pb-2" : "14"
-      } justify-center items-baseline hover:cursor-pointer`}
+      className={`mx-auto grid grid-cols-2 items-center justify-center gap-5 md:grid-cols-2 md:gap-10 lg:grid-cols-3 2xl:grid-cols-4`}
       {...other}
     >
       {Object.values(items)?.map((item: Refreshment) => (
         <RefreshmentCard
           key={item.id}
           item={item}
-          size={size}
-          onClick={
-            onClick
-              ? () => onClick(item)
-              : () => router.push(`/beverages/${item.name}?id=${item.id}`)
-          }
+          onClick={() => router.push(`/beverages/${item.name}?id=${item.id}`)}
         />
       ))}
     </div>

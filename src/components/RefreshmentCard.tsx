@@ -8,15 +8,15 @@ import { addItemToCart } from "@/actions/cartActions";
 import { Card, Button } from "@nextui-org/react";
 
 // ----------------------------------------------------------------------
+
 type Props = {
   item: Refreshment | Cake;
-  size?: "sm" | "md";
   onClick?: () => void;
 };
 
 // ----------------------------------------------------------------------
 
-export default function RefreshmentCard({ item, onClick, size = "md" }: Props) {
+export default function RefreshmentCard({ item, onClick }: Props) {
   const [isLoading, setIsLoading] = useState(false);
   const { addRefreshmentToCart } = apiPaths();
 
@@ -32,84 +32,38 @@ export default function RefreshmentCard({ item, onClick, size = "md" }: Props) {
     setIsLoading(false);
   }
 
-  let imgSize: { width: number; height: number } = { width: 800, height: 128 };
-  let padding = 12;
-  let fontSize = "lg";
-
-  if (size === "sm") {
-    imgSize.width = 180;
-    imgSize.height = 50;
-
-    padding = 2;
-    fontSize = "md";
-  }
-
   return (
     <Card
-      className={` bg-white pb-${
-        size === "sm" ? "4 w-15" : "6 w-unit-80"
-      } rounded-md shadow-md hover:cursor-pointer`}
+      className=" h-full w-44 items-center rounded-md bg-white pb-1 shadow-md hover:cursor-pointer md:w-unit-80 md:pb-2"
+      isPressable
+      onPress={onClick}
     >
-      <div onClick={onClick}>
+      <div className=" relative h-36 w-full md:h-64">
         <Image
-          src={(item?.image as string) ?? "/placeholder-image.jpeg"}
+          src={(item?.image as string) ?? "/placeholder.svg"}
           alt={item?.name}
-          width={imgSize.width}
-          height={imgSize.height}
-          className=" object-cover mb-4 rounded-sm"
-          // TODO: test if this works properly (Responsive approach)
-          sizes="100vw"
-          style={{
-            width: "100%",
-            height: "auto",
-          }}
+          fill
+          className=" object-cover"
         />
-        <article
-          className={`flex flex-col flex-wrap text-pretty p-6 gap-${
-            size === "sm" ? "1" : "2 items-center"
-          }`}
-        >
-          <p
-            className={`text-black truncate text-${fontSize} font-normal max-w-full`}
-          >
-            {item?.name}
-          </p>
+      </div>
+      <div className="text-pretty flex flex-col flex-wrap items-center gap-2 p-4 md:gap-3 md:p-6">
+        <p className="max-w-full truncate text-lg font-normal text-primaryT-darker md:text-xl">
+          {item?.name}
+        </p>
 
-          {size === "sm" ? (
-            <div className="flex flex-row w-full justify-between items-center ">
-              <p
-                className={`text-secondaryT-main text-${fontSize} font-semibold`}
-              >
-                ฿{item?.price?.toFixed(2) ?? 0}
-              </p>
-              <Button
-                size={size}
-                onClick={onClick}
-                className={`bg-secondaryT-main items-center text-white text-${size} rounded-sm px-${padding}`}
-              >
-                เพิ่ม
-              </Button>
-            </div>
-          ) : (
-            <>
-              <p
-                className={`text-secondaryT-main text-${fontSize} font-semibold`}
-              >
-                ฿{item?.price?.toFixed(2) ?? 0}
-              </p>
-              <Button
-                size={size}
-                isLoading={isLoading}
-                onClick={() => {
-                  handleAddToCart(item?.id);
-                }}
-                className={`bg-secondaryT-main items-center text-white text-${size} rounded-sm px-${padding}`}
-              >
-                ใส่ตะกร้า
-              </Button>
-            </>
-          )}
-        </article>
+        <p className="text-lg font-semibold text-secondaryT-main md:text-xl">
+          ฿{item?.price?.toFixed(2) ?? 0}
+        </p>
+        <Button
+          size="md"
+          isLoading={isLoading}
+          onClick={() => {
+            handleAddToCart(item?.id);
+          }}
+          className="text-md items-center rounded-sm bg-secondaryT-main px-12 text-white"
+        >
+          ใส่ตะกร้า
+        </Button>
       </div>
     </Card>
   );

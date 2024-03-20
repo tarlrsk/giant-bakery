@@ -5,6 +5,7 @@ import { LoadingButton } from "@mui/lab";
 import { useForm } from "react-hook-form";
 import { Upload } from "@/components/upload";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { AVAILABLE_COLORS } from "@/utils/constant";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { GridRowSelectionModel } from "@mui/x-data-grid";
 import { RHFUpload } from "@/components/hook-form/rhf-upload";
@@ -22,6 +23,7 @@ import {
   Button,
   MenuItem,
   Backdrop,
+  useTheme,
   Typography,
   CircularProgress,
 } from "@mui/material";
@@ -36,9 +38,12 @@ const VARIANT_TYPE = [
   { value: "SURFACE", label: "หน้าเค้ก" },
 ];
 
+const COLOR_CUSTOMIZABLE_VARIANT_TYPES = ["CREAM", "TOP_EDGE", "BOTTOM_EDGE"];
+
 // ----------------------------------------------------------------------
 
 export default function AdminVariant() {
+  const theme = useTheme();
   const { enqueueSnackbar } = useSnackbar();
   const [filteredRows, setFilteredRows] = useState([]);
   const [selectedRow, setSelectedRow] = useState<IVariant>();
@@ -58,7 +63,7 @@ export default function AdminVariant() {
     variantsMutate,
     deleteVariantTrigger,
     deleteVariantIsLoading,
-  } = useAdmin(
+  } = useAdmin().useVariantAdmin(
     filteredRows?.find((row: IVariant) => row.id === rowSelectionModel[0]),
   );
 
@@ -72,13 +77,14 @@ export default function AdminVariant() {
       name: "",
       image: null,
       isActive: true,
+      color: "WHITE",
     },
   });
 
   const editVariantMethods = useForm<IVariant>({
     resolver: zodResolver(createUpdateVariantSchema),
     defaultValues: useMemo(() => {
-      return selectedRow;
+      return { ...selectedRow, editedColorId: "" };
     }, [selectedRow]),
   });
 
@@ -90,6 +96,7 @@ export default function AdminVariant() {
     if (!editOpen) {
       setRowSelectionModel([]);
       setSelectedRow(undefined);
+      setValueEditVariant("editedColorId", "");
     }
   };
 
@@ -109,13 +116,19 @@ export default function AdminVariant() {
     handleSubmit: handleSubmitEdit,
   } = editVariantMethods;
 
-  const { isActive: isActiveNewVariant, image: newVariantImage } =
-    watchNewVariant();
+  const {
+    isActive: isActiveNewVariant,
+    image: newVariantImage,
+    type: newVariantType,
+  } = watchNewVariant();
 
   const {
     name: editVariantName,
     isActive: isActiveEditVariant,
     image: editVariantImage,
+    type: editVariantType,
+    color: editVariantColor,
+    editedColorId,
   } = watchEditVariant();
 
   const onDropSingleFileNewVariant = useCallback(
@@ -156,6 +169,7 @@ export default function AdminVariant() {
     try {
       await deleteVariantTrigger();
       variantsMutate();
+      setRowSelectionModel([]);
       setOpenEditDrawer(false);
       setIsOpenDelete(false);
       enqueueSnackbar(`ตัวเลือกเค้ก ${selectedRow?.name || ""} ถูกลบแล้ว`, {
@@ -169,7 +183,7 @@ export default function AdminVariant() {
 
   const onSubmitNew = handleSubmitNew(async (data) => {
     try {
-      const { image, name, isActive, type } = data;
+      const { image, name, isActive, type, color } = data;
       const bodyFormData = new FormData();
       bodyFormData.append("name", name);
       if (image) {
@@ -177,6 +191,7 @@ export default function AdminVariant() {
       }
       bodyFormData.append("isActive", isActive ? "true" : "false");
       bodyFormData.append("type", type);
+      bodyFormData.append("color", color);
 
       await createVariantTrigger(bodyFormData);
       variantsMutate();
@@ -191,7 +206,7 @@ export default function AdminVariant() {
 
   const onSubmitEdit = handleSubmitEdit(async (data) => {
     try {
-      const { image, name, isActive, type } = data;
+      const { image, name, isActive, type, color } = data;
       const bodyFormData = new FormData();
       bodyFormData.append("name", name);
       if (typeof image !== "string" && image) {
@@ -200,15 +215,115 @@ export default function AdminVariant() {
       bodyFormData.append("isActive", isActive ? "true" : "false");
       bodyFormData.append("type", type);
 
-      await updateVariantTrigger(bodyFormData);
+      // If edited variant has color
+      if (editedColorId) {
+        bodyFormData.append("id", editedColorId ?? "");
+      } else {
+        bodyFormData.append("id", selectedRow?.id ?? "");
+      }
+
+      if (hasColor(type) && !editedColorId) {
+        bodyFormData.append("color", color);
+
+        await createVariantTrigger(bodyFormData);
+      } else {
+        await updateVariantTrigger(bodyFormData);
+      }
+
       variantsMutate();
-      setOpenEditDrawer(false);
       enqueueSnackbar("อัพเดทตัวเลือกเค้กสำเร็จ", { variant: "success" });
     } catch (error) {
       console.error(error);
       enqueueSnackbar("เกิดข้อผิดพลาด กรุณาลองใหม่", { variant: "error" });
     }
   });
+
+  useEffect(() => {
+    let data = variants?.data || [];
+
+    if (search) {
+      data = data.filter(
+        (row: IVariant) =>
+          row.name.toLowerCase().indexOf(search?.toLowerCase()) > -1,
+      );
+    }
+
+    if (variantType !== "all") {
+      data = data.filter((row: IVariant) => row.type === variantType);
+    }
+
+    if (status !== "all") {
+      if (status === "active") {
+        data = data.filter((row: { isActive: any }) => row.isActive);
+      } else {
+        data = data.filter((row: { isActive: any }) => !row.isActive);
+      }
+    }
+    setFilteredRows(data);
+  }, [search, variantType, status, variants?.data]);
+
+  // On selected row, then open Edit Drawer
+  useEffect(() => {
+    if (rowSelectionModel.length) {
+      const selectedRowData: IVariant = variants?.data?.find(
+        (row: IVariant) => row.id === rowSelectionModel[0],
+      );
+
+      setSelectedRow(selectedRowData);
+
+      setOpenEditDrawer(true);
+    }
+  }, [
+    resetEditVariant,
+    rowSelectionModel,
+    selectedRow?.id,
+    setValueEditVariant,
+    variants?.data,
+  ]);
+
+  // Set default value for edit form
+  useEffect(() => {
+    // If selected row has colors, then set editedId to white as default
+    if (selectedRow && selectedRow?.colors?.length > 0) {
+      const whiteColorObject = selectedRow.colors?.find(
+        (el) => el.color === "WHITE",
+      );
+
+      resetEditVariant(selectedRow);
+      setValueEditVariant("type", selectedRow.type);
+      setValueEditVariant("image", whiteColorObject?.image || "");
+      setValueEditVariant("editedColorId", whiteColorObject?.id || "");
+      setValueEditVariant(
+        "color",
+        editVariantColor ? editVariantColor : "WHITE",
+      );
+    } else {
+      resetEditVariant(selectedRow);
+    }
+  }, [editVariantColor, resetEditVariant, selectedRow, setValueEditVariant]);
+
+  useEffect(() => {
+    setFilteredRows(variants?.data || []);
+  }, [variants]);
+
+  // On color option of existing row is changed, then update editId to the id of that color
+  useEffect(() => {
+    const itemAvailableColors = selectedRow?.colors || [];
+    const foundColor = itemAvailableColors.find(
+      (el) => el.color === editVariantColor,
+    );
+
+    if (!foundColor && hasColor(editVariantType || "")) {
+      setValueEditVariant("editedColorId", "");
+      setValueEditVariant("image", null);
+      return;
+    }
+
+    if (foundColor) {
+      setValueEditVariant("editedColorId", foundColor.id);
+      setValueEditVariant("image", foundColor.image);
+    }
+  }, [editVariantColor, editVariantType, selectedRow, setValueEditVariant]);
 
   const DrawerAddVariant = (
     <Box
@@ -261,6 +376,34 @@ export default function AdminVariant() {
             </RHFSelect>
             <RHFTextField name="name" label="ชื่อตัวเลือกเค้ก" required />
           </Stack>
+          {newVariantType && hasColor(newVariantType) && (
+            <RHFSelect
+              name="color"
+              defaultValue="WHITE"
+              label="สีของตัวเลือกเค้ก"
+              helperText="กรณีสร้างตัวเลือกใหม่ สีพื้นฐานจะต้องเป็นสีขาว"
+              disabled
+              required
+            >
+              {AVAILABLE_COLORS.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  <Stack direction="row" alignItems="center" spacing={1}>
+                    <Box
+                      sx={{
+                        minWidth: 20,
+                        minHeight: 20,
+                        bgcolor: `${option.code}`,
+                        borderRadius: "100%",
+                        border: "1px solid",
+                        borderColor: theme.palette.divider,
+                      }}
+                    />
+                    <Typography>{option.label}</Typography>
+                  </Stack>
+                </MenuItem>
+              ))}
+            </RHFSelect>
+          )}
           <LoadingButton
             size="large"
             variant="contained"
@@ -289,7 +432,7 @@ export default function AdminVariant() {
             onDrop={onDropSingleFileEditVariant}
             onDelete={() =>
               setValueEditVariant("image", null, {
-                shouldValidate: true,
+                shouldValidate: false,
               })
             }
           />
@@ -321,20 +464,40 @@ export default function AdminVariant() {
             </Button>
           </Stack>
           <Stack direction="row" alignItems="center" spacing={1}>
+            {editVariantType && hasColor(editVariantType) && (
+              <RHFSelect
+                name="color"
+                defaultValue="WHITE"
+                label="สีของตัวเลือกเค้ก"
+                required
+              >
+                {AVAILABLE_COLORS.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                      <Box
+                        sx={{
+                          minWidth: 20,
+                          minHeight: 20,
+                          bgcolor: `${option.code}`,
+                          borderRadius: "100%",
+                          border: "1px solid",
+                          borderColor: theme.palette.divider,
+                        }}
+                      />
+                      <Typography>{option.label}</Typography>
+                    </Stack>
+                  </MenuItem>
+                ))}
+              </RHFSelect>
+            )}
             <RHFTextField name="name" label="ชื่อตัวเลือกเค้ก" required />
-            {/* <RHFSelect name="type" label="ประเภทตัวเลือกเค้ก" required>
-              {VARIANT_TYPE.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
-                  {option.label}
-                </MenuItem>
-              ))}
-            </RHFSelect> */}
           </Stack>
+
           <LoadingButton
             size="large"
             variant="contained"
             type="submit"
-            loading={updateVariantIsLoading}
+            loading={updateVariantIsLoading || createVariantIsLoading}
           >
             อัพเดทตัวเลือกเค้ก
           </LoadingButton>
@@ -342,48 +505,6 @@ export default function AdminVariant() {
       </FormProvider>
     </Box>
   );
-
-  useEffect(() => {
-    let data = variants?.data || [];
-
-    if (search) {
-      data = data.filter(
-        (row: IVariant) =>
-          row.name.toLowerCase().indexOf(search?.toLowerCase()) > -1,
-      );
-    }
-
-    if (variantType !== "all") {
-      data = data.filter((row: IVariant) => row.type === variantType);
-    }
-
-    if (status !== "all") {
-      if (status === "active") {
-        data = data.filter((row: { isActive: any }) => row.isActive);
-      } else {
-        data = data.filter((row: { isActive: any }) => !row.isActive);
-      }
-    }
-    setFilteredRows(data);
-  }, [search, variantType, status, variants?.data]);
-
-  useEffect(() => {
-    if (rowSelectionModel.length && selectedRow?.id !== rowSelectionModel[0]) {
-      const selectedRowData = variants?.data?.find(
-        (row: IVariant) => row.id === rowSelectionModel[0],
-      );
-      setSelectedRow(selectedRowData);
-      setOpenEditDrawer(true);
-    }
-  }, [resetEditVariant, rowSelectionModel, selectedRow?.id, variants?.data]);
-
-  useEffect(() => {
-    resetEditVariant(selectedRow);
-  }, [resetEditVariant, selectedRow]);
-
-  useEffect(() => {
-    setFilteredRows(variants?.data || []);
-  }, [variants]);
 
   return (
     <Box>
@@ -437,3 +558,7 @@ export default function AdminVariant() {
 }
 
 // ----------------------------------------------------------------------
+
+function hasColor(variantType: string) {
+  return COLOR_CUSTOMIZABLE_VARIANT_TYPES.includes(variantType);
+}

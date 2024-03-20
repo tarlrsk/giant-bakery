@@ -3,10 +3,9 @@
 import useSWR from "swr";
 import apiPaths from "@/utils/api-path";
 import { fetcher } from "@/utils/axios";
-import { useRouter } from "next/navigation";
 import { Refreshment } from "@prisma/client";
 
-import RefreshmentCard from "./RefreshmentCard";
+import CustomItemCard from "./CustomItemCard";
 
 // ----------------------------------------------------------------------
 
@@ -19,23 +18,19 @@ export type IBakeryCategory =
   | "";
 
 type Props = {
-  size?: "sm" | "md";
   amount?: string;
   cols: number;
   category?: IBakeryCategory;
-  onClick?: (selected: any) => void;
+  onClick: (selected: any) => void;
 };
 
-export default function BakeryItems({
-  size = "md",
+export default function CustomBakeryItems({
   amount,
   cols,
   category,
   onClick,
   ...other
 }: Props) {
-  const router = useRouter();
-
   const { getBakeries } = apiPaths();
 
   const { data } = useSWR(
@@ -48,21 +43,14 @@ export default function BakeryItems({
 
   return (
     <div
-      className={`grid grid-cols-${cols} gap-${
-        size === "sm" ? "4 pb-2" : "10"
-      } justify-center items-baseline`}
+      className={`mx-auto grid grid-cols-2 items-center justify-center gap-5 md:grid-cols-3 md:gap-10 2xl:grid-cols-4`}
       {...other}
     >
       {Object.values(items)?.map((item: any) => (
-        <RefreshmentCard
+        <CustomItemCard
           key={item.id}
           item={item}
-          size={size}
-          onClick={
-            onClick
-              ? () => onClick(item)
-              : () => router.push(`/bakeries/${item.name}?id=${item.id}`)
-          }
+          onClick={() => onClick(item)}
         />
       ))}
     </div>

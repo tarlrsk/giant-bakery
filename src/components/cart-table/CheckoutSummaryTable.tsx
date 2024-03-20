@@ -1,12 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import apiPaths from "@/utils/api-path";
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { ICartItem } from "@/app/(client)/cart/types";
 
 import {
-  User,
   Table,
   TableRow,
   TableBody,
@@ -15,35 +13,18 @@ import {
   TableColumn,
 } from "@nextui-org/react";
 
-// ----------------------------------------------------------------------
+import {
+  isCustomSnackBox,
+  getCakeStaticVariantsString,
+  getCustomSnackBoxItemsString,
+} from "./CartItemTable";
 
-const MOCKUP_ITEMS: ICartItem[] = [
-  {
-    name: "เอแคลร์",
-    image:
-      "https://image.makewebeasy.net/makeweb/m_1920x0/Ub8wb5z91/Homemadebakery2022/14_%E0%B9%80%E0%B8%AD%E0%B9%81%E0%B8%84%E0%B8%A5%E0%B8%A3%E0%B9%8C%E0%B8%A7%E0%B8%B2%E0%B8%99%E0%B8%B4%E0%B8%A5%E0%B8%A5%E0%B8%B2%E0%B9%82%E0%B8%AE%E0%B8%A1%E0%B9%80%E0%B8%A1%E0%B8%94.jpg",
-    description: "ไส้นมฮอกไกโด",
-    quantity: 2,
-    pricePer: 49,
-    price: 98,
-    itemId: "test",
-    type: "test",
-    createdAt: "test",
-  },
-];
+// ----------------------------------------------------------------------
 
 type Props = {
   checkoutDetail:
     | {
-        items: {
-          name: string;
-          description: string;
-          image: string;
-          itemId: string;
-          price: number;
-          pricePer: number;
-          quantity: number;
-        }[];
+        items: ICartItem[];
         subTotal: number;
         discounts: { name: string; discount: number }[];
         totalDiscount: number;
@@ -51,39 +32,24 @@ type Props = {
         total: number;
       }
     | undefined;
+  className?: string;
 };
 
 // ----------------------------------------------------------------------
 
-export default function CheckoutSummaryTable({ checkoutDetail }: Props) {
-  const [currentUser, setCurrentUser] = useState<any>();
-  const { getCart, getCheckoutDetail } = apiPaths();
-
-  // const { data: cartData } = useSWR(
-  //   currentUser?.id ? getCart(currentUser.id) : null,
-  //   fetcher,
-  // );
-
-  // console.log("checkoutDetail:", checkoutDetail);
-
+export default function CheckoutSummaryTable({
+  checkoutDetail,
+  className,
+}: Props) {
   const items = checkoutDetail?.items || [];
   const total: number = checkoutDetail?.total || 0;
   const subTotal: number = checkoutDetail?.subTotal || 0;
   const totalDiscount: number = checkoutDetail?.totalDiscount || 0;
   const shippingFee: number = checkoutDetail?.shippingFee || 0;
 
-  // useEffect(() => {
-  //   async function getCurrentUserData() {
-  //     const currentUser = await getCurrentUser();
-  //     setCurrentUser(currentUser);
-  //   }
-  //   getCurrentUserData();
-  // }, []);
-
-  // console.log("cart", cartData);
   const classNames = useMemo(
     () => ({
-      wrapper: ["max-w-lg", "rounded-sm"],
+      wrapper: ["rounded-sm"],
       th: [
         "bg-transparent",
         "font-normal",
@@ -102,24 +68,30 @@ export default function CheckoutSummaryTable({ checkoutDetail }: Props) {
       switch (columnKey) {
         case "name":
           if (item.name === null) return;
-          if (!!item?.image) {
+          if (!!item?.image || item.type === "CUSTOM") {
             return (
-              <User
-                avatarProps={{
-                  radius: "md",
-                  className: "w-10 h-10 md:w-14 md:h-14 md:text-large",
-                  src: item.image,
-                }}
-                classNames={{
-                  name: "text-sm md:text-base",
-                  description: "text-xs md:text-sm",
-                }}
-                description={item.description}
-                name={`${item?.quantity ? `x${item.quantity}` : ""} ${
-                  item.name
-                }`}
-                className=" gap-4"
-              />
+              <div className=" flex flex-col gap-0">
+                <div className="text-sm md:text-base">
+                  {`${item?.quantity ? `x${item.quantity}` : "ss"} ${
+                    item.itemType === "CUSTOM_CAKE"
+                      ? "เค้กออกแบบเอง"
+                      : isCustomSnackBox(item)
+                        ? "ชุดเบรกจัดเอง"
+                        : item.name
+                  }`}
+                </div>
+                {item.itemType === "CUSTOM_CAKE" ||
+                  (item.itemType === "PRESET_CAKE" && (
+                    <div className="text-xs text-gray-400  md:text-sm">
+                      {getCakeStaticVariantsString(item)}
+                    </div>
+                  ))}
+                {isCustomSnackBox(item) && (
+                  <div className="text-xs text-gray-400  md:text-sm">
+                    {getCustomSnackBoxItemsString(item)}
+                  </div>
+                )}
+              </div>
             );
           } else {
             return (
@@ -161,7 +133,7 @@ export default function CheckoutSummaryTable({ checkoutDetail }: Props) {
   ];
 
   return (
-    <Table radius="none" classNames={classNames}>
+    <Table radius="none" classNames={classNames} className={className}>
       <TableHeader>
         <TableColumn key="name">สรุปคำสั่งซื้อ</TableColumn>
         <TableColumn key="price" align="end">

@@ -1,0 +1,96 @@
+name: Deployment Production
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+  PROJECT_ID: ${{ secrets.CLOUD_RUN_PROJECT_NAME }}
+  REGION: asia-southeast1
+  REPO_NAME: cukedoh
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  Google-Cloud-Run-Build-and-Deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: 'Production'
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: "auth"
+        uses: "google-github-actions/auth@v2"
+        with:
+          credentials_json: "${{ secrets.CLOUD_RUN_SERVICE_ACCOUNT }}"
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Authorize Docker push
+        run: gcloud auth configure-docker
+
+      - name: 'Create env file'
+        run: |
+          touch .env
+          echo FACEBOOK_CLIENT_ID="${{ secrets.FACEBOOK_CLIENT_ID }}" >> .env
+          echo FACEBOOK_CLIENT_SECRET="${{ secrets.FACEBOOK_CLIENT_SECRET }}" >> .env
+          echo GCS_CLIENT_EMAIL="${{ secrets.GCS_CLIENT_EMAIL }}" >> .env
+          echo GCS_PROJECT_ID="${{ secrets.CLOUD_RUN_PROJECT_NAME }}" >> .env
+          echo GOOGLE_CLIENT_ID="${{ secrets.GOOGLE_CLIENT_ID }}" >> .env
+          echo GOOGLE_CLIENT_SECRET="${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
+          echo NEXT_PUBLIC_GOOGLE_MAPS_API_KEY="${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}" >> .env
+          echo NEXT_PUBLIC_GOOGLE_MAPS_ID="${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_ID }}" >> .env
+
+          echo DATABASE_URL="${{ secrets.DATABASE_URL }}" >> .env
+          echo GCS_BUCKET="${{ secrets.GCS_BUCKET }}" >> .env
+          echo NEXTAUTH_SECRET="${{ secrets.NEXTAUTH_SECRET }}" >> .env
+          echo NEXTAUTH_URL="${{ secrets.NEXTAUTH_URL }}" >> .env
+          echo NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}" >> .env
+          echo NEXT_PUBLIC_URL="${{ secrets.NEXT_PUBLIC_URL }}" >> .env
+          echo STRIPE_SECRET_KEY="${{ secrets.STRIPE_SECRET_KEY }}" >> .env
+          echo STRIPE_WEBHOOK_SECRET="${{ secrets.STRIPE_WEBHOOK_SECRET }}" >> .env
+          cat .env
+      
+      - name: Create GCP Credentials
+        id: create-gcp-json
+        uses: jsdaniell/create-json@v1.2.3
+        with:
+          name: "gcp-service-account.json"
+          json: ${{ secrets.GCP_SERVICE_ACCOUNT_JSON }}
+
+      - name: Build and tag the docker image
+        run: |-
+          docker build . --tag gcr.io/$PROJECT_ID/$REPO_NAME:$GITHUB_SHA
+
+      - name: Push the image to the Google Container Registry (GCR)
+        run: |-
+          docker push gcr.io/$PROJECT_ID/$REPO_NAME:$GITHUB_SHA
+
+      - name: Deploy
+        run: |-
+          gcloud run deploy $REPO_NAME \
+          --allow-unauthenticated \
+          --region $REGION \
+          --image gcr.io/$PROJECT_ID/$REPO_NAME:$GITHUB_SHA \
+          --platform "managed" \
+          --quiet
+          
+  Vercel-Build-and-Deploy:
+    runs-on: ubuntu-latest
+    environment: Production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Vercel CLI
+        run: yarn global add vercel@latest
+
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build Project & Generate Prisma Client Artifacts
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy Project Artifacts
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}

@@ -77,7 +77,8 @@ export default function AdminOrder() {
     defaultValues: { search: "", status: "all" },
   });
 
-  const { ordersData: orders, ordersIsLoading: isLoading } = useAdmin();
+  const { ordersData: orders, ordersIsLoading: isLoading } =
+    useAdmin().useOrderAdmin();
 
   const ordersData = useMemo(() => {
     return (

@@ -21,6 +21,7 @@ export function prismaOrder() {
     updateOrderById,
     getAllOrder,
     getAllOrderByUserId,
+    getOrderByIdAndUserId,
   };
 }
 
@@ -47,6 +48,26 @@ async function getOrderById(orderId: string): Promise<PrismaOrder | null> {
   const order = await prisma.order.findUnique({
     where: {
       id: orderId,
+    },
+    include: {
+      orderCake: true,
+      orderRefreshment: true,
+      orderSnackBox: {
+        include: {
+          refreshments: true,
+        },
+      },
+      payment: true,
+    },
+  });
+  return order;
+}
+
+async function getOrderByIdAndUserId(orderId:string,userId:string): Promise<PrismaOrder | null> {
+  const order = await prisma.order.findUnique({
+    where: {
+      id: orderId,
+      userId: userId,
     },
     include: {
       orderCake: true,

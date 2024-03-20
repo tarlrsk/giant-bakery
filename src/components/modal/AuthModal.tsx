@@ -6,6 +6,7 @@ import React, { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { IBM_Plex_Sans_Thai } from "next/font/google";
 import { useForm, SubmitHandler } from "react-hook-form";
 import {
   signInValidationSchema,
@@ -25,6 +26,12 @@ import Iconify from "../icons/Iconify";
 import SocialButtons from "../SocialButtons";
 
 // ----------------------------------------------------------------------
+
+// Set font style here because the modal somehow doesn't receive the global font style
+const ibm = IBM_Plex_Sans_Thai({
+  weight: ["100", "200", "300", "400", "500", "600", "700"],
+  subsets: ["latin", "thai"],
+});
 
 const ERRORS_SET = { alreadyHasUser: "อีเมลนี้ถูกใช้งานแล้ว" };
 
@@ -72,13 +79,14 @@ export default function AuthModal({ isOpen, onOpenChange }: Props) {
       isOpen={isOpen}
       onOpenChange={onOpenChange}
       hideCloseButton
+      classNames={{ body: ibm.className }}
     >
       <ModalContent className=" p-8">
         {(onClose) => (
           <ModalBody>
             <div>เข้าสู่ระบบด้วยบัญชี</div>
             <div className="flex items-center gap-2">
-              <SocialButtons
+              {/* <SocialButtons
                 type="facebook"
                 isLoading={isLoadingFacebookAuth}
                 onClick={() =>
@@ -89,7 +97,7 @@ export default function AuthModal({ isOpen, onOpenChange }: Props) {
                     onError,
                   )
                 }
-              />
+              /> */}
               <SocialButtons
                 type="google"
                 isLoading={isLoadingGoogleAuth}
@@ -103,9 +111,9 @@ export default function AuthModal({ isOpen, onOpenChange }: Props) {
                 }
               />
             </div>
-            <div className="relative flex py-3 items-center">
+            <div className="relative flex items-center py-3">
               <div className="flex-grow border-t"></div>
-              <span className="flex-shrink mx-4 text-small">หรือ</span>
+              <span className="mx-4 flex-shrink text-small">หรือ</span>
               <div className="flex-grow border-t"></div>
             </div>
             {selected === "signUp" ? (
@@ -250,7 +258,7 @@ function SignUpForm({ setSelected, onSuccess }: AuthProps) {
           errorMessage={errors.phone?.message}
         />
 
-        <div className="flex gap-2 justify-end">
+        <div className="flex justify-end gap-2">
           <Button
             fullWidth
             isLoading={isLoading}
@@ -360,7 +368,7 @@ function SignInForm({ setSelected, onSuccess }: AuthProps) {
           </Link>
         </div>
 
-        <div className="flex gap-2 justify-end">
+        <div className="flex justify-end gap-2">
           <Button
             fullWidth
             isLoading={isLoading}

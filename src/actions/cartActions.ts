@@ -16,6 +16,19 @@ type IAddCustomSnackBoxToCart = {
   quantity: number;
 };
 
+type IAddCustomCakeToCart = {
+  sizeId: string;
+  baseId: string;
+  fillingId: string;
+  creamId: string;
+  topEdgeId: string;
+  bottomEdgeId: string;
+  decorationId: string;
+  surfaceId: string;
+  cakeMessage: string;
+  quantity: number;
+};
+
 type IAddCakeToCart = {
   cakeId: string;
   cakeType: "PRESET" | "CUSTOM";
@@ -50,6 +63,7 @@ export async function addPresetCakeToCartAction(
     });
 
     revalidateTag("cart");
+
     const data = await res.json();
 
     if (!data.response.success) throw new Error(data.response.error);
@@ -80,6 +94,36 @@ export async function addCustomSnackBoxToCartAction(
     const res = await fetch(url, {
       method: "POST",
       body: JSON.stringify(request),
+      cache: "no-store",
+    });
+
+    revalidateTag("cart");
+    const data = await res.json();
+    if (!data.response.success) throw new Error(data);
+
+    return data;
+  } catch (err: any) {
+    console.error(err);
+    throw new Error(err);
+  }
+}
+
+export async function addCustomCakeToCart(
+  url: string,
+  body: IAddCustomCakeToCart,
+) {
+  try {
+    const currentUser = await getCurrentUser();
+
+    const requestBody = {
+      userId: currentUser?.id || "GUEST",
+      type: currentUser?.role || "GUEST",
+      ...body,
+    };
+
+    const res = await fetch(url, {
+      method: "POST",
+      body: JSON.stringify(requestBody),
       cache: "no-store",
     });
 
@@ -132,7 +176,7 @@ export async function updateCartItem(
   itemId: string,
   type: "CUSTOMER" | "GUEST",
   quantity: number,
-  action: "increase" | "decrease" | "remove",
+  action: "increase" | "decrease" | "remove" | "replace",
 ) {
   try {
     const { updateCartItem } = apiPaths();
@@ -143,6 +187,8 @@ export async function updateCartItem(
       updatedQuantity = quantity + 1;
     } else if (action === "decrease") {
       updatedQuantity = quantity - 1;
+    } else if (action === "replace") {
+      updatedQuantity = quantity;
     } else {
       updatedQuantity = 0;
     }

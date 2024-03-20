@@ -15,6 +15,7 @@ export interface ICartCakeVariants {
 }
 
 export interface ICartSnackBox {
+  refreshment?: ICartSnackBox;
   id: string;
   name: string;
   description: string;
@@ -37,10 +38,23 @@ export interface ICartSnackBox {
   snackBoxId: string | null;
 }
 
+interface ICartCakeVariant {
+  id: string;
+  name: string;
+  image?: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string | null;
+  isDeleted: boolean;
+  deletedAt: string | null;
+  color?: string;
+}
+
 export interface ICartItem {
   name: string;
   type: string;
   itemId: string;
+  itemType: string;
   quantity: number;
   image: string;
   pricePer: number;
@@ -50,6 +64,14 @@ export interface ICartItem {
   description?: string;
   cakeId?: string;
   refreshmentId?: string;
-  variants?: ICartCakeVariants[];
   refreshments?: ICartSnackBox[];
+
+  size: ICartCakeVariant;
+  base: ICartCakeVariant;
+  filling: ICartCakeVariant;
+  cream: ICartCakeVariant;
+  topEdge: ICartCakeVariant;
+  decoration: ICartCakeVariant;
+  bottomEdge: ICartCakeVariant;
+  surface: ICartCakeVariant;
 }
