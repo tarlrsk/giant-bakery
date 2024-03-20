@@ -50,6 +50,7 @@ export async function addPresetCakeToCartAction(
       userId: currentUser?.id || "GUEST",
       type: currentUser?.role || "GUEST",
       cakeId: body.cakeId,
+      baseId: body.baseId,
       cakeType: body.cakeType,
       sizeId: body.sizeId,
       fillingId: body.fillingId,

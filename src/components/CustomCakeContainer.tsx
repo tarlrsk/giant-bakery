@@ -13,6 +13,7 @@ import { addCustomCakeToCart } from "@/actions/cartActions";
 import {
   Modal,
   Radio,
+  Input,
   Button,
   Divider,
   RadioGroup,
@@ -160,6 +161,7 @@ export function CustomCakeModal({
   const [bottomEdgeImage, setBottomEdgeImage] = useState("");
   const [decorationImage, setDecorationImage] = useState("");
   const [surfaceImage, setSurfaceImage] = useState("");
+  const [cakeMessage, setCakeMessage] = useState("");
 
   const [selectedPound, setSelectedPound] = useState("");
   const [selectedBase, setSelectedBase] = useState("");
@@ -180,6 +182,7 @@ export function CustomCakeModal({
     setBottomEdgeImage("");
     setDecorationImage("");
     setSurfaceImage("");
+    setCakeMessage("");
 
     setVariantColorData({
       creamColor: "#ffffff",
@@ -243,7 +246,7 @@ export function CustomCakeModal({
       bottomEdgeId: bottomEdgeId,
       decorationId: decoration,
       surfaceId: surface,
-      cakeMessage: "",
+      cakeMessage: cakeMessage,
       quantity: 1,
     };
 
@@ -707,6 +710,26 @@ export function CustomCakeModal({
     </VariantContainer>
   );
 
+  const renderCakeMessage = (
+    <div>
+      <div className=" mb-4">
+        <p>ข้อความบนเค้ก (ถ้ามี)</p>
+        <Divider className=" mt-2" />
+      </div>
+      <Input
+        name="cakeMessage"
+        value={cakeMessage}
+        onValueChange={setCakeMessage}
+        size="sm"
+        variant="flat"
+        label="ข้อความ"
+        classNames={{
+          mainWrapper: "w-full",
+        }}
+      />
+    </div>
+  );
+
   return (
     <Modal
       isOpen={isOpen}
@@ -819,6 +842,8 @@ export function CustomCakeModal({
                   {variants?.bottomEdges?.length > 0 && renderBottomEdge}
 
                   {variants?.surfaces?.length > 0 && renderSurface}
+
+                  {renderCakeMessage}
                 </div>
               </div>
 
