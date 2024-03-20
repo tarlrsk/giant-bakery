@@ -31,7 +31,7 @@ jobs:
       - name: Migrate Deploy
         run: |
           npm install -g yarn
-          yarn
+          yarn add prisma -D
           yarn prisma migrate deploy
 
   Google-Cloud-Run-Build-and-Deploy:
