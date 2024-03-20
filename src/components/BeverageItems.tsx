@@ -21,11 +21,19 @@ export default function BeverageItems({ cols, ...other }: Props) {
 
   const { getBeverages } = apiPaths();
 
-  const { data } = useSWR(getBeverages(), fetcher, {
+  const { data, isLoading } = useSWR(getBeverages(), fetcher, {
     revalidateOnFocus: false,
   });
 
   const items: Refreshment[] = data?.response?.data || [];
+
+  if (items?.length === 0 && !isLoading) {
+    return (
+      <div className=" mx-auto my-16 w-fit rounded-sm bg-primaryT-lighter px-10 py-4 text-center text-xl">
+        ยังไม่มีสินค้าขณะนี้
+      </div>
+    );
+  }
 
   return (
     <div

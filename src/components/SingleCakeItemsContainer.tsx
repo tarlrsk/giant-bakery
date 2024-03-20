@@ -25,7 +25,7 @@ export default function SingleCakeItemsContainer({
 }: SingleCakeItemsContainerProps) {
   const router = useRouter();
   return (
-    <div className="relative pb-8">
+    <div className="relative min-h-[300px] pb-8">
       <div className="flex flex-row items-center justify-between pb-10">
         <div className="text-2xl font-normal md:text-4xl">
           เค้กสำเร็จรูป (ชิ้น)
@@ -54,7 +54,7 @@ function RefreshmentCakeItems({
 
   const { getBakeries } = apiPaths();
 
-  const { data } = useSWR(
+  const { data, isLoading } = useSWR(
     `${getBakeries("CAKE", isSingleCakePage ? "" : "4")}`,
     fetcher,
   );
@@ -71,6 +71,14 @@ function RefreshmentCakeItems({
   // const startIndex = (currentPage - 1) * itemsPerPage;
   // const endIndex = startIndex + itemsPerPage;
   // const displayItems = items.slice(startIndex, endIndex);
+
+  if (items?.length === 0 && !isLoading) {
+    return (
+      <div className=" mx-auto my-16 w-fit rounded-sm bg-primaryT-lighter px-10 py-4 text-center text-xl">
+        ยังไม่มีสินค้าขณะนี้
+      </div>
+    );
+  }
 
   return (
     <>

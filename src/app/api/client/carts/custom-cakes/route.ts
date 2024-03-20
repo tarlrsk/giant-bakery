@@ -42,6 +42,7 @@ export async function POST(req: NextRequest) {
       bottomEdgeId,
       decorationId,
       surfaceId,
+      cakeMessage,
     } = body;
 
     const CartInclude = {
@@ -170,6 +171,7 @@ export async function POST(req: NextRequest) {
                   price: price,
                   isActive: true,
                   type: CakeType.CUSTOM,
+                  cakeMessage: cakeMessage,
                   size: {
                     connect: sizeId ? { id: sizeId } : undefined,
                   },

@@ -282,8 +282,8 @@ export default function CustomSnackBox() {
                 ? "/snack-box-s.png"
                 : "/snack-box-m.png"
           }
-          width={250}
-          height={250}
+          width={230}
+          height={230}
           className=" mx-auto"
           alt="paper bag image"
         />

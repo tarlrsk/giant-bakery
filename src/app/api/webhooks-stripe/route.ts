@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
             const dbRefreshments = await prismaRefreshment().getAllRefreshments()
             for (let refreshment of order.orderRefreshment) {
               if (refreshment.id) {
-                const dbRefreshment = dbRefreshments.find(r => r.id === refreshment.id)
+                const dbRefreshment = dbRefreshments.find(r => r.id == refreshment.refreshmentId)
                 if (!dbRefreshment) {
                   return responseWrapper(500, null, "Something went wrong with order refreshment.")
                 }
@@ -53,9 +53,9 @@ export async function POST(req: NextRequest) {
             for (let snackBox of order.orderSnackBox) {
               for (let refreshment of snackBox.refreshments) {
                 if (refreshment.id) {
-                  const dbRefreshment = dbRefreshments.find(r => r.id === refreshment.id)
+                  const dbRefreshment = dbRefreshments.find(r => r.id == refreshment.refreshmentId)
                   if (!dbRefreshment) {
-                    return responseWrapper(500, null, "Something went wrong with order refreshment.")
+                    return responseWrapper(500, null, "Something went wrong with order snack-box.")
                   }
                   dbRefreshment.currQty -= 1
                   await prismaRefreshment().updateRefreshment(
