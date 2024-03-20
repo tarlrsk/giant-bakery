@@ -261,6 +261,18 @@ export default function CheckoutPage() {
     }
   }, [checkoutData]);
 
+  useEffect(() => {
+    if (selectedDeliveryOption === "PICK_UP") {
+      setCheckoutDetail(
+        (prev) =>
+          prev && {
+            ...prev,
+            shippingFee: 0,
+          },
+      );
+    }
+  }, [selectedAddressId, selectedDeliveryOption]);
+
   const {
     trigger: triggerCreateCustomerAddress,
     isMutating: isMutatingCreateCustomerAddress,
@@ -307,7 +319,10 @@ export default function CheckoutPage() {
 
   async function handleCheckout() {
     const body: ICheckout = {
-      addressId: selectedAddressId === "" ? null : selectedAddressId,
+      addressId:
+        selectedAddressId === "" || selectedDeliveryOption === "PICK_UP"
+          ? null
+          : selectedAddressId,
       userId: currentUser?.id,
       paymentMethod: selectedPaymentMethod,
       paymentType: selectedPaymentType[0],
