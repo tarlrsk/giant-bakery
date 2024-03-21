@@ -181,8 +181,6 @@ export default function OrderDetail({ params }: { params: { id: string } }) {
     );
   }, [data]);
 
-  console.log("item", item);
-
   const { trigger: triggerCheckoutOrder, isMutating: isMutatingCheckoutOrder } =
     useSWRMutation(checkoutOrder(), sendCheckoutRequest);
 
@@ -376,7 +374,6 @@ function ProductRow({
   quantity,
   isDiscount = false,
 }: RowProps) {
-  console.log("product", product);
   return (
     <Stack direction="row" justifyContent="space-between">
       <Stack direction="column">
