@@ -5,9 +5,8 @@ import toast from "react-hot-toast";
 import React, { useState } from "react";
 import apiPaths from "@/utils/api-path";
 import { fetcher } from "@/utils/axios";
-import useSWRMutation from "swr/mutation";
 import { Refreshment } from "@prisma/client";
-import getCurrentUser from "@/actions/userActions";
+import { addItemToCart } from "@/actions/cartActions";
 import ProductDetail from "@/components/ProductDetail";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -41,6 +40,7 @@ export default function BakeryDetail({ params }: BakeryDetailParams) {
 
   const id = searchParams.get("id") as string;
   const { slug } = params;
+  const [isLoading, setIsLoading] = useState(false);
 
   const decodedSlug = decodeURIComponent(slug) as string;
 
@@ -50,8 +50,8 @@ export default function BakeryDetail({ params }: BakeryDetailParams) {
 
   const item: Refreshment = data?.response?.data || {};
 
-  const { trigger: triggerAddToCart, isMutating: isMutatingAddToCart } =
-    useSWRMutation(addRefreshmentToCart(), sendAddRefreshmentRequest);
+  // const { trigger: triggerAddToCart, isMutating: isMutatingAddToCart } =
+  //   useSWRMutation(addRefreshmentToCart(), sendAddRefreshmentRequest);
 
   const [counter, setCounter] = useState(1);
 
@@ -72,22 +72,16 @@ export default function BakeryDetail({ params }: BakeryDetailParams) {
   };
 
   async function handleAddToCart() {
-    const currentUser = await getCurrentUser();
-
-    const body: IAddRefreshmentToCart = {
-      userId: currentUser?.id || "",
-      type: (currentUser?.role as "GUEST" | "CUSTOMER") || "GUEST",
-      refreshmentId: item.id,
-      quantity: counter,
-    };
+    setIsLoading(true);
 
     try {
-      await triggerAddToCart(body);
+      await addItemToCart(addRefreshmentToCart(), item.id, counter);
       toast.success("ใส่ตะกร้าสำเร็จ");
     } catch (error) {
       console.error(error);
       toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
     }
+    setIsLoading(false);
   }
 
   return (
@@ -95,7 +89,7 @@ export default function BakeryDetail({ params }: BakeryDetailParams) {
       <ProductDetail
         item={item}
         counter={counter}
-        isLoading={isMutatingAddToCart}
+        isLoading={isLoading}
         onClick={() => {
           handleAddToCart();
         }}

@@ -76,7 +76,7 @@ function PoundCakeItems({
   // const pageSize = Math.ceil(cakeCount / itemsPerPage);
   // const startIndex = (currentPage - 1) * itemsPerPage;
   // const endIndex = startIndex + itemsPerPage;
-  const displayItems = isPoundCakePage ? items.slice(0, 5) : items;
+  const displayItems = isPoundCakePage ? items : items.slice(0, 4);
 
   const handleCardClick = (id: string, itemName: string) => {
     if (isPoundCakePage) {
