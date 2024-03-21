@@ -17,7 +17,8 @@ const STATUS_OPTIONS = [
   { value: "all", label: "ทั้งหมด" },
   { value: "COMPLETED", label: "เสร็จสิ้น" },
   { value: "CANCELLED", label: "ยกเลิก" },
-  { value: "PENDING_PAYMENT2", label: "รอชำระเงิน" },
+  { value: "PENDING_PAYMENT1", label: "รอชำระเงิน" },
+  { value: "PENDING_PAYMENT2", label: "รอชำระมัดจำ" },
   { value: "PENDING_ORDER", label: "รอยืนยันออเดอร์" },
   { value: "ON_PROCESS", label: "กำลังเตรียมออเดอร์" },
 ];

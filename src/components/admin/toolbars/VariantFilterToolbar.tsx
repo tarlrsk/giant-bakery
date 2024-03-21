@@ -29,6 +29,7 @@ const STATUS_OPTIONS = [
 
 const VARIANT_TYPES = [
   { value: "all", label: "ทั้งหมด" },
+  { value: "CREAM", label: "ครีม" },
   { value: "TOP_EDGE", label: "ขอบบน" },
   { value: "BOTTOM_EDGE", label: "ขอบล่าง" },
   { value: "DECORATION", label: "ลายรอบเค้ก" },
