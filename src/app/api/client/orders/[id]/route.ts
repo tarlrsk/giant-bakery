@@ -48,7 +48,7 @@ type OrderDetail = {
 
 type Item = {
   name: string;
-  description: string;
+  description: string | null;
   quantity: number;
   type: CartItemType;
   price: number;
