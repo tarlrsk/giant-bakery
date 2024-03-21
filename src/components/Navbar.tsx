@@ -120,15 +120,12 @@ export default function Navbar({
             height={64}
             alt="logo"
             onClick={() => router.push("/")}
-            className=" ml-2 w-24 cursor-pointer md:ml-0 md:w-52"
+            className=" ml-2 hidden w-24 cursor-pointer md:ml-0 md:inline-flex md:w-52"
           />
         </NavbarBrand>
-      </NavbarContent>
-
-      <NavbarContent justify="end" className="md:hidden">
         {currentUser?.role !== "GUEST" ? (
           <Dropdown className={`min-w-40 rounded-md ${ibm.className}`}>
-            <DropdownTrigger>
+            <DropdownTrigger className="md:hidden">
               <Button
                 variant="light"
                 className="aria-expanded:!opacity-85 bg-transparent px-0 text-base hover:!bg-transparent"
@@ -170,12 +167,34 @@ export default function Navbar({
           </Dropdown>
         ) : (
           <p
-            className=" cursor-pointer text-base text-primaryT-darker"
+            className="cursor-pointer text-base text-primaryT-darker md:hidden"
             onClick={onOpen}
           >
             เข้าสู่ระบบ/สมัคร
           </p>
         )}
+      </NavbarContent>
+
+      <NavbarContent justify="end" className="md:hidden">
+        <Badge
+          content={cartItemsAmount}
+          isInvisible={cartItemsAmount === 0}
+          color="primary"
+          showOutline={false}
+          placement="bottom-right"
+          className=" mb-1.5 mr-1.5"
+        >
+          <Button
+            onClick={() => {
+              router.push("/cart");
+            }}
+            isIconOnly
+            size="lg"
+            className="rounded-full bg-transparent"
+          >
+            <BasketIcon width={40} height={40} />
+          </Button>
+        </Badge>{" "}
       </NavbarContent>
 
       <NavbarContent
