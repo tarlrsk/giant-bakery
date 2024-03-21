@@ -552,7 +552,7 @@ export async function POST(req: NextRequest) {
 
     // DETERMINE PAYMENT TYPE LETTER.
     const paymentTypeLetter =
-      paymentType.paymentType === PaymentType.SINGLE ? "F" : "D";
+      order?.paymentType === PaymentType.SINGLE ? "F" : "D";
 
     // EXTRACT ORDERED DATE.
     const today = new Date();
