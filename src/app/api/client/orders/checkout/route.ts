@@ -256,7 +256,7 @@ export async function POST(req: NextRequest) {
             id: "",
             name: cartItem.customerCake.cake.name,
             quantity: cartItem.quantity,
-            description: cartItem.customerCake.cake.description,
+            description: concatCustomCakeDescription(cartItem.customerCake),
             remark: cartItem.customerCake.cake.remark!,
             imageFileName: cartItem.customerCake.cake.imageFileName!,
             imagePath: cartItem.customerCake.cake.imagePath,
