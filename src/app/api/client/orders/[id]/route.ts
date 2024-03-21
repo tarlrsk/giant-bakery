@@ -48,7 +48,7 @@ type OrderDetail = {
 
 type Item = {
   name: string;
-  description: string;
+  description: string | null;
   quantity: number;
   type: CartItemType;
   price: number;
@@ -150,7 +150,7 @@ export async function GET(req: NextRequest, { params }: GetOrderById) {
       if (cake.surface) {
         item.subItem.push(cake.surface);
       }
-      item.description = item.subItem.join(", ");
+      item.description = cake.description;
       items.push(item);
     }
 
