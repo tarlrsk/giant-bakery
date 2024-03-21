@@ -116,6 +116,7 @@ export default function PresetCakeModal({ slug, isOpen, onOpenChange }: Props) {
   }, [isOpen, variants?.sizes]);
   return (
     <Modal
+      size="4xl"
       hideCloseButton
       isOpen={isOpen}
       onOpenChange={onOpenChange}
