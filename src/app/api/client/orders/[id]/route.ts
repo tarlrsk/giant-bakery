@@ -150,7 +150,7 @@ export async function GET(req: NextRequest, { params }: GetOrderById) {
       if (cake.surface) {
         item.subItem.push(cake.surface);
       }
-      item.description = item.description;
+      item.description = cake.description;
       items.push(item);
     }
 
