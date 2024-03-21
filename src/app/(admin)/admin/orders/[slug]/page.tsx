@@ -269,9 +269,9 @@ export default function OrderDetail({ params }: { params: { slug: string } }) {
             break;
           case "ON_PROCESS":
             if (orderDetail.receivedVia === "DELIVERY") {
-              text = "ยืนยันการจัดส่งออเดอร์เสร็จสิ้น";
+              text = "ยืนยันการเตรียมออเดอร์เสร็จสิ้น";
             } else {
-              text = "ยืนยันการส่งมอบออเดอร์เสร็จสิ้น";
+              text = "ยืนยันการเตรียมออเดอร์เสร็จสิ้น";
             }
             break;
 
@@ -304,7 +304,7 @@ export default function OrderDetail({ params }: { params: { slug: string } }) {
           case "ON_PACKING_PROCESS":
             if (orderDetail.receivedVia === "DELIVERY") {
               setIsTrackingRequired(true);
-              text = "ยืนยันการเตรียมจัดส่ง";
+              text = "ยืนยันการเตรียมจัดส่งเสร็จสิ้น";
             }
             break;
           case "AWAITING_PICKUP":
