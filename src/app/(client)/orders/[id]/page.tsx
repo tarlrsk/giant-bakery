@@ -342,6 +342,7 @@ function OrderDetailCard({ item }: OrderProps) {
           {item?.items?.map((product: any, index: any) => (
             <ProductRow
               key={index}
+              product={product}
               name={product.name}
               price={product.price}
               quantity={product.quantity}
