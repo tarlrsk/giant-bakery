@@ -17,6 +17,7 @@ export type IOrderRow = {
   paymentType: string;
   orderDate: string;
   orderStatus: string;
+  isCancelled: boolean;
 };
 
 type OrderResponse = {
@@ -51,24 +52,24 @@ type OrderResponse = {
   isCancelled: boolean;
 };
 
-const rows = [
-  {
-    id: 1,
-    customer: "Thanatuch Lertritsirikul",
-    phone: "1234567890",
-    paymentType: "จ่ายมัดจำ",
-    orderDate: "30/08/2023",
-    orderStatus: "complete",
-  },
-  {
-    id: 2,
-    customer: "Thanatuch Lertritsirikul",
-    phone: "1234567890",
-    paymentType: "จ่ายเต็มจำนวน",
-    orderDate: "30/08/2023",
-    orderStatus: "pendingOrder",
-  },
-];
+// const rows = [
+//   {
+//     id: 1,
+//     customer: "Thanatuch Lertritsirikul",
+//     phone: "1234567890",
+//     paymentType: "จ่ายมัดจำ",
+//     orderDate: "30/08/2023",
+//     orderStatus: "complete",
+//   },
+//   {
+//     id: 2,
+//     customer: "Thanatuch Lertritsirikul",
+//     phone: "1234567890",
+//     paymentType: "จ่ายเต็มจำนวน",
+//     orderDate: "30/08/2023",
+//     orderStatus: "pendingOrder",
+//   },
+// ];
 
 // ----------------------------------------------------------------------
 
@@ -115,7 +116,14 @@ export default function AdminOrder() {
     }
 
     if (status !== "all") {
-      data = data.filter((row: IOrderRow) => row.orderStatus === status);
+      if (status === "CANCELLED") {
+        data = data.filter((row: IOrderRow) => row.isCancelled);
+      } else {
+        const onGoingOrders = data.filter((row: IOrderRow) => !row.isCancelled);
+        data = onGoingOrders.filter(
+          (row: IOrderRow) => row.orderStatus === status,
+        );
+      }
     }
     setFilteredRows(data);
   }, [ordersData, search, status]);
