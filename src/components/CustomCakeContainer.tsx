@@ -272,6 +272,7 @@ export function CustomCakeModal({
       decoration: "",
       surface: "",
     });
+    clearOptions();
     setSelectedPound(variants?.sizes[0]?.id || "");
     setSelectedBase(variants?.bases[0]?.id || "");
     setSelectedFilling(variants?.fillings[0]?.id || "");
@@ -357,7 +358,9 @@ export function CustomCakeModal({
       (cream) => cream.id === variantData.cream,
     );
     const currentCreamColors =
-      currentCream?.colors?.map((eachColor) => eachColor.color) || [];
+      currentCream?.colors
+        ?.filter((el) => el?.image)
+        ?.map((eachColor) => eachColor.color) || [];
     const availableCreamColors = AVAILABLE_COLORS.filter((el) =>
       currentCreamColors.includes(el.value),
     );
@@ -371,7 +374,9 @@ export function CustomCakeModal({
       (topEdge) => topEdge.id === variantData.topEdge,
     );
     const currentTopEdgeColors =
-      currentTopEdge?.colors?.map((eachColor) => eachColor.color) || [];
+      currentTopEdge?.colors
+        ?.filter((el) => el?.image)
+        ?.map((eachColor) => eachColor.color) || [];
     const availableTopEdgeColors = AVAILABLE_COLORS.filter((el) =>
       currentTopEdgeColors.includes(el.value),
     );
@@ -385,7 +390,9 @@ export function CustomCakeModal({
       (bottomEdge) => bottomEdge.id === variantData.bottomEdge,
     );
     const currentBottomEdgeColors =
-      currentBottomEdge?.colors?.map((eachColor) => eachColor.color) || [];
+      currentBottomEdge?.colors
+        ?.filter((el) => el?.image)
+        ?.map((eachColor) => eachColor.color) || [];
     const availableBottomEdgeColors = AVAILABLE_COLORS.filter((el) =>
       currentBottomEdgeColors.includes(el.value),
     );
